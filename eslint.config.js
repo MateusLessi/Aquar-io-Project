@@ -7,7 +7,8 @@ const prettierConfig = require('eslint-config-prettier/flat');
 
 // Module boundaries (see docs/architecture.md):
 // - a feature never imports another feature; features talk through core events;
-// - core, design-system and shared never import features.
+// - core, design-system and shared never import features;
+// - only routes (src/app) use the app shell (src/shell).
 // Zones below are resolved from the working directory, so this path is too.
 const featuresDir = path.resolve('src/features');
 const features = fs.existsSync(featuresDir)
@@ -28,6 +29,11 @@ const boundaryZones = [
     target: `./src/${layer}`,
     from: './src/features',
     message: `${layer} must not depend on features.`,
+  })),
+  ...['core', 'design-system', 'shared', 'features'].map((layer) => ({
+    target: `./src/${layer}`,
+    from: './src/shell',
+    message: `${layer} must not depend on the app shell; the shell composes them, not the reverse.`,
   })),
 ];
 
