@@ -46,8 +46,8 @@ src/app/
 └── dev/design-system.tsx  catálogo (somente desenvolvimento)
 ```
 
-- **Celular (`compact`):** barra de vidro flutuante (72 pt) com as abas e o botão gota "+".
-- **Tablet e desktop (`medium`/`expanded`):** barra lateral de vidro com os destinos e o botão "Nova tarefa".
+- **Celular (`compact`):** barra flutuante de águas profundas (72 pt): a aba ativa é uma pílula clara com o nome, as outras são círculos; ao lado, a gota coral "+".
+- **Tablet e desktop (`medium`/`expanded`):** barra lateral de águas profundas com os destinos e o botão coral "Nova tarefa".
 - Os destinos ficam em `src/shell/destinations.ts`. Só aparecem módulos que já existem.
 - A navegação usa as abas "headless" de `expo-router/ui`: o roteamento é do Expo Router, e o visual é todo nosso.
 

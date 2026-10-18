@@ -1,5 +1,9 @@
 # Design System: Aquatic Glass
 
+> **v2 "Profundidade" (Checkpoint 007):** mais ousadia, inspirada nas referências do proprietário (Sunglow, Opal, apps de treino).
+> Princípios: um **herói** por tela, **números grandes e confiantes**, navegação em **águas profundas** que se destaca nos dois temas,
+> **coral** como cor de energia para a ação principal, e simplicidade para todas as idades (alvos grandes, rótulos claros).
+
 Linguagem visual do Aquar.io: vidro, água, profundidade e luz, em um tom sofisticado e calmo. A água aparece **no comportamento** (luz, movimento, estados), não em ilustrações espalhadas pela interface.
 
 - Código: `src/design-system/`
@@ -10,7 +14,7 @@ Linguagem visual do Aquar.io: vidro, água, profundidade e luz, em um tom sofist
 
 1. **Só tokens.** Cores, fontes, espaçamentos e movimentos vêm de `@/design-system`. Cor escrita direto no código (`#hex`, `rgb()`) é bloqueada pelo lint fora de `tokens/`.
 2. **Vidro só no cromo.** Barras, sheets e controles flutuantes usam `GlassSurface`. Listas e conteúdo usam `Surface` (sólido), para garantir a legibilidade.
-3. **Acessível por padrão.** Todo controle tem rótulo para leitores de tela, alvo de toque de no mínimo 44 pt e anel de foco para teclado. O texto acompanha o tamanho de fonte do sistema.
+3. **Acessível por padrão.** Com o texto do sistema aumentado (≥ 130%), a barra de abas mostra o nome de todas as abas. Todo controle tem rótulo para leitores de tela, alvo de toque de no mínimo 44 pt e anel de foco para teclado. O texto acompanha o tamanho de fonte do sistema.
 4. **Respeita o sistema.** "Reduzir movimento" desliga animações ambientes e transforma molas em transições instantâneas. "Reduzir transparência" troca o vidro por superfície sólida.
 5. **Moderação.** Hápticos e efeitos só em momentos que importam.
 
@@ -85,7 +89,7 @@ Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` 
 | Reduzir transparência | ✅  | —                                    | —                    |
 | Reduzir movimento     | ✅  | ✅                                   | ✅                   |
 
-**Android:** o blur real exige um `BlurTargetView` atrás do vidro. O shell já o fornece para a barra de abas, mas o efeito fica **desligado por padrão** até ser validado no Galaxy Tab S8+. Para testar, use Ajustes → Desenvolvimento → "Blur real no Android (experimental)".
+**Android:** o blur real exige um `BlurTargetView` atrás de cada vidro. Como a navegação agora é opaca (águas profundas), o vidro restante (sheets, cabeçalho compacto) usa o fallback quase opaco no Android.
 
 ## Status
 
