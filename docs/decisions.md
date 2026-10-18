@@ -60,6 +60,12 @@ Adotar **TypeScript** como linguagem e **React Native com Expo** como framework,
 - O projeto exigirá atualização periódica de versões do Expo/React Native.
 - Algum efeito visual muito específico poderá exigir um módulo nativo customizado.
 
+**Atualização (2026-10-18): versão do SDK acompanha o Expo Go da App Store**
+
+O projeto começou no Expo SDK 58, mas o Expo Go disponível na App Store (57.0.9) só abre projetos SDK 57, o que impedia o teste no iPhone do proprietário. Voltamos para o **SDK 57**.
+
+Regra a partir de agora: enquanto o teste em aparelhos depender do Expo Go, usamos **o SDK suportado pelo Expo Go publicado nas lojas**, não o mais recente do npm. A atualização de SDK passa a ser uma tarefa deliberada, feita quando as lojas acompanharem.
+
 ---
 
 ## ADR-002

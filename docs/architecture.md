@@ -7,7 +7,7 @@ Visão geral técnica do Aquar.io. Decisões e seus motivos ficam em [decisions.
 | Camada    | Tecnologia                                        | Status    |
 | --------- | ------------------------------------------------- | --------- |
 | Linguagem | TypeScript (modo `strict` + checagens extras)     | REAL      |
-| Framework | React Native + Expo SDK 58                        | REAL      |
+| Framework | React Native + Expo SDK 57                        | REAL      |
 | Navegação | Expo Router (rotas por arquivo em `src/app/`)     | REAL      |
 | Testes    | Jest (`jest-expo`) + React Native Testing Library | REAL      |
 | Qualidade | ESLint (`eslint-config-expo`) + Prettier          | REAL      |
@@ -31,7 +31,7 @@ src/
 
 As pastas marcadas com etapa ainda **não existem**. Elas são criadas quando o primeiro código real precisar delas, para não termos placeholders vazios.
 
-> Ajuste em relação à proposta da Etapa 0: as rotas ficam em `src/app/` (convenção do Expo SDK 58), e não em `app/` na raiz.
+> Ajuste em relação à proposta da Etapa 0: as rotas ficam em `src/app/` (convenção do template atual do Expo), e não em `app/` na raiz.
 
 ## Regras de dependência
 
