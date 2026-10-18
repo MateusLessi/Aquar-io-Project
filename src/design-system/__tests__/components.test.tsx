@@ -10,7 +10,9 @@ import {
   Sheet,
   Text,
   TextInput,
+  TideHero,
   WaterLevel,
+  tideLevel,
   useTheme,
 } from '..';
 import { clampProgress } from '../components/WaterLevel';
@@ -177,5 +179,31 @@ describe('Sheet', () => {
 
     await fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('TideHero', () => {
+  it('never fully empties and rises with progress', () => {
+    expect(tideLevel(0, 0)).toBeCloseTo(0.14);
+    expect(tideLevel(0, 4)).toBeCloseTo(0.14);
+    expect(tideLevel(2, 4)).toBeCloseTo(0.57);
+    expect(tideLevel(4, 4)).toBe(1);
+    expect(tideLevel(9, 4)).toBe(1);
+  });
+
+  it('describes the day to screen readers and shows the empty message', async () => {
+    await renderWithTheme(
+      <TideHero
+        label="Maré do dia"
+        completed={0}
+        total={0}
+        caption="tarefas concluídas"
+        emptyMessage="Mar calmo."
+      />,
+    );
+    expect(
+      screen.getByRole('progressbar', { name: 'Maré do dia: 0 de 0 tarefas concluídas' }),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Mar calmo.')).toBeOnTheScreen();
   });
 });

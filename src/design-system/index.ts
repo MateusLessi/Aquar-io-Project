@@ -24,6 +24,7 @@ export {
 export { Sheet, type SheetProps } from './components/Sheet';
 export { Surface, type SurfaceProps } from './components/Surface';
 export { Text, type TextProps } from './components/Text';
+export { TideHero, tideLevel, type TideHeroProps } from './components/TideHero';
 export { TextInput, type TextInputProps } from './components/TextInput';
 export { WaterLevel, type WaterLevelProps } from './components/WaterLevel';
 export { Waterline } from './components/Waterline';

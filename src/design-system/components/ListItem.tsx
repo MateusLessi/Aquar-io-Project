@@ -22,6 +22,8 @@ export type ListItemProps = {
   completed?: boolean;
   /** Draws a separator above this row (not on the first row of a group). */
   separator?: boolean;
+  /** Color mark on the leading edge, e.g. the task's list color. */
+  accentColor?: string;
   accessibilityHint?: string;
   testID?: string;
 };
@@ -37,6 +39,7 @@ export function ListItem({
   disabled = false,
   completed = false,
   separator = false,
+  accentColor,
   accessibilityHint,
   testID,
 }: ListItemProps) {
@@ -65,6 +68,7 @@ export function ListItem({
           ]}
         />
       ) : null}
+      {accentColor ? <View style={[styles.accent, { backgroundColor: accentColor }]} /> : null}
       {leading ? <View style={styles.leading}>{leading}</View> : null}
       <View style={styles.texts}>
         <Text variant="body" struck={completed}>
@@ -94,6 +98,15 @@ const styles = StyleSheet.create({
   },
   leading: { paddingTop: 1 },
   separator: { position: 'absolute', top: 0, right: 0, height: StyleSheet.hairlineWidth },
+  accent: {
+    position: 'absolute',
+    left: 0,
+    top: spacing.md,
+    bottom: spacing.md,
+    width: 4,
+    borderTopRightRadius: 4,
+    borderBottomRightRadius: 4,
+  },
   texts: { flex: 1 },
   subtitle: { marginTop: 3 },
   trailing: { alignSelf: 'center' },
