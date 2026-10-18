@@ -46,6 +46,8 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 
 ## Pontos em aberto (para decidir no momento certo)
 
+- **Rodada de ousadia visual:** o proprietário achou o design "um pouco tímido" (Etapa 2). Revisitar o Aquatic Glass com decisões mais marcantes depois do To Do V1, quando houver telas reais para calibrar.
+
 - **Sincronização mais cedo:** o proprietário usa 3 aparelhos (iPhone 11, Galaxy Tab S8+, notebook via web). Propor sync logo após o To Do V1.
 - **Ranked Seasons:** modo ranqueado opt-in para hábitos, com entrada simbólica e recompensas cosméticas. Ver [gamification.md](gamification.md).
 
