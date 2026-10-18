@@ -1,6 +1,12 @@
 export { Button, type ButtonProps, type ButtonVariant } from './components/Button';
 export { Checkbox, type CheckboxProps } from './components/Checkbox';
 export {
+  ChromeInsetsProvider,
+  useChromeInsets,
+  type ChromeInsets,
+} from './components/ChromeInsets';
+export { EmptyState, type EmptyStateProps } from './components/EmptyState';
+export {
   FloatingActionButton,
   type FloatingActionButtonProps,
 } from './components/FloatingActionButton';
@@ -8,6 +14,12 @@ export { GlassSurface, type GlassSurfaceProps } from './components/GlassSurface'
 export { IconButton, type IconButtonProps } from './components/IconButton';
 export { ListItem, type ListItemProps } from './components/ListItem';
 export { OceanBackground } from './components/OceanBackground';
+export { Screen, type ScreenProps } from './components/Screen';
+export {
+  SegmentedControl,
+  type SegmentedControlProps,
+  type SegmentedOption,
+} from './components/SegmentedControl';
 export { Sheet, type SheetProps } from './components/Sheet';
 export { Surface, type SurfaceProps } from './components/Surface';
 export { Text, type TextProps } from './components/Text';

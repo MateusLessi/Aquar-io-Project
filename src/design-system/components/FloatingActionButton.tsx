@@ -6,7 +6,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { ocean, specular } from '../tokens';
 import { PressableScale } from './PressableScale';
 
-const SIZE = 60;
+const SIZE = 64;
 
 export type FloatingActionButtonProps = {
   label: string;
@@ -56,7 +56,7 @@ export function FloatingActionButton({
         </Svg>
         {/* Wrapped so it paints above the absolutely positioned gradient (web stacking). */}
         <View>
-          <Icon size={26} strokeWidth={2.2} color={colors.onAccent} />
+          <Icon size={28} strokeWidth={2.2} color={colors.onAccent} />
         </View>
       </View>
     </PressableScale>

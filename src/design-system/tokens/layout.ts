@@ -13,6 +13,7 @@ export const spacing = {
 } as const;
 
 export const radius = {
+  none: 0,
   sm: 8,
   md: 12,
   lg: 20,
@@ -22,6 +23,20 @@ export const radius = {
 
 /** Minimum touch target (Apple HIG 44pt, Material 48dp: we use 44 + hitSlop). */
 export const touchTarget = 44;
+
+/** Sizes of the app chrome (navigation surfaces). */
+export const chrome = {
+  /** Floating tab bar on phones: tall enough to feel substantial and easy to hit. */
+  tabBarHeight: 72,
+  /** Gap between the tab bar and the bottom safe area. */
+  tabBarOffset: 12,
+  /** Sidebar on tablets and desktop. */
+  sidebarWidth: 280,
+  /** Compact header that appears when a screen scrolls past its large title. */
+  compactHeaderHeight: 52,
+  /** Max width of reading content on wide screens. */
+  contentMaxWidth: 760,
+} as const;
 
 /**
  * Width breakpoints.

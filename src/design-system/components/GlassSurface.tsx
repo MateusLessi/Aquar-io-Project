@@ -1,5 +1,6 @@
 import { BlurView } from 'expo-blur';
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import type { RefObject } from 'react';
+import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
 
 import { useTheme } from '../theme/ThemeProvider';
 import { depth as depthLevels, radius as radii, type DepthLevel } from '../tokens';
@@ -8,6 +9,8 @@ export type GlassSurfaceProps = ViewProps & {
   /** Higher levels use more blur and a stronger shadow. */
   depth?: Exclude<DepthLevel, 0>;
   radius?: keyof typeof radii;
+  /** Android only: the BlurTargetView rendered behind this glass. */
+  blurTarget?: RefObject<View | null>;
 };
 
 /**
@@ -20,11 +23,13 @@ export function GlassSurface({
   radius = 'xl',
   style,
   children,
+  blurTarget,
   ...rest
 }: GlassSurfaceProps) {
-  const { colors, scheme, supportsBlur, reduceTransparency } = useTheme();
+  const { colors, scheme, supportsBlur, reduceTransparency, experimentalAndroidBlur } = useTheme();
   const level = depthLevels[depth];
-  const useBlur = supportsBlur && !reduceTransparency;
+  const androidBlur = Platform.OS === 'android' && experimentalAndroidBlur && Boolean(blurTarget);
+  const useBlur = (supportsBlur || androidBlur) && !reduceTransparency;
   const borderRadius = radii[radius];
 
   return (
@@ -47,6 +52,8 @@ export function GlassSurface({
           <BlurView
             intensity={level.blurIntensity}
             tint={scheme === 'dark' ? 'dark' : 'light'}
+            blurTarget={androidBlur ? blurTarget : undefined}
+            blurMethod={androidBlur ? 'dimezisBlurViewSdk31Plus' : undefined}
             style={StyleSheet.absoluteFill}
           />
         ) : null}

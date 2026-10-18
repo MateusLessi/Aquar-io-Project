@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Platform, useColorScheme, useWindowDimensions } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
 
 import {
   breakpointForWidth,
@@ -23,31 +22,42 @@ export type Theme = {
   reduceMotion: boolean;
   /** Real backdrop blur is available on this platform. */
   supportsBlur: boolean;
+  /**
+   * Android blur needs a BlurTargetView behind the glass. Off by default until
+   * tested on real devices; toggled from Settings in development builds.
+   */
+  experimentalAndroidBlur: boolean;
+  setExperimentalAndroidBlur: (enabled: boolean) => void;
 };
 
 const ThemeContext = createContext<Theme | null>(null);
 
-function useReduceTransparency(): boolean {
+/** Follows an OS accessibility setting and its changes. */
+function useAccessibilitySetting(
+  read: () => Promise<boolean>,
+  event: 'reduceMotionChanged' | 'reduceTransparencyChanged',
+  platforms: readonly (typeof Platform.OS)[],
+): boolean {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    if (Platform.OS !== 'ios') return;
+    if (!platforms.includes(Platform.OS)) return;
     let mounted = true;
-    AccessibilityInfo.isReduceTransparencyEnabled().then((value) => {
+    read().then((value) => {
       if (mounted) setEnabled(value);
     });
-    const subscription = AccessibilityInfo.addEventListener(
-      'reduceTransparencyChanged',
-      setEnabled,
-    );
+    const subscription = AccessibilityInfo.addEventListener(event, setEnabled);
     return () => {
       mounted = false;
       subscription.remove();
     };
-  }, []);
+  }, [read, event, platforms]);
 
   return enabled;
 }
+
+const ALL_PLATFORMS = ['ios', 'android', 'web'] as const;
+const IOS_ONLY = ['ios'] as const;
 
 type ThemeProviderProps = {
   children: ReactNode;
@@ -58,8 +68,17 @@ type ThemeProviderProps = {
 export function ThemeProvider({ children, initialPreference = 'system' }: ThemeProviderProps) {
   const systemScheme = useColorScheme();
   const [preference, setPreference] = useState<ThemePreference>(initialPreference);
-  const reduceTransparency = useReduceTransparency();
-  const reduceMotion = useReducedMotion();
+  const [experimentalAndroidBlur, setExperimentalAndroidBlur] = useState(false);
+  const reduceTransparency = useAccessibilitySetting(
+    AccessibilityInfo.isReduceTransparencyEnabled,
+    'reduceTransparencyChanged',
+    IOS_ONLY,
+  );
+  const reduceMotion = useAccessibilitySetting(
+    AccessibilityInfo.isReduceMotionEnabled,
+    'reduceMotionChanged',
+    ALL_PLATFORMS,
+  );
 
   const scheme: ColorScheme =
     preference === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : preference;
@@ -72,10 +91,12 @@ export function ThemeProvider({ children, initialPreference = 'system' }: ThemeP
       setPreference,
       reduceTransparency,
       reduceMotion,
-      // Android needs a BlurTargetView per screen for real blur; evaluated in Etapa 3.
+      // Android needs a BlurTargetView behind the glass; see `experimentalAndroidBlur`.
       supportsBlur: Platform.OS === 'ios' || Platform.OS === 'web',
+      experimentalAndroidBlur,
+      setExperimentalAndroidBlur,
     }),
-    [scheme, preference, reduceTransparency, reduceMotion],
+    [scheme, preference, reduceTransparency, reduceMotion, experimentalAndroidBlur],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
