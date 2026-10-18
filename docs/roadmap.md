@@ -8,8 +8,8 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 ```
 [✓] Product Vision
 [✓] Plataforma (ADR-001)
-[●] Fundação técnica
-[ ] Data Strategy
+[✓] Fundação técnica
+[●] Data Strategy
 [ ] Design System (Aquatic Glass)
 [ ] App Shell & Navigation
 [ ] Authentication
