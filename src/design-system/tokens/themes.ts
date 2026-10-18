@@ -44,6 +44,10 @@ export type ThemeColors = {
   deepAccent: string;
   deepAccentSoft: string;
   onDeepAccent: string;
+  /** Energy: coral, the warm counterpart to the ocean. Reserved for the main action. */
+  energy: string;
+  energyPressed: string;
+  onEnergy: string;
 };
 
 export const lightColors: ThemeColors = {
@@ -82,6 +86,9 @@ export const lightColors: ThemeColors = {
   deepAccent: ocean[200],
   deepAccentSoft: 'rgba(147, 218, 213, 0.16)',
   onDeepAccent: ocean[950],
+  energy: '#FF8160',
+  energyPressed: '#F26A47',
+  onEnergy: '#2B0D05',
 };
 
 export const darkColors: ThemeColors = {
@@ -120,6 +127,9 @@ export const darkColors: ThemeColors = {
   deepAccent: ocean[200],
   deepAccentSoft: 'rgba(147, 218, 213, 0.14)',
   onDeepAccent: ocean[950],
+  energy: '#FF8E6E',
+  energyPressed: '#FFA68C',
+  onEnergy: '#2B0D05',
 };
 
 export const themeColors: Record<ColorScheme, ThemeColors> = {

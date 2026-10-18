@@ -37,6 +37,11 @@ describe.each(schemes)('%s theme contrast (WCAG AA)', (scheme) => {
     expect(contrastRatio(c.onDeepAccent, c.deepAccent)).toBeGreaterThanOrEqual(AA_TEXT);
   });
 
+  it('onEnergy is readable on energy', () => {
+    expect(contrastRatio(c.onEnergy, c.energy)).toBeGreaterThanOrEqual(AA_TEXT);
+    expect(contrastRatio(c.onEnergy, c.energyPressed)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
   it('onAccent is readable on accent', () => {
     expect(contrastRatio(c.onAccent, c.accent)).toBeGreaterThanOrEqual(AA_TEXT);
   });

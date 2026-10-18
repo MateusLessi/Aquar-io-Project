@@ -4,7 +4,7 @@ import Svg, { Defs, RadialGradient, Circle, Stop } from 'react-native-svg';
 
 import { useTheme } from '../theme/ThemeProvider';
 import { useSvgId } from '../theme/useSvgId';
-import { ocean, specular } from '../tokens';
+import { specular } from '../tokens';
 import { PressableScale } from './PressableScale';
 
 const SIZE = 64;
@@ -17,7 +17,7 @@ export type FloatingActionButtonProps = {
   testID?: string;
 };
 
-/** The main creation action, shaped like a drop of water. */
+/** The main creation action: a drop of coral, the warm counterpart to the ocean. */
 export function FloatingActionButton({
   label,
   onPress,
@@ -25,10 +25,9 @@ export function FloatingActionButton({
   disabled = false,
   testID,
 }: FloatingActionButtonProps) {
-  const { colors, scheme } = useTheme();
+  const { colors } = useTheme();
   const bodyId = useSvgId('body');
   const specularId = useSvgId('specular');
-  const lightFromBelow = scheme === 'dark' ? ocean[400] : ocean[500];
 
   return (
     <PressableScale
@@ -40,17 +39,17 @@ export function FloatingActionButton({
       accessibilityState={{ disabled }}
       focusRadius={SIZE / 2}
       scaleTo={0.9}
-      style={[styles.shadow, { shadowColor: colors.accent }, disabled && styles.disabled]}
+      style={[styles.shadow, { shadowColor: colors.energyPressed }, disabled && styles.disabled]}
     >
       <View style={styles.drop}>
         <Svg width={SIZE} height={SIZE} style={StyleSheet.absoluteFill}>
           <Defs>
             <RadialGradient id={bodyId} cx="50%" cy="110%" r="90%">
-              <Stop offset="0" stopColor={lightFromBelow} />
-              <Stop offset="0.75" stopColor={colors.accent} />
+              <Stop offset="0" stopColor={colors.energyPressed} />
+              <Stop offset="0.75" stopColor={colors.energy} />
             </RadialGradient>
             <RadialGradient id={specularId} cx="34%" cy="24%" r="22%">
-              <Stop offset="0" stopColor={specular} stopOpacity={0.28} />
+              <Stop offset="0" stopColor={specular} stopOpacity={0.35} />
               <Stop offset="1" stopColor={specular} stopOpacity={0} />
             </RadialGradient>
           </Defs>
@@ -59,7 +58,7 @@ export function FloatingActionButton({
         </Svg>
         {/* Wrapped so it paints above the absolutely positioned gradient (web stacking). */}
         <View>
-          <Icon size={28} strokeWidth={2.2} color={colors.onAccent} />
+          <Icon size={28} strokeWidth={2.4} color={colors.onEnergy} />
         </View>
       </View>
     </PressableScale>

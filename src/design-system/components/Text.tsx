@@ -13,7 +13,9 @@ type TextTone =
   | 'error'
   | 'onDeep'
   | 'onDeepSecondary'
-  | 'deepAccent';
+  | 'deepAccent'
+  | 'onEnergy'
+  | 'onDeepAccent';
 
 export type TextProps = RNTextProps & {
   variant?: TypographyVariant;
@@ -33,10 +35,13 @@ const toneToColor: Record<TextTone, keyof ThemeColors> = {
   onDeep: 'onDeep',
   onDeepSecondary: 'onDeepSecondary',
   deepAccent: 'deepAccent',
+  onEnergy: 'onEnergy',
+  onDeepAccent: 'onDeepAccent',
 };
 
 /** Titles grow with the OS text size too, but are capped so layouts stay intact. */
 const maxScale: Partial<Record<TypographyVariant, number>> = {
+  display: 1.3,
   largeTitle: 1.5,
   title1: 1.6,
   title2: 1.8,

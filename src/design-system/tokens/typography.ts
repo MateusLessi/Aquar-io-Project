@@ -25,15 +25,16 @@ export type TypographyVariant =
   | 'footnote'
   | 'caption'
   | 'overline'
-  | 'numeric';
+  | 'numeric'
+  | 'display';
 
 /** Outfit for titles and numbers, Manrope for reading text. */
 export const typography: Record<TypographyVariant, TextStyle> = {
   largeTitle: {
     fontFamily: fontFamily.displayBold,
-    fontSize: 34,
-    lineHeight: 41,
-    letterSpacing: -0.6,
+    fontSize: 40,
+    lineHeight: 46,
+    letterSpacing: -1,
   },
   title1: {
     fontFamily: fontFamily.displaySemiBold,
@@ -59,6 +60,14 @@ export const typography: Record<TypographyVariant, TextStyle> = {
     lineHeight: 16,
     letterSpacing: 0.7,
     textTransform: 'uppercase',
+  },
+  /** Hero numbers, e.g. the day's tide. */
+  display: {
+    fontFamily: fontFamily.displayBold,
+    fontSize: 64,
+    lineHeight: 68,
+    letterSpacing: -2,
+    fontVariant: ['tabular-nums'],
   },
   numeric: {
     fontFamily: fontFamily.displaySemiBold,
