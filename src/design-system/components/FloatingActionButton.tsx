@@ -54,7 +54,10 @@ export function FloatingActionButton({
           <Circle cx={SIZE / 2} cy={SIZE / 2} r={SIZE / 2} fill="url(#body)" />
           <Circle cx={SIZE / 2} cy={SIZE / 2} r={SIZE / 2} fill="url(#specular)" />
         </Svg>
-        <Icon size={26} strokeWidth={2.2} color={colors.onAccent} />
+        {/* Wrapped so it paints above the absolutely positioned gradient (web stacking). */}
+        <View>
+          <Icon size={26} strokeWidth={2.2} color={colors.onAccent} />
+        </View>
       </View>
     </PressableScale>
   );
