@@ -3,6 +3,7 @@ import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from '
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { useTheme } from '../theme/ThemeProvider';
+import { useKeyboardFocus } from '../theme/useKeyboardFocus';
 import { pressedScale, springs } from '../tokens';
 
 export type PressableScaleProps = Omit<PressableProps, 'style' | 'children'> & {
@@ -33,7 +34,7 @@ export function PressableScale({
   const { colors } = useTheme();
   const scale = useSharedValue(1);
   const [pressed, setPressed] = useState(false);
-  const [focused, setFocused] = useState(false);
+  const { focused, handlers: focus } = useKeyboardFocus();
 
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
 
@@ -41,21 +42,23 @@ export function PressableScale({
     <Pressable
       disabled={disabled}
       onPressIn={(event) => {
+        focus.onPressIn();
         setPressed(true);
         scale.set(withSpring(scaleTo, springs.responsive));
         onPressIn?.(event);
       }}
       onPressOut={(event) => {
+        focus.onPressOut();
         setPressed(false);
         scale.set(withSpring(1, springs.responsive));
         onPressOut?.(event);
       }}
       onFocus={(event) => {
-        setFocused(true);
+        focus.onFocus(event);
         onFocus?.(event);
       }}
       onBlur={(event) => {
-        setFocused(false);
+        focus.onBlur();
         onBlur?.(event);
       }}
       {...rest}

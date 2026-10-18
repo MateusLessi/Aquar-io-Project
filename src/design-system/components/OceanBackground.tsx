@@ -11,6 +11,7 @@ import Animated, {
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { useTheme } from '../theme/ThemeProvider';
+import { useSvgId } from '../theme/useSvgId';
 import { durations } from '../tokens';
 
 const causticsTexture = require('../assets/caustics.png');
@@ -31,6 +32,7 @@ type OceanBackgroundProps = {
  */
 export function OceanBackground({ children, caustics = true }: OceanBackgroundProps) {
   const { colors, scheme } = useTheme();
+  const depthId = useSvgId('depth');
 
   return (
     <View style={styles.root}>
@@ -42,13 +44,13 @@ export function OceanBackground({ children, caustics = true }: OceanBackgroundPr
         pointerEvents="none"
       >
         <Defs>
-          <LinearGradient id="depth" x1="0" y1="0" x2="0" y2="1">
+          <LinearGradient id={depthId} x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={colors.surfaceTop} />
             <Stop offset="0.34" stopColor={colors.surfaceBase} />
             <Stop offset="1" stopColor={colors.surfaceDeep} />
           </LinearGradient>
         </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill="url(#depth)" />
+        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${depthId})`} />
       </Svg>
       {caustics ? (
         <Caustics color={colors.caustic} opacity={scheme === 'dark' ? 0.06 : 0.11} />
@@ -60,6 +62,7 @@ export function OceanBackground({ children, caustics = true }: OceanBackgroundPr
 
 function Caustics({ color, opacity }: { color: string; opacity: number }) {
   const { colors, reduceMotion } = useTheme();
+  const fadeId = useSvgId('fade');
   const { width } = useWindowDimensions();
   const drift = useSharedValue(0);
 
@@ -88,12 +91,12 @@ function Caustics({ color, opacity }: { color: string; opacity: number }) {
       {/* Fades the caustics into the background, so they only live near the surface. */}
       <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} preserveAspectRatio="none">
         <Defs>
-          <LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+          <LinearGradient id={fadeId} x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={colors.surfaceBase} stopOpacity={0} />
             <Stop offset="1" stopColor={colors.surfaceBase} stopOpacity={1} />
           </LinearGradient>
         </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill="url(#fade)" />
+        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${fadeId})`} />
       </Svg>
     </View>
   );
