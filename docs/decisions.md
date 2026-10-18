@@ -6,6 +6,7 @@ ADRs não são apagados. Se uma decisão mudar, criamos um novo ADR que **substi
 | ADR             | Título                                                      | Status | Data       |
 | --------------- | ----------------------------------------------------------- | ------ | ---------- |
 | [001](#adr-001) | Plataforma de desenvolvimento: linguagem e framework mobile | Aceito | 2026-10-18 |
+| [002](#adr-002) | Estratégia de dados: local-first                            | Aceito | 2026-10-18 |
 
 ---
 
@@ -58,3 +59,54 @@ Adotar **TypeScript** como linguagem e **React Native com Expo** como framework,
 - Efeitos de blur no Android precisarão de um orçamento de performance e fallback sólido (a ser definido na Etapa 2).
 - O projeto exigirá atualização periódica de versões do Expo/React Native.
 - Algum efeito visual muito específico poderá exigir um módulo nativo customizado.
+
+---
+
+## ADR-002
+
+**Título:** Estratégia de dados: local-first (SQLite no aparelho, sincronização com Supabase no futuro)
+
+**Status:** Aceito (Checkpoint de Aprovação 003)
+
+**Data:** 2026-10-18
+
+### Contexto
+
+O To Do (Etapa 4) será o primeiro módulo com dados persistidos. Precisamos decidir onde esses dados vivem.
+
+Requisitos:
+
+- o app deve ser rápido e funcionar sem internet;
+- o proprietário quer usar o app de forma privada no dia a dia antes de qualquer lançamento;
+- módulos futuros (Social, Família, multi-dispositivo) vão exigir dados na nuvem;
+- custo e complexidade iniciais devem ser baixos.
+
+### Alternativas
+
+| Alternativa                                               | Prós                                                                         | Contras                                                                             |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Local-first** (SQLite agora, Supabase como sync depois) | Offline total, instantâneo, sem conta nem servidor no início, dados privados | A sincronização futura exige regras de conflito                                     |
+| Cloud-first (Supabase desde o início)                     | Multi-dispositivo imediato, backup automático                                | Exige login e rede desde o primeiro uso, mais estados de erro e cache offline extra |
+| Só local, para sempre                                     | Mais simples possível                                                        | Inviabiliza Social, Família e multi-dispositivo                                     |
+
+### Decisão
+
+Os dados vivem em **SQLite no aparelho** (`expo-sqlite`), com a estrutura do banco evoluída por **migrations versionadas**. A nuvem (Supabase/PostgreSQL) será introduzida mais tarde como **sincronização e backup**, em checkpoint próprio, junto com a autenticação.
+
+### Motivo
+
+Entrega a melhor experiência agora (instantâneo, offline, sem cadastro) e o menor custo, sem fechar o caminho para a nuvem.
+
+### Consequências
+
+**Desde já, o esquema é preparado para sincronizar:**
+
+- IDs são **UUIDs gerados no aparelho**, sem conflito com o servidor;
+- toda tabela sincronizável tem `created_at`, `updated_at` e `deleted_at` (**soft delete**: o registro é marcado como apagado, para que outros aparelhos saibam da exclusão);
+- datas e horas são armazenadas em **UTC (ISO 8601)**; datas sem hora (ex.: prazo de uma tarefa) são armazenadas como `YYYY-MM-DD`.
+
+**A monitorar:**
+
+- até existir sync, perder o aparelho significa perder os dados. Uma exportação manual simples pode ser oferecida na fase de testes;
+- regra inicial de conflito planejada para o sync: _a edição mais recente vence_ (`updated_at`);
+- a autenticação fica adiada até a etapa de sincronização.

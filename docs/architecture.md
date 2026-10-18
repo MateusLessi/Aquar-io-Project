@@ -4,16 +4,16 @@ Visão geral técnica do Aquar.io. Decisões e seus motivos ficam em [decisions.
 
 ## Plataforma
 
-| Camada    | Tecnologia                                        | Status |
-| --------- | ------------------------------------------------- | ------ |
-| Linguagem | TypeScript (modo `strict` + checagens extras)     | REAL   |
-| Framework | React Native + Expo SDK 58                        | REAL   |
-| Navegação | Expo Router (rotas por arquivo em `src/app/`)     | REAL   |
-| Testes    | Jest (`jest-expo`) + React Native Testing Library | REAL   |
-| Qualidade | ESLint (`eslint-config-expo`) + Prettier          | REAL   |
-| CI        | GitHub Actions (`.github/workflows/ci.yml`)       | REAL   |
-| Dados     | a definir (checkpoint de Data Strategy)           | —      |
-| Design    | a definir (Etapa 2 — Aquatic Glass)               | —      |
+| Camada    | Tecnologia                                        | Status    |
+| --------- | ------------------------------------------------- | --------- |
+| Linguagem | TypeScript (modo `strict` + checagens extras)     | REAL      |
+| Framework | React Native + Expo SDK 58                        | REAL      |
+| Navegação | Expo Router (rotas por arquivo em `src/app/`)     | REAL      |
+| Testes    | Jest (`jest-expo`) + React Native Testing Library | REAL      |
+| Qualidade | ESLint (`eslint-config-expo`) + Prettier          | REAL      |
+| CI        | GitHub Actions (`.github/workflows/ci.yml`)       | REAL      |
+| Dados     | Local-first: SQLite no aparelho (ADR-002)         | PLANEJADO |
+| Design    | a definir (Etapa 2 — Aquatic Glass)               | —         |
 
 ## Estrutura de pastas
 

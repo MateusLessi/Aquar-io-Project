@@ -1,0 +1,72 @@
+# Banco de dados
+
+Estratégia: **local-first** ([ADR-002](decisions.md#adr-002)). SQLite no aparelho, sincronização com a nuvem no futuro.
+
+**Status:** modelo **planejado**. Nenhuma tabela existe ainda; elas serão criadas por migrations na Etapa 4 (To Do V1).
+
+## Convenções
+
+| Convenção      | Regra                                                 | Por quê                                                      |
+| -------------- | ----------------------------------------------------- | ------------------------------------------------------------ |
+| Chave primária | `id TEXT` com UUID v4 gerado no aparelho              | Criar dados offline sem colisão com o servidor               |
+| Auditoria      | `created_at`, `updated_at` em UTC ISO 8601            | Ordenação, sincronização e conflitos                         |
+| Exclusão       | `deleted_at` (soft delete); `NULL` = ativo            | Outros aparelhos precisam saber o que foi apagado            |
+| Datas sem hora | `TEXT` no formato `YYYY-MM-DD`                        | Um prazo "dia 20" não muda com o fuso horário                |
+| Nomes          | `snake_case` no banco, `camelCase` no TypeScript      | Convenção de cada mundo; a conversão fica na camada de dados |
+| Evolução       | Migrations numeradas e imutáveis depois de publicadas | Cada aparelho evolui o banco de forma segura e previsível    |
+
+> **Migration:** um script que altera a estrutura do banco (cria tabela, adiciona coluna). Cada uma é numerada e roda uma única vez em cada aparelho, na ordem. Assim, o app instalado há meses e o app recém-instalado chegam à mesma estrutura.
+
+## Modelo inicial (Etapa 4)
+
+```
+task_lists
+  id            TEXT PK
+  name          TEXT NOT NULL
+  emoji         TEXT NULL
+  color         TEXT NULL          -- token do Design System, não hex livre
+  sort_order    REAL NOT NULL      -- REAL permite inserir entre dois itens sem renumerar
+  created_at    TEXT NOT NULL
+  updated_at    TEXT NOT NULL
+  deleted_at    TEXT NULL
+
+tasks
+  id              TEXT PK
+  list_id         TEXT NOT NULL  → task_lists.id
+  parent_task_id  TEXT NULL      → tasks.id   (subtarefa; apenas 1 nível na V1)
+  title           TEXT NOT NULL
+  notes           TEXT NULL
+  priority        INTEGER NOT NULL DEFAULT 0   -- 0 nenhuma · 1 baixa · 2 média · 3 alta
+  due_date        TEXT NULL      -- YYYY-MM-DD
+  completed_at    TEXT NULL      -- NULL = aberta; guarda QUANDO foi concluída
+  sort_order      REAL NOT NULL
+  source_type     TEXT NULL      -- futuro: 'routine_occurrence', 'workout'...
+  source_id       TEXT NULL
+  created_at      TEXT NOT NULL
+  updated_at      TEXT NOT NULL
+  deleted_at      TEXT NULL
+
+domain_events
+  id            TEXT PK
+  type          TEXT NOT NULL    -- ex.: TASK_COMPLETED
+  entity_type   TEXT NOT NULL    -- ex.: task
+  entity_id     TEXT NOT NULL
+  payload       TEXT NOT NULL    -- JSON
+  occurred_at   TEXT NOT NULL
+```
+
+### Notas de design
+
+- **Sem `owner_id` / `users` por enquanto.** Sem conta, só existe um usuário: o dono do aparelho. A identidade entra junto com a autenticação e o sync. Adicionar a coluna nesse momento é uma migration simples.
+- **`domain_events` é um log, não a fonte da verdade.** O estado atual vive em `tasks`; os eventos existem para o futuro Progress Engine ter histórico real. Isso não é Event Sourcing.
+- **Desmarcar uma tarefa** (`completed_at` volta a `NULL`) gera um evento próprio (`TASK_UNCOMPLETED`), para a gamificação futura não contar a mesma conclusão duas vezes.
+- **Subtarefas** reutilizam a tabela `tasks` com `parent_task_id`. A V1 limita a um nível de profundidade.
+
+### Índices planejados
+
+- `tasks(list_id, deleted_at)`: listar tarefas de uma lista;
+- `tasks(parent_task_id)`: carregar subtarefas;
+- `tasks(due_date)`: futuras visões "Planejado" e "Meu Dia";
+- `domain_events(type, occurred_at)`: consultas do futuro Progress Engine.
+
+> **Índice:** uma estrutura auxiliar que o banco mantém para encontrar linhas rapidamente, como o índice remissivo de um livro. Acelera leituras e deixa as escritas um pouco mais lentas, por isso só criamos os que serão usados.

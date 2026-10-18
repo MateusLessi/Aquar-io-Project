@@ -34,6 +34,7 @@ npm test         # testes
 ## Documentação
 
 - [Arquitetura](docs/architecture.md)
+- [Banco de dados](docs/database.md)
 - [Decisões de arquitetura (ADRs)](docs/decisions.md)
 - [Roadmap](docs/roadmap.md)
 
