@@ -1,0 +1,190 @@
+<!doctype html>
+<!-- PROPOSAL: visual preview for Checkpoint 004 (Etapa 2). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aquatic Glass v0</title>
+<style>
+  :root {
+    --font: -apple-system, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--font); background: #dfe7eb; color: #0c1a23; padding: 32px; }
+  h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .lead { color: #445a69; font-size: 14px; margin-top: 4px; }
+  .row { display: flex; gap: 32px; margin-top: 24px; align-items: flex-start; flex-wrap: wrap; }
+
+  /* ---------- Theme tokens ---------- */
+  .light {
+    --surface-base: #f3f7f9;
+    --surface-raised: #ffffff;
+    --glass: rgba(255, 255, 255, 0.62);
+    --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-shadow: 0 8px 28px rgba(12, 40, 52, 0.14);
+    --text-primary: #0c1a23;
+    --text-secondary: #445a69;
+    --text-tertiary: #6b8291;
+    --separator: rgba(12, 40, 52, 0.08);
+    --accent: #0e716f;
+    --accent-soft: rgba(14, 113, 111, 0.12);
+    --on-accent: #ffffff;
+    --priority: #c4622d;
+    --ambient: radial-gradient(120% 60% at 20% 0%, #e3f3f4 0%, rgba(243, 247, 249, 0) 60%);
+  }
+  .dark {
+    --surface-base: #07121a;
+    --surface-raised: #0e1c26;
+    --glass: rgba(18, 38, 50, 0.58);
+    --glass-border: rgba(140, 200, 210, 0.12);
+    --glass-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+    --text-primary: #e6f0f4;
+    --text-secondary: #9db2be;
+    --text-tertiary: #6a8291;
+    --separator: rgba(157, 178, 190, 0.1);
+    --accent: #5cc3bd;
+    --accent-soft: rgba(92, 195, 189, 0.14);
+    --on-accent: #062224;
+    --priority: #f0a070;
+    --ambient: radial-gradient(120% 55% at 25% 0%, rgba(22, 140, 137, 0.14) 0%, rgba(7, 18, 26, 0) 60%);
+  }
+
+  /* ---------- Phone ---------- */
+  .phone {
+    width: 360px; height: 740px; border-radius: 44px; overflow: hidden; position: relative;
+    background: var(--ambient), var(--surface-base); color: var(--text-primary);
+    box-shadow: 0 24px 60px rgba(12, 30, 40, 0.25), 0 0 0 8px #0b1117;
+  }
+  .label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #445a69; margin-bottom: 12px; }
+  .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 14px; font-weight: 600; }
+  .header { padding: 12px 20px 8px; }
+  .eyebrow { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .large-title { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 41px; margin-top: 2px; }
+  .meta { display: flex; gap: 8px; margin-top: 12px; }
+  .chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .chip.ghost { background: transparent; color: var(--text-secondary); box-shadow: inset 0 0 0 1px var(--separator); }
+
+  .section { font-size: 13px; font-weight: 600; color: var(--text-tertiary); padding: 18px 20px 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .list { margin: 0 12px; background: var(--surface-raised); border-radius: 20px; overflow: hidden; }
+  .item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; position: relative; }
+  .item + .item::before { content: ''; position: absolute; top: 0; left: 52px; right: 0; height: 1px; background: var(--separator); }
+  .check { width: 24px; height: 24px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 2px var(--text-tertiary); margin-top: 1px; display: grid; place-items: center; }
+  .check.done { background: var(--accent); box-shadow: none; }
+  .check.done svg { stroke: var(--on-accent); }
+  .title { font-size: 17px; line-height: 22px; }
+  .sub { font-size: 13px; color: var(--text-secondary); margin-top: 3px; display: flex; gap: 10px; align-items: center; }
+  .flag { color: var(--priority); font-weight: 600; }
+  .done-text .title { color: var(--text-tertiary); text-decoration: line-through; text-decoration-color: var(--text-tertiary); }
+
+  /* Floating glass navigation (inspired by the owner's mockups) */
+  .nav-wrap { position: absolute; left: 16px; right: 16px; bottom: 26px; display: flex; gap: 10px; align-items: center; }
+  .glass {
+    background: var(--glass); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
+    box-shadow: var(--glass-shadow), inset 0 0 0 1px var(--glass-border);
+  }
+  .nav { flex: 1; height: 60px; border-radius: 999px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; }
+  .tab { height: 44px; min-width: 44px; display: grid; place-items: center; border-radius: 999px; color: var(--text-secondary); }
+  .tab.active { display: flex; gap: 8px; padding: 0 16px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 14px; }
+  .fab { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--on-accent);
+         box-shadow: 0 8px 24px rgba(14, 113, 111, 0.35), inset 0 1px 0 rgba(255,255,255,0.35); }
+  svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .check svg { width: 14px; height: 14px; stroke-width: 3; }
+  .fab svg { width: 26px; height: 26px; stroke-width: 2.2; }
+
+  /* ---------- Token board ---------- */
+  .board { background: #fff; border-radius: 20px; padding: 24px; width: 520px; }
+  .board h2 { font-size: 15px; font-weight: 600; margin: 18px 0 10px; }
+  .board h2:first-child { margin-top: 0; }
+  .scale { display: flex; border-radius: 10px; overflow: hidden; }
+  .scale div { flex: 1; height: 44px; font-size: 9px; display: flex; align-items: flex-end; padding: 4px; }
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sw { border-radius: 10px; height: 52px; padding: 6px 8px; font-size: 10px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .type div { display: flex; align-items: baseline; gap: 12px; padding: 4px 0; }
+  .type span { font-size: 11px; color: #6b8291; width: 120px; flex: none; }
+  .note { font-size: 12px; color: #445a69; line-height: 18px; }
+</style>
+</head>
+<body>
+  <h1>Aquatic Glass · proposta v0</h1>
+  <p class="lead">Prévia estática para o Checkpoint 004. Cores, tipografia e materiais propostos; o app real será construído em React Native.</p>
+
+  <div class="row">
+    <div>
+      <div class="label">Light · águas rasas</div>
+      <div class="phone light" id="light"></div>
+    </div>
+    <div>
+      <div class="label">Dark · oceano profundo</div>
+      <div class="phone dark" id="dark"></div>
+    </div>
+
+    <div class="board">
+      <h2>ocean: acento (azul-petróleo)</h2>
+      <div class="scale">
+        <div style="background:#e8f7f6">50</div><div style="background:#c6ece9">100</div><div style="background:#93dad5">200</div>
+        <div style="background:#5cc3bd">300</div><div style="background:#2fa9a4">400</div><div style="background:#168c89;color:#fff">500</div>
+        <div style="background:#0e716f;color:#fff">600</div><div style="background:#0d5a5a;color:#fff">700</div><div style="background:#0e4748;color:#fff">800</div>
+        <div style="background:#0c3a3c;color:#fff">900</div><div style="background:#062224;color:#fff">950</div>
+      </div>
+      <h2>abyss: neutros azulados (nunca cinza puro)</h2>
+      <div class="scale">
+        <div style="background:#f3f7f9">50</div><div style="background:#e4ecf0">100</div><div style="background:#c9d6dd">200</div>
+        <div style="background:#a3b6c0">300</div><div style="background:#7891a0">400</div><div style="background:#587283;color:#fff">500</div>
+        <div style="background:#445a69;color:#fff">600</div><div style="background:#344654;color:#fff">700</div><div style="background:#22313d;color:#fff">800</div>
+        <div style="background:#15212b;color:#fff">900</div><div style="background:#0a141c;color:#fff">950</div>
+      </div>
+      <h2>semantic</h2>
+      <div class="swatches">
+        <div class="sw" style="background:#2e9e6b;color:#fff">success</div>
+        <div class="sw" style="background:#c98a1b;color:#fff">warning</div>
+        <div class="sw" style="background:#d0473f;color:#fff">error</div>
+        <div class="sw" style="background:#2f7fc1;color:#fff">info</div>
+      </div>
+      <h2>tipografia: fonte do sistema</h2>
+      <div class="type">
+        <div><span>largeTitle 34/41 bold</span><b style="font-size:28px">Hoje</b></div>
+        <div><span>title 22/28 semibold</span><b style="font-size:20px">Academia</b></div>
+        <div><span>body 17/22</span><span style="font-size:16px;color:#0c1a23;width:auto">Ir para academia</span></div>
+        <div><span>footnote 13/18</span><span style="font-size:13px;color:#445a69;width:auto">Amanhã · 3 subtarefas</span></div>
+      </div>
+      <h2>regras do material</h2>
+      <p class="note">Vidro apenas no “cromo” (barras, sheets, controles flutuantes), nunca nas linhas de lista.
+        Conteúdo sobre superfícies sólidas. Com “Reduzir transparência”, vidro vira sólido;
+        com “Reduzir movimento”, molas viram fades.</p>
+    </div>
+  </div>
+
+  <template id="screen">
+    <div class="status"><span>9:41</span><span>●●●</span></div>
+    <div class="header">
+      <div class="eyebrow">Sábado, 18 de outubro</div>
+      <div class="large-title">Hoje</div>
+      <div class="meta"><span class="chip">3 de 5</span><span class="chip ghost">Todas as listas</span></div>
+    </div>
+    <div class="section">Pendentes</div>
+    <div class="list">
+      <div class="item"><div class="check"></div><div><div class="title">Ir para academia</div><div class="sub"><span>🏋️ Academia</span><span>18:00</span></div></div></div>
+      <div class="item"><div class="check"></div><div><div class="title">Entregar relatório de Cálculo</div><div class="sub"><span class="flag">Alta</span><span>📚 Faculdade</span><span>2 de 4</span></div></div></div>
+      <div class="item"><div class="check"></div><div><div class="title">Beber 2 L de água</div><div class="sub"><span>🏠 Casa</span></div></div></div>
+    </div>
+    <div class="section">Concluídas</div>
+    <div class="list">
+      <div class="item done-text"><div class="check done"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><div class="title">Escovar os dentes</div></div></div>
+      <div class="item done-text"><div class="check done"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><div class="title">Revisar agenda da semana</div></div></div>
+    </div>
+    <div class="nav-wrap">
+      <div class="nav glass">
+        <div class="tab active"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Hoje</div>
+        <div class="tab"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div>
+        <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></svg></div>
+      </div>
+      <div class="fab glass"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+    </div>
+  </template>
+  <script>
+    const tpl = document.getElementById('screen');
+    for (const id of ['light', 'dark']) document.getElementById(id).appendChild(tpl.content.cloneNode(true));
+  </script>
+</body>
+</html>
