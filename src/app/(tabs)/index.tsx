@@ -1,7 +1,7 @@
 // TEMPORARY content: the Today screen gets real tasks in Etapa 4.
 import { Waves } from 'lucide-react-native';
 
-import { EmptyState, Screen } from '@/design-system';
+import { EmptyState, Screen, TideHero } from '@/design-system';
 
 function todayLabel(date: Date): string {
   const label = new Intl.DateTimeFormat('pt-BR', {
@@ -15,10 +15,17 @@ function todayLabel(date: Date): string {
 export default function TodayScreen() {
   return (
     <Screen title="Hoje" eyebrow={todayLabel(new Date())}>
+      <TideHero
+        label="Maré do dia"
+        completed={0}
+        total={0}
+        caption="tarefas concluídas"
+        emptyMessage="Mar calmo. Nada planejado para hoje."
+      />
       <EmptyState
         icon={Waves}
-        title="Um dia calmo por aqui"
-        message="Suas tarefas de hoje vão aparecer aqui. Cada uma concluída vai encher a maré do dia."
+        title="Suas tarefas vão aparecer aqui"
+        message="Cada tarefa concluída faz a maré do dia subir."
       />
     </Screen>
   );

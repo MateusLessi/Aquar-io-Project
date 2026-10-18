@@ -7,7 +7,7 @@ import ListsScreen from '@/app/(tabs)/lists';
 import SettingsScreen from '@/app/(tabs)/settings';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
-import { ThemeProvider } from '@/design-system';
+import { ThemeProvider, lightColors } from '@/design-system';
 
 const metrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
@@ -32,10 +32,10 @@ const routes = {
   '(tabs)/settings': SettingsScreen,
 };
 
-function setWindowWidth(width: number) {
+function setWindowWidth(width: number, fontScale = 1) {
   Dimensions.set({
-    window: { width, height: 844, scale: 3, fontScale: 1 },
-    screen: { width, height: 844, scale: 3, fontScale: 1 },
+    window: { width, height: 844, scale: 3, fontScale },
+    screen: { width, height: 844, scale: 3, fontScale },
   });
 }
 
@@ -73,6 +73,21 @@ describe('App shell on phones', () => {
   });
 });
 
+describe('App shell with large text', () => {
+  it('shows only the active tab name at normal sizes', async () => {
+    setWindowWidth(390, 1.0);
+    await renderRouter(routes, { initialUrl: '/' });
+    expect(screen.queryByText('Listas')).toBeNull();
+  });
+
+  it('shows every tab name when the OS text size is large', async () => {
+    setWindowWidth(390, 1.4);
+    await renderRouter(routes, { initialUrl: '/' });
+    expect(screen.getByText('Listas')).toBeOnTheScreen();
+    expect(screen.getByText('Ajustes')).toBeOnTheScreen();
+  });
+});
+
 describe('App shell on tablets and desktop', () => {
   beforeEach(() => setWindowWidth(1240));
 
@@ -80,6 +95,10 @@ describe('App shell on tablets and desktop', () => {
     await renderRouter(routes, { initialUrl: '/' });
     expect(screen.getByText('Aquar.io')).toBeOnTheScreen();
     expect(screen.getByRole('tab', { name: 'Hoje' })).toBeSelected();
+    // The active item is filled so it reads clearly on the deep-water sidebar.
+    expect(screen.getByRole('tab', { name: 'Hoje' })).toHaveStyle({
+      backgroundColor: lightColors.deepAccent,
+    });
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Ajustes' }));
     expect(screen.getByRole('header', { name: 'Ajustes' })).toBeOnTheScreen();

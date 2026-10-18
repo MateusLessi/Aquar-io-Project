@@ -2,10 +2,9 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import {
-  Checkbox,
   ListItem,
   Screen,
   SegmentedControl,
@@ -24,15 +23,7 @@ const themeOptions: { value: ThemePreference; label: string }[] = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const {
-    colors,
-    preference,
-    setPreference,
-    reduceMotion,
-    reduceTransparency,
-    experimentalAndroidBlur,
-    setExperimentalAndroidBlur,
-  } = useTheme();
+  const { colors, preference, setPreference, reduceMotion, reduceTransparency } = useTheme();
 
   return (
     <Screen title="Ajustes">
@@ -71,20 +62,6 @@ export default function SettingsScreen() {
               onPress={() => router.push('/dev/design-system')}
               trailing={<ChevronRight size={20} color={colors.textTertiary} />}
             />
-            {Platform.OS === 'android' ? (
-              <ListItem
-                separator
-                title="Blur real no Android (experimental)"
-                subtitle="Compare desempenho e visual no tablet"
-                trailing={
-                  <Checkbox
-                    label="Blur real no Android"
-                    checked={experimentalAndroidBlur}
-                    onChange={setExperimentalAndroidBlur}
-                  />
-                }
-              />
-            ) : null}
           </Surface>
         </Section>
       ) : null}

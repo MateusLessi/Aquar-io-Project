@@ -51,7 +51,7 @@ export function Sidebar({ destinations, onCreate }: SidebarProps) {
         </View>
 
         <View style={styles.footer}>
-          <Button label="Nova tarefa" variant="deep" icon={Plus} block onPress={onCreate} />
+          <Button label="Nova tarefa" variant="energy" icon={Plus} block onPress={onCreate} />
         </View>
       </DeepSurface>
     </View>
@@ -75,15 +75,22 @@ function SidebarItem({ icon: Icon, label, isFocused = false, ...rest }: SidebarI
       accessibilityRole="tab"
       accessibilityLabel={label}
       accessibilityState={{ selected: isFocused }}
+      aria-selected={isFocused}
       onPressIn={focus.onPressIn}
       onPressOut={focus.onPressOut}
       onFocus={focus.onFocus}
       onBlur={focus.onBlur}
       style={({ pressed }) => [
         styles.item,
-        (isFocused || pressed) && { backgroundColor: colors.accentSoft },
+        {
+          backgroundColor: isFocused
+            ? colors.deepAccent
+            : pressed
+              ? colors.deepAccentSoft
+              : 'transparent',
+        },
         keyboardFocused && {
-          outlineColor: colors.focusRing,
+          outlineColor: colors.energy,
           outlineWidth: 2,
           outlineStyle: 'solid',
         },
@@ -92,9 +99,12 @@ function SidebarItem({ icon: Icon, label, isFocused = false, ...rest }: SidebarI
       <Icon
         size={22}
         strokeWidth={isFocused ? 2.1 : 1.8}
-        color={isFocused ? colors.deepAccent : colors.onDeepSecondary}
+        color={isFocused ? colors.onDeepAccent : colors.onDeepSecondary}
       />
-      <Text variant={isFocused ? 'bodyStrong' : 'body'} tone={isFocused ? 'deepAccent' : 'onDeep'}>
+      <Text
+        variant={isFocused ? 'bodyStrong' : 'body'}
+        tone={isFocused ? 'onDeepAccent' : 'onDeep'}
+      >
         {label}
       </Text>
     </Pressable>
@@ -107,8 +117,8 @@ const styles = StyleSheet.create({
   brand: { paddingHorizontal: spacing.sm, paddingTop: spacing.sm, gap: spacing.xxs },
   items: { marginTop: spacing.xxl, gap: spacing.xs },
   item: {
-    minHeight: 48,
-    borderRadius: radius.md,
+    minHeight: 52,
+    borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',

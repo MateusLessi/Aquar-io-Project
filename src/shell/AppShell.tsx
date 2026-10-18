@@ -1,6 +1,5 @@
-import { BlurTargetView } from 'expo-blur';
 import { TabList, TabSlot, TabTrigger, Tabs, useTabTrigger } from 'expo-router/ui';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -31,7 +30,6 @@ export function AppShell() {
 function ShellLayout() {
   const wide = useBreakpoint() !== 'compact';
   const insets = useSafeAreaInsets();
-  const blurTarget = useRef<View>(null);
   const [creating, setCreating] = useState(false);
 
   // Any trigger can report which tab is focused.
@@ -48,9 +46,9 @@ function ShellLayout() {
       <View style={[styles.body, wide && styles.row]}>
         {wide ? <Sidebar destinations={destinations} onCreate={() => setCreating(true)} /> : null}
         <ChromeInsetsProvider value={chromeInsets}>
-          <BlurTargetView ref={blurTarget} style={styles.content}>
+          <View style={styles.content}>
             <TabSlot />
-          </BlurTargetView>
+          </View>
         </ChromeInsetsProvider>
       </View>
       {wide ? null : (
@@ -58,7 +56,6 @@ function ShellLayout() {
           destinations={destinations}
           activeName={activeName}
           onCreate={() => setCreating(true)}
-          blurTarget={blurTarget}
         />
       )}
       <NewTaskSheet visible={creating} onClose={() => setCreating(false)} />

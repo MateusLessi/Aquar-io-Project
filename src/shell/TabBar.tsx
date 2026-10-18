@@ -1,13 +1,18 @@
 import { TabTrigger } from 'expo-router/ui';
 import type { LucideIcon } from 'lucide-react-native';
-import type { RefObject } from 'react';
-import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+  type PressableProps,
+} from 'react-native';
 import Animated, { FadeIn, LinearTransition, ZoomIn, ZoomOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  DeepSurface,
   FloatingActionButton,
-  GlassSurface,
   Text,
   chrome,
   haptics,
@@ -23,16 +28,23 @@ const layoutTransition = LinearTransition.springify()
   .damping(springs.responsive.damping)
   .stiffness(springs.responsive.stiffness);
 
+/** From this OS text size on, every tab shows its name, not only the active one. */
+const LABELS_FONT_SCALE = 1.3;
+
 type TabBarProps = {
   destinations: Destination[];
   activeName: string | undefined;
   onCreate: () => void;
-  blurTarget: RefObject<View | null>;
 };
 
-/** Phones: a floating glass bar with the destinations, plus the drop-shaped create button. */
-export function TabBar({ destinations, activeName, onCreate, blurTarget }: TabBarProps) {
+/**
+ * Phones: a deep-water track with one circle per destination. The active one opens into
+ * a bright pill with its name. The coral drop beside it creates.
+ */
+export function TabBar({ destinations, activeName, onCreate }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const { fontScale } = useWindowDimensions();
+  const showAllLabels = fontScale >= LABELS_FONT_SCALE;
   const showsCreate = destinations.find((d) => d.name === activeName)?.showsCreate ?? false;
 
   return (
@@ -41,15 +53,19 @@ export function TabBar({ destinations, activeName, onCreate, blurTarget }: TabBa
       style={[styles.dock, { bottom: insets.bottom + chrome.tabBarOffset }]}
     >
       <Animated.View layout={layoutTransition} style={styles.barWrap}>
-        <GlassSurface depth={1} radius="pill" blurTarget={blurTarget} style={styles.bar}>
+        <DeepSurface radius="pill" style={styles.bar}>
           <View accessibilityRole="tablist" style={styles.tabs}>
             {destinations.map((destination) => (
               <TabTrigger key={destination.name} name={destination.name} asChild>
-                <TabBarButton icon={destination.icon} label={destination.label} />
+                <TabBarButton
+                  icon={destination.icon}
+                  label={destination.label}
+                  showLabel={showAllLabels}
+                />
               </TabTrigger>
             ))}
           </View>
-        </GlassSurface>
+        </DeepSurface>
       </Animated.View>
       {showsCreate ? (
         <Animated.View entering={ZoomIn.springify()} exiting={ZoomOut.duration(150)}>
@@ -63,6 +79,8 @@ export function TabBar({ destinations, activeName, onCreate, blurTarget }: TabBa
 type TabBarButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   icon: LucideIcon;
   label: string;
+  /** Show the name even when not focused (large OS text sizes). */
+  showLabel: boolean;
   /** Injected by TabTrigger. */
   isFocused?: boolean;
 };
@@ -70,11 +88,13 @@ type TabBarButtonProps = Omit<PressableProps, 'children' | 'style'> & {
 function TabBarButton({
   icon: Icon,
   label,
+  showLabel,
   isFocused = false,
   onPress,
   ...rest
 }: TabBarButtonProps) {
   const { colors } = useTheme();
+  const labelVisible = isFocused || showLabel;
 
   return (
     <Pressable
@@ -86,20 +106,29 @@ function TabBarButton({
       accessibilityRole="tab"
       accessibilityLabel={label}
       accessibilityState={{ selected: isFocused }}
-      style={styles.button}
+      aria-selected={isFocused}
+      style={[styles.button, isFocused && styles.buttonFocused]}
     >
       <Animated.View
         layout={layoutTransition}
-        style={[styles.pill, isFocused && { backgroundColor: colors.accentSoft }]}
+        style={[
+          styles.pill,
+          labelVisible && styles.pillWithLabel,
+          { backgroundColor: isFocused ? colors.deepAccent : colors.deepAccentSoft },
+        ]}
       >
         <Icon
           size={24}
-          strokeWidth={isFocused ? 2.1 : 1.8}
-          color={isFocused ? colors.accent : colors.textSecondary}
+          strokeWidth={isFocused ? 2.2 : 1.8}
+          color={isFocused ? colors.onDeepAccent : colors.onDeep}
         />
-        {isFocused ? (
+        {labelVisible ? (
           <Animated.View entering={FadeIn.duration(180)}>
-            <Text variant="bodyStrong" tone="accent" numberOfLines={1}>
+            <Text
+              variant="bodyStrong"
+              tone={isFocused ? 'onDeepAccent' : 'onDeep'}
+              numberOfLines={1}
+            >
               {label}
             </Text>
           </Animated.View>
@@ -119,17 +148,23 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   barWrap: { flex: 1 },
-  bar: { height: chrome.tabBarHeight, justifyContent: 'center', paddingHorizontal: spacing.sm },
-  tabs: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
-  button: { minHeight: 56, justifyContent: 'center' },
+  bar: { height: chrome.tabBarHeight, justifyContent: 'center', paddingHorizontal: 10 },
+  tabs: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  button: { justifyContent: 'center' },
+  buttonFocused: { flexShrink: 1 },
   pill: {
     height: 52,
-    minWidth: 56,
-    paddingHorizontal: spacing.lg,
+    width: 52,
     borderRadius: radius.pill,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
   },
+  pillWithLabel: { width: 'auto', paddingHorizontal: spacing.lg },
 });

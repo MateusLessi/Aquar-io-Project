@@ -17,6 +17,7 @@ import {
   Surface,
   Text,
   TextInput,
+  TideHero,
   WaterLevel,
   Waterline,
   listColorNames,
@@ -133,6 +134,15 @@ function Catalog() {
           </View>
           <Waterline />
 
+          <Section title="Herói da maré (marque as tarefas abaixo)">
+            <TideHero
+              label="Maré do dia"
+              completed={done}
+              total={tasks.length}
+              caption="tarefas concluídas"
+            />
+          </Section>
+
           <Section title="Tema">
             <View style={styles.wrap}>
               {preferences.map((option) => (
@@ -157,6 +167,7 @@ function Catalog() {
                   key={task.id}
                   title={task.title}
                   completed={task.done}
+                  accentColor={listColors[task.list][scheme]}
                   separator={index > 0}
                   onPress={() => {}}
                   leading={
@@ -200,6 +211,7 @@ function Catalog() {
               <Button label="Primário" />
               <Button label="Secundário" variant="secondary" />
               <Button label="Ghost" variant="ghost" />
+              <Button label="Criar" variant="energy" />
             </View>
             <View style={styles.wrap}>
               <Button label="Desabilitado" disabled />

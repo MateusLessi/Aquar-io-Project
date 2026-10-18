@@ -22,12 +22,6 @@ export type Theme = {
   reduceMotion: boolean;
   /** Real backdrop blur is available on this platform. */
   supportsBlur: boolean;
-  /**
-   * Android blur needs a BlurTargetView behind the glass. Off by default until
-   * tested on real devices; toggled from Settings in development builds.
-   */
-  experimentalAndroidBlur: boolean;
-  setExperimentalAndroidBlur: (enabled: boolean) => void;
 };
 
 const ThemeContext = createContext<Theme | null>(null);
@@ -68,7 +62,6 @@ type ThemeProviderProps = {
 export function ThemeProvider({ children, initialPreference = 'system' }: ThemeProviderProps) {
   const systemScheme = useColorScheme();
   const [preference, setPreference] = useState<ThemePreference>(initialPreference);
-  const [experimentalAndroidBlur, setExperimentalAndroidBlur] = useState(false);
   const reduceTransparency = useAccessibilitySetting(
     AccessibilityInfo.isReduceTransparencyEnabled,
     'reduceTransparencyChanged',
@@ -91,12 +84,10 @@ export function ThemeProvider({ children, initialPreference = 'system' }: ThemeP
       setPreference,
       reduceTransparency,
       reduceMotion,
-      // Android needs a BlurTargetView behind the glass; see `experimentalAndroidBlur`.
+      // Android blur needs a BlurTargetView behind each glass surface; not worth it yet.
       supportsBlur: Platform.OS === 'ios' || Platform.OS === 'web',
-      experimentalAndroidBlur,
-      setExperimentalAndroidBlur,
     }),
-    [scheme, preference, reduceTransparency, reduceMotion, experimentalAndroidBlur],
+    [scheme, preference, reduceTransparency, reduceMotion],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
