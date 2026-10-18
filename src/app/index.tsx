@@ -1,33 +1,31 @@
-// TEMPORARY: placeholder screen for Etapa 1 (technical foundation).
-// Replaced by the real app shell in Etapa 3.
-import { StyleSheet, Text, View } from 'react-native';
+// TEMPORARY: placeholder screen until the app shell (Etapa 3).
+import { Link } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Button, OceanBackground, Text, spacing } from '@/design-system';
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <Text accessibilityRole="header" style={styles.title}>
-        Aquar.io
-      </Text>
-      <Text style={styles.subtitle}>Fundação técnica</Text>
-    </View>
+    <OceanBackground>
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}>
+          <Text variant="largeTitle">Aquar.io</Text>
+          <Text variant="callout" tone="secondary">
+            Design System · Aquatic Glass
+          </Text>
+        </View>
+        {__DEV__ ? (
+          <Link href="/dev/design-system" asChild>
+            <Button label="Abrir catálogo de componentes" variant="secondary" />
+          </Link>
+        ) : null}
+      </SafeAreaView>
+    </OceanBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#071521',
-  },
-  title: {
-    color: '#E6F1F5',
-    fontSize: 32,
-    fontWeight: '600',
-  },
-  subtitle: {
-    color: '#8FA8B4',
-    fontSize: 15,
-    marginTop: 8,
-  },
+  safe: { flex: 1, padding: spacing.xl },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
 });
