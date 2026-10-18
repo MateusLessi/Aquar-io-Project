@@ -4,7 +4,7 @@
 
 ## Status
 
-🚧 **Etapa 3 — Estrutura principal (App Shell) concluída.** Navegação para celular, tablet e web, ainda sem dados reais: as tarefas chegam na Etapa 4.
+🚧 **Etapa 4 — To Do V1 concluída.** Listas, tarefas, subtarefas, prazos, prioridade e notas salvos no aparelho, e a maré do dia em Hoje.
 
 | Item                                          | Estado                                                                  |
 | --------------------------------------------- | ----------------------------------------------------------------------- |
@@ -13,6 +13,7 @@
 | Fundação técnica (Etapa 1)                    | ✓ concluída                                                             |
 | Design System (Etapa 2)                       | ✓ concluído — [design-system.md](docs/design-system.md)                 |
 | Estrutura principal (Etapa 3)                 | ✓ concluída — [architecture.md](docs/architecture.md#navegação-etapa-3) |
+| To Do V1 (Etapa 4)                            | ✓ concluído — [todo.md](docs/todo.md)                                   |
 
 ## Filosofia
 
@@ -30,7 +31,8 @@ Pré-requisito: [Node.js](https://nodejs.org/) 22 ou superior.
 npm install
 npm start        # servidor de desenvolvimento; escaneie o QR code com o app Expo Go
 npm run web      # versão no navegador
-npm test         # testes
+npm test         # testes unitários e de integração
+npm run e2e      # testes ponta a ponta no navegador
 ```
 
 Em modo de desenvolvimento, o catálogo de componentes fica em **Ajustes → Desenvolvimento**.
@@ -40,6 +42,7 @@ Em modo de desenvolvimento, o catálogo de componentes fica em **Ajustes → Des
 - [Arquitetura](docs/architecture.md)
 - [Design System](docs/design-system.md)
 - [Banco de dados](docs/database.md)
+- [To Do](docs/todo.md)
 - [Gamificação](docs/gamification.md)
 - [Decisões de arquitetura (ADRs)](docs/decisions.md)
 - [Roadmap](docs/roadmap.md)

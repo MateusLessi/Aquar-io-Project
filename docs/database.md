@@ -2,7 +2,7 @@
 
 Estratégia: **local-first** ([ADR-002](decisions.md#adr-002)). SQLite no aparelho, sincronização com a nuvem no futuro.
 
-**Status:** modelo **planejado**. Nenhuma tabela existe ainda; elas serão criadas por migrations na Etapa 4 (To Do V1).
+**Status:** **REAL** desde a Etapa 4 (To Do V1). O esquema é criado pela migration 1 em `src/core/database/migrations.ts`. Acesso a dados: [ADR-003](decisions.md#adr-003).
 
 ## Convenções
 
@@ -17,7 +17,7 @@ Estratégia: **local-first** ([ADR-002](decisions.md#adr-002)). SQLite no aparel
 
 > **Migration:** um script que altera a estrutura do banco (cria tabela, adiciona coluna). Cada uma é numerada e roda uma única vez em cada aparelho, na ordem. Assim, o app instalado há meses e o app recém-instalado chegam à mesma estrutura.
 
-## Modelo inicial (Etapa 4)
+## Modelo atual (migration 1)
 
 ```
 task_lists
@@ -55,6 +55,12 @@ domain_events
   occurred_at   TEXT NOT NULL
 ```
 
+```
+app_settings
+  key    TEXT PK     -- ex.: 'theme'
+  value  TEXT
+```
+
 ### Notas de design
 
 - **Sem `owner_id` / `users` por enquanto.** Sem conta, só existe um usuário: o dono do aparelho. A identidade entra junto com a autenticação e o sync. Adicionar a coluna nesse momento é uma migration simples.
@@ -62,7 +68,7 @@ domain_events
 - **Desmarcar uma tarefa** (`completed_at` volta a `NULL`) gera um evento próprio (`TASK_UNCOMPLETED`), para a gamificação futura não contar a mesma conclusão duas vezes.
 - **Subtarefas** reutilizam a tabela `tasks` com `parent_task_id`. A V1 limita a um nível de profundidade.
 
-### Índices planejados
+### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;
 - `tasks(parent_task_id)`: carregar subtarefas;

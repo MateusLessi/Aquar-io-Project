@@ -13,8 +13,8 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [✓] Design System (Aquatic Glass)
 [✓] App Shell & Navigation
 [ ] Authentication
-[●] To Do Core
-[ ] To Do Advanced
+[✓] To Do Core
+[●] To Do Advanced
 [ ] Routines Core
 [ ] Routine Intelligence
 [ ] Gamification Foundation

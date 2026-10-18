@@ -7,6 +7,7 @@ ADRs não são apagados. Se uma decisão mudar, criamos um novo ADR que **substi
 | --------------- | ----------------------------------------------------------- | ------ | ---------- |
 | [001](#adr-001) | Plataforma de desenvolvimento: linguagem e framework mobile | Aceito | 2026-10-18 |
 | [002](#adr-002) | Estratégia de dados: local-first                            | Aceito | 2026-10-18 |
+| [003](#adr-003) | Acesso a dados: SQL direto com repositórios                 | Aceito | 2026-10-18 |
 
 ---
 
@@ -116,3 +117,36 @@ Entrega a melhor experiência agora (instantâneo, offline, sem cadastro) e o me
 - até existir sync, perder o aparelho significa perder os dados. Uma exportação manual simples pode ser oferecida na fase de testes;
 - regra inicial de conflito planejada para o sync: _a edição mais recente vence_ (`updated_at`);
 - a autenticação fica adiada até a etapa de sincronização.
+
+---
+
+## ADR-003
+
+**Título:** Acesso a dados: SQL direto (expo-sqlite) com repositórios, sem ORM
+
+**Status:** Aceito (Checkpoint de Aprovação 009)
+
+**Data:** 2026-10-18
+
+### Contexto
+
+O To Do V1 é o primeiro módulo a gravar dados (ADR-002: SQLite local). Era preciso decidir como o código conversa com o banco.
+
+### Alternativas
+
+| Alternativa                   | Prós                                                                      | Contras                                           |
+| ----------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------- |
+| **SQL direto + repositórios** | Sem dependências extras; SQL visível e didático; testável com SQLite real | Mais código escrito à mão                         |
+| ORM (Drizzle)                 | Consultas tipadas, menos código                                           | Mais uma ferramenta e configuração; esconde o SQL |
+| Estado em memória + JSON      | Simples                                                                   | Não escala para sync, relatórios e gamificação    |
+
+### Decisão
+
+`expo-sqlite` atrás de um contrato mínimo `Database` (`src/core/database/types.ts`). Cada módulo tem um repositório com o seu SQL (ex.: `src/features/todo/data/todoRepository.ts`). Migrations numeradas usam o `PRAGMA user_version` do SQLite.
+
+### Consequências
+
+- Os testes de integração rodam **o mesmo SQL** no SQLite embutido do Node (`createMemoryDatabase`).
+- As telas leem por `useLiveQuery`, que refaz a consulta quando um repositório avisa que os dados mudaram (`DataChanges`).
+- Na web, o SQLite roda em WebAssembly e exige isolamento de origem (cabeçalhos COOP/COEP), configurado em `metro.config.js` e no servidor de E2E.
+- Se o SQL manual pesar no futuro, trocar por um ORM fica restrito aos repositórios.

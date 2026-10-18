@@ -4,17 +4,18 @@ Visão geral técnica do Aquar.io. Decisões e seus motivos ficam em [decisions.
 
 ## Plataforma
 
-| Camada    | Tecnologia                                        | Status    |
-| --------- | ------------------------------------------------- | --------- |
-| Linguagem | TypeScript (modo `strict` + checagens extras)     | REAL      |
-| Framework | React Native + Expo SDK 57                        | REAL      |
-| Navegação | Expo Router (rotas por arquivo em `src/app/`)     | REAL      |
-| Testes    | Jest (`jest-expo`) + React Native Testing Library | REAL      |
-| Qualidade | ESLint (`eslint-config-expo`) + Prettier          | REAL      |
-| CI        | GitHub Actions (`.github/workflows/ci.yml`)       | REAL      |
-| Dados     | Local-first: SQLite no aparelho (ADR-002)         | PLANEJADO |
-| Design    | Aquatic Glass (`src/design-system`)               | REAL      |
-| Animação  | Reanimated 4 (molas respeitam Reduzir movimento)  | REAL      |
+| Camada    | Tecnologia                                         | Status |
+| --------- | -------------------------------------------------- | ------ |
+| Linguagem | TypeScript (modo `strict` + checagens extras)      | REAL   |
+| Framework | React Native + Expo SDK 57                         | REAL   |
+| Navegação | Expo Router (rotas por arquivo em `src/app/`)      | REAL   |
+| Testes    | Jest (`jest-expo`) + React Native Testing Library  | REAL   |
+| Qualidade | ESLint (`eslint-config-expo`) + Prettier           | REAL   |
+| CI        | GitHub Actions (`.github/workflows/ci.yml`)        | REAL   |
+| Dados     | SQLite no aparelho (ADR-002), SQL direto (ADR-003) | REAL   |
+| E2E       | Playwright na versão web (`npm run e2e`)           | REAL   |
+| Design    | Aquatic Glass (`src/design-system`)                | REAL   |
+| Animação  | Reanimated 4 (molas respeitam Reduzir movimento)   | REAL   |
 
 ## Estrutura de pastas
 
@@ -25,8 +26,8 @@ src/
 ├── __tests__/        Testes de telas de rota (não podem ficar dentro de src/app/).
 ├── design-system/    tokens, tema, componentes e catálogo (ver design-system.md)
 ├── shell/            moldura do app: barra de abas (celular), barra lateral (tablet/desktop), destinos
-├── core/             (quando necessário) eventos, banco, identidade
-├── features/         (a partir da Etapa 4) um diretório por módulo: todo/, routines/, ...
+├── core/             banco (contrato, migrations, useLiveQuery), eventos de domínio, ids, ajustes
+├── features/         um diretório por módulo; hoje: todo/ (ver todo.md)
 └── shared/           (quando necessário) utilitários genéricos
 ```
 
@@ -79,6 +80,17 @@ qualquer camada  ──►  shell (exceto rotas)        ❌ proibido
 ```
 
 Essas regras são **verificadas automaticamente** pelo ESLint (`import/no-restricted-paths`, configurado em `eslint.config.js`). As zonas de cada feature são geradas a partir das pastas em `src/features/`. Ao criar um novo módulo, a regra passa a valer para ele sem nenhuma configuração extra.
+
+## Fluxo de dados
+
+```
+Tela ──ação──► repositório (SQL) ──► SQLite
+  ▲                │
+  │                ├─► DataChanges.notify('tasks')  ──► useLiveQuery refaz a leitura ──► Tela
+  │                └─► EventLog (TASK_COMPLETED…)   ──► domain_events (futuro Progress Engine)
+```
+
+A raiz de composição `src/shell/AppData.tsx` abre o banco ao iniciar, roda as migrations e conecta os módulos. Se o banco não abrir, o app mostra uma tela de erro com "Tentar de novo".
 
 ## Regras automáticas de lint
 
