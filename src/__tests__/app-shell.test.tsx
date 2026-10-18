@@ -3,22 +3,34 @@ import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import ListsScreen from '@/app/(tabs)/lists';
+import ListRoute from '@/app/(tabs)/lists/[id]';
+import ListsLayout from '@/app/(tabs)/lists/_layout';
+import ListsScreen from '@/app/(tabs)/lists/index';
 import SettingsScreen from '@/app/(tabs)/settings';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
+import { createMemoryDatabase } from '@/core/database/testing';
 import { ThemeProvider, lightColors } from '@/design-system';
+import { AppDataProvider, createAppData, type AppData } from '@/shell/AppData';
 
 const metrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
+let data: AppData;
+
+beforeEach(async () => {
+  data = await createAppData(createMemoryDatabase());
+});
+
 function TestRoot() {
   return (
     <SafeAreaProvider initialMetrics={metrics}>
       <ThemeProvider initialPreference="light">
-        <Slot />
+        <AppDataProvider data={data}>
+          <Slot />
+        </AppDataProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
@@ -28,7 +40,9 @@ const routes = {
   _layout: TestRoot,
   '(tabs)/_layout': TabsLayout,
   '(tabs)/index': TodayScreen,
-  '(tabs)/lists': ListsScreen,
+  '(tabs)/lists/_layout': ListsLayout,
+  '(tabs)/lists/index': ListsScreen,
+  '(tabs)/lists/[id]': ListRoute,
   '(tabs)/settings': SettingsScreen,
 };
 
@@ -54,13 +68,31 @@ describe('App shell on phones', () => {
     expect(app.getPathname()).toBe('/lists');
   });
 
-  it('offers "Nova tarefa" on Today but not on Settings', async () => {
+  it('creates a first list and a task for today, then completes it', async () => {
     await renderRouter(routes, { initialUrl: '/' });
-    await fireEvent.press(screen.getByRole('button', { name: 'Nova tarefa' }));
-    expect(screen.getByText(/Criar tarefas chega na próxima etapa/)).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Entendi' }));
+    expect(screen.getByText('Nada para hoje')).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('tab', { name: 'Ajustes' }));
+    // No lists yet: the quick add offers to create one first.
+    await fireEvent.press(screen.getByRole('button', { name: 'Nova tarefa' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Criar lista' }));
+    await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Academia');
+    const createButtons = screen.getAllByRole('button', { name: 'Criar lista' });
+    await fireEvent.press(createButtons[createButtons.length - 1]!);
+
+    // Back in quick add, with "Para hoje" preselected because we came from Today.
+    await fireEvent.changeText(await screen.findByLabelText('Tarefa'), 'Treino de perna');
+    expect(screen.getByRole('button', { name: 'Para hoje' })).toBeSelected();
+    await fireEvent.press(screen.getByRole('button', { name: 'Adicionar' }));
+
+    const checkbox = await screen.findByRole('checkbox', { name: 'Treino de perna' });
+    expect(screen.getByRole('progressbar', { name: /0 de 1/ })).toBeOnTheScreen();
+    await fireEvent.press(checkbox);
+    expect(await screen.findByRole('progressbar', { name: /1 de 1/ })).toBeOnTheScreen();
+    expect(await data.events.count('TASK_COMPLETED')).toBe(1);
+  });
+
+  it('does not offer "Nova tarefa" on Settings', async () => {
+    await renderRouter(routes, { initialUrl: '/settings' });
     expect(screen.queryByRole('button', { name: 'Nova tarefa' })).toBeNull();
   });
 

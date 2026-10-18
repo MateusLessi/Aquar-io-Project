@@ -1,0 +1,86 @@
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+
+import { createDataChanges, type DataChanges } from '@/core/database/changes';
+import { openAppDatabase } from '@/core/database/expoDatabase';
+import { migrate } from '@/core/database/migrations';
+import type { Database } from '@/core/database/types';
+import { DataChangesContext } from '@/core/database/useLiveQuery';
+import { createEventLog, type EventLog } from '@/core/events/eventLog';
+import { newId } from '@/core/ids';
+import {
+  createSettingsRepository,
+  type SettingsRepository,
+} from '@/core/settings/settingsRepository';
+import type { ThemePreference } from '@/design-system';
+import { createTodoRepository, type TodoRepository } from '@/features/todo/data/todoRepository';
+import { TodoContext } from '@/features/todo/hooks/todoContext';
+
+export type AppData = {
+  changes: DataChanges;
+  events: EventLog;
+  settings: SettingsRepository;
+  todo: TodoRepository;
+  themePreference: ThemePreference;
+};
+
+const THEME_KEY = 'theme';
+const themePreferences: ThemePreference[] = ['system', 'light', 'dark'];
+
+/** Wires every module to the same database: the app's composition root. */
+export async function createAppData(db: Database, now: () => Date = () => new Date()) {
+  await migrate(db);
+  const changes = createDataChanges();
+  const events = createEventLog({ db, newId, now });
+  const settings = createSettingsRepository(db, changes);
+  const todo = createTodoRepository({ db, changes, events, newId, now });
+  const storedTheme = await settings.get(THEME_KEY);
+  const themePreference = themePreferences.find((p) => p === storedTheme) ?? 'system';
+  return { changes, events, settings, todo, themePreference } satisfies AppData;
+}
+
+export type BootState =
+  | { status: 'loading' }
+  | { status: 'ready'; data: AppData }
+  | { status: 'error'; error: Error; retry: () => void };
+
+/** Opens the database once at startup. */
+export function useAppDataBootstrap(): BootState {
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState<BootState>({ status: 'loading' });
+  const retry = useCallback(() => {
+    setState({ status: 'loading' });
+    setAttempt((n) => n + 1);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    openAppDatabase()
+      .then((db) => createAppData(db))
+      .then(
+        (data) => active && setState({ status: 'ready', data }),
+        (error: unknown) =>
+          active &&
+          setState({
+            status: 'error',
+            error: error instanceof Error ? error : new Error(String(error)),
+            retry,
+          }),
+      );
+    return () => {
+      active = false;
+    };
+  }, [attempt, retry]);
+
+  return state;
+}
+
+export function AppDataProvider({ data, children }: { data: AppData; children: ReactNode }) {
+  return (
+    <DataChangesContext.Provider value={data.changes}>
+      <TodoContext.Provider value={data.todo}>{children}</TodoContext.Provider>
+    </DataChangesContext.Provider>
+  );
+}
+
+export const saveThemePreference = (data: AppData, preference: ThemePreference) =>
+  data.settings.set(THEME_KEY, preference);
