@@ -11,9 +11,9 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [✓] Fundação técnica
 [✓] Data Strategy
 [✓] Design System (Aquatic Glass)
-[●] App Shell & Navigation
+[✓] App Shell & Navigation
 [ ] Authentication
-[ ] To Do Core
+[●] To Do Core
 [ ] To Do Advanced
 [ ] Routines Core
 [ ] Routine Intelligence

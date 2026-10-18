@@ -24,6 +24,7 @@ src/
 │                     Só código de rota mora aqui.
 ├── __tests__/        Testes de telas de rota (não podem ficar dentro de src/app/).
 ├── design-system/    tokens, tema, componentes e catálogo (ver design-system.md)
+├── shell/            moldura do app: barra de abas (celular), barra lateral (tablet/desktop), destinos
 ├── core/             (quando necessário) eventos, banco, identidade
 ├── features/         (a partir da Etapa 4) um diretório por módulo: todo/, routines/, ...
 └── shared/           (quando necessário) utilitários genéricos
@@ -33,12 +34,32 @@ As pastas marcadas com etapa ainda **não existem**. Elas são criadas quando o 
 
 > Ajuste em relação à proposta da Etapa 0: as rotas ficam em `src/app/` (convenção do template atual do Expo), e não em `app/` na raiz.
 
+## Navegação (Etapa 3)
+
+```
+src/app/
+├── _layout.tsx          raiz: fontes, tema, Stack
+├── (tabs)/_layout.tsx   AppShell (abas headless do Expo Router)
+├── (tabs)/index.tsx     Hoje
+├── (tabs)/lists.tsx     Listas
+├── (tabs)/settings.tsx  Ajustes
+└── dev/design-system.tsx  catálogo (somente desenvolvimento)
+```
+
+- **Celular (`compact`):** barra de vidro flutuante (72 pt) com as abas e o botão gota "+".
+- **Tablet e desktop (`medium`/`expanded`):** barra lateral de vidro com os destinos e o botão "Nova tarefa".
+- Os destinos ficam em `src/shell/destinations.ts`. Só aparecem módulos que já existem.
+- A navegação usa as abas "headless" de `expo-router/ui`: o roteamento é do Expo Router, e o visual é todo nosso.
+
 ## Regras de dependência
 
 ```
+app (rotas) ──►  shell, features, design-system  ✅ permitido
+shell       ──►  design-system, core              ✅ permitido
 features/*  ──►  core, design-system, shared     ✅ permitido
 features/a  ──►  features/b                      ❌ proibido (use eventos do core)
 core, design-system, shared  ──►  features       ❌ proibido
+qualquer camada  ──►  shell (exceto rotas)        ❌ proibido
 ```
 
 Essas regras são **verificadas automaticamente** pelo ESLint (`import/no-restricted-paths`, configurado em `eslint.config.js`). As zonas de cada feature são geradas a partir das pastas em `src/features/`. Ao criar um novo módulo, a regra passa a valer para ele sem nenhuma configuração extra.

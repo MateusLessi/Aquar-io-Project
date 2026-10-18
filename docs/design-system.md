@@ -85,7 +85,7 @@ Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` 
 | Reduzir transparência | ✅  | —                                    | —                    |
 | Reduzir movimento     | ✅  | ✅                                   | ✅                   |
 
-**Android:** o blur real exige envolver o conteúdo de cada tela em um `BlurTargetView`. Isso será avaliado na Etapa 3 (estrutura de telas), com teste no Galaxy Tab S8+.
+**Android:** o blur real exige um `BlurTargetView` atrás do vidro. O shell já o fornece para a barra de abas, mas o efeito fica **desligado por padrão** até ser validado no Galaxy Tab S8+. Para testar, use Ajustes → Desenvolvimento → "Blur real no Android (experimental)".
 
 ## Status
 

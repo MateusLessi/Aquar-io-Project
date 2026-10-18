@@ -4,14 +4,15 @@
 
 ## Status
 
-🚧 **Etapa 2 — Design System (Aquatic Glass) concluída.** Ainda sem funcionalidades de produto; o catálogo de componentes pode ser visto em modo de desenvolvimento.
+🚧 **Etapa 3 — Estrutura principal (App Shell) concluída.** Navegação para celular, tablet e web, ainda sem dados reais: as tarefas chegam na Etapa 4.
 
-| Item                                          | Estado                                                  |
-| --------------------------------------------- | ------------------------------------------------------- |
-| Visão do produto                              | ✓ definida                                              |
-| Plataforma (TypeScript + React Native + Expo) | ✓ aprovada — [ADR-001](docs/decisions.md#adr-001)       |
-| Fundação técnica (Etapa 1)                    | ✓ concluída                                             |
-| Design System (Etapa 2)                       | ✓ concluído — [design-system.md](docs/design-system.md) |
+| Item                                          | Estado                                                                  |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| Visão do produto                              | ✓ definida                                                              |
+| Plataforma (TypeScript + React Native + Expo) | ✓ aprovada — [ADR-001](docs/decisions.md#adr-001)                       |
+| Fundação técnica (Etapa 1)                    | ✓ concluída                                                             |
+| Design System (Etapa 2)                       | ✓ concluído — [design-system.md](docs/design-system.md)                 |
+| Estrutura principal (Etapa 3)                 | ✓ concluída — [architecture.md](docs/architecture.md#navegação-etapa-3) |
 
 ## Filosofia
 
@@ -32,7 +33,7 @@ npm run web      # versão no navegador
 npm test         # testes
 ```
 
-Com o app aberto em modo de desenvolvimento, toque em **Abrir catálogo de componentes** para ver o Design System.
+Em modo de desenvolvimento, o catálogo de componentes fica em **Ajustes → Desenvolvimento**.
 
 ## Documentação
 
