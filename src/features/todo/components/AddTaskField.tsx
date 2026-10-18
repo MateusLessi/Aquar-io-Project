@@ -18,12 +18,15 @@ export function AddTaskField({ placeholder = 'Adicionar tarefa', onAdd }: AddTas
   const [error, setError] = useState<string | null>(null);
 
   const submit = async () => {
-    if (!title.trim()) return;
+    const value = title;
+    if (!value.trim()) return;
+    // Clear right away so fast typists can start the next task while this one saves.
+    setTitle('');
+    setError(null);
     try {
-      await onAdd(title);
-      setTitle('');
-      setError(null);
+      await onAdd(value);
     } catch (e) {
+      setTitle((current) => current || value);
       setError(
         e instanceof ValidationError ? e.message : 'Não foi possível adicionar. Tente de novo.',
       );
