@@ -51,6 +51,22 @@ src/app/
 - Os destinos ficam em `src/shell/destinations.ts`. Só aparecem módulos que já existem.
 - A navegação usa as abas "headless" de `expo-router/ui`: o roteamento é do Expo Router, e o visual é todo nosso.
 
+## Matriz de layouts (planejada)
+
+Requisito do proprietário: o Aquar.io deve se adaptar a todos estes formatos.
+
+| Formato                                        | Largura típica              | Breakpoint                   | Navegação                                        | Conteúdo                                     |
+| ---------------------------------------------- | --------------------------- | ---------------------------- | ------------------------------------------------ | -------------------------------------------- |
+| Celular em pé (iPhone 11)                      | ~390 pt                     | `compact`                    | Barra de abas inferior                           | Uma coluna                                   |
+| Celular deitado                                | —                           | interface travada em retrato | Ícones giram; **Modo Maré** (painel de ambiente) | Planejado                                    |
+| Foldable fechado (tela externa do Galaxy Fold) | ~340–410 dp                 | `compact`                    | Barra de abas inferior                           | Uma coluna                                   |
+| Foldable aberto (Galaxy Fold, iPhone dobrável) | ~670–900 dp, quase quadrado | `medium`                     | Trilho lateral compacto (planejado)              | Uma coluna larga ou lista + detalhe          |
+| Tablet em pé (Tab S8+)                         | ~800 dp                     | `medium`                     | Trilho lateral compacto (planejado)              | Uma coluna larga                             |
+| Tablet deitado                                 | ~1280 dp                    | `expanded`                   | Barra lateral completa                           | Lista + detalhe; painel em "bento" no futuro |
+| Notebook (web)                                 | ≥ 1280 px                   | `expanded`                   | Barra lateral completa                           | Lista + detalhe; painel em "bento" no futuro |
+
+Hoje existem `compact` (barra de abas) e `medium`/`expanded` (barra lateral). Ainda faltam: o trilho compacto para `medium`, a rotação no tablet (o `app.json` trava tudo em retrato) e o Modo Maré. Eles serão feitos numa etapa própria de **layouts adaptativos**, que já precisa ter telas reais do To Do para ser testada.
+
 ## Regras de dependência
 
 ```
