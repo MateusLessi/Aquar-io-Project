@@ -46,6 +46,8 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 
 ## Pontos em aberto (para decidir no momento certo)
 
+- **Modo Maré (visualizador na horizontal):** no celular, a interface fica fixa em retrato e só os ícones giram (como no app de câmera). Ao deitar o celular, sobretudo carregando, o app vira um painel de ambiente com relógio, maré do dia e, depois, hábitos e criaturas. No tablet, a rotação muda o layout normalmente. Proposto para depois do To Do V1; os hábitos entram na Etapa 10.
+
 - **Rodada de ousadia visual:** o proprietário achou o design "um pouco tímido" (Etapa 2). Revisitar o Aquatic Glass com decisões mais marcantes depois do To Do V1, quando houver telas reais para calibrar.
 
 - **Sincronização mais cedo:** o proprietário usa 3 aparelhos (iPhone 11, Galaxy Tab S8+, notebook via web). Propor sync logo após o To Do V1.
