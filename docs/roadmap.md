@@ -46,5 +46,8 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 
 ## Pontos em aberto (para decidir no momento certo)
 
+- **Sincronização mais cedo:** o proprietário usa 3 aparelhos (iPhone 11, Galaxy Tab S8+, notebook via web). Propor sync logo após o To Do V1.
+- **Ranked Seasons:** modo ranqueado opt-in para hábitos, com entrada simbólica e recompensas cosméticas. Ver [gamification.md](gamification.md).
+
 - Em que etapa entra a **autenticação** (Etapa 3 ou antes da sincronização).
 - Avaliar se **Habits** deve vir antes de Routines avançado.

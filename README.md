@@ -35,6 +35,7 @@ npm test         # testes
 
 - [Arquitetura](docs/architecture.md)
 - [Banco de dados](docs/database.md)
+- [Gamificação](docs/gamification.md)
 - [Decisões de arquitetura (ADRs)](docs/decisions.md)
 - [Roadmap](docs/roadmap.md)
 
