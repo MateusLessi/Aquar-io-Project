@@ -1,0 +1,227 @@
+<!doctype html>
+<!-- PROPOSAL: visual preview v1 for Checkpoint 004 (Etapa 2). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aquatic Glass v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --display: 'Outfit', system-ui, sans-serif;
+    --text: 'Manrope', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #dfe7eb; color: #0c1a23; padding: 32px; width: 1480px; }
+  h1 { font-family: var(--display); font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+  .lead { color: #445a69; font-size: 14px; margin-top: 4px; }
+  .row { display: flex; gap: 32px; margin-top: 24px; align-items: flex-start; }
+
+  .light {
+    --surface-top: #e6f4f5; --surface-base: #f3f7f9; --surface-deep: #e7eef2;
+    --surface-raised: #ffffff;
+    --glass: rgba(255, 255, 255, 0.62); --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-shadow: 0 8px 28px rgba(12, 40, 52, 0.14);
+    --text-primary: #0c1a23; --text-secondary: #445a69; --text-tertiary: #6b8291;
+    --separator: rgba(12, 40, 52, 0.08);
+    --accent: #0e716f; --accent-2: #168c89; --accent-soft: rgba(14, 113, 111, 0.12);
+    --on-accent: #ffffff; --priority: #c4622d;
+    --caustic-line: rgba(22, 140, 137, 0.16); --waterline: rgba(14, 113, 111, 0.16);
+  }
+  .dark {
+    --surface-top: #0b2129; --surface-base: #07121a; --surface-deep: #040b11;
+    --surface-raised: #0e1c26;
+    --glass: rgba(18, 38, 50, 0.58); --glass-border: rgba(140, 200, 210, 0.12);
+    --glass-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+    --text-primary: #e6f0f4; --text-secondary: #9db2be; --text-tertiary: #6a8291;
+    --separator: rgba(157, 178, 190, 0.1);
+    --accent: #5cc3bd; --accent-2: #2fa9a4; --accent-soft: rgba(92, 195, 189, 0.14);
+    --on-accent: #062224; --priority: #f0a070;
+    --caustic-line: rgba(92, 195, 189, 0.07); --waterline: rgba(92, 195, 189, 0.14);
+  }
+
+  .label { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #445a69; margin-bottom: 12px; }
+  /* (6) depth: the background gets deeper as you go down */
+  .phone {
+    width: 360px; height: 760px; border-radius: 44px; overflow: hidden; position: relative;
+    background: linear-gradient(180deg, var(--surface-top) 0%, var(--surface-base) 34%, var(--surface-deep) 100%);
+    color: var(--text-primary); box-shadow: 0 24px 60px rgba(12, 30, 40, 0.25), 0 0 0 8px #0b1117;
+  }
+  /* (1) caustics: light refracted through the surface, only at the top */
+  .caustics { position: absolute; inset: 0 0 auto 0; height: 240px; pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, transparent 100%); }
+  .content { position: relative; }
+  .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 14px; font-weight: 700; }
+  .header { padding: 12px 20px 0; }
+  .eyebrow { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .large-title { font-family: var(--display); font-size: 36px; font-weight: 700; letter-spacing: -0.02em; line-height: 42px; margin-top: 2px; }
+  .meta { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+  /* (3) progress as a water level */
+  .level { position: relative; width: 92px; height: 30px; border-radius: 999px; overflow: hidden; box-shadow: inset 0 0 0 1.5px var(--accent-soft); background: var(--accent-soft); }
+  .level svg.water { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; }
+  .level span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; color: var(--text-secondary); box-shadow: inset 0 0 0 1px var(--separator); font-weight: 600; }
+  /* (2) waterline under the header */
+  .waterline { display: block; width: 100%; height: 18px; margin-top: 10px; }
+
+  .section { font-size: 12px; font-weight: 700; color: var(--text-tertiary); padding: 10px 20px 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .list { margin: 0 12px; background: var(--surface-raised); border-radius: 22px; overflow: hidden; }
+  .item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; position: relative; }
+  .item + .item::before { content: ''; position: absolute; top: 0; left: 54px; right: 0; height: 1px; background: var(--separator); }
+  .check { width: 24px; height: 24px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 2px var(--text-tertiary); margin-top: 1px; display: grid; place-items: center; position: relative; }
+  .check.done { background: radial-gradient(circle at 35% 30%, var(--accent) 0%, var(--accent-2) 100%); box-shadow: none; }
+  .check.done svg { stroke: var(--on-accent); }
+  /* (4) ripple on completion */
+  .ripple::before, .ripple::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; border: 1.5px solid var(--accent); opacity: 0.45; }
+  .ripple::after { inset: -14px; opacity: 0.18; }
+  .title { font-size: 16px; line-height: 22px; font-weight: 500; }
+  .sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; display: flex; gap: 10px; align-items: center; }
+  .flag { color: var(--priority); font-weight: 700; }
+  /* (5) list colors with marine names */
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .done-text .title { color: var(--text-tertiary); text-decoration: line-through; }
+
+  .nav-wrap { position: absolute; left: 16px; right: 16px; bottom: 26px; display: flex; gap: 10px; align-items: center; }
+  .glass { background: var(--glass); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
+    box-shadow: var(--glass-shadow), inset 0 0 0 1px var(--glass-border); }
+  .nav { flex: 1; height: 60px; border-radius: 999px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; }
+  .tab { height: 44px; min-width: 44px; display: grid; place-items: center; border-radius: 999px; color: var(--text-secondary); }
+  /* (8) active tab: droplet-like specular highlight */
+  .tab.active { display: flex; gap: 8px; padding: 0 16px; color: var(--accent); font-weight: 700; font-size: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%), var(--accent-soft);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25); }
+  /* (7) FAB as a drop of water */
+  .fab { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; color: var(--on-accent);
+    background: radial-gradient(circle at 32% 26%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 26%),
+                radial-gradient(circle at 50% 120%, var(--accent-2) 0%, var(--accent) 70%);
+    box-shadow: 0 10px 26px rgba(14, 113, 111, 0.38), inset 0 -3px 8px rgba(0,0,0,0.12); }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .check svg.i { width: 14px; height: 14px; stroke-width: 3; }
+  .fab svg.i { width: 26px; height: 26px; stroke-width: 2.2; }
+
+  .board { background: #fff; border-radius: 22px; padding: 24px; width: 640px; }
+  .board h2 { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 20px 0 10px; }
+  .board h2:first-child { margin-top: 0; }
+  .callouts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; font-size: 13px; color: #344654; line-height: 18px; }
+  .callouts b { color: #0e716f; font-family: var(--display); }
+  .fonts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .font { border-radius: 14px; background: #f3f7f9; padding: 14px; }
+  .font small { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6b8291; }
+  .palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .pc { border-radius: 12px; height: 56px; padding: 6px 8px; font-size: 11px; font-weight: 700; color: #fff; display: flex; align-items: flex-end; }
+  .note { font-size: 12.5px; color: #445a69; line-height: 18px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>Aquatic Glass · proposta v1</h1>
+  <p class="lead">Mesma paleta da v0, com a temática marinha mais presente no comportamento da luz, nos estados e nos detalhes — e tipografia própria.</p>
+
+  <div class="row">
+    <div><div class="label">Light · águas rasas</div><div class="phone light" id="light"></div></div>
+    <div><div class="label">Dark · oceano profundo</div><div class="phone dark" id="dark"></div></div>
+
+    <div class="board">
+      <h2>O que ficou mais marinho</h2>
+      <div class="callouts">
+        <div><b>1 · Cáusticas.</b> Reflexos de luz atravessando a superfície, só no topo e bem sutis. No app, uma animação lenta, desligada com “Reduzir movimento”.</div>
+        <div><b>2 · Linha d’água.</b> Uma onda suave separa o cabeçalho (superfície) do conteúdo (submerso).</div>
+        <div><b>3 · Nível da água.</b> O progresso do dia aparece como água subindo na cápsula “3 de 5”.</div>
+        <div><b>4 · Ondulação.</b> Ao concluir uma tarefa, o checkbox emite um anel de onda que se dissipa (+ háptico leve).</div>
+        <div><b>5 · Cores das listas.</b> Paleta própria com nomes marinhos (abaixo).</div>
+        <div><b>6 · Profundidade.</b> O fundo escurece levemente de cima para baixo, como a luz na água.</div>
+        <div><b>7 · Botão +.</b> Uma gota: reflexo especular e luz vinda de baixo.</div>
+        <div><b>8 · Aba ativa.</b> Brilho especular como numa gota d’água.</div>
+      </div>
+
+      <h2>Tipografia: Outfit + Manrope</h2>
+      <div class="fonts">
+        <div class="font"><small>Outfit · títulos e números</small>
+          <div style="font-family:var(--display);font-size:34px;font-weight:700;letter-spacing:-.02em">Hoje</div>
+          <div style="font-family:var(--display);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums">00:17:24</div>
+        </div>
+        <div class="font"><small>Manrope · texto</small>
+          <div style="font-size:16px;font-weight:500;margin-top:6px">Entregar relatório de Cálculo</div>
+          <div style="font-size:13px;color:#445a69;margin-top:4px">Alta · Faculdade · 2 de 4</div>
+          <div style="font-size:13px;color:#445a69;margin-top:8px;line-height:18px">Curvas suaves e fluidas nos títulos; leitura limpa e espaçada no texto.</div>
+        </div>
+      </div>
+
+      <h2>Cores das listas</h2>
+      <div class="palette">
+        <div class="pc" style="background:#2fa9a4">lagoon</div>
+        <div class="pc" style="background:#2f7fc1">tide</div>
+        <div class="pc" style="background:#e0705a">coral</div>
+        <div class="pc" style="background:#5f9a5a">kelp</div>
+        <div class="pc" style="background:#c39a5a">sand</div>
+        <div class="pc" style="background:#9a73c4">anemone</div>
+      </div>
+      <p class="note">Cada cor tem uma variação clara e escura para os dois temas. Os nomes ficam no código e nas configurações da lista; na interface o usuário só vê a cor.</p>
+    </div>
+  </div>
+
+  <template id="screen">
+    <svg class="caustics" viewBox="0 0 360 260" preserveAspectRatio="none">
+      <filter id="c" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.03" numOctaves="2" seed="7" />
+        <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1 0 0 0 0" />
+        <feComponentTransfer><feFuncA type="table" tableValues="0 0 0 0 0 0 0.9 0 0 0 0 0 0 0.6 0 0" /></feComponentTransfer>
+        <feGaussianBlur stdDeviation="0.8" result="lines" />
+        <feFlood style="flood-color:var(--caustic-line)" />
+        <feComposite in2="lines" operator="in" />
+      </filter>
+      <rect width="360" height="260" filter="url(#c)" />
+    </svg>
+    <div class="content">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="header">
+        <div class="eyebrow">Sábado, 18 de outubro</div>
+        <div class="large-title">Hoje</div>
+        <div class="meta">
+          <div class="level">
+            <svg class="water" viewBox="0 0 92 30" preserveAspectRatio="none">
+              <path d="M0 13 C 12 9, 22 9, 34 13 S 58 17, 70 13 S 86 9, 92 12 V30 H0 Z" style="fill:var(--accent);opacity:.35" />
+            </svg>
+            <span>3 de 5</span>
+          </div>
+          <span class="chip">Todas as listas</span>
+        </div>
+      </div>
+      <svg class="waterline" viewBox="0 0 360 18" preserveAspectRatio="none">
+        <path d="M0 9 C 40 3, 80 3, 120 9 S 200 15, 240 9 S 320 3, 360 9" style="fill:none;stroke:var(--waterline);stroke-width:1.5" />
+      </svg>
+      <div class="section">Pendentes</div>
+      <div class="list">
+        <div class="item"><div class="check"></div><div><div class="title">Ir para academia</div><div class="sub"><span><i class="dot" style="background:#5f9a5a"></i>Academia</span><span>18:00</span></div></div></div>
+        <div class="item"><div class="check"></div><div><div class="title">Entregar relatório de Cálculo</div><div class="sub"><span class="flag">Alta</span><span><i class="dot" style="background:#2f7fc1"></i>Faculdade</span><span>2 de 4</span></div></div></div>
+        <div class="item"><div class="check"></div><div><div class="title">Beber 2 L de água</div><div class="sub"><span><i class="dot" style="background:#e0705a"></i>Casa</span></div></div></div>
+      </div>
+      <div class="section" style="padding-top:18px">Concluídas</div>
+      <div class="list">
+        <div class="item done-text"><div class="check done ripple"><svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><div class="title">Escovar os dentes</div></div></div>
+        <div class="item done-text"><div class="check done"><svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><div class="title">Revisar agenda da semana</div></div></div>
+      </div>
+    </div>
+    <div class="nav-wrap">
+      <div class="nav glass">
+        <div class="tab active"><svg class="i" viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Hoje</div>
+        <div class="tab"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></div>
+        <div class="tab"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div>
+        <div class="tab"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></svg></div>
+      </div>
+      <div class="fab"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+    </div>
+  </template>
+  <script>
+    const tpl = document.getElementById('screen');
+    for (const id of ['light', 'dark']) {
+      const node = tpl.content.cloneNode(true);
+      // unique filter id per phone
+      node.querySelector('filter').id = 'c-' + id;
+      node.querySelector('rect').setAttribute('filter', `url(#c-${id})`);
+      document.getElementById(id).appendChild(node);
+    }
+  </script>
+</body>
+</html>
