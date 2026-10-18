@@ -4,13 +4,14 @@
 
 ## Status
 
-🚧 **Etapa 1 — Fundação técnica concluída.** O app compila e é verificado automaticamente, mas ainda não tem funcionalidades de produto.
+🚧 **Etapa 2 — Design System (Aquatic Glass) concluída.** Ainda sem funcionalidades de produto; o catálogo de componentes pode ser visto em modo de desenvolvimento.
 
-| Item                                          | Estado                                            |
-| --------------------------------------------- | ------------------------------------------------- |
-| Visão do produto                              | ✓ definida                                        |
-| Plataforma (TypeScript + React Native + Expo) | ✓ aprovada — [ADR-001](docs/decisions.md#adr-001) |
-| Fundação técnica (Etapa 1)                    | ✓ concluída                                       |
+| Item                                          | Estado                                                  |
+| --------------------------------------------- | ------------------------------------------------------- |
+| Visão do produto                              | ✓ definida                                              |
+| Plataforma (TypeScript + React Native + Expo) | ✓ aprovada — [ADR-001](docs/decisions.md#adr-001)       |
+| Fundação técnica (Etapa 1)                    | ✓ concluída                                             |
+| Design System (Etapa 2)                       | ✓ concluído — [design-system.md](docs/design-system.md) |
 
 ## Filosofia
 
@@ -31,9 +32,12 @@ npm run web      # versão no navegador
 npm test         # testes
 ```
 
+Com o app aberto em modo de desenvolvimento, toque em **Abrir catálogo de componentes** para ver o Design System.
+
 ## Documentação
 
 - [Arquitetura](docs/architecture.md)
+- [Design System](docs/design-system.md)
 - [Banco de dados](docs/database.md)
 - [Gamificação](docs/gamification.md)
 - [Decisões de arquitetura (ADRs)](docs/decisions.md)

@@ -13,7 +13,8 @@ Visão geral técnica do Aquar.io. Decisões e seus motivos ficam em [decisions.
 | Qualidade | ESLint (`eslint-config-expo`) + Prettier          | REAL      |
 | CI        | GitHub Actions (`.github/workflows/ci.yml`)       | REAL      |
 | Dados     | Local-first: SQLite no aparelho (ADR-002)         | PLANEJADO |
-| Design    | a definir (Etapa 2 — Aquatic Glass)               | —         |
+| Design    | Aquatic Glass (`src/design-system`)               | REAL      |
+| Animação  | Reanimated 4 (molas respeitam Reduzir movimento)  | REAL      |
 
 ## Estrutura de pastas
 
@@ -22,7 +23,7 @@ src/
 ├── app/              Rotas (Expo Router). Cada arquivo é uma tela; _layout.tsx define navegadores.
 │                     Só código de rota mora aqui.
 ├── __tests__/        Testes de telas de rota (não podem ficar dentro de src/app/).
-├── design-system/    (Etapa 2) tokens, componentes, motion
+├── design-system/    tokens, tema, componentes e catálogo (ver design-system.md)
 ├── core/             (quando necessário) eventos, banco, identidade
 ├── features/         (a partir da Etapa 4) um diretório por módulo: todo/, routines/, ...
 └── shared/           (quando necessário) utilitários genéricos
@@ -41,6 +42,12 @@ core, design-system, shared  ──►  features       ❌ proibido
 ```
 
 Essas regras são **verificadas automaticamente** pelo ESLint (`import/no-restricted-paths`, configurado em `eslint.config.js`). As zonas de cada feature são geradas a partir das pastas em `src/features/`. Ao criar um novo módulo, a regra passa a valer para ele sem nenhuma configuração extra.
+
+## Regras automáticas de lint
+
+- **Fronteiras entre módulos** (acima).
+- **Sem cores soltas:** `#hex`, `rgb()` e `hsl()` só são permitidos em `src/design-system/tokens/`.
+- **React Compiler:** valores animados do Reanimated são lidos e alterados com `.get()` / `.set()`, não com `.value`.
 
 ## Imports
 
