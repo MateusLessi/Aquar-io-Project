@@ -3,8 +3,8 @@
 Registro das decisões importantes do Aquar.io: o que foi decidido, por quê e quais consequências esperamos.
 ADRs não são apagados. Se uma decisão mudar, criamos um novo ADR que **substitui** o anterior e marcamos o antigo como `Substituído`.
 
-| ADR | Título | Status | Data |
-|---|---|---|---|
+| ADR             | Título                                                      | Status | Data       |
+| --------------- | ----------------------------------------------------------- | ------ | ---------- |
 | [001](#adr-001) | Plataforma de desenvolvimento: linguagem e framework mobile | Aceito | 2026-10-18 |
 
 ---
@@ -31,12 +31,12 @@ Esta é a primeira decisão porque todas as demais (banco, testes, componentes, 
 
 ### Alternativas
 
-| Alternativa | Prós | Contras |
-|---|---|---|
-| **React Native + Expo (TypeScript)** | Um código para iOS/Android; usa componentes e materiais nativos do sistema; caminho para Web; ecossistema enorme; TypeScript é transferível para web e backend | Blur no Android exige disciplina de performance; atualizações anuais de SDK |
-| Flutter (Dart) | Animação excelente e consistente; um código | Redesenha a UI em vez de usar materiais nativos (o vidro seria imitação); Web mais fraca; Dart tem uso restrito fora do Flutter |
-| Nativo (Swift + Kotlin) | Máxima fidelidade visual e acesso total à plataforma | Dois aplicativos, custo dobrado, inviável no momento |
-| PWA / Web | Barato, um código | Fraco em haptics, notificações, widgets e efeitos; não sustenta um mobile-first premium |
+| Alternativa                          | Prós                                                                                                                                                           | Contras                                                                                                                         |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **React Native + Expo (TypeScript)** | Um código para iOS/Android; usa componentes e materiais nativos do sistema; caminho para Web; ecossistema enorme; TypeScript é transferível para web e backend | Blur no Android exige disciplina de performance; atualizações anuais de SDK                                                     |
+| Flutter (Dart)                       | Animação excelente e consistente; um código                                                                                                                    | Redesenha a UI em vez de usar materiais nativos (o vidro seria imitação); Web mais fraca; Dart tem uso restrito fora do Flutter |
+| Nativo (Swift + Kotlin)              | Máxima fidelidade visual e acesso total à plataforma                                                                                                           | Dois aplicativos, custo dobrado, inviável no momento                                                                            |
+| PWA / Web                            | Barato, um código                                                                                                                                              | Fraco em haptics, notificações, widgets e efeitos; não sustenta um mobile-first premium                                         |
 
 ### Decisão
 
@@ -49,10 +49,12 @@ Adotar **TypeScript** como linguagem e **React Native com Expo** como framework,
 ### Consequências
 
 **Positivas**
+
 - Bibliotecas das próximas etapas virão do ecossistema React Native/Expo (SQLite, cliente Supabase, testes, animações).
 - O mesmo conhecimento de TypeScript servirá para funções de backend e para uma futura versão Web.
 
 **Negativas / a monitorar**
+
 - Efeitos de blur no Android precisarão de um orçamento de performance e fallback sólido (a ser definido na Etapa 2).
 - O projeto exigirá atualização periódica de versões do Expo/React Native.
 - Algum efeito visual muito específico poderá exigir um módulo nativo customizado.

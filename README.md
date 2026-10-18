@@ -6,11 +6,11 @@
 
 🚧 **Etapa 0 — Descoberta e Arquitetura.** Ainda não há código de aplicação.
 
-| Item | Estado |
-|---|---|
-| Visão do produto | ✓ definida |
+| Item                                          | Estado                                            |
+| --------------------------------------------- | ------------------------------------------------- |
+| Visão do produto                              | ✓ definida                                        |
 | Plataforma (TypeScript + React Native + Expo) | ✓ aprovada — [ADR-001](docs/decisions.md#adr-001) |
-| Fundação técnica (Etapa 1) | aguardando aprovação |
+| Fundação técnica (Etapa 1)                    | aguardando aprovação                              |
 
 ## Filosofia
 

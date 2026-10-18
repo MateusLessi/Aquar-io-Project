@@ -10,21 +10,21 @@ Na interface, um nome próprio aparece sempre acompanhado de um descritor até s
 
 ## Núcleo candidato
 
-| Módulo | Nome candidato | Etapa em que será decidido |
-|---|---|---|
-| Home | Surface | 3 |
-| To Do | Current | 3 / 4 |
-| Routines | Tide | 6 |
-| Habits | Reef | 10 |
-| Gamificação global | Depth | 9 |
-| Workout | Surge | 13 |
-| Timer universal | Pulse | quando o componente existir |
-| Foco | Dive | futuro |
-| Insights | Sonar | futuro |
-| Colaboração | Crew | 14 |
-| Família | Harbor | 15 |
-| Loja | The Dock | 16 |
-| Moeda | Pearls | 16 |
+| Módulo             | Nome candidato | Etapa em que será decidido  |
+| ------------------ | -------------- | --------------------------- |
+| Home               | Surface        | 3                           |
+| To Do              | Current        | 3 / 4                       |
+| Routines           | Tide           | 6                           |
+| Habits             | Reef           | 10                          |
+| Gamificação global | Depth          | 9                           |
+| Workout            | Surge          | 13                          |
+| Timer universal    | Pulse          | quando o componente existir |
+| Foco               | Dive           | futuro                      |
+| Insights           | Sonar          | futuro                      |
+| Colaboração        | Crew           | 14                          |
+| Família            | Harbor         | 15                          |
+| Loja               | The Dock       | 16                          |
+| Moeda              | Pearls         | 16                          |
 
 ## Pontos de atenção registrados
 
