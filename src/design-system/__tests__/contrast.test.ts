@@ -28,6 +28,15 @@ describe.each(schemes)('%s theme contrast (WCAG AA)', (scheme) => {
     }
   });
 
+  it('text on deep water is readable along the whole gradient', () => {
+    for (const background of [c.deepTop, c.deepBottom]) {
+      for (const token of ['onDeep', 'onDeepSecondary', 'deepAccent'] as const) {
+        expect(contrastRatio(c[token], background)).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    }
+    expect(contrastRatio(c.onDeepAccent, c.deepAccent)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
   it('onAccent is readable on accent', () => {
     expect(contrastRatio(c.onAccent, c.accent)).toBeGreaterThanOrEqual(AA_TEXT);
   });

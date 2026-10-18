@@ -35,6 +35,15 @@ export type ThemeColors = {
   caustic: string;
   waterline: string;
   shadow: string;
+  /** Deep water: a dark, contrasting surface for navigation chrome in both themes. */
+  deepTop: string;
+  deepBottom: string;
+  deepBorder: string;
+  onDeep: string;
+  onDeepSecondary: string;
+  deepAccent: string;
+  deepAccentSoft: string;
+  onDeepAccent: string;
 };
 
 export const lightColors: ThemeColors = {
@@ -65,6 +74,14 @@ export const lightColors: ThemeColors = {
   caustic: ocean[500],
   waterline: 'rgba(14, 113, 111, 0.16)',
   shadow: '#0C2834',
+  deepTop: '#0F4549',
+  deepBottom: '#06202A',
+  deepBorder: 'rgba(140, 200, 210, 0.16)',
+  onDeep: '#EAF4F6',
+  onDeepSecondary: '#A9C4CD',
+  deepAccent: ocean[200],
+  deepAccentSoft: 'rgba(147, 218, 213, 0.16)',
+  onDeepAccent: ocean[950],
 };
 
 export const darkColors: ThemeColors = {
@@ -95,6 +112,14 @@ export const darkColors: ThemeColors = {
   caustic: ocean[300],
   waterline: 'rgba(92, 195, 189, 0.14)',
   shadow: '#000000',
+  deepTop: '#0E2D36',
+  deepBottom: '#091821',
+  deepBorder: 'rgba(140, 200, 210, 0.14)',
+  onDeep: '#E6F0F4',
+  onDeepSecondary: '#A3BBC6',
+  deepAccent: ocean[200],
+  deepAccentSoft: 'rgba(147, 218, 213, 0.14)',
+  onDeepAccent: ocean[950],
 };
 
 export const themeColors: Record<ColorScheme, ThemeColors> = {

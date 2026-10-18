@@ -3,7 +3,17 @@ import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 import { useTheme } from '../theme/ThemeProvider';
 import { typography, type ThemeColors, type TypographyVariant } from '../tokens';
 
-type TextTone = 'primary' | 'secondary' | 'tertiary' | 'accent' | 'onAccent' | 'priority' | 'error';
+type TextTone =
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
+  | 'accent'
+  | 'onAccent'
+  | 'priority'
+  | 'error'
+  | 'onDeep'
+  | 'onDeepSecondary'
+  | 'deepAccent';
 
 export type TextProps = RNTextProps & {
   variant?: TypographyVariant;
@@ -20,6 +30,9 @@ const toneToColor: Record<TextTone, keyof ThemeColors> = {
   onAccent: 'onAccent',
   priority: 'priority',
   error: 'error',
+  onDeep: 'onDeep',
+  onDeepSecondary: 'onDeepSecondary',
+  deepAccent: 'deepAccent',
 };
 
 /** Titles grow with the OS text size too, but are capped so layouts stay intact. */

@@ -1,10 +1,18 @@
 import { TabTrigger } from 'expo-router/ui';
 import { Plus, type LucideIcon } from 'lucide-react-native';
-import { useState } from 'react';
 import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, GlassSurface, Text, chrome, radius, spacing, useTheme } from '@/design-system';
+import {
+  Button,
+  DeepSurface,
+  Text,
+  chrome,
+  radius,
+  spacing,
+  useKeyboardFocus,
+  useTheme,
+} from '@/design-system';
 
 import type { Destination } from './destinations';
 
@@ -13,7 +21,7 @@ type SidebarProps = {
   onCreate: () => void;
 };
 
-/** Tablets and desktop: a floating glass sidebar, like the chart room of a ship. */
+/** Tablets and desktop: a floating deep-water sidebar that stands out in both themes. */
 export function Sidebar({ destinations, onCreate }: SidebarProps) {
   const insets = useSafeAreaInsets();
 
@@ -24,10 +32,12 @@ export function Sidebar({ destinations, onCreate }: SidebarProps) {
         { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.md },
       ]}
     >
-      <GlassSurface depth={1} radius="xl" style={styles.panel}>
+      <DeepSurface radius="xl" style={styles.panel}>
         <View style={styles.brand}>
-          <Text variant="title1">Aquar.io</Text>
-          <Text variant="footnote" tone="secondary">
+          <Text variant="title1" tone="onDeep">
+            Aquar.io
+          </Text>
+          <Text variant="footnote" tone="onDeepSecondary">
             Tudo importa.
           </Text>
         </View>
@@ -41,9 +51,9 @@ export function Sidebar({ destinations, onCreate }: SidebarProps) {
         </View>
 
         <View style={styles.footer}>
-          <Button label="Nova tarefa" icon={Plus} block onPress={onCreate} />
+          <Button label="Nova tarefa" variant="deep" icon={Plus} block onPress={onCreate} />
         </View>
-      </GlassSurface>
+      </DeepSurface>
     </View>
   );
 }
@@ -57,7 +67,7 @@ type SidebarItemProps = Omit<PressableProps, 'children' | 'style'> & {
 
 function SidebarItem({ icon: Icon, label, isFocused = false, ...rest }: SidebarItemProps) {
   const { colors } = useTheme();
-  const [keyboardFocused, setKeyboardFocused] = useState(false);
+  const { focused: keyboardFocused, handlers: focus } = useKeyboardFocus();
 
   return (
     <Pressable
@@ -65,8 +75,10 @@ function SidebarItem({ icon: Icon, label, isFocused = false, ...rest }: SidebarI
       accessibilityRole="tab"
       accessibilityLabel={label}
       accessibilityState={{ selected: isFocused }}
-      onFocus={() => setKeyboardFocused(true)}
-      onBlur={() => setKeyboardFocused(false)}
+      onPressIn={focus.onPressIn}
+      onPressOut={focus.onPressOut}
+      onFocus={focus.onFocus}
+      onBlur={focus.onBlur}
       style={({ pressed }) => [
         styles.item,
         (isFocused || pressed) && { backgroundColor: colors.accentSoft },
@@ -80,9 +92,9 @@ function SidebarItem({ icon: Icon, label, isFocused = false, ...rest }: SidebarI
       <Icon
         size={22}
         strokeWidth={isFocused ? 2.1 : 1.8}
-        color={isFocused ? colors.accent : colors.textSecondary}
+        color={isFocused ? colors.deepAccent : colors.onDeepSecondary}
       />
-      <Text variant={isFocused ? 'bodyStrong' : 'body'} tone={isFocused ? 'accent' : 'primary'}>
+      <Text variant={isFocused ? 'bodyStrong' : 'body'} tone={isFocused ? 'deepAccent' : 'onDeep'}>
         {label}
       </Text>
     </Pressable>

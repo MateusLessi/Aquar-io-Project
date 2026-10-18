@@ -5,6 +5,7 @@ export {
   useChromeInsets,
   type ChromeInsets,
 } from './components/ChromeInsets';
+export { DeepSurface, type DeepSurfaceProps } from './components/DeepSurface';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export {
   FloatingActionButton,
@@ -35,4 +36,5 @@ export {
   type Theme,
   type ThemePreference,
 } from './theme/ThemeProvider';
+export { useKeyboardFocus } from './theme/useKeyboardFocus';
 export * from './tokens';

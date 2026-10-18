@@ -6,7 +6,8 @@ import { radius, spacing, touchTarget } from '../tokens';
 import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+/** `deep` is the primary button for use on a DeepSurface. */
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'deep';
 
 export type ButtonProps = {
   label: string;
@@ -44,6 +45,7 @@ export function Button({
       content: colors.accent,
     },
     ghost: { background: 'transparent', pressed: colors.accentSoft, content: colors.accent },
+    deep: { background: colors.deepAccent, pressed: colors.onDeep, content: colors.onDeepAccent },
   }[variant];
 
   return (
