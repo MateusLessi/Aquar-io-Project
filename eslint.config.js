@@ -40,6 +40,24 @@ module.exports = defineConfig([
     },
   },
   {
+    // Colors come from design tokens only, so themes stay consistent and swappable.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/design-system/tokens/**'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value=/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/]',
+          message: 'Use a color token from @/design-system instead of a hex color.',
+        },
+        {
+          selector: 'Literal[value=/^(rgb|hsl)a?\\(/]',
+          message: 'Use a color token from @/design-system instead of an rgb/hsl color.',
+        },
+      ],
+    },
+  },
+  {
     ignores: ['dist/*', '.expo/*', 'expo-env.d.ts'],
   },
 ]);
