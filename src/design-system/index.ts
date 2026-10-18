@@ -1,5 +1,8 @@
 export { Button, type ButtonProps, type ButtonVariant } from './components/Button';
+export { CalendarMonth, type CalendarMonthProps } from './components/CalendarMonth';
 export { Checkbox, type CheckboxProps } from './components/Checkbox';
+export { Chip, type ChipProps } from './components/Chip';
+export { ConfirmDialog, type ConfirmDialogProps } from './components/ConfirmDialog';
 export {
   ChromeInsetsProvider,
   useChromeInsets,
@@ -39,3 +42,4 @@ export {
 } from './theme/ThemeProvider';
 export { useKeyboardFocus } from './theme/useKeyboardFocus';
 export * from './tokens';
+export { withAlpha } from './utils/color';

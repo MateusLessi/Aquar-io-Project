@@ -1,3 +1,4 @@
+import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -12,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { chrome, spacing } from '../tokens';
 import { useChromeInsets } from './ChromeInsets';
 import { GlassSurface } from './GlassSurface';
+import { IconButton } from './IconButton';
 import { OceanBackground } from './OceanBackground';
 import { Text } from './Text';
 import { Waterline } from './Waterline';
@@ -27,6 +29,10 @@ export type ScreenProps = {
   /** Shown under the title, e.g. a WaterLevel. */
   accessory?: ReactNode;
   children?: ReactNode;
+  /** Shows a back button above the title. */
+  onBack?: () => void;
+  /** Buttons at the top right, e.g. "Editar lista". */
+  actions?: ReactNode;
   testID?: string;
 };
 
@@ -34,7 +40,15 @@ export type ScreenProps = {
  * A top-level screen: ocean background, large title at the surface and a waterline.
  * When the content scrolls, the large title gives way to a compact glass header.
  */
-export function Screen({ title, eyebrow, accessory, children, testID }: ScreenProps) {
+export function Screen({
+  title,
+  eyebrow,
+  accessory,
+  children,
+  onBack,
+  actions,
+  testID,
+}: ScreenProps) {
   const insets = useSafeAreaInsets();
   const chromeInsets = useChromeInsets();
   const scrollY = useSharedValue(0);
@@ -69,6 +83,16 @@ export function Screen({ title, eyebrow, accessory, children, testID }: ScreenPr
         }}
       >
         <View style={styles.column}>
+          {onBack || actions ? (
+            <View style={styles.toolbar}>
+              {onBack ? (
+                <IconButton icon={ChevronLeft} label="Voltar" onPress={onBack} />
+              ) : (
+                <View />
+              )}
+              <View style={styles.actions}>{actions}</View>
+            </View>
+          ) : null}
           <Animated.View style={[styles.header, largeTitleStyle]}>
             {eyebrow ? (
               <Text variant="footnote" tone="secondary" style={styles.eyebrow}>
@@ -113,6 +137,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: spacing.lg,
   },
+  toolbar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+    marginTop: -spacing.md,
+  },
+  actions: { flexDirection: 'row', gap: spacing.xs },
   header: { paddingHorizontal: spacing.xs, transformOrigin: 'left' },
   eyebrow: { marginBottom: spacing.xxs },
   accessory: { marginTop: spacing.md, flexDirection: 'row' },

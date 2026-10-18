@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
+  KeyboardAvoidingView,
   Modal,
   PanResponder,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   View,
   useWindowDimensions,
@@ -89,7 +92,11 @@ export function Sheet({ visible, onClose, title, children, testID }: SheetProps)
 
   return (
     <Modal transparent visible animationType="none" onRequestClose={onClose} statusBarTranslucent>
-      <View style={styles.root} testID={testID}>
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        testID={testID}
+      >
         <Animated.View
           style={[StyleSheet.absoluteFill, { backgroundColor: colors.scrim }, backdropStyle]}
         >
@@ -115,10 +122,16 @@ export function Sheet({ visible, onClose, title, children, testID }: SheetProps)
                 {title}
               </Text>
             ) : null}
-            {children}
+            <ScrollView
+              style={{ maxHeight: screenHeight * 0.72 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {children}
+            </ScrollView>
           </GlassSurface>
         </Animated.View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

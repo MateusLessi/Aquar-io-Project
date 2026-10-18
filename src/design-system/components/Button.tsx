@@ -10,7 +10,7 @@ import { Text } from './Text';
  * `deep` is the primary button on a DeepSurface; `energy` (coral) is reserved for the
  * main creation action, matching the drop button.
  */
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'deep' | 'energy';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'deep' | 'energy' | 'danger';
 
 export type ButtonProps = {
   label: string;
@@ -50,6 +50,7 @@ export function Button({
     ghost: { background: 'transparent', pressed: colors.accentSoft, content: colors.accent },
     deep: { background: colors.deepAccent, pressed: colors.onDeep, content: colors.onDeepAccent },
     energy: { background: colors.energy, pressed: colors.energyPressed, content: colors.onEnergy },
+    danger: { background: 'transparent', pressed: colors.surfacePressed, content: colors.error },
   }[variant];
 
   return (

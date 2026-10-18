@@ -1,4 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { AccessibilityInfo, Platform, useColorScheme, useWindowDimensions } from 'react-native';
 
 import {
@@ -55,13 +64,26 @@ const IOS_ONLY = ['ios'] as const;
 
 type ThemeProviderProps = {
   children: ReactNode;
-  /** Initial preference. Persisting the user's choice comes with settings (TODO: Etapa 3+). */
   initialPreference?: ThemePreference;
+  /** Called when the user picks a theme, so the app can persist it. */
+  onPreferenceChange?: (preference: ThemePreference) => void;
 };
 
-export function ThemeProvider({ children, initialPreference = 'system' }: ThemeProviderProps) {
+export function ThemeProvider({
+  children,
+  initialPreference = 'system',
+  onPreferenceChange,
+}: ThemeProviderProps) {
   const systemScheme = useColorScheme();
-  const [preference, setPreference] = useState<ThemePreference>(initialPreference);
+  const [preference, setPreferenceState] = useState<ThemePreference>(initialPreference);
+  const onChangeRef = useRef(onPreferenceChange);
+  useEffect(() => {
+    onChangeRef.current = onPreferenceChange;
+  });
+  const setPreference = useCallback((next: ThemePreference) => {
+    setPreferenceState(next);
+    onChangeRef.current?.(next);
+  }, []);
   const reduceTransparency = useAccessibilitySetting(
     AccessibilityInfo.isReduceTransparencyEnabled,
     'reduceTransparencyChanged',
@@ -87,7 +109,7 @@ export function ThemeProvider({ children, initialPreference = 'system' }: ThemeP
       // Android blur needs a BlurTargetView behind each glass surface; not worth it yet.
       supportsBlur: Platform.OS === 'ios' || Platform.OS === 'web',
     }),
-    [scheme, preference, reduceTransparency, reduceMotion],
+    [scheme, preference, setPreference, reduceTransparency, reduceMotion],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
