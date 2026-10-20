@@ -4,15 +4,24 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useSetting } from '@/core/settings/useSetting';
 import { ChromeInsetsProvider, OceanBackground, chrome, useBreakpoint } from '@/design-system';
 import { QuickAddSheet } from '@/features/todo/components/QuickAddSheet';
 
+import { AMBIENT_SETTING, shouldShowAmbient, useCharging, type AmbientSetting } from './ambient';
+import { AmbientDisplay } from './AmbientDisplay';
 import { destinations } from './destinations';
+import { NavigationRail } from './NavigationRail';
+import { isPhoneScreen, useOrientationPolicy } from './orientation';
 import { Sidebar } from './Sidebar';
 import { TabBar } from './TabBar';
+import { uprightRotation, useDeviceTilt } from './tilt';
 
 /**
- * The app's frame. Phones get a floating glass tab bar; tablets and desktop get a sidebar.
+ * The app's frame, adapting to the device:
+ * - phones (compact): floating tab bar; the UI stays in portrait and icons turn with the phone;
+ * - tablets in portrait / unfolded foldables (medium): slim navigation rail;
+ * - tablets in landscape / desktop (expanded): full sidebar.
  * Navigation itself is Expo Router's headless tabs: the visuals are entirely ours.
  */
 export function AppShell() {
@@ -29,7 +38,8 @@ export function AppShell() {
 }
 
 function ShellLayout() {
-  const wide = useBreakpoint() !== 'compact';
+  useOrientationPolicy();
+  const breakpoint = useBreakpoint();
   const insets = useSafeAreaInsets();
   const [creating, setCreating] = useState(false);
 
@@ -41,34 +51,62 @@ function ShellLayout() {
   const params = useGlobalSearchParams<{ id?: string }>();
   const currentListId = pathname.startsWith('/lists/') ? params.id : undefined;
 
+  // Phones: follow the physical tilt for icons and Modo Maré.
+  const isPhone = isPhoneScreen();
+  const tilt = useDeviceTilt(isPhone);
+  const charging = useCharging(isPhone);
+  const [ambientSetting] = useSetting<AmbientSetting>(AMBIENT_SETTING, 'on');
+  const [dismissedTilt, setDismissedTilt] = useState<string | null>(null);
+  const showAmbient = shouldShowAmbient({
+    isPhone,
+    tilt,
+    charging,
+    setting: ambientSetting,
+    // A tap dismisses Modo Maré until the phone is held another way.
+    dismissed: dismissedTilt === tilt,
+  });
+
   const chromeInsets = useMemo(
-    () => ({ bottom: wide ? 0 : insets.bottom + chrome.tabBarOffset + chrome.tabBarHeight }),
-    [wide, insets.bottom],
+    () => ({
+      bottom:
+        breakpoint === 'compact' ? insets.bottom + chrome.tabBarOffset + chrome.tabBarHeight : 0,
+    }),
+    [breakpoint, insets.bottom],
   );
+  const create = () => setCreating(true);
 
   return (
     <OceanBackground caustics={false}>
-      <View style={[styles.body, wide && styles.row]}>
-        {wide ? <Sidebar destinations={destinations} onCreate={() => setCreating(true)} /> : null}
+      <View style={[styles.body, breakpoint !== 'compact' && styles.row]}>
+        {breakpoint === 'expanded' ? (
+          <Sidebar destinations={destinations} onCreate={create} />
+        ) : null}
+        {breakpoint === 'medium' ? (
+          <NavigationRail destinations={destinations} onCreate={create} />
+        ) : null}
         <ChromeInsetsProvider value={chromeInsets}>
           <View style={styles.content}>
             <TabSlot />
           </View>
         </ChromeInsetsProvider>
       </View>
-      {wide ? null : (
+      {breakpoint === 'compact' ? (
         <TabBar
           destinations={destinations}
           activeName={activeName}
-          onCreate={() => setCreating(true)}
+          onCreate={create}
+          iconRotation={uprightRotation(tilt)}
         />
-      )}
+      ) : null}
       <QuickAddSheet
         visible={creating}
         onClose={() => setCreating(false)}
         defaultListId={currentListId}
         dueToday={activeName === 'index'}
       />
+      {showAmbient ? (
+        <AmbientDisplay rotation={uprightRotation(tilt)} onExit={() => setDismissedTilt(tilt)} />
+      ) : null}
     </OceanBackground>
   );
 }

@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { useSetting } from '@/core/settings/useSetting';
 import {
   ListItem,
   Screen,
@@ -14,6 +15,7 @@ import {
   useTheme,
   type ThemePreference,
 } from '@/design-system';
+import { AMBIENT_SETTING, type AmbientSetting } from '@/shell/ambient';
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Sistema' },
@@ -21,9 +23,15 @@ const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'dark', label: 'Escuro' },
 ];
 
+const ambientOptions: { value: AmbientSetting; label: string }[] = [
+  { value: 'on', label: 'Ligado' },
+  { value: 'off', label: 'Desligado' },
+];
+
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors, preference, setPreference, reduceMotion, reduceTransparency } = useTheme();
+  const [ambient, setAmbient] = useSetting<AmbientSetting>(AMBIENT_SETTING, 'on');
 
   return (
     <Screen title="Ajustes">
@@ -34,9 +42,18 @@ export default function SettingsScreen() {
           value={preference}
           onChange={setPreference}
         />
-        {/* TODO(Etapa 4): persist the theme preference once local storage exists. */}
+      </Section>
+
+      <Section title="Modo Maré">
+        <SegmentedControl
+          accessibilityLabel="Modo Maré"
+          options={ambientOptions}
+          value={ambient}
+          onChange={(value) => void setAmbient(value)}
+        />
         <Text variant="footnote" tone="tertiary" style={styles.note}>
-          Por enquanto, a escolha vale até o app fechar.
+          Com o celular deitado e carregando, o Aquar.io vira um painel com a hora, a maré do dia e
+          o que vem a seguir. Toque na tela para sair.
         </Text>
       </Section>
 
@@ -60,6 +77,12 @@ export default function SettingsScreen() {
             <ListItem
               title="Catálogo de componentes"
               onPress={() => router.push('/dev/design-system')}
+              trailing={<ChevronRight size={20} color={colors.textTertiary} />}
+            />
+            <ListItem
+              separator
+              title="Prévia do Modo Maré"
+              onPress={() => router.push('/dev/ambient?rotation=90')}
               trailing={<ChevronRight size={20} color={colors.textTertiary} />}
             />
           </Surface>

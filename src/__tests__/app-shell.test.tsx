@@ -103,6 +103,14 @@ describe('App shell on phones', () => {
     await fireEvent.press(dark);
     expect(screen.getByRole('radio', { name: 'Escuro' })).toBeChecked();
   });
+
+  it('turns Modo Maré off from Settings and remembers it', async () => {
+    await renderRouter(routes, { initialUrl: '/settings' });
+    expect(await screen.findByRole('radio', { name: 'Ligado' })).toBeChecked();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Desligado' }));
+    expect(await screen.findByRole('radio', { name: 'Desligado' })).toBeChecked();
+    expect(await data.settings.get('ambientMode')).toBe('off');
+  });
 });
 
 describe('App shell with large text', () => {
@@ -134,5 +142,20 @@ describe('App shell on tablets and desktop', () => {
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Ajustes' }));
     expect(screen.getByRole('header', { name: 'Ajustes' })).toBeOnTheScreen();
+  });
+});
+
+describe('App shell on tablets in portrait', () => {
+  beforeEach(() => setWindowWidth(800));
+
+  it('uses a navigation rail', async () => {
+    await renderRouter(routes, { initialUrl: '/' });
+    // The rail has no brand title, unlike the sidebar.
+    expect(screen.queryByText('Aquar.io')).toBeNull();
+    expect(screen.getByRole('tab', { name: 'Hoje' })).toBeSelected();
+    expect(screen.getByRole('button', { name: 'Nova tarefa' })).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('tab', { name: 'Listas' }));
+    expect(screen.getByRole('header', { name: 'Listas' })).toBeOnTheScreen();
   });
 });

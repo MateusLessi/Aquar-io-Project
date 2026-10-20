@@ -11,6 +11,7 @@ import {
   createSettingsRepository,
   type SettingsRepository,
 } from '@/core/settings/settingsRepository';
+import { SettingsContext } from '@/core/settings/useSetting';
 import type { ThemePreference } from '@/design-system';
 import { createTodoRepository, type TodoRepository } from '@/features/todo/data/todoRepository';
 import { TodoContext } from '@/features/todo/hooks/todoContext';
@@ -77,7 +78,9 @@ export function useAppDataBootstrap(): BootState {
 export function AppDataProvider({ data, children }: { data: AppData; children: ReactNode }) {
   return (
     <DataChangesContext.Provider value={data.changes}>
-      <TodoContext.Provider value={data.todo}>{children}</TodoContext.Provider>
+      <SettingsContext.Provider value={data.settings}>
+        <TodoContext.Provider value={data.todo}>{children}</TodoContext.Provider>
+      </SettingsContext.Provider>
     </DataChangesContext.Provider>
   );
 }
