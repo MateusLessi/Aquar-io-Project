@@ -23,16 +23,16 @@ Como os dados do Aquar.io viajam entre o celular, o tablet e o computador. A dec
 
 ## Arquivos
 
-| Arquivo                                         | Papel                                                  |
-| ----------------------------------------------- | ------------------------------------------------------ |
-| `src/core/database/migrations.ts` (migration 2) | Fila, estado e gatilhos no SQLite                      |
-| `src/core/sync/tables.ts`                       | Quais tabelas sincronizam e suas colunas               |
-| `src/core/sync/syncEngine.ts`                   | Enviar, baixar, resolver conflitos                     |
-| `src/core/sync/supabase.ts`, `account.ts`       | Cliente Supabase, login por código, adaptador da nuvem |
-| `src/core/sync/testing.ts`                      | Nuvem e conta falsas, em memória, para os testes       |
-| `src/shell/Account.tsx`, `AccountSection.tsx`   | Quando sincronizar; tela de entrar em Ajustes          |
-| `supabase/migrations/*.sql`                     | Tabelas, RLS e o gatilho `sync_guard` no Postgres      |
-| `.env`                                          | URL e chave pública do projeto Supabase                |
+| Arquivo                                         | Papel                                                          |
+| ----------------------------------------------- | -------------------------------------------------------------- |
+| `src/core/database/migrations.ts` (migration 2) | Fila, estado e gatilhos no SQLite                              |
+| `src/core/sync/tables.ts`                       | Quais tabelas sincronizam e suas colunas                       |
+| `src/core/sync/syncEngine.ts`                   | Enviar, baixar, resolver conflitos                             |
+| `src/core/sync/supabase.ts`, `account.ts`       | Cliente Supabase, login por e-mail e senha, adaptador da nuvem |
+| `src/core/sync/testing.ts`                      | Nuvem e conta falsas, em memória, para os testes               |
+| `src/shell/Account.tsx`, `AccountSection.tsx`   | Quando sincronizar; tela de entrar em Ajustes                  |
+| `supabase/migrations/*.sql`                     | Tabelas, RLS e o gatilho `sync_guard` no Postgres              |
+| `.env`                                          | URL e chave pública do projeto Supabase                        |
 
 ## Configurar o projeto Supabase (uma vez)
 
