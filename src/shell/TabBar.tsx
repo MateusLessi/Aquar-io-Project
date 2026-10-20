@@ -7,7 +7,16 @@ import {
   useWindowDimensions,
   type PressableProps,
 } from 'react-native';
-import Animated, { FadeIn, LinearTransition, ZoomIn, ZoomOut } from 'react-native-reanimated';
+import { useEffect, type ReactNode } from 'react';
+import Animated, {
+  FadeIn,
+  LinearTransition,
+  ZoomIn,
+  ZoomOut,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -35,13 +44,15 @@ type TabBarProps = {
   destinations: Destination[];
   activeName: string | undefined;
   onCreate: () => void;
+  /** Degrees to turn icons so they stay upright when the phone is held sideways. */
+  iconRotation?: number;
 };
 
 /**
  * Phones: a deep-water track with one circle per destination. The active one opens into
  * a bright pill with its name. The coral drop beside it creates.
  */
-export function TabBar({ destinations, activeName, onCreate }: TabBarProps) {
+export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
   const showAllLabels = fontScale >= LABELS_FONT_SCALE;
@@ -61,6 +72,7 @@ export function TabBar({ destinations, activeName, onCreate }: TabBarProps) {
                   icon={destination.icon}
                   label={destination.label}
                   showLabel={showAllLabels}
+                  rotation={iconRotation}
                 />
               </TabTrigger>
             ))}
@@ -81,6 +93,7 @@ type TabBarButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
   /** Show the name even when not focused (large OS text sizes). */
   showLabel: boolean;
+  rotation: number;
   /** Injected by TabTrigger. */
   isFocused?: boolean;
 };
@@ -89,12 +102,14 @@ function TabBarButton({
   icon: Icon,
   label,
   showLabel,
+  rotation,
   isFocused = false,
   onPress,
   ...rest
 }: TabBarButtonProps) {
   const { colors } = useTheme();
-  const labelVisible = isFocused || showLabel;
+  // Sideways, names would read rotated: show icons only, turned upright.
+  const labelVisible = (isFocused || showLabel) && rotation === 0;
 
   return (
     <Pressable
@@ -117,11 +132,13 @@ function TabBarButton({
           { backgroundColor: isFocused ? colors.deepAccent : colors.deepAccentSoft },
         ]}
       >
-        <Icon
-          size={24}
-          strokeWidth={isFocused ? 2.2 : 1.8}
-          color={isFocused ? colors.onDeepAccent : colors.onDeep}
-        />
+        <Upright rotation={rotation}>
+          <Icon
+            size={24}
+            strokeWidth={isFocused ? 2.2 : 1.8}
+            color={isFocused ? colors.onDeepAccent : colors.onDeep}
+          />
+        </Upright>
         {labelVisible ? (
           <Animated.View entering={FadeIn.duration(180)}>
             <Text
@@ -136,6 +153,16 @@ function TabBarButton({
       </Animated.View>
     </Pressable>
   );
+}
+
+/** Turns its content with a spring, like icons in a camera app when the phone rotates. */
+function Upright({ rotation, children }: { rotation: number; children: ReactNode }) {
+  const angle = useSharedValue(rotation);
+  useEffect(() => {
+    angle.set(withSpring(rotation, springs.gentle));
+  }, [angle, rotation]);
+  const style = useAnimatedStyle(() => ({ transform: [{ rotate: `${angle.get()}deg` }] }));
+  return <Animated.View style={style}>{children}</Animated.View>;
 }
 
 const styles = StyleSheet.create({

@@ -32,6 +32,8 @@ export const chrome = {
   tabBarOffset: 12,
   /** Sidebar on tablets and desktop. */
   sidebarWidth: 280,
+  /** Slim navigation rail on tablets in portrait and unfolded foldables. */
+  railWidth: 104,
   /** Compact header that appears when a screen scrolls past its large title. */
   compactHeaderHeight: 52,
   /** Max width of reading content on wide screens. */

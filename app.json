@@ -4,7 +4,7 @@
     "slug": "aquar-io",
     "scheme": "aquario",
     "version": "0.1.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {

@@ -14,6 +14,8 @@ export default defineConfig({
   },
   projects: [
     { name: 'phone', use: { ...devices['iPhone 12'], browserName: 'chromium' } },
+    // Galaxy Tab S8+ in portrait: navigation rail.
+    { name: 'tablet', use: { viewport: { width: 800, height: 1280 }, hasTouch: true } },
     { name: 'desktop', use: { viewport: { width: 1280, height: 800 } } },
   ],
 });
