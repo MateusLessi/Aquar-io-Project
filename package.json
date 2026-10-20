@@ -18,6 +18,7 @@
   "dependencies": {
     "@expo-google-fonts/manrope": "^0.4.2",
     "@expo-google-fonts/outfit": "^0.4.3",
+    "@supabase/supabase-js": "^2.118.0",
     "expo": "~57.0.30",
     "expo-asset": "~57.0.20",
     "expo-battery": "~57.0.3",
