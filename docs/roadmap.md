@@ -14,6 +14,7 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [✓] App Shell & Navigation
 [ ] Authentication
 [✓] To Do Core
+[✓] Layouts adaptativos + Modo Maré (Etapa B)
 [●] To Do Advanced
 [ ] Routines Core
 [ ] Routine Intelligence
@@ -46,9 +47,8 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 
 ## Pontos em aberto (para decidir no momento certo)
 
-- **Modo Maré (visualizador na horizontal):** no celular, a interface fica fixa em retrato e só os ícones giram (como no app de câmera). Ao deitar o celular, sobretudo carregando, o app vira um painel de ambiente com relógio, maré do dia e, depois, hábitos e criaturas. No tablet, a rotação muda o layout normalmente. Proposto para depois do To Do V1; os hábitos entram na Etapa 10.
-
-- **Sincronização mais cedo:** o proprietário usa 3 aparelhos (iPhone 11, Galaxy Tab S8+, notebook via web). Propor sync logo após o To Do V1.
+- **Sincronização (próxima):** o proprietário usa 3 aparelhos (iPhone 11, Galaxy Tab S8+, notebook via web). Próxima etapa proposta, com Supabase e autenticação.
+- **Fundo do oceano:** o esmaecimento das cáusticas termina numa borda visível (~260 pt) no tema escuro. Corrigir numa passada de design.
 - **Ranked Seasons:** modo ranqueado opt-in para hábitos, com entrada simbólica e recompensas cosméticas. Ver [gamification.md](gamification.md).
 
 - Em que etapa entra a **autenticação** (Etapa 3 ou antes da sincronização).

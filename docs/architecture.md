@@ -39,34 +39,46 @@ As pastas marcadas com etapa ainda **não existem**. Elas são criadas quando o 
 
 ```
 src/app/
-├── _layout.tsx          raiz: fontes, tema, Stack
-├── (tabs)/_layout.tsx   AppShell (abas headless do Expo Router)
-├── (tabs)/index.tsx     Hoje
-├── (tabs)/lists.tsx     Listas
-├── (tabs)/settings.tsx  Ajustes
-└── dev/design-system.tsx  catálogo (somente desenvolvimento)
+├── _layout.tsx               raiz: fontes, banco local, tema, Stack
+├── (tabs)/_layout.tsx        AppShell (abas headless do Expo Router)
+├── (tabs)/index.tsx          Hoje
+├── (tabs)/lists/_layout.tsx  pilha das listas
+├── (tabs)/lists/index.tsx    Listas
+├── (tabs)/lists/[id].tsx     Uma lista
+├── (tabs)/settings.tsx       Ajustes
+├── dev/design-system.tsx     catálogo (somente desenvolvimento)
+└── dev/ambient.tsx           prévia do Modo Maré (somente desenvolvimento)
 ```
 
 - **Celular (`compact`):** barra flutuante de águas profundas (72 pt): a aba ativa é uma pílula clara com o nome, as outras são círculos; ao lado, a gota coral "+".
-- **Tablet e desktop (`medium`/`expanded`):** barra lateral de águas profundas com os destinos e o botão coral "Nova tarefa".
+- **Tablet em pé e foldable aberto (`medium`):** trilho lateral de águas profundas (104 pt) com o botão coral "+" no topo e os destinos com ícone e nome curto.
+- **Tablet deitado e notebook (`expanded`):** barra lateral completa com a marca, os destinos e o botão "Nova tarefa".
 - Os destinos ficam em `src/shell/destinations.ts`. Só aparecem módulos que já existem.
 - A navegação usa as abas "headless" de `expo-router/ui`: o roteamento é do Expo Router, e o visual é todo nosso.
 
-## Matriz de layouts (planejada)
+## Matriz de layouts (Etapa B: layouts adaptativos)
 
 Requisito do proprietário: o Aquar.io deve se adaptar a todos estes formatos.
 
-| Formato                                        | Largura típica              | Breakpoint                   | Navegação                                        | Conteúdo                                     |
-| ---------------------------------------------- | --------------------------- | ---------------------------- | ------------------------------------------------ | -------------------------------------------- |
-| Celular em pé (iPhone 11)                      | ~390 pt                     | `compact`                    | Barra de abas inferior                           | Uma coluna                                   |
-| Celular deitado                                | —                           | interface travada em retrato | Ícones giram; **Modo Maré** (painel de ambiente) | Planejado                                    |
-| Foldable fechado (tela externa do Galaxy Fold) | ~340–410 dp                 | `compact`                    | Barra de abas inferior                           | Uma coluna                                   |
-| Foldable aberto (Galaxy Fold, iPhone dobrável) | ~670–900 dp, quase quadrado | `medium`                     | Trilho lateral compacto (planejado)              | Uma coluna larga ou lista + detalhe          |
-| Tablet em pé (Tab S8+)                         | ~800 dp                     | `medium`                     | Trilho lateral compacto (planejado)              | Uma coluna larga                             |
-| Tablet deitado                                 | ~1280 dp                    | `expanded`                   | Barra lateral completa                           | Lista + detalhe; painel em "bento" no futuro |
-| Notebook (web)                                 | ≥ 1280 px                   | `expanded`                   | Barra lateral completa                           | Lista + detalhe; painel em "bento" no futuro |
+| Formato                                        | Largura típica              | Breakpoint                   | Navegação                                      | Estado |
+| ---------------------------------------------- | --------------------------- | ---------------------------- | ---------------------------------------------- | ------ |
+| Celular em pé (iPhone 11)                      | ~390 pt                     | `compact`                    | Barra de abas inferior                         | REAL   |
+| Celular deitado                                | —                           | interface travada em retrato | Ícones da barra giram; Modo Maré se carregando | REAL ¹ |
+| Foldable fechado (tela externa do Galaxy Fold) | ~340–410 dp                 | `compact`                    | Barra de abas; travado em retrato              | REAL ² |
+| Foldable aberto (Galaxy Fold, iPhone dobrável) | ~670–900 dp, quase quadrado | `medium`                     | Trilho lateral; gira livremente                | REAL ² |
+| Tablet em pé (Tab S8+)                         | ~800 dp                     | `medium`                     | Trilho lateral                                 | REAL   |
+| Tablet deitado                                 | ~1280 dp                    | `expanded`                   | Barra lateral completa                         | REAL ¹ |
+| Notebook (web)                                 | ≥ 1280 px                   | `expanded`                   | Barra lateral completa                         | REAL   |
 
-Hoje existem `compact` (barra de abas) e `medium`/`expanded` (barra lateral). Ainda faltam: o trilho compacto para `medium`, a rotação no tablet (o `app.json` trava tudo em retrato) e o Modo Maré. Eles serão feitos numa etapa própria de **layouts adaptativos**, que já precisa ter telas reais do To Do para ser testada.
+¹ Ainda não testado em aparelho físico (o sensor e a rotação não existem na web).
+² Sem aparelho para testar; segue as mesmas regras de largura.
+
+### Como a orientação funciona
+
+- **Quem é "celular":** o lado menor da tela física tem menos de 600 pt (`src/shell/orientation.ts`). A regra é reavaliada quando a tela muda, porque o foldable troca de tela ao abrir.
+- **Celular:** a interface fica travada em retrato (`expo-screen-orientation`). O acelerômetro (`expo-sensors`, a cada 250 ms) diz como o aparelho está sendo segurado (`src/shell/tilt.ts`), e só os ícones da barra giram, com uma mola, como no app de câmera. Deitado sobre a mesa, nada muda.
+- **Tablet, foldable aberto e notebook:** giram livremente; a largura nova escolhe trilho ou barra lateral.
+- **Modo Maré** (`src/shell/ambient.ts`, `AmbientDisplay.tsx`): celular deitado **e** carregando **e** opção ligada em Ajustes → painel escuro com relógio, data, maré do dia e as próximas 3 tarefas. A tela não apaga enquanto ele aparece (`expo-keep-awake`). Um toque sai; ele só volta quando o celular muda de posição. Depois, entram os hábitos e as criaturas (Etapa 10).
 
 ## Regras de dependência
 
