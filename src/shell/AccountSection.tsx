@@ -100,99 +100,78 @@ function SignInSheet({ account, visible, onClose }: SignInSheetProps) {
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * Two steps, no password: the person types their e-mail, receives a one-time code and types it
- * here. Works the same on every device, with no links to open.
- */
+const MIN_PASSWORD = 6;
+
+/** E-mail and password. The same form signs in or creates the account. */
 function SignInForm({ account, onDone }: { account: AccountState; onDone: () => void }) {
-  const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | undefined>();
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'signIn' | 'signUp' | null>(null);
 
-  const attempt = async (work: () => Promise<void>) => {
-    setBusy(true);
-    setError(undefined);
-    try {
-      await work();
-    } catch (failure) {
-      setError(failure instanceof Error ? failure.message : 'Algo deu errado. Tente de novo.');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const sendCode = () => {
+  const submit = (mode: 'signIn' | 'signUp') => {
     if (!EMAIL.test(email.trim())) {
       setError('Digite um e-mail válido.');
       return;
     }
-    void attempt(async () => {
-      await account.sendCode(email);
-      setStep('code');
-    });
+    if (password.length < MIN_PASSWORD) {
+      setError(`A senha precisa ter pelo menos ${MIN_PASSWORD} caracteres.`);
+      return;
+    }
+    setBusy(mode);
+    setError(undefined);
+    (mode === 'signIn' ? account.signIn(email, password) : account.signUp(email, password))
+      .then(onDone)
+      .catch((failure: unknown) =>
+        setError(failure instanceof Error ? failure.message : 'Algo deu errado. Tente de novo.'),
+      )
+      .finally(() => setBusy(null));
   };
-
-  const verify = () =>
-    void attempt(async () => {
-      await account.verifyCode(email, code);
-      onDone();
-    });
-
-  if (step === 'email') {
-    return (
-      <View style={styles.form}>
-        <Text variant="body" tone="secondary">
-          Vamos enviar um código para o seu e-mail. Não precisa de senha.
-        </Text>
-        <TextInput
-          label="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          error={error}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="email"
-          textContentType="emailAddress"
-          returnKeyType="send"
-          onSubmitEditing={sendCode}
-          autoFocus
-        />
-        <Button label="Enviar código" block loading={busy} onPress={sendCode} />
-      </View>
-    );
-  }
 
   return (
     <View style={styles.form}>
       <Text variant="body" tone="secondary">
-        Enviamos um código para {email.trim()}. Ele chega em até um minuto; confira também o spam.
+        Use o mesmo e-mail e senha em todos os seus aparelhos.
       </Text>
       <TextInput
-        label="Código"
-        value={code}
-        onChangeText={(text) => setCode(text.replace(/\D/g, ''))}
-        error={error}
-        keyboardType="number-pad"
-        autoComplete="one-time-code"
-        textContentType="oneTimeCode"
-        maxLength={10}
-        returnKeyType="done"
-        onSubmitEditing={verify}
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="email"
+        textContentType="emailAddress"
+        returnKeyType="next"
         autoFocus
       />
-      <Button label="Entrar" block loading={busy} disabled={code.length < 6} onPress={verify} />
+      <TextInput
+        label="Senha"
+        value={password}
+        onChangeText={setPassword}
+        error={error}
+        secureTextEntry
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="password"
+        textContentType="password"
+        returnKeyType="go"
+        onSubmitEditing={() => submit('signIn')}
+      />
       <Button
-        label="Usar outro e-mail"
-        variant="ghost"
+        label="Entrar"
         block
-        onPress={() => {
-          setStep('email');
-          setCode('');
-          setError(undefined);
-        }}
+        loading={busy === 'signIn'}
+        disabled={busy !== null}
+        onPress={() => submit('signIn')}
+      />
+      <Button
+        label="Criar conta"
+        variant="secondary"
+        block
+        loading={busy === 'signUp'}
+        disabled={busy !== null}
+        onPress={() => submit('signUp')}
       />
     </View>
   );

@@ -37,19 +37,11 @@ Como os dados do Aquar.io viajam entre o celular, o tablet e o computador. A dec
 ## Configurar o projeto Supabase (uma vez)
 
 1. **Criar as tabelas:** no painel do Supabase, abra **SQL Editor → New query**, cole todo o conteúdo de `supabase/migrations/20261020000000_todo_sync.sql` e clique em **Run**. Deve aparecer "Success. No rows returned".
-2. **Mandar o código no e-mail:** em **Authentication → Emails** (ou **Email Templates**), edite os modelos **Magic Link** e **Confirm signup**. Troque o corpo por algo como:
-
-   ```html
-   <h2>Seu código do Aquar.io</h2>
-   <p>Digite este código no app: <strong>{{ .Token }}</strong></p>
-   ```
-
-   Sem o `{{ .Token }}`, o e-mail traz só um link, e o app precisa do código.
-
-3. **Limite de e-mails:** o servidor de e-mail gratuito do Supabase envia poucos e-mails por hora. Para uso pessoal basta; para abrir a outras pessoas, configure um SMTP próprio (Authentication → SMTP).
+2. **Login sem confirmação por e-mail:** em **Authentication → Sign In / Providers → Email**, desligue **Confirm email** e salve. Sem um SMTP próprio, o Supabase não deixa editar os e-mails, então o app usa e-mail + senha (ADR-004).
+3. **Antes de abrir o app para outras pessoas:** configure um SMTP (Authentication → SMTP) e ligue a confirmação de novo.
 
 ## Testes
 
 - `src/__tests__/sync.test.ts`: dois "aparelhos" (dois SQLite em memória) sincronizando por uma nuvem falsa com as mesmas regras do servidor: envio, recebimento, conflito, exclusão, offline.
-- `src/__tests__/app-shell.test.tsx`: o fluxo de entrar por código em Ajustes.
+- `src/__tests__/app-shell.test.tsx`: criar conta, sair e entrar de novo em Ajustes.
 - O servidor real ainda precisa ser verificado nos aparelhos depois do passo 1 acima.

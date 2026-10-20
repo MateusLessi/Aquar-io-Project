@@ -177,7 +177,7 @@ O proprietário usa o Aquar.io em 3 aparelhos (iPhone 11, Galaxy Tab S8+ e noteb
 ### Decisão
 
 - **Nuvem:** Supabase (Postgres + Auth). O esquema está em `supabase/migrations/`; cada linha tem `user_id`, e o **RLS** só deixa cada pessoa ler e gravar as próprias linhas.
-- **Login:** código de uso único enviado por e-mail (OTP). Não tem senha e não precisa abrir links, então funciona igual no Expo Go, no tablet e na web.
+- **Login:** e-mail e senha, com a confirmação por e-mail desligada no painel. O plano gratuito do Supabase não deixa editar os modelos de e-mail sem um SMTP próprio, então o código por e-mail (OTP), que era o plano inicial, fica para quando o app for aberto a outras pessoas (com SMTP e confirmação ligada).
 - **Fila local:** gatilhos (triggers) do SQLite registram toda mudança em `sync_outbox`. Os repositórios não sabem que a sincronização existe.
 - **Ciclo:** primeiro envia a fila, depois baixa o que mudou na nuvem desde o último cursor (`server_updated_at`).
 - **Conflitos:** por linha, vence o `updated_at` mais recente, nos dois lados (gatilho `sync_guard` no Postgres e comparação no aparelho).
@@ -191,5 +191,6 @@ O proprietário usa o Aquar.io em 3 aparelhos (iPhone 11, Galaxy Tab S8+ e noteb
 - A edição é por linha inteira: se dois aparelhos mudarem campos diferentes da mesma tarefa ao mesmo tempo, fica só a versão mais recente.
 - `domain_events` e `app_settings` **não** sincronizam por enquanto: eventos são histórico local, e o tema é por aparelho. A gamificação vai rever os eventos.
 - Listas criadas em aparelhos diferentes antes do primeiro login não se juntam: as duas aparecem.
+- Com a confirmação desligada, qualquer e-mail cria conta sem prova de que é da pessoa. Serve para a fase de testes pessoais; **antes de abrir o app**, ligar SMTP + confirmação.
 - **TODO:** trocar de conta no mesmo aparelho ainda não separa os dados locais de cada pessoa.
 - A chave "publishable" do Supabase fica no app (`.env`) por design; a segurança vem do RLS. A chave secreta **nunca** entra no repositório.

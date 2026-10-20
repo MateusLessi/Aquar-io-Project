@@ -43,15 +43,15 @@ export function createMemoryRemote() {
   };
 }
 
-/** A fake account: any email signs in with the code 123456. */
+/** A fake account service that keeps accounts in memory. */
 export function createMemoryAccount(remote: SyncRemote, signedInAs: string | null = null) {
   let email = signedInAs;
+  const passwords = new Map<string, string>();
   const listeners = new Set<(email: string | null) => void>();
   const set = (next: string | null) => {
     email = next;
     listeners.forEach((listener) => listener(next));
   };
-  const sentTo: string[] = [];
 
   const account: AccountService = {
     remote,
@@ -60,11 +60,13 @@ export function createMemoryAccount(remote: SyncRemote, signedInAs: string | nul
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
-    async sendCode(to) {
-      sentTo.push(to);
+    async signIn(to, password) {
+      if (passwords.get(to) !== password) throw new Error('E-mail ou senha incorretos.');
+      set(to);
     },
-    async verifyCode(to, code) {
-      if (code !== '123456') throw new Error('Código inválido ou expirado.');
+    async signUp(to, password) {
+      if (passwords.has(to)) throw new Error('Já existe uma conta com esse e-mail.');
+      passwords.set(to, password);
       set(to);
     },
     async signOut() {
@@ -72,5 +74,5 @@ export function createMemoryAccount(remote: SyncRemote, signedInAs: string | nul
     },
     setForeground: () => {},
   };
-  return { account, sentTo };
+  return { account, accounts: passwords };
 }

@@ -26,8 +26,8 @@ export type AccountState = {
   email: string | null;
   status: SyncStatus;
   lastSyncedAt: string | null;
-  sendCode(email: string): Promise<void>;
-  verifyCode(email: string, code: string): Promise<void>;
+  signIn(email: string, password: string): Promise<void>;
+  signUp(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   syncNow(): void;
 };
@@ -137,8 +137,8 @@ function AccountSync({
       email,
       status,
       lastSyncedAt,
-      sendCode: (to) => account.sendCode(to.trim().toLowerCase()),
-      verifyCode: (to, code) => account.verifyCode(to.trim().toLowerCase(), code.trim()),
+      signIn: (to, password) => account.signIn(to.trim().toLowerCase(), password),
+      signUp: (to, password) => account.signUp(to.trim().toLowerCase(), password),
       signOut: () => account.signOut(),
       syncNow,
     }),

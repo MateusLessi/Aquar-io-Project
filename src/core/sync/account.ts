@@ -9,9 +9,9 @@ export type AccountService = {
   currentEmail(): Promise<string | null>;
   /** Calls back with the signed-in email (or null) whenever it changes. */
   onChange(listener: (email: string | null) => void): () => void;
-  /** Emails a one-time code. Creates the account on first use. */
-  sendCode(email: string): Promise<void>;
-  verifyCode(email: string, code: string): Promise<void>;
+  signIn(email: string, password: string): Promise<void>;
+  /** Creates the account and signs in (the project has e-mail confirmation turned off). */
+  signUp(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   /** Pause token refresh while the app is in the background (native). */
   setForeground(foreground: boolean): void;
@@ -25,8 +25,17 @@ function friendly(error: { message: string; status?: number; code?: string }): A
   if (error.status === 429 || text.includes('rate limit')) {
     return new AccountError('Muitas tentativas. Espere alguns minutos e tente de novo.');
   }
-  if (text.includes('expired') || text.includes('invalid') || text.includes('otp')) {
-    return new AccountError('Código inválido ou expirado. Confira ou peça um novo.');
+  if (text.includes('invalid login') || text.includes('invalid_credentials')) {
+    return new AccountError('E-mail ou senha incorretos.');
+  }
+  if (text.includes('already registered') || text.includes('user_already_exists')) {
+    return new AccountError('Já existe uma conta com esse e-mail. Toque em Entrar.');
+  }
+  if (text.includes('password')) {
+    return new AccountError('A senha precisa ter pelo menos 6 caracteres.');
+  }
+  if (text.includes('not confirmed')) {
+    return new AccountError('Este e-mail ainda não foi confirmado.');
   }
   if (text.includes('email')) return new AccountError('Confira o e-mail digitado.');
   return new AccountError('Não foi possível falar com o servidor. Verifique sua conexão.');
@@ -45,13 +54,17 @@ export function createSupabaseAccount(supabase: SupabaseClient): AccountService 
       );
       return () => data.subscription.unsubscribe();
     },
-    async sendCode(email) {
-      const { error } = await supabase.auth.signInWithOtp({ email });
+    async signIn(email, password) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw friendly(error);
     },
-    async verifyCode(email, code) {
-      const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
+    async signUp(email, password) {
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw friendly(error);
+      // With confirmation on, Supabase answers without a session (and without an error).
+      if (!data.session) {
+        throw new AccountError('Conta criada, mas o projeto pede confirmação por e-mail.');
+      }
     },
     async signOut() {
       const { error } = await supabase.auth.signOut();
