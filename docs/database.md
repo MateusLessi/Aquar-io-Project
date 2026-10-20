@@ -63,10 +63,20 @@ app_settings
 
 ### Notas de design
 
-- **Sem `owner_id` / `users` por enquanto.** Sem conta, só existe um usuário: o dono do aparelho. A identidade entra junto com a autenticação e o sync. Adicionar a coluna nesse momento é uma migration simples.
+- **Sem `owner_id` no aparelho.** O banco local é de quem usa o aparelho; o `user_id` existe só na nuvem e é preenchido pelo servidor (ver [sync.md](sync.md)).
 - **`domain_events` é um log, não a fonte da verdade.** O estado atual vive em `tasks`; os eventos existem para o futuro Progress Engine ter histórico real. Isso não é Event Sourcing.
 - **Desmarcar uma tarefa** (`completed_at` volta a `NULL`) gera um evento próprio (`TASK_UNCOMPLETED`), para a gamificação futura não contar a mesma conclusão duas vezes.
 - **Subtarefas** reutilizam a tabela `tasks` com `parent_task_id`. A V1 limita a um nível de profundidade.
+
+## Sincronização (migration 2)
+
+```
+sync_outbox     table_name, row_id, seq   -- mudanças locais esperando para subir
+sync_applying   row_id                    -- linhas sendo gravadas pelo próprio sync
+sync_state      key, value                -- cursores de download e lastSyncedAt
+```
+
+Gatilhos `AFTER INSERT/UPDATE` em `task_lists` e `tasks` enfileiram cada mudança em `sync_outbox`, exceto as que vieram da nuvem (marcadas em `sync_applying`). O `seq` serve para não apagar da fila uma linha que mudou de novo durante o envio. Detalhes em [sync.md](sync.md) e no ADR-004.
 
 ### Índices
 

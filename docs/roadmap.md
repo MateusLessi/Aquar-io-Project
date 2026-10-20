@@ -12,7 +12,7 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [✓] Data Strategy
 [✓] Design System (Aquatic Glass)
 [✓] App Shell & Navigation
-[ ] Authentication
+[●] Authentication + Sync (Supabase, ADR-004)
 [✓] To Do Core
 [✓] Layouts adaptativos + Modo Maré (Etapa B)
 [●] To Do Advanced
@@ -47,7 +47,6 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 
 ## Pontos em aberto (para decidir no momento certo)
 
-- **Sincronização (próxima):** o proprietário usa 3 aparelhos (iPhone 11, Galaxy Tab S8+, notebook via web). Próxima etapa proposta, com Supabase e autenticação.
 - **Fundo do oceano:** o esmaecimento das cáusticas termina numa borda visível (~260 pt) no tema escuro. Corrigir numa passada de design.
 - **Ranked Seasons:** modo ranqueado opt-in para hábitos, com entrada simbólica e recompensas cosméticas. Ver [gamification.md](gamification.md).
 

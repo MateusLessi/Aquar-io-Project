@@ -8,6 +8,7 @@ ADRs não são apagados. Se uma decisão mudar, criamos um novo ADR que **substi
 | [001](#adr-001) | Plataforma de desenvolvimento: linguagem e framework mobile | Aceito | 2026-10-18 |
 | [002](#adr-002) | Estratégia de dados: local-first                            | Aceito | 2026-10-18 |
 | [003](#adr-003) | Acesso a dados: SQL direto com repositórios                 | Aceito | 2026-10-18 |
+| [004](#adr-004) | Sincronização: Supabase, fila local e última escrita vence  | Aceito | 2026-10-20 |
 
 ---
 
@@ -150,3 +151,45 @@ O To Do V1 é o primeiro módulo a gravar dados (ADR-002: SQLite local). Era pre
 - As telas leem por `useLiveQuery`, que refaz a consulta quando um repositório avisa que os dados mudaram (`DataChanges`).
 - Na web, o SQLite roda em WebAssembly e exige isolamento de origem (cabeçalhos COOP/COEP), configurado em `metro.config.js` e no servidor de E2E.
 - Se o SQL manual pesar no futuro, trocar por um ORM fica restrito aos repositórios.
+
+---
+
+## ADR-004
+
+**Título:** Sincronização entre aparelhos: Supabase, fila local por gatilhos e "última escrita vence"
+
+**Status:** Aceito (Checkpoint de Aprovação 012)
+
+**Data:** 2026-10-20
+
+### Contexto
+
+O proprietário usa o Aquar.io em 3 aparelhos (iPhone 11, Galaxy Tab S8+ e notebook via web). Cada um tinha os próprios dados (ADR-002: local-first). Era preciso uma conta e uma cópia na nuvem, sem perder o funcionamento offline.
+
+### Alternativas
+
+| Alternativa                                  | Prós                                                                 | Contras                                                         |
+| -------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Supabase + motor de sync próprio**         | Postgres com regras de acesso (RLS); login por e-mail pronto; grátis | Escrevemos o motor de sync (pequeno e testado)                  |
+| Firebase / Firestore                         | Sync offline pronto                                                  | Banco de documentos, não SQL; outro modelo de dados no servidor |
+| Bibliotecas de sync (PowerSync, ElectricSQL) | Sync completo e robusto                                              | Mais serviços e custo; cedo demais para o tamanho do projeto    |
+
+### Decisão
+
+- **Nuvem:** Supabase (Postgres + Auth). O esquema está em `supabase/migrations/`; cada linha tem `user_id`, e o **RLS** só deixa cada pessoa ler e gravar as próprias linhas.
+- **Login:** código de uso único enviado por e-mail (OTP). Não tem senha e não precisa abrir links, então funciona igual no Expo Go, no tablet e na web.
+- **Fila local:** gatilhos (triggers) do SQLite registram toda mudança em `sync_outbox`. Os repositórios não sabem que a sincronização existe.
+- **Ciclo:** primeiro envia a fila, depois baixa o que mudou na nuvem desde o último cursor (`server_updated_at`).
+- **Conflitos:** por linha, vence o `updated_at` mais recente, nos dois lados (gatilho `sync_guard` no Postgres e comparação no aparelho).
+- **Exclusões:** continuam "suaves" (`deleted_at`) e viajam como qualquer edição.
+- **Quando sincroniza:** ao entrar, 1,5 s depois de uma edição, ao voltar para o app e a cada minuto com o app aberto.
+
+### Consequências
+
+- O app continua 100% funcional offline; as mudanças ficam na fila até a conexão voltar.
+- "Última escrita vence" compara os relógios dos aparelhos. Se um relógio estiver muito errado, uma edição antiga pode vencer. Para uma pessoa com aparelhos sincronizados pela rede, isso é aceitável.
+- A edição é por linha inteira: se dois aparelhos mudarem campos diferentes da mesma tarefa ao mesmo tempo, fica só a versão mais recente.
+- `domain_events` e `app_settings` **não** sincronizam por enquanto: eventos são histórico local, e o tema é por aparelho. A gamificação vai rever os eventos.
+- Listas criadas em aparelhos diferentes antes do primeiro login não se juntam: as duas aparecem.
+- **TODO:** trocar de conta no mesmo aparelho ainda não separa os dados locais de cada pessoa.
+- A chave "publishable" do Supabase fica no app (`.env`) por design; a segurança vem do RLS. A chave secreta **nunca** entra no repositório.
