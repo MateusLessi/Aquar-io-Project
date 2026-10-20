@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react-native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Surface, Text, spacing, touchTarget, typography, useTheme } from '@/design-system';
@@ -14,11 +14,19 @@ type AddTaskFieldProps = {
 /** Always-visible "add a task" row: type, press enter, keep typing the next one. */
 export function AddTaskField({ placeholder = 'Adicionar tarefa', onAdd }: AddTaskFieldProps) {
   const { colors } = useTheme();
-  const [title, setTitle] = useState('');
+  const [title, setTitleState] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // The latest text, updated synchronously: pressing Enter right after typing must submit
+  // what was just typed, even before React re-renders with the new state.
+  const latest = useRef('');
+
+  const setTitle = (text: string) => {
+    latest.current = text;
+    setTitleState(text);
+  };
 
   const submit = async () => {
-    const value = title;
+    const value = latest.current;
     if (!value.trim()) return;
     // Clear right away so fast typists can start the next task while this one saves.
     setTitle('');
@@ -26,7 +34,7 @@ export function AddTaskField({ placeholder = 'Adicionar tarefa', onAdd }: AddTas
     try {
       await onAdd(value);
     } catch (e) {
-      setTitle((current) => current || value);
+      if (!latest.current) setTitle(value);
       setError(
         e instanceof ValidationError ? e.message : 'Não foi possível adicionar. Tente de novo.',
       );
