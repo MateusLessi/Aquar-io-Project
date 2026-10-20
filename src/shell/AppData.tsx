@@ -7,6 +7,7 @@ import type { Database } from '@/core/database/types';
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { createEventLog, type EventLog } from '@/core/events/eventLog';
 import { newId } from '@/core/ids';
+import { createDefaultAccount, type AccountService } from '@/core/sync/account';
 import {
   createSettingsRepository,
   type SettingsRepository,
@@ -16,7 +17,12 @@ import type { ThemePreference } from '@/design-system';
 import { createTodoRepository, type TodoRepository } from '@/features/todo/data/todoRepository';
 import { TodoContext } from '@/features/todo/hooks/todoContext';
 
+import { AccountProvider } from './Account';
+
 export type AppData = {
+  db: Database;
+  /** Null when the app was built without a cloud project. */
+  account: AccountService | null;
   changes: DataChanges;
   events: EventLog;
   settings: SettingsRepository;
@@ -28,7 +34,11 @@ const THEME_KEY = 'theme';
 const themePreferences: ThemePreference[] = ['system', 'light', 'dark'];
 
 /** Wires every module to the same database: the app's composition root. */
-export async function createAppData(db: Database, now: () => Date = () => new Date()) {
+export async function createAppData(
+  db: Database,
+  now: () => Date = () => new Date(),
+  account: AccountService | null = createDefaultAccount(),
+) {
   await migrate(db);
   const changes = createDataChanges();
   const events = createEventLog({ db, newId, now });
@@ -36,7 +46,7 @@ export async function createAppData(db: Database, now: () => Date = () => new Da
   const todo = createTodoRepository({ db, changes, events, newId, now });
   const storedTheme = await settings.get(THEME_KEY);
   const themePreference = themePreferences.find((p) => p === storedTheme) ?? 'system';
-  return { changes, events, settings, todo, themePreference } satisfies AppData;
+  return { db, account, changes, events, settings, todo, themePreference } satisfies AppData;
 }
 
 export type BootState =
@@ -79,7 +89,11 @@ export function AppDataProvider({ data, children }: { data: AppData; children: R
   return (
     <DataChangesContext.Provider value={data.changes}>
       <SettingsContext.Provider value={data.settings}>
-        <TodoContext.Provider value={data.todo}>{children}</TodoContext.Provider>
+        <TodoContext.Provider value={data.todo}>
+          <AccountProvider account={data.account} db={data.db} changes={data.changes}>
+            {children}
+          </AccountProvider>
+        </TodoContext.Provider>
       </SettingsContext.Provider>
     </DataChangesContext.Provider>
   );
