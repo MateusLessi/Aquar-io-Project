@@ -1,5 +1,7 @@
 import { listColorNames, type ListColorName } from '@/design-system';
 
+import { isTimeOfDay } from '@/core/dates';
+
 import { isDateKey } from './dates';
 import type { Priority } from './types';
 
@@ -51,6 +53,12 @@ export function validateListColor(color: string | null | undefined): ListColorNa
   if (color == null) return null;
   if ((listColorNames as string[]).includes(color)) return color as ListColorName;
   throw new ValidationError('Cor inválida.');
+}
+
+export function validateRemindAt(time: string | null | undefined): string | null {
+  if (time == null) return null;
+  if (!isTimeOfDay(time)) throw new ValidationError('Horário inválido.');
+  return time;
 }
 
 export const priorityLabels: Record<Priority, string> = {

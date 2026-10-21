@@ -1,5 +1,7 @@
 import type { ListColorName } from '@/design-system';
 
+import type { Repeat } from './repeat';
+
 /** 0 none · 1 low · 2 medium · 3 high */
 export type Priority = 0 | 1 | 2 | 3;
 
@@ -26,6 +28,10 @@ export type Task = {
   dueDate: string | null;
   /** When it was completed (ISO instant); null while open. */
   completedAt: string | null;
+  /** Repeating tasks need a due date; completing one creates the next. */
+  repeat: Repeat | null;
+  /** Reminder time on the due date, `HH:MM`. */
+  remindAt: string | null;
   sortOrder: number;
   subtaskCount: number;
   subtaskDoneCount: number;
@@ -55,4 +61,17 @@ export type TaskPatch = {
   notes?: string | null;
   dueDate?: string | null;
   priority?: Priority;
+  repeat?: Repeat | null;
+  remindAt?: string | null;
+};
+
+/** A task with a reminder, for scheduling notifications. */
+export type TaskReminder = {
+  id: string;
+  title: string;
+  listId: string;
+  listName: string;
+  listEmoji: string | null;
+  dueDate: string;
+  remindAt: string;
 };

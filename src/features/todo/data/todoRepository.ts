@@ -2,8 +2,10 @@ import type { DataChanges } from '@/core/database/changes';
 import type { Database } from '@/core/database/types';
 import type { DomainEvent } from '@/core/events/events';
 import type { EventLog } from '@/core/events/eventLog';
+import { idFrom } from '@/core/ids';
 
 import { toDateKey } from '../domain/dates';
+import { formatRepeat, nextDueDate } from '../domain/repeat';
 import type {
   ListPatch,
   NewList,
@@ -11,6 +13,7 @@ import type {
   Task,
   TaskList,
   TaskPatch,
+  TaskReminder,
   TaskWithList,
 } from '../domain/types';
 import {
@@ -20,6 +23,7 @@ import {
   validateListName,
   validateNotes,
   validatePriority,
+  validateRemindAt,
   validateTaskTitle,
 } from '../domain/validation';
 import {
@@ -47,7 +51,7 @@ const LIST_COLUMNS = `
 
 const TASK_COLUMNS = `
   t.id, t.list_id, t.parent_task_id, t.title, t.notes, t.priority, t.due_date,
-  t.completed_at, t.sort_order, t.created_at, t.updated_at,
+  t.completed_at, t.repeat, t.remind_at, t.sort_order, t.created_at, t.updated_at,
   (SELECT COUNT(*) FROM tasks s WHERE s.parent_task_id = t.id AND s.deleted_at IS NULL)
     AS subtask_count,
   (SELECT COUNT(*) FROM tasks s
@@ -78,6 +82,35 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
       [id],
     );
     return row ? toTask(row) : null;
+  }
+
+  /**
+   * Completing a repeating task creates its next copy and hands the repetition over to it.
+   * The copy's id comes from the original's, so two devices completing the same task create
+   * the same copy, which sync merges.
+   */
+  async function createNextOccurrence(task: Task, at: string): Promise<void> {
+    const dueDate = nextDueDate(task.dueDate!, task.repeat!, toDateKey(now()));
+    await db.run(
+      `INSERT OR IGNORE INTO tasks
+         (id, list_id, title, notes, priority, due_date, repeat, remind_at,
+          sort_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        idFrom(`${task.id}:next`),
+        task.listId,
+        task.title,
+        task.notes,
+        task.priority,
+        dueDate,
+        formatRepeat(task.repeat),
+        task.remindAt,
+        task.sortOrder,
+        at,
+        at,
+      ],
+    );
+    await db.run('UPDATE tasks SET repeat = NULL WHERE id = ?', [task.id]);
   }
 
   return {
@@ -186,6 +219,36 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
      * Today: top-level tasks due today (open or done), plus overdue ones still open.
      * Overdue first, then by list and order.
      */
+    /** Open tasks with a reminder on or after `fromKey`, for scheduling notifications. */
+    async listReminders(fromKey: string = toDateKey(now())): Promise<TaskReminder[]> {
+      const rows = await db.all<{
+        id: string;
+        title: string;
+        list_id: string;
+        list_name: string;
+        list_emoji: string | null;
+        due_date: string;
+        remind_at: string;
+      }>(
+        `SELECT t.id, t.title, t.list_id, t.due_date, t.remind_at,
+                l.name AS list_name, l.emoji AS list_emoji
+         FROM tasks t JOIN task_lists l ON l.id = t.list_id AND l.deleted_at IS NULL
+         WHERE t.deleted_at IS NULL AND t.completed_at IS NULL
+           AND t.remind_at IS NOT NULL AND t.due_date >= ?
+         ORDER BY t.due_date, t.remind_at`,
+        [fromKey],
+      );
+      return rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        listId: row.list_id,
+        listName: row.list_name,
+        listEmoji: row.list_emoji,
+        dueDate: row.due_date,
+        remindAt: row.remind_at,
+      }));
+    },
+
     async listToday(todayKey: string = toDateKey(now())): Promise<TaskWithList[]> {
       const rows = await db.all<TaskWithListRow>(
         `SELECT ${TASK_COLUMNS}, l.name AS list_name, l.emoji AS list_emoji, l.color AS list_color
@@ -256,6 +319,26 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
         sets.push('priority = ?');
         params.push(validatePriority(patch.priority));
       }
+      // Repeating and reminders hang on the due date: removing the date removes them.
+      const current = await requireTask(id);
+      const dueDate = patch.dueDate !== undefined ? patch.dueDate : current.dueDate;
+      if (!dueDate) {
+        if (patch.repeat) throw new ValidationError('Escolha uma data para a tarefa repetir.');
+        if (patch.remindAt) throw new ValidationError('Escolha uma data para o lembrete.');
+        if (current.repeat || current.remindAt) sets.push('repeat = NULL', 'remind_at = NULL');
+      } else {
+        if (patch.repeat !== undefined) {
+          if (patch.repeat && current.parentTaskId) {
+            throw new ValidationError('Subtarefas não se repetem.');
+          }
+          sets.push('repeat = ?');
+          params.push(formatRepeat(patch.repeat));
+        }
+        if (patch.remindAt !== undefined) {
+          sets.push('remind_at = ?');
+          params.push(validateRemindAt(patch.remindAt));
+        }
+      }
       if (sets.length === 0) return;
       await db.run(
         `UPDATE tasks SET ${sets.join(', ')}, updated_at = ? WHERE id = ? AND deleted_at IS NULL`,
@@ -280,6 +363,9 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
           at,
           id,
         ]);
+        if (completed && task.repeat && task.dueDate && !task.parentTaskId) {
+          await createNextOccurrence(task, at);
+        }
         event = await events.record(
           completed ? 'TASK_COMPLETED' : 'TASK_UNCOMPLETED',
           { type: 'task', id },

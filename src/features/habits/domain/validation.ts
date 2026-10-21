@@ -1,7 +1,10 @@
+import { isTimeOfDay } from '@/core/dates';
+
 import { isCreatureId, type CreatureId } from './creatures';
 import type { WeekdayMask } from './types';
 
 export const HABIT_NAME_MAX = 60;
+export const MAX_REMINDERS = 5;
 
 /** A user-facing validation problem, with a message ready to show. */
 export class HabitValidationError extends Error {
@@ -27,4 +30,14 @@ export function validateDays(days: WeekdayMask): WeekdayMask {
     throw new HabitValidationError('Escolha pelo menos um dia da semana.');
   }
   return days;
+}
+
+/** Unique, sorted times; at most MAX_REMINDERS. */
+export function validateReminderTimes(times: string[]): string[] {
+  const unique = [...new Set(times)].sort();
+  if (unique.some((t) => !isTimeOfDay(t))) throw new HabitValidationError('Horário inválido.');
+  if (unique.length > MAX_REMINDERS) {
+    throw new HabitValidationError(`Use no máximo ${MAX_REMINDERS} lembretes por hábito.`);
+  }
+  return unique;
 }

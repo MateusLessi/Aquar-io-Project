@@ -78,14 +78,6 @@ export function createSyncEngine({
   /** Writes cloud rows that are newer than ours, without queueing them for upload again. */
   async function apply(table: SyncedTable, rows: RemoteRow[]): Promise<number> {
     let applied = 0;
-    const columns = table.columns;
-    const upsert = `INSERT INTO ${table.name} (${columns.join(', ')})
-      VALUES (${columns.map(() => '?').join(', ')})
-      ON CONFLICT(id) DO UPDATE SET ${columns
-        .filter((c) => c !== 'id')
-        .map((c) => `${c} = excluded.${c}`)
-        .join(', ')}`;
-
     await db.transaction(async () => {
       // A subtask can arrive before its parent within the same page.
       await db.exec('PRAGMA defer_foreign_keys = ON');
@@ -95,9 +87,16 @@ export function createSyncEngine({
           [row.id],
         );
         if (local && local.updated_at >= row.updated_at) continue;
+        // Only columns the cloud sent: a column it does not have yet keeps the local value.
+        const columns = table.columns.filter((c) => c in row);
         await db.run('INSERT OR IGNORE INTO sync_applying (row_id) VALUES (?)', [row.id]);
         await db.run(
-          upsert,
+          `INSERT INTO ${table.name} (${columns.join(', ')})
+           VALUES (${columns.map(() => '?').join(', ')})
+           ON CONFLICT(id) DO UPDATE SET ${columns
+             .filter((c) => c !== 'id')
+             .map((c) => `${c} = excluded.${c}`)
+             .join(', ')}`,
           columns.map((c) => (row[c] ?? null) as SqlValue),
         );
         await db.run('DELETE FROM sync_applying WHERE row_id = ?', [row.id]);

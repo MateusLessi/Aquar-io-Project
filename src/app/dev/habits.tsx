@@ -29,6 +29,7 @@ function sampleHabits(): HabitWithProgress[] {
     name: sample.name,
     creature: sample.creature,
     days: sample.days,
+    reminderTimes: [],
     sortOrder: i,
     createdAt: daysAgo(30),
     updatedAt: daysAgo(30),

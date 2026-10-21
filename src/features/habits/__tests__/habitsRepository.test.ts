@@ -81,3 +81,18 @@ describe('habits repository', () => {
     await expect(habits.setChecked(id, '2026-10-21', true)).rejects.toThrow('não existe');
   });
 });
+
+describe('habit reminders', () => {
+  it('stores unique, sorted reminder times', async () => {
+    const { habits } = await setup();
+    const id = await habits.createHabit({
+      name: 'Beber água',
+      creature: 'fish',
+      reminderTimes: ['14:00', '10:00', '14:00'],
+    });
+    expect((await habits.getHabit(id))?.habit.reminderTimes).toEqual(['10:00', '14:00']);
+    await habits.updateHabit(id, { reminderTimes: [] });
+    expect((await habits.getHabit(id))?.habit.reminderTimes).toEqual([]);
+    await expect(habits.updateHabit(id, { reminderTimes: ['7h'] })).rejects.toThrow('inválido');
+  });
+});
