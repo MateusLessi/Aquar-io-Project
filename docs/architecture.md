@@ -42,12 +42,16 @@ src/app/
 ├── _layout.tsx               raiz: fontes, banco local, tema, Stack
 ├── (tabs)/_layout.tsx        AppShell (abas headless do Expo Router)
 ├── (tabs)/index.tsx          Hoje
+├── (tabs)/habits/_layout.tsx pilha dos hábitos
+├── (tabs)/habits/index.tsx  Hábitos
+├── (tabs)/habits/[id].tsx   Um hábito
 ├── (tabs)/lists/_layout.tsx  pilha das listas
 ├── (tabs)/lists/index.tsx    Listas
 ├── (tabs)/lists/[id].tsx     Uma lista
 ├── (tabs)/settings.tsx       Ajustes
 ├── dev/design-system.tsx     catálogo (somente desenvolvimento)
-└── dev/ambient.tsx           prévia do Modo Maré (somente desenvolvimento)
+├── dev/ambient.tsx           prévia do Modo Maré (somente desenvolvimento)
+└── dev/habits.tsx            prévia dos Hábitos com dados de exemplo (somente desenvolvimento)
 ```
 
 - **Celular (`compact`):** barra flutuante de águas profundas (72 pt): a aba ativa é uma pílula clara com o nome, as outras são círculos; ao lado, a gota coral "+".

@@ -36,7 +36,12 @@ Como os dados do Aquar.io viajam entre o celular, o tablet e o computador. A dec
 
 ## Configurar o projeto Supabase (uma vez)
 
-1. **Criar as tabelas:** no painel do Supabase, abra **SQL Editor → New query**, cole todo o conteúdo de `supabase/migrations/20261020000000_todo_sync.sql` e clique em **Run**. Deve aparecer "Success. No rows returned".
+1. **Criar as tabelas:** no painel do Supabase, abra **SQL Editor → New query**, cole o **conteúdo** de cada arquivo de `supabase/migrations/`, em ordem, e clique em **Run** (deve aparecer "Success. No rows returned"):
+   - `20261020000000_todo_sync.sql`: listas e tarefas;
+   - `20261021000000_habits_sync.sql`: hábitos e check-ins.
+
+   Se uma tabela ainda não existir na nuvem, as outras continuam sincronizando; as mudanças dela ficam na fila e Ajustes mostra "Sem conexão" até o SQL ser rodado.
+
 2. **Login sem confirmação por e-mail:** em **Authentication → Sign In / Providers → Email**, desligue **Confirm email** e salve. Sem um SMTP próprio, o Supabase não deixa editar os e-mails, então o app usa e-mail + senha (ADR-004).
 3. **Antes de abrir o app para outras pessoas:** configure um SMTP (Authentication → SMTP) e ligue a confirmação de novo.
 

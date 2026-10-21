@@ -19,7 +19,7 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [ ] Routines Core
 [ ] Routine Intelligence
 [ ] Gamification Foundation
-[ ] Habits
+[●] Habits (V1: criaturas, check-in, sequência, recife)
 ```
 
 ## Etapas

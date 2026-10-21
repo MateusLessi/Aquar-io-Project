@@ -78,11 +78,24 @@ sync_state      key, value                -- cursores de download e lastSyncedAt
 
 Gatilhos `AFTER INSERT/UPDATE` em `task_lists` e `tasks` enfileiram cada mudança em `sync_outbox`, exceto as que vieram da nuvem (marcadas em `sync_applying`). O `seq` serve para não apagar da fila uma linha que mudou de novo durante o envio. Detalhes em [sync.md](sync.md) e no ADR-004.
 
+## Hábitos (migration 3)
+
+```
+habits        id, name, creature, days (bitmask: bit 0 = domingo … bit 6 = sábado),
+              sort_order, created_at, updated_at, deleted_at
+habit_checks  id ("<habit_id>:<YYYY-MM-DD>"), habit_id, date, created_at, updated_at, deleted_at
+```
+
+- Um check-in por hábito e por dia. O id é **determinístico**: marcar o mesmo dia no celular e no tablet grava a mesma linha, sem duplicar.
+- Desmarcar é um soft delete (`deleted_at`); marcar de novo "revive" a linha. Assim a sincronização trata tudo como edição, com "última escrita vence".
+- Sequência, melhor sequência e consistência são **calculadas** a partir dos check-ins (`src/features/habits/domain/progress.ts`), não guardadas.
+
 ### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;
 - `tasks(parent_task_id)`: carregar subtarefas;
 - `tasks(due_date)`: futuras visões "Planejado" e "Meu Dia";
-- `domain_events(type, occurred_at)`: consultas do futuro Progress Engine.
+- `domain_events(type, occurred_at)`: consultas do futuro Progress Engine;
+- `habit_checks(habit_id, date)`: check-ins de um hábito.
 
 > **Índice:** uma estrutura auxiliar que o banco mantém para encontrar linhas rapidamente, como o índice remissivo de um livro. Acelera leituras e deixa as escritas um pouco mais lentas, por isso só criamos os que serão usados.
