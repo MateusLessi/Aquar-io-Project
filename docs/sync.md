@@ -39,6 +39,7 @@ Como os dados do Aquar.io viajam entre o celular, o tablet e o computador. A dec
 1. **Criar as tabelas:** no painel do Supabase, abra **SQL Editor → New query**, cole o **conteúdo** de cada arquivo de `supabase/migrations/`, em ordem, e clique em **Run** (deve aparecer "Success. No rows returned"):
    - `20261020000000_todo_sync.sql`: listas e tarefas;
    - `20261021000000_habits_sync.sql`: hábitos e check-ins.
+   - `20261022000000_reminders.sql`: repetição e lembretes.
 
    Se uma tabela ainda não existir na nuvem, as outras continuam sincronizando; as mudanças dela ficam na fila e Ajustes mostra "Sem conexão" até o SQL ser rodado.
 

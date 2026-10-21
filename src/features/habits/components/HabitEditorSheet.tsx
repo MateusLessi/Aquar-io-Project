@@ -15,10 +15,13 @@ import {
   withAlpha,
 } from '@/design-system';
 
+import { requestNotificationPermission } from '@/core/notifications';
+
 import { creatureIds, creatures, type CreatureId } from '../domain/creatures';
 import { weekdayInitial, weekdayShort } from '../domain/progress';
 import { EVERY_DAY, type Habit, type NewHabit, type WeekdayMask } from '../domain/types';
 import { CreatureBubble } from './CreatureBubble';
+import { ReminderTimesField } from './ReminderTimesField';
 
 const WEEKDAYS: WeekdayMask = 0b0111110;
 
@@ -44,6 +47,7 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
   const [name, setName] = useState(habit?.name ?? '');
   const [creature, setCreature] = useState<CreatureId>(habit?.creature ?? 'turtle');
   const [days, setDays] = useState<WeekdayMask>(habit?.days ?? EVERY_DAY);
+  const [reminderTimes, setReminderTimes] = useState<string[]>(habit?.reminderTimes ?? []);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -51,7 +55,9 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
   const save = async () => {
     setSaving(true);
     try {
-      await onSubmit({ name, creature, days });
+      await onSubmit({ name, creature, days, reminderTimes });
+      // Ask in context: only when the person has just set a reminder.
+      if (reminderTimes.length > 0) await requestNotificationPermission();
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível salvar. Tente de novo.');
@@ -96,6 +102,13 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
           onChange={setDays}
           tone={listColors[creatures[creature].color]}
         />
+      </View>
+
+      <View style={styles.group}>
+        <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
+          Lembretes
+        </Text>
+        <ReminderTimesField value={reminderTimes} onChange={setReminderTimes} />
       </View>
 
       <Button

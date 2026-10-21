@@ -1,5 +1,6 @@
 import type { ListColorName } from '@/design-system';
 
+import { parseRepeat } from '../domain/repeat';
 import type { Priority, Task, TaskList, TaskWithList } from '../domain/types';
 
 /** Row shapes exactly as SQLite returns them (snake_case). */
@@ -23,6 +24,8 @@ export type TaskRow = {
   priority: number;
   due_date: string | null;
   completed_at: string | null;
+  repeat: string | null;
+  remind_at: string | null;
   sort_order: number;
   subtask_count: number;
   subtask_done_count: number;
@@ -59,6 +62,8 @@ export function toTask(row: TaskRow): Task {
     priority: row.priority as Priority,
     dueDate: row.due_date,
     completedAt: row.completed_at,
+    repeat: parseRepeat(row.repeat),
+    remindAt: row.remind_at,
     sortOrder: row.sort_order,
     subtaskCount: row.subtask_count,
     subtaskDoneCount: row.subtask_done_count,

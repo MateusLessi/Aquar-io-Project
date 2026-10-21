@@ -1,4 +1,4 @@
-import { CalendarDays, ListChecks, StickyNote } from 'lucide-react-native';
+import { Bell, CalendarDays, ListChecks, Repeat, StickyNote } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import {
@@ -72,6 +72,17 @@ export function TaskRow({
         <CalendarDays size={13} color={overdue ? colors.error : colors.textSecondary} />
         <Text variant="footnote" tone={overdue ? 'error' : 'secondary'}>
           {dueLabel(task.dueDate, todayKey)}
+        </Text>
+      </View>
+    ) : null,
+    task.repeat ? (
+      <Repeat key="repeat" size={13} color={colors.textSecondary} accessibilityLabel="Repete" />
+    ) : null,
+    task.remindAt ? (
+      <View key="remind" style={styles.inline}>
+        <Bell size={13} color={colors.textSecondary} />
+        <Text variant="footnote" tone="secondary">
+          {task.remindAt}
         </Text>
       </View>
     ) : null,

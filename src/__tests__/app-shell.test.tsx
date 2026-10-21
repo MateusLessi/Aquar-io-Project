@@ -13,6 +13,7 @@ import SettingsScreen from '@/app/(tabs)/settings';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
 import { createMemoryDatabase } from '@/core/database/testing';
+import { toDateKey } from '@/core/dates';
 import { createMemoryAccount, createMemoryRemote } from '@/core/sync/testing';
 import { ThemeProvider, lightColors } from '@/design-system';
 import { AppDataProvider, createAppData, type AppData } from '@/shell/AppData';
@@ -244,5 +245,34 @@ describe('Habits', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Beber água, Primeiro dia!' }));
     expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
     expect(app.getPathname()).toMatch(/^\/habits\//);
+  });
+});
+
+describe('Repeating tasks and reminders', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('sets a task to repeat with a reminder from its details', async () => {
+    const listId = await data.todo.createList({ name: 'Casa' });
+    const todayKey = toDateKey(new Date());
+    const taskId = await data.todo.createTask({
+      listId,
+      title: 'Regar plantas',
+      dueDate: todayKey,
+    });
+
+    await renderRouter(routes, { initialUrl: '/' });
+    await fireEvent.press(await screen.findByText('Regar plantas'));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Todo dia' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Adicionar lembrete' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Salvar lembrete' }));
+
+    await waitFor(async () => {
+      const task = await data.todo.getTask(taskId);
+      expect(task?.repeat).toEqual({ kind: 'daily' });
+      expect(task?.remindAt).toBe('09:00');
+    });
+    expect(
+      await screen.findByRole('button', { name: 'Remover lembrete das 09:00' }),
+    ).toBeOnTheScreen();
   });
 });

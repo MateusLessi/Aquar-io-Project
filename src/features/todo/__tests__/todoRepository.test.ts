@@ -200,3 +200,47 @@ describe('today', () => {
     expect(today[0]).toMatchObject({ listName: 'Faculdade', listColor: 'tide', listEmoji: '📚' });
   });
 });
+
+describe('repeating tasks and reminders', () => {
+  it('creates the next copy when a repeating task is completed', async () => {
+    const { repo, advance } = await setup();
+    const listId = await repo.createList({ name: 'Casa' });
+    const id = await repo.createTask({ listId, title: 'Regar plantas', dueDate: TODAY });
+    await repo.updateTask(id, { repeat: { kind: 'weekly' }, remindAt: '08:00', notes: 'Varanda' });
+
+    advance(1000);
+    await repo.setCompleted(id, true);
+    const tasks = await repo.listTasks(listId);
+    const next = tasks.find((t) => !t.completedAt)!;
+    expect(next.title).toBe('Regar plantas');
+    expect(next.dueDate).toBe('2026-10-25');
+    expect(next.repeat).toEqual({ kind: 'weekly' });
+    expect(next.remindAt).toBe('08:00');
+    expect(next.notes).toBe('Varanda');
+    // The repetition moved to the copy: undoing and redoing does not make a second one.
+    expect(tasks.find((t) => t.id === id)?.repeat).toBeNull();
+    await repo.setCompleted(id, false);
+    await repo.setCompleted(id, true);
+    expect(await repo.listTasks(listId)).toHaveLength(2);
+  });
+
+  it('needs a due date for repeating and reminders, and clears them with the date', async () => {
+    const { repo } = await setup();
+    const listId = await repo.createList({ name: 'Casa' });
+    const id = await repo.createTask({ listId, title: 'Pagar contas' });
+    await expect(repo.updateTask(id, { repeat: { kind: 'monthly' } })).rejects.toThrow(
+      ValidationError,
+    );
+    await expect(repo.updateTask(id, { remindAt: '25:00', dueDate: TODAY })).rejects.toThrow(
+      'Horário inválido',
+    );
+    await repo.updateTask(id, { dueDate: TODAY, repeat: { kind: 'monthly' }, remindAt: '09:30' });
+    expect(await repo.listReminders(TODAY)).toEqual([
+      expect.objectContaining({ id, dueDate: TODAY, remindAt: '09:30', listName: 'Casa' }),
+    ]);
+    await repo.updateTask(id, { dueDate: null });
+    const task = await repo.getTask(id);
+    expect([task?.repeat, task?.remindAt]).toEqual([null, null]);
+    expect(await repo.listReminders(TODAY)).toEqual([]);
+  });
+});

@@ -35,3 +35,18 @@ export function addDays(key: string, days: number): string {
 export function weekdayOf(key: string): number {
   return fromDateKey(key).getDay();
 }
+
+const TIME_OF_DAY = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/** A local time of day, `HH:MM` (24h), e.g. a reminder at "07:30". */
+export function isTimeOfDay(value: string): boolean {
+  return TIME_OF_DAY.test(value);
+}
+
+/** The local instant for a day key and a time of day. */
+export function atTime(dateKey: string, time: string): Date {
+  const date = fromDateKey(dateKey);
+  const [h, m] = time.split(':').map(Number) as [number, number];
+  date.setHours(h, m, 0, 0);
+  return date;
+}

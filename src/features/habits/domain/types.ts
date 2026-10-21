@@ -9,6 +9,8 @@ export type Habit = {
   name: string;
   creature: CreatureId;
   days: WeekdayMask;
+  /** Reminder times on scheduled days, `HH:MM`, sorted. */
+  reminderTimes: string[];
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -31,5 +33,10 @@ export type DayState = 'done' | 'missed' | 'pending' | 'rest' | 'future';
 
 export type HabitWithProgress = Habit & HabitProgress;
 
-export type NewHabit = { name: string; creature: CreatureId; days?: WeekdayMask };
+export type NewHabit = {
+  name: string;
+  creature: CreatureId;
+  days?: WeekdayMask;
+  reminderTimes?: string[];
+};
 export type HabitPatch = Partial<NewHabit>;

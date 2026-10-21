@@ -29,6 +29,7 @@ export { Surface, type SurfaceProps } from './components/Surface';
 export { Text, type TextProps } from './components/Text';
 export { TideHero, tideLevel, type TideHeroProps } from './components/TideHero';
 export { TextInput, type TextInputProps } from './components/TextInput';
+export { TimePicker, type TimePickerProps } from './components/TimePicker';
 export { WaterLevel, type WaterLevelProps } from './components/WaterLevel';
 export { Waterline } from './components/Waterline';
 export { appFonts } from './fonts';

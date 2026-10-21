@@ -150,6 +150,15 @@ export const migrations: Migration[] = [
       ${outboxTriggers('habit_checks')}
     `,
   },
+  {
+    version: 4,
+    name: 'reminders and repeating tasks',
+    sql: `
+      ALTER TABLE tasks ADD COLUMN repeat TEXT;
+      ALTER TABLE tasks ADD COLUMN remind_at TEXT;
+      ALTER TABLE habits ADD COLUMN reminder_times TEXT;
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

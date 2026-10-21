@@ -90,6 +90,16 @@ habit_checks  id ("<habit_id>:<YYYY-MM-DD>"), habit_id, date, created_at, update
 - Desmarcar é um soft delete (`deleted_at`); marcar de novo "revive" a linha. Assim a sincronização trata tudo como edição, com "última escrita vence".
 - Sequência, melhor sequência e consistência são **calculadas** a partir dos check-ins (`src/features/habits/domain/progress.ts`), não guardadas.
 
+## Lembretes e repetição (migration 4)
+
+```
+tasks.repeat           TEXT  -- daily | weekly | monthly | days:<máscara>; exige due_date
+tasks.remind_at        TEXT  -- HH:MM no dia do prazo
+habits.reminder_times  TEXT  -- "HH:MM,HH:MM", até 5
+```
+
+Detalhes em [reminders.md](reminders.md).
+
 ### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;

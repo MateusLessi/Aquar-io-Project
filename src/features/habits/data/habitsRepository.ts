@@ -18,6 +18,7 @@ import {
   validateCreature,
   validateDays,
   validateHabitName,
+  validateReminderTimes,
 } from '../domain/validation';
 
 export type HabitsDeps = {
@@ -33,12 +34,14 @@ type HabitRow = {
   name: string;
   creature: string;
   days: number;
+  reminder_times: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
 };
 
-const HABIT_COLUMNS = 'id, name, creature, days, sort_order, created_at, updated_at';
+const HABIT_COLUMNS =
+  'id, name, creature, days, reminder_times, sort_order, created_at, updated_at';
 
 function toHabit(row: HabitRow): Habit {
   return {
@@ -47,6 +50,7 @@ function toHabit(row: HabitRow): Habit {
     // A creature added by a newer app version falls back to the turtle here.
     creature: isCreatureId(row.creature) ? row.creature : 'turtle',
     days: row.days,
+    reminderTimes: row.reminder_times ? row.reminder_times.split(',') : [],
     sortOrder: row.sort_order,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -118,15 +122,17 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       const name = validateHabitName(input.name);
       const creature = validateCreature(input.creature);
       const days = validateDays(input.days ?? EVERY_DAY);
+      const times = validateReminderTimes(input.reminderTimes ?? []);
       const id = newId();
       const at = timestamp();
       const max = await db.get<{ max: number | null }>(
         'SELECT MAX(sort_order) AS max FROM habits WHERE deleted_at IS NULL',
       );
       await db.run(
-        `INSERT INTO habits (id, name, creature, days, sort_order, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id, name, creature, days, (max?.max ?? 0) + 1, at, at],
+        `INSERT INTO habits
+           (id, name, creature, days, reminder_times, sort_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, name, creature, days, times.join(',') || null, (max?.max ?? 0) + 1, at, at],
       );
       changes.notify('habits');
       return id;
@@ -134,7 +140,7 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
 
     async updateHabit(id: string, patch: HabitPatch): Promise<void> {
       const sets: string[] = [];
-      const params: (string | number)[] = [];
+      const params: (string | number | null)[] = [];
       if (patch.name !== undefined) {
         sets.push('name = ?');
         params.push(validateHabitName(patch.name));
@@ -146,6 +152,10 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       if (patch.days !== undefined) {
         sets.push('days = ?');
         params.push(validateDays(patch.days));
+      }
+      if (patch.reminderTimes !== undefined) {
+        sets.push('reminder_times = ?');
+        params.push(validateReminderTimes(patch.reminderTimes).join(',') || null);
       }
       if (sets.length === 0) return;
       const { changes: updated } = await db.run(

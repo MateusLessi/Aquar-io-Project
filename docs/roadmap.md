@@ -15,7 +15,7 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [✓] Authentication + Sync (Supabase, ADR-004)
 [✓] To Do Core
 [✓] Layouts adaptativos + Modo Maré (Etapa B)
-[●] To Do Advanced
+[●] To Do Advanced (repetição e lembretes prontos)
 [ ] Routines Core
 [ ] Routine Intelligence
 [ ] Gamification Foundation

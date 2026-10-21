@@ -13,6 +13,7 @@ import { AmbientDisplay } from './AmbientDisplay';
 import { destinations } from './destinations';
 import { NavigationRail } from './NavigationRail';
 import { isPhoneScreen, useOrientationPolicy } from './orientation';
+import { useReminderScheduler } from './reminders/useReminderScheduler';
 import { Sidebar } from './Sidebar';
 import { TabBar } from './TabBar';
 import { uprightRotation, useDeviceTilt } from './tilt';
@@ -39,6 +40,7 @@ export function AppShell() {
 
 function ShellLayout() {
   useOrientationPolicy();
+  useReminderScheduler();
   const breakpoint = useBreakpoint();
   const insets = useSafeAreaInsets();
   const [creating, setCreating] = useState(false);
@@ -86,7 +88,9 @@ function ShellLayout() {
         ) : null}
         <ChromeInsetsProvider value={chromeInsets}>
           <View style={styles.content}>
-            <TabSlot />
+            {/* TabSlot's container does not shrink by default: a long screen (e.g. Settings)
+                would grow past the window and never scroll. */}
+            <TabSlot style={styles.slot} />
           </View>
         </ChromeInsetsProvider>
       </View>
@@ -117,4 +121,5 @@ const styles = StyleSheet.create({
   body: { flex: 1 },
   row: { flexDirection: 'row' },
   content: { flex: 1 },
+  slot: { flexGrow: 1, flexShrink: 1, minHeight: 0 },
 });
