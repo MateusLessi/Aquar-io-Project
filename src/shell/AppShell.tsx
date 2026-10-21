@@ -88,7 +88,9 @@ function ShellLayout() {
         ) : null}
         <ChromeInsetsProvider value={chromeInsets}>
           <View style={styles.content}>
-            <TabSlot />
+            {/* TabSlot's container does not shrink by default: a long screen (e.g. Settings)
+                would grow past the window and never scroll. */}
+            <TabSlot style={styles.slot} />
           </View>
         </ChromeInsetsProvider>
       </View>
@@ -119,4 +121,5 @@ const styles = StyleSheet.create({
   body: { flex: 1 },
   row: { flexDirection: 'row' },
   content: { flex: 1 },
+  slot: { flexGrow: 1, flexShrink: 1, minHeight: 0 },
 });
