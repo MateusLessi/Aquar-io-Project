@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Waves } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { EmptyState, Screen, Surface, Text, TideHero, spacing } from '@/design-system';
@@ -21,7 +21,8 @@ function todayLabel(date: Date): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-export function TodayScreen() {
+/** `extra` shows other modules' parts of today (e.g. habits), composed by the route. */
+export function TodayScreen({ extra }: { extra?: ReactNode }) {
   const router = useRouter();
   const todo = useTodo();
   const { data: tasks = [], todayKey } = useToday();
@@ -70,6 +71,8 @@ export function TodayScreen() {
         }
         emptyMessage="Mar calmo. Nada planejado para hoje."
       />
+
+      {extra}
 
       {section('Atrasadas', overdue)}
       {section('Para hoje', dueToday)}

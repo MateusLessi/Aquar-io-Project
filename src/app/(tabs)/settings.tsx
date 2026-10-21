@@ -90,6 +90,12 @@ export default function SettingsScreen() {
             />
             <ListItem
               separator
+              title="Prévia dos Hábitos"
+              onPress={() => router.push('/dev/habits')}
+              trailing={<ChevronRight size={20} color={colors.textTertiary} />}
+            />
+            <ListItem
+              separator
               title="Prévia do Modo Maré"
               onPress={() => router.push('/dev/ambient?rotation=90')}
               trailing={<ChevronRight size={20} color={colors.textTertiary} />}

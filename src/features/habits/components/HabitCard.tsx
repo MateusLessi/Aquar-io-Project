@@ -25,8 +25,8 @@ type HabitCardProps = {
 
 export function streakLabel({ streak, doneToday, scheduledToday }: HabitWithProgress): string {
   if (streak === 0) return scheduledToday ? 'Comece hoje' : 'Dia de descanso';
-  const days = `${streak} ${streak === 1 ? 'dia' : 'dias'}`;
-  return doneToday || streak > 1 ? `${days} seguidos` : days;
+  if (streak === 1) return doneToday ? 'Primeiro dia!' : '1 dia';
+  return `${streak} dias seguidos`;
 }
 
 /**

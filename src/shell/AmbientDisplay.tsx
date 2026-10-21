@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { DeepSurface, Text, TideHero, spacing } from '@/design-system';
+import { CreatureBubble } from '@/features/habits/components/CreatureBubble';
+import { useHabits } from '@/features/habits/hooks/queries';
 import { useToday } from '@/features/todo/hooks/queries';
 
 type AmbientDisplayProps = {
@@ -44,6 +46,8 @@ export function AmbientContent({ rotation, onExit }: AmbientDisplayProps) {
   const now = useClock();
   const { width, height } = useWindowDimensions();
   const { data: tasks = [] } = useToday(now);
+  const { data: habits = [] } = useHabits(now);
+  const dueHabits = habits.filter((h) => h.scheduledToday || h.doneToday);
   const sideways = rotation !== 0;
   // The UI is locked in portrait, so lay the landscape content out rotated.
   const box = sideways ? { width: height, height: width } : { width, height };
@@ -87,6 +91,18 @@ export function AmbientContent({ rotation, onExit }: AmbientDisplayProps) {
                 ))}
               </View>
             ) : null}
+            {dueHabits.length > 0 ? (
+              <View style={styles.habits}>
+                {dueHabits.slice(0, 6).map((habit) => (
+                  <CreatureBubble
+                    key={habit.id}
+                    creature={habit.creature}
+                    size={44}
+                    done={habit.doneToday}
+                  />
+                ))}
+              </View>
+            ) : null}
           </View>
           <View style={styles.tide}>
             <TideHero
@@ -116,5 +132,6 @@ const styles = StyleSheet.create({
   clock: { flex: 1.2, gap: spacing.xs },
   time: { fontSize: 112, lineHeight: 116, letterSpacing: -4 },
   next: { marginTop: spacing.xxl, gap: spacing.sm },
+  habits: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
   tide: { flex: 1 },
 });

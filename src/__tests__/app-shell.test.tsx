@@ -3,6 +3,9 @@ import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-li
 import { Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import HabitRoute from '@/app/(tabs)/habits/[id]';
+import HabitsLayout from '@/app/(tabs)/habits/_layout';
+import HabitsScreen from '@/app/(tabs)/habits/index';
 import ListRoute from '@/app/(tabs)/lists/[id]';
 import ListsLayout from '@/app/(tabs)/lists/_layout';
 import ListsScreen from '@/app/(tabs)/lists/index';
@@ -41,6 +44,9 @@ const routes = {
   _layout: TestRoot,
   '(tabs)/_layout': TabsLayout,
   '(tabs)/index': TodayScreen,
+  '(tabs)/habits/_layout': HabitsLayout,
+  '(tabs)/habits/index': HabitsScreen,
+  '(tabs)/habits/[id]': HabitRoute,
   '(tabs)/lists/_layout': ListsLayout,
   '(tabs)/lists/index': ListsScreen,
   '(tabs)/lists/[id]': ListRoute,
@@ -205,5 +211,38 @@ describe('Account and sync', () => {
     await fireEvent.changeText(screen.getByLabelText('Senha'), 'mar-calmo');
     await fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
     expect(await screen.findByText('mateus@exemplo.com')).toBeOnTheScreen();
+  });
+});
+
+describe('Habits', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('creates a habit, checks it today, and shows it on Today and in its details', async () => {
+    const app = renderRouter(routes, { initialUrl: '/habits' });
+    await app;
+    expect(screen.getByRole('tab', { name: 'Hábitos' })).toBeSelected();
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Novo hábito' }));
+    await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Beber água');
+    await fireEvent.press(screen.getByRole('radio', { name: 'Peixe' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar hábito' }));
+
+    const check = await screen.findByRole('checkbox', { name: 'Beber água: feito hoje' });
+    expect(check).not.toBeChecked();
+    await fireEvent.press(check);
+    await waitFor(() =>
+      expect(screen.getByRole('checkbox', { name: 'Beber água: feito hoje' })).toBeChecked(),
+    );
+    expect(await data.events.count('HABIT_CHECKED')).toBe(1);
+
+    // Today shows the creature, already done.
+    await fireEvent.press(screen.getByRole('tab', { name: 'Hoje' }));
+    expect(await screen.findByText('Hábitos · 1 de 1')).toBeOnTheScreen();
+
+    // The details show the streak.
+    await fireEvent.press(screen.getByRole('tab', { name: 'Hábitos' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Beber água, Primeiro dia!' }));
+    expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
+    expect(app.getPathname()).toMatch(/^\/habits\//);
   });
 });

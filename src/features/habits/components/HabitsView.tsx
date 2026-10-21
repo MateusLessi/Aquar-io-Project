@@ -23,7 +23,8 @@ export function HabitsView({ habits, onToggle, onOpen, onCreate }: HabitsViewPro
   const breakpoint = useBreakpoint();
   const [width, setWidth] = useState(0);
   const columns = COLUMNS[breakpoint];
-  const tileWidth = width > 0 ? (width - GAP * (columns - 1)) / columns : 0;
+  // Until the first layout (and in tests) tiles take the full width.
+  const tileWidth = width > 0 ? (width - GAP * (columns - 1)) / columns : '100%';
 
   const today = habits.filter((h) => h.scheduledToday || h.doneToday);
   const resting = habits.filter((h) => !h.scheduledToday && !h.doneToday);
@@ -53,13 +54,9 @@ export function HabitsView({ habits, onToggle, onOpen, onCreate }: HabitsViewPro
       onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)}
     >
       {habits.length > 0 ? <ReefHero habits={habits} /> : null}
-      {tileWidth > 0 ? (
-        <>
-          <Section title="Hoje">{grid(today, resting.length === 0)}</Section>
-          {resting.length > 0 ? (
-            <Section title="Descansando hoje">{grid(resting, true)}</Section>
-          ) : null}
-        </>
+      <Section title="Hoje">{grid(today, resting.length === 0)}</Section>
+      {resting.length > 0 ? (
+        <Section title="Descansando hoje">{grid(resting, true)}</Section>
       ) : null}
     </View>
   );
