@@ -12,7 +12,7 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [✓] Data Strategy
 [✓] Design System (Aquatic Glass)
 [✓] App Shell & Navigation
-[●] Authentication + Sync (Supabase, ADR-004)
+[✓] Authentication + Sync (Supabase, ADR-004)
 [✓] To Do Core
 [✓] Layouts adaptativos + Modo Maré (Etapa B)
 [●] To Do Advanced
