@@ -48,31 +48,29 @@ export function createSyncEngine({
     );
   }
 
-  async function push(): Promise<number> {
+  async function push(table: SyncedTable): Promise<number> {
     let pushed = 0;
-    for (const table of tables) {
-      const pending = await db.all<{ row_id: string; seq: number }>(
-        'SELECT row_id, seq FROM sync_outbox WHERE table_name = ? ORDER BY seq',
-        [table.name],
+    const pending = await db.all<{ row_id: string; seq: number }>(
+      'SELECT row_id, seq FROM sync_outbox WHERE table_name = ? ORDER BY seq',
+      [table.name],
+    );
+    for (let start = 0; start < pending.length; start += PUSH_BATCH) {
+      const batch = pending.slice(start, start + PUSH_BATCH);
+      const rows = await db.all<SyncRow>(
+        `SELECT ${table.columns.join(', ')} FROM ${table.name}
+         WHERE id IN (${batch.map(() => '?').join(', ')})`,
+        batch.map((entry) => entry.row_id),
       );
-      for (let start = 0; start < pending.length; start += PUSH_BATCH) {
-        const batch = pending.slice(start, start + PUSH_BATCH);
-        const rows = await db.all<SyncRow>(
-          `SELECT ${table.columns.join(', ')} FROM ${table.name}
-           WHERE id IN (${batch.map(() => '?').join(', ')})`,
-          batch.map((entry) => entry.row_id),
-        );
-        if (rows.length > 0) await remote.push(table.name, rows);
-        // Only clear entries that did not change again while we were uploading.
-        for (const entry of batch) {
-          await db.run('DELETE FROM sync_outbox WHERE table_name = ? AND row_id = ? AND seq = ?', [
-            table.name,
-            entry.row_id,
-            entry.seq,
-          ]);
-        }
-        pushed += rows.length;
+      if (rows.length > 0) await remote.push(table.name, rows);
+      // Only clear entries that did not change again while we were uploading.
+      for (const entry of batch) {
+        await db.run('DELETE FROM sync_outbox WHERE table_name = ? AND row_id = ? AND seq = ?', [
+          table.name,
+          entry.row_id,
+          entry.seq,
+        ]);
       }
+      pushed += rows.length;
     }
     return pushed;
   }
@@ -109,25 +107,50 @@ export function createSyncEngine({
     return applied;
   }
 
-  async function pull(): Promise<number> {
+  async function pull(table: SyncedTable, touched: Set<DataTopic>): Promise<number> {
     let pulled = 0;
+    const key = `cursor:${table.name}`;
+    let cursor = withOverlap(await getState(key));
+    for (;;) {
+      const page = await remote.pull(table.name, cursor, PULL_PAGE);
+      if (page.length === 0) break;
+      const applied = await apply(table, page);
+      if (applied > 0) touched.add(table.topic);
+      pulled += applied;
+      cursor = page[page.length - 1]!.server_updated_at;
+      await setState(key, cursor);
+      if (page.length < PULL_PAGE) break;
+    }
+    return pulled;
+  }
+
+  /**
+   * Each table syncs on its own: one that fails (e.g. not yet created in the cloud) does not
+   * hold back the others. Its changes stay queued and the error is reported at the end.
+   */
+  async function run(): Promise<SyncResult> {
+    const errors: unknown[] = [];
+    let pushed = 0;
+    let pulled = 0;
+    for (const table of tables) {
+      try {
+        pushed += await push(table);
+      } catch (error) {
+        errors.push(error);
+      }
+    }
     const touched = new Set<DataTopic>();
     for (const table of tables) {
-      const key = `cursor:${table.name}`;
-      let cursor = withOverlap(await getState(key));
-      for (;;) {
-        const page = await remote.pull(table.name, cursor, PULL_PAGE);
-        if (page.length === 0) break;
-        const applied = await apply(table, page);
-        if (applied > 0) touched.add(table.topic);
-        pulled += applied;
-        cursor = page[page.length - 1]!.server_updated_at;
-        await setState(key, cursor);
-        if (page.length < PULL_PAGE) break;
+      try {
+        pulled += await pull(table, touched);
+      } catch (error) {
+        errors.push(error);
       }
     }
     touched.forEach((topic) => changes.notify(topic));
-    return pulled;
+    if (errors.length > 0) throw errors[0];
+    await setState('lastSyncedAt', now().toISOString());
+    return { pushed, pulled };
   }
 
   let running: Promise<SyncResult> | null = null;
@@ -137,10 +160,7 @@ export function createSyncEngine({
     sync(): Promise<SyncResult> {
       running ??= (async () => {
         try {
-          const pushed = await push();
-          const pulled = await pull();
-          await setState('lastSyncedAt', now().toISOString());
-          return { pushed, pulled };
+          return await run();
         } finally {
           running = null;
         }

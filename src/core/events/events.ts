@@ -5,6 +5,8 @@
 export type DomainEventMap = {
   TASK_COMPLETED: { taskId: string; listId: string; parentTaskId: string | null };
   TASK_UNCOMPLETED: { taskId: string; listId: string; parentTaskId: string | null };
+  HABIT_CHECKED: { habitId: string; date: string };
+  HABIT_UNCHECKED: { habitId: string; date: string };
 };
 
 export type DomainEventType = keyof DomainEventMap;

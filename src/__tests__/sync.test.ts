@@ -113,4 +113,53 @@ describe('sync between devices', () => {
     await phone.sync.sync();
     expect(await phone.sync.lastSyncedAt()).not.toBeNull();
   });
+
+  it('syncs habits and check-ins without duplicating a day checked on both devices', async () => {
+    const phone = await device(cloud, clock);
+    const tablet = await device(cloud, clock);
+    const habitId = await phone.data.habits.createHabit({ name: 'Beber água', creature: 'fish' });
+    await phone.sync.sync();
+    await tablet.sync.sync();
+
+    const today = '2026-10-20';
+    await phone.data.habits.setChecked(habitId, today, true);
+    tick(clock);
+    await tablet.data.habits.setChecked(habitId, today, true);
+    await phone.sync.sync();
+    await tablet.sync.sync();
+    await phone.sync.sync();
+
+    expect(cloud.rows('habit_checks')).toHaveLength(1);
+    const [onTablet] = await tablet.data.habits.listHabits(today);
+    expect(onTablet?.doneToday).toBe(true);
+
+    tick(clock);
+    await tablet.data.habits.setChecked(habitId, today, false);
+    await tablet.sync.sync();
+    await phone.sync.sync();
+    const [onPhone] = await phone.data.habits.listHabits(today);
+    expect(onPhone?.doneToday).toBe(false);
+  });
+});
+
+describe('sync when one cloud table is missing', () => {
+  it('still syncs the other tables and keeps the failed changes queued', async () => {
+    const clock = { now: new Date('2026-10-21T12:00:00.000Z') };
+    const cloud = createMemoryRemote();
+    const remote = {
+      push: (table: string, rows: Parameters<typeof cloud.remote.push>[1]) =>
+        table === 'habits'
+          ? Promise.reject(new Error('relation does not exist'))
+          : cloud.remote.push(table, rows),
+      pull: cloud.remote.pull,
+    };
+    const data = await createAppData(createMemoryDatabase(), () => clock.now);
+    const sync = createSyncEngine({ db: data.db, remote, changes: data.changes });
+    await data.todo.createList({ name: 'Casa' });
+    await data.habits.createHabit({ name: 'Ler', creature: 'octopus' });
+
+    await expect(sync.sync()).rejects.toThrow('relation does not exist');
+    expect(cloud.rows('task_lists')).toHaveLength(1);
+    expect(await sync.pendingCount()).toBe(1);
+  });
 });

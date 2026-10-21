@@ -14,6 +14,11 @@ import {
 } from '@/core/settings/settingsRepository';
 import { SettingsContext } from '@/core/settings/useSetting';
 import type { ThemePreference } from '@/design-system';
+import {
+  createHabitsRepository,
+  type HabitsRepository,
+} from '@/features/habits/data/habitsRepository';
+import { HabitsContext } from '@/features/habits/hooks/habitsContext';
 import { createTodoRepository, type TodoRepository } from '@/features/todo/data/todoRepository';
 import { TodoContext } from '@/features/todo/hooks/todoContext';
 
@@ -27,6 +32,7 @@ export type AppData = {
   events: EventLog;
   settings: SettingsRepository;
   todo: TodoRepository;
+  habits: HabitsRepository;
   themePreference: ThemePreference;
 };
 
@@ -44,9 +50,19 @@ export async function createAppData(
   const events = createEventLog({ db, newId, now });
   const settings = createSettingsRepository(db, changes);
   const todo = createTodoRepository({ db, changes, events, newId, now });
+  const habits = createHabitsRepository({ db, changes, events, newId, now });
   const storedTheme = await settings.get(THEME_KEY);
   const themePreference = themePreferences.find((p) => p === storedTheme) ?? 'system';
-  return { db, account, changes, events, settings, todo, themePreference } satisfies AppData;
+  return {
+    db,
+    account,
+    changes,
+    events,
+    settings,
+    todo,
+    habits,
+    themePreference,
+  } satisfies AppData;
 }
 
 export type BootState =
@@ -90,9 +106,11 @@ export function AppDataProvider({ data, children }: { data: AppData; children: R
     <DataChangesContext.Provider value={data.changes}>
       <SettingsContext.Provider value={data.settings}>
         <TodoContext.Provider value={data.todo}>
-          <AccountProvider account={data.account} db={data.db} changes={data.changes}>
-            {children}
-          </AccountProvider>
+          <HabitsContext.Provider value={data.habits}>
+            <AccountProvider account={data.account} db={data.db} changes={data.changes}>
+              {children}
+            </AccountProvider>
+          </HabitsContext.Provider>
         </TodoContext.Provider>
       </SettingsContext.Provider>
     </DataChangesContext.Provider>

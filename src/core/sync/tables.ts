@@ -8,7 +8,7 @@ export type SyncedTable = {
   topic: DataTopic;
 };
 
-/** In upload order: lists before the tasks that point to them. */
+/** In upload order: parents (lists, habits) before the rows that point to them. */
 export const syncedTables: readonly SyncedTable[] = [
   {
     name: 'task_lists',
@@ -43,5 +43,24 @@ export const syncedTables: readonly SyncedTable[] = [
       'updated_at',
       'deleted_at',
     ],
+  },
+  {
+    name: 'habits',
+    topic: 'habits',
+    columns: [
+      'id',
+      'name',
+      'creature',
+      'days',
+      'sort_order',
+      'created_at',
+      'updated_at',
+      'deleted_at',
+    ],
+  },
+  {
+    name: 'habit_checks',
+    topic: 'habits',
+    columns: ['id', 'habit_id', 'date', 'created_at', 'updated_at', 'deleted_at'],
   },
 ];
