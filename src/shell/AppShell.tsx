@@ -13,6 +13,7 @@ import { AmbientDisplay } from './AmbientDisplay';
 import { destinations } from './destinations';
 import { NavigationRail } from './NavigationRail';
 import { isPhoneScreen, useOrientationPolicy } from './orientation';
+import { useReminderScheduler } from './reminders/useReminderScheduler';
 import { Sidebar } from './Sidebar';
 import { TabBar } from './TabBar';
 import { uprightRotation, useDeviceTilt } from './tilt';
@@ -39,6 +40,7 @@ export function AppShell() {
 
 function ShellLayout() {
   useOrientationPolicy();
+  useReminderScheduler();
   const breakpoint = useBreakpoint();
   const insets = useSafeAreaInsets();
   const [creating, setCreating] = useState(false);

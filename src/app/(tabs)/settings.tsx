@@ -18,6 +18,7 @@ import {
 import { useAccount } from '@/shell/Account';
 import { AccountSection } from '@/shell/AccountSection';
 import { AMBIENT_SETTING, type AmbientSetting } from '@/shell/ambient';
+import { RemindersSection } from '@/shell/reminders/RemindersSection';
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Sistema' },
@@ -51,6 +52,10 @@ export default function SettingsScreen() {
           value={preference}
           onChange={setPreference}
         />
+      </Section>
+
+      <Section title="Lembretes">
+        <RemindersSection />
       </Section>
 
       <Section title="Modo Maré">

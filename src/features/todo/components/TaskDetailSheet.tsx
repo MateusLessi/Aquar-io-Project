@@ -22,6 +22,7 @@ import { useSubtasks, useTask } from '../hooks/queries';
 import { useTodo } from '../hooks/todoContext';
 import { AddTaskField } from './AddTaskField';
 import { DueDatePicker } from './DueDatePicker';
+import { ReminderField, RepeatField } from './RepeatAndReminder';
 
 const priorityOptions = ([0, 1, 2, 3] as Priority[]).map((value) => ({
   value: String(value) as `${Priority}`,
@@ -121,6 +122,29 @@ function TaskDetail({
           onChange={(dueDate) => attempt(() => todo.updateTask(task.id, { dueDate }))}
         />
       </Section>
+
+      {task.dueDate ? (
+        <>
+          {task.parentTaskId ? null : (
+            <Section title="Repetir">
+              <RepeatField
+                task={task}
+                onChange={(patch) => attempt(() => todo.updateTask(task.id, patch))}
+              />
+            </Section>
+          )}
+          <Section title="Lembrete">
+            <ReminderField
+              task={task}
+              onChange={(patch) => attempt(() => todo.updateTask(task.id, patch))}
+            />
+          </Section>
+        </>
+      ) : (
+        <Text variant="footnote" tone="tertiary" style={styles.hint}>
+          Com um prazo, a tarefa pode se repetir e ter lembrete.
+        </Text>
+      )}
 
       <Section title="Prioridade">
         <SegmentedControl
@@ -250,4 +274,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   flex: { flex: 1 },
+  hint: { marginLeft: spacing.xs, marginTop: -spacing.md },
 });
