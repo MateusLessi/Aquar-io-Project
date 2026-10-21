@@ -5,11 +5,14 @@ import { Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design
 
 import type { TaskList } from '../domain/types';
 
-const CARD_HEIGHT = 132;
+const CARD_HEIGHT = 148;
 
 type ListCardProps = { list: TaskList; onPress: () => void };
 
-/** A list as a colored tile: its color tints the whole card. */
+/**
+ * A list as a bold colored tile: the list's color fills the card, its emoji sits in a bubble
+ * and the number of open tasks is the biggest thing on it.
+ */
 export function ListCard({ list, onPress }: ListCardProps) {
   const { colors, scheme } = useTheme();
   const tone = list.color ? listColors[list.color][scheme] : colors.accent;
@@ -27,17 +30,33 @@ export function ListCard({ list, onPress }: ListCardProps) {
         styles.card,
         {
           backgroundColor: colors.surfaceRaised,
-          borderColor: withAlpha(tone, 0.35),
+          borderColor: withAlpha(tone, 0.45),
           transform: [{ scale: pressed ? 0.97 : 1 }],
         },
       ]}
     >
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(tone, 0.14) }]} />
-      <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.22) }]}>
-        {list.emoji ? (
-          <Text variant="title2">{list.emoji}</Text>
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.26 : 0.18) },
+        ]}
+      />
+      {/* A wave of the list's color along the bottom. */}
+      <View style={[styles.wave, { backgroundColor: withAlpha(tone, 0.22) }]} />
+      <View style={styles.top}>
+        <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.28) }]}>
+          {list.emoji ? (
+            <Text variant="title2">{list.emoji}</Text>
+          ) : (
+            <View style={[styles.dot, { backgroundColor: tone }]} />
+          )}
+        </View>
+        {list.pendingCount > 0 ? (
+          <Text variant="title1" style={{ color: tone }}>
+            {list.pendingCount}
+          </Text>
         ) : (
-          <View style={[styles.dot, { backgroundColor: tone }]} />
+          <Text variant="title2">✓</Text>
         )}
       </View>
       <View>
@@ -97,4 +116,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dot: { width: 16, height: 16, borderRadius: 8 },
+  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  wave: {
+    position: 'absolute',
+    left: -20,
+    right: -20,
+    bottom: -46,
+    height: 80,
+    borderRadius: 999,
+  },
 });

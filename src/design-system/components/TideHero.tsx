@@ -15,10 +15,11 @@ import { useTheme } from '../theme/ThemeProvider';
 import { useSvgId } from '../theme/useSvgId';
 import { radius, spacing, springs, specular } from '../tokens';
 import { DeepSurface } from './DeepSurface';
+import { RisingBubbles } from './RisingBubbles';
 import { Text } from './Text';
 import { clampProgress } from './WaterLevel';
 
-const HEIGHT = 248;
+const HEIGHT = 200;
 /** The sea never fully empties: a calm day still has water. */
 const MIN_LEVEL = 0.14;
 const WAVE_HEIGHT = 14;
@@ -33,6 +34,8 @@ export type TideHeroProps = {
   caption: string;
   /** Shown instead of the caption when there is nothing to do. */
   emptyMessage?: string;
+  /** Small breakdowns shown on the right, e.g. tasks and habits. */
+  details?: { label: string; value: string }[];
 };
 
 /** Height of the water in the card for a given progress. */
@@ -58,13 +61,21 @@ function wavePath(width: number): string {
  * The day's tide: a deep-water card whose water rises as things get done.
  * Light rays fall from the surface; the waves drift slowly unless Reduce Motion is on.
  */
-export function TideHero({ label, completed, total, caption, emptyMessage }: TideHeroProps) {
+export function TideHero({
+  label,
+  completed,
+  total,
+  caption,
+  emptyMessage,
+  details,
+}: TideHeroProps) {
   const { colors, reduceMotion } = useTheme();
   const raysId = useSvgId('rays');
   const [width, setWidth] = useState(0);
   const level = useSharedValue(tideLevel(completed, total));
   const drift = useSharedValue(0);
   const isEmpty = total === 0;
+  const full = !isEmpty && completed >= total;
 
   useEffect(() => {
     level.set(withSpring(tideLevel(completed, total), springs.gentle));
@@ -133,9 +144,28 @@ export function TideHero({ label, completed, total, caption, emptyMessage }: Tid
               </Svg>
             </Animated.View>
           </Animated.View>
+          {/* High tide: everything done. A burst of bubbles celebrates it. */}
+          {full ? <RisingBubbles height={HEIGHT} count={14} festive /> : null}
         </View>
       ) : null}
 
+      {details && details.length > 0 ? (
+        <View style={styles.details} pointerEvents="none">
+          {details.map((detail) => (
+            <View
+              key={detail.label}
+              style={[styles.detail, { backgroundColor: colors.deepAccentSoft }]}
+            >
+              <Text variant="caption" tone="onDeepSecondary">
+                {detail.label}
+              </Text>
+              <Text variant="headline" tone="onDeep">
+                {detail.value}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
       <View style={styles.content} pointerEvents="none">
         <Text variant="overline" tone="onDeepSecondary">
           {label}
@@ -162,7 +192,14 @@ const styles = StyleSheet.create({
   water: { position: 'absolute', left: 0, right: 0, top: 0, height: HEIGHT + WAVE_HEIGHT },
   wave: { position: 'absolute', top: 0, left: 0 },
   frontWave: { top: 4 },
-  content: { flex: 1, padding: spacing.xxl, justifyContent: 'flex-start' },
+  content: { flex: 1, padding: spacing.xl, justifyContent: 'flex-start' },
   numberRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: spacing.sm },
   total: { marginLeft: spacing.sm },
+  details: { position: 'absolute', top: spacing.xl, right: spacing.xl, gap: spacing.sm, zIndex: 1 },
+  detail: {
+    minWidth: 92,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.lg,
+  },
 });

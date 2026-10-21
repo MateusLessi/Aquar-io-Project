@@ -22,3 +22,10 @@ export function useHabit(id: string, now: Date = new Date()) {
     ...useLiveQuery(`habit:${id}:${todayKey}`, ['habits'], () => habits.getHabit(id, todayKey)),
   };
 }
+
+/** Today's habits as numbers, for the day's tide on the Today screen. */
+export function useTodayHabitProgress(): { completed: number; total: number } {
+  const { data: habits = [] } = useHabits();
+  const due = habits.filter((h) => h.scheduledToday || h.doneToday);
+  return { completed: due.filter((h) => h.doneToday).length, total: due.length };
+}
