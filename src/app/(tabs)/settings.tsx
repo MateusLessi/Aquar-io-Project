@@ -15,6 +15,8 @@ import {
   useTheme,
   type ThemePreference,
 } from '@/design-system';
+import { useAccount } from '@/shell/Account';
+import { AccountSection } from '@/shell/AccountSection';
 import { AMBIENT_SETTING, type AmbientSetting } from '@/shell/ambient';
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
@@ -31,10 +33,17 @@ const ambientOptions: { value: AmbientSetting; label: string }[] = [
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors, preference, setPreference, reduceMotion, reduceTransparency } = useTheme();
+  const hasCloud = useAccount() !== null;
   const [ambient, setAmbient] = useSetting<AmbientSetting>(AMBIENT_SETTING, 'on');
 
   return (
     <Screen title="Ajustes">
+      {hasCloud ? (
+        <Section title="Conta e sincronização">
+          <AccountSection />
+        </Section>
+      ) : null}
+
       <Section title="Aparência">
         <SegmentedControl
           accessibilityLabel="Tema"

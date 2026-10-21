@@ -1,5 +1,5 @@
 import { Slot } from 'expo-router';
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -10,6 +10,7 @@ import SettingsScreen from '@/app/(tabs)/settings';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
 import { createMemoryDatabase } from '@/core/database/testing';
+import { createMemoryAccount, createMemoryRemote } from '@/core/sync/testing';
 import { ThemeProvider, lightColors } from '@/design-system';
 import { AppDataProvider, createAppData, type AppData } from '@/shell/AppData';
 
@@ -157,5 +158,52 @@ describe('App shell on tablets in portrait', () => {
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Listas' }));
     expect(screen.getByRole('header', { name: 'Listas' })).toBeOnTheScreen();
+  });
+});
+
+describe('Account and sync', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('is hidden when the app has no cloud', async () => {
+    await renderRouter(routes, { initialUrl: '/settings' });
+    expect(screen.queryByText('Sincronizar aparelhos')).toBeNull();
+  });
+
+  it('creates an account, uploads local lists, and signs in again', async () => {
+    const cloud = createMemoryRemote();
+    const { account } = createMemoryAccount(cloud.remote);
+    data = await createAppData(createMemoryDatabase(), undefined, account);
+    await data.todo.createList({ name: 'Academia' });
+
+    await renderRouter(routes, { initialUrl: '/settings' });
+    await fireEvent.press(await screen.findByText('Sincronizar aparelhos'));
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Criar conta' }));
+    expect(screen.getByText('Digite um e-mail válido.')).toBeOnTheScreen();
+
+    await fireEvent.changeText(screen.getByLabelText('E-mail'), ' Mateus@Exemplo.com ');
+    await fireEvent.changeText(screen.getByLabelText('Senha'), '123');
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar conta' }));
+    expect(screen.getByText('A senha precisa ter pelo menos 6 caracteres.')).toBeOnTheScreen();
+
+    await fireEvent.changeText(screen.getByLabelText('Senha'), 'mar-calmo');
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar conta' }));
+
+    expect(await screen.findByText('mateus@exemplo.com')).toBeOnTheScreen();
+    await waitFor(() => expect(cloud.rows('task_lists')).toHaveLength(1));
+    expect(await screen.findByText(/Sincronizado agora mesmo/)).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Sair' }));
+    expect(await screen.findByText('Sincronizar aparelhos')).toBeOnTheScreen();
+
+    // Signing in again: a wrong password is refused, the right one works.
+    await fireEvent.press(screen.getByText('Sincronizar aparelhos'));
+    await fireEvent.changeText(await screen.findByLabelText('E-mail'), 'mateus@exemplo.com');
+    await fireEvent.changeText(screen.getByLabelText('Senha'), 'errada!');
+    await fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
+    expect(await screen.findByText('E-mail ou senha incorretos.')).toBeOnTheScreen();
+    await fireEvent.changeText(screen.getByLabelText('Senha'), 'mar-calmo');
+    await fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
+    expect(await screen.findByText('mateus@exemplo.com')).toBeOnTheScreen();
   });
 });

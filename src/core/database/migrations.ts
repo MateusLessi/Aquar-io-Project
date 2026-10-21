@@ -60,6 +60,65 @@ export const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    name: 'sync outbox',
+    // Triggers queue every local change for upload, so repositories stay unaware of sync.
+    // Rows written by the sync engine itself are marked in sync_applying and not queued.
+    sql: `
+      CREATE TABLE sync_outbox (
+        table_name  TEXT NOT NULL,
+        row_id      TEXT NOT NULL,
+        seq         INTEGER NOT NULL,
+        PRIMARY KEY (table_name, row_id)
+      );
+
+      CREATE TABLE sync_applying (
+        row_id  TEXT PRIMARY KEY NOT NULL
+      );
+
+      CREATE TABLE sync_state (
+        key    TEXT PRIMARY KEY NOT NULL,
+        value  TEXT NOT NULL
+      );
+
+      CREATE TRIGGER sync_task_lists_insert AFTER INSERT ON task_lists
+      WHEN NOT EXISTS (SELECT 1 FROM sync_applying WHERE row_id = NEW.id)
+      BEGIN
+        INSERT INTO sync_outbox (table_name, row_id, seq)
+        VALUES ('task_lists', NEW.id, (SELECT COALESCE(MAX(seq), 0) + 1 FROM sync_outbox))
+        ON CONFLICT (table_name, row_id) DO UPDATE SET seq = excluded.seq;
+      END;
+
+      CREATE TRIGGER sync_task_lists_update AFTER UPDATE ON task_lists
+      WHEN NOT EXISTS (SELECT 1 FROM sync_applying WHERE row_id = NEW.id)
+      BEGIN
+        INSERT INTO sync_outbox (table_name, row_id, seq)
+        VALUES ('task_lists', NEW.id, (SELECT COALESCE(MAX(seq), 0) + 1 FROM sync_outbox))
+        ON CONFLICT (table_name, row_id) DO UPDATE SET seq = excluded.seq;
+      END;
+
+      CREATE TRIGGER sync_tasks_insert AFTER INSERT ON tasks
+      WHEN NOT EXISTS (SELECT 1 FROM sync_applying WHERE row_id = NEW.id)
+      BEGIN
+        INSERT INTO sync_outbox (table_name, row_id, seq)
+        VALUES ('tasks', NEW.id, (SELECT COALESCE(MAX(seq), 0) + 1 FROM sync_outbox))
+        ON CONFLICT (table_name, row_id) DO UPDATE SET seq = excluded.seq;
+      END;
+
+      CREATE TRIGGER sync_tasks_update AFTER UPDATE ON tasks
+      WHEN NOT EXISTS (SELECT 1 FROM sync_applying WHERE row_id = NEW.id)
+      BEGIN
+        INSERT INTO sync_outbox (table_name, row_id, seq)
+        VALUES ('tasks', NEW.id, (SELECT COALESCE(MAX(seq), 0) + 1 FROM sync_outbox))
+        ON CONFLICT (table_name, row_id) DO UPDATE SET seq = excluded.seq;
+      END;
+
+      -- Everything created before sync existed goes up on the first sync.
+      INSERT INTO sync_outbox (table_name, row_id, seq) SELECT 'task_lists', id, 0 FROM task_lists;
+      INSERT INTO sync_outbox (table_name, row_id, seq) SELECT 'tasks', id, 0 FROM tasks;
+    `,
+  },
 ];
 
 /**
