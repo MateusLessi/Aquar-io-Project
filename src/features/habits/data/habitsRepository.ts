@@ -1,11 +1,12 @@
 import type { DataChanges } from '@/core/database/changes';
 import type { Database } from '@/core/database/types';
-import { toDateKey } from '@/core/dates';
+import { addDays, toDateKey } from '@/core/dates';
 import type { DomainEvent } from '@/core/events/events';
 import type { EventLog } from '@/core/events/eventLog';
 
 import { isCreatureId } from '../domain/creatures';
-import { habitProgress } from '../domain/progress';
+import { habitProgress, isScheduled } from '../domain/progress';
+import { creatureStage } from '../domain/stages';
 import {
   EVERY_DAY,
   type Habit,
@@ -86,6 +87,7 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
     return {
       ...habit,
       ...habitProgress({ days: habit.days, done, startKey, todayKey }),
+      stage: creatureStage(habit.creature, done.size),
     };
   }
 
@@ -105,6 +107,41 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       const habits = rows.map(toHabit);
       const done = await doneDays(habits.map((h) => h.id));
       return habits.map((h) => withProgress(h, done.get(h.id)!, todayKey));
+    },
+
+    /**
+     * What gamification needs from habits: every check-in with whether it fell on a scheduled
+     * day, and per day how many habits were due and done.
+     */
+    async progressFacts(todayKey: string = toDateKey(now())): Promise<{
+      checks: { day: string; scheduled: boolean }[];
+      due: { day: string; total: number; done: number }[];
+    }> {
+      const rows = await db.all<HabitRow>(
+        `SELECT ${HABIT_COLUMNS} FROM habits WHERE deleted_at IS NULL`,
+      );
+      const habits = rows.map(toHabit);
+      const doneByHabit = await doneDays(habits.map((h) => h.id));
+      const checks: { day: string; scheduled: boolean }[] = [];
+      const due = new Map<string, { day: string; total: number; done: number }>();
+      for (const habit of habits) {
+        const done = doneByHabit.get(habit.id)!;
+        for (const day of done) {
+          if (day <= todayKey) checks.push({ day, scheduled: isScheduled(habit.days, day) });
+        }
+        for (
+          let day = toDateKey(new Date(habit.createdAt));
+          day <= todayKey;
+          day = addDays(day, 1)
+        ) {
+          if (!isScheduled(habit.days, day)) continue;
+          const entry = due.get(day) ?? { day, total: 0, done: 0 };
+          entry.total += 1;
+          if (done.has(day)) entry.done += 1;
+          due.set(day, entry);
+        }
+      }
+      return { checks, due: [...due.values()] };
     },
 
     /** One habit with its progress and every day it was done (for the calendar). */

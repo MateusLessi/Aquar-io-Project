@@ -8,6 +8,7 @@ import { HabitEditorSheet } from '@/features/habits/components/HabitEditorSheet'
 import { HabitsView } from '@/features/habits/components/HabitsView';
 import type { CreatureId } from '@/features/habits/domain/creatures';
 import { habitProgress } from '@/features/habits/domain/progress';
+import { creatureStage } from '@/features/habits/domain/stages';
 import { EVERY_DAY, type HabitWithProgress } from '@/features/habits/domain/types';
 
 const today = toDateKey(new Date());
@@ -30,6 +31,7 @@ function sampleHabits(): HabitWithProgress[] {
     creature: sample.creature,
     days: sample.days,
     reminderTimes: [],
+    stage: creatureStage(sample.creature, sample.done.length),
     sortOrder: i,
     createdAt: daysAgo(30),
     updatedAt: daysAgo(30),

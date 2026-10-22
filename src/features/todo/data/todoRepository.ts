@@ -219,6 +219,36 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
      * Today: top-level tasks due today (open or done), plus overdue ones still open.
      * Overdue first, then by list and order.
      */
+    /**
+     * What gamification needs from tasks: every completion with its local day, and per due
+     * day how many top-level tasks were due and done. Completed tasks count even if deleted
+     * later: the effort happened.
+     */
+    async progressFacts(todayKey: string = toDateKey(now())): Promise<{
+      completions: { day: string; subtask: boolean }[];
+      due: { day: string; total: number; done: number }[];
+    }> {
+      const completed = await db.all<{ parent_task_id: string | null; completed_at: string }>(
+        'SELECT parent_task_id, completed_at FROM tasks WHERE completed_at IS NOT NULL',
+      );
+      const due = await db.all<{ day: string; total: number; done: number }>(
+        `SELECT due_date AS day, COUNT(*) AS total,
+                SUM(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) AS done
+         FROM tasks
+         WHERE parent_task_id IS NULL AND deleted_at IS NULL
+           AND due_date IS NOT NULL AND due_date <= ?
+         GROUP BY due_date`,
+        [todayKey],
+      );
+      return {
+        completions: completed.map((row) => ({
+          day: toDateKey(new Date(row.completed_at)),
+          subtask: row.parent_task_id !== null,
+        })),
+        due,
+      };
+    },
+
     /** Open tasks with a reminder on or after `fromKey`, for scheduling notifications. */
     async listReminders(fromKey: string = toDateKey(now())): Promise<TaskReminder[]> {
       const rows = await db.all<{
