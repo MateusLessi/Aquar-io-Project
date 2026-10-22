@@ -70,6 +70,7 @@ export function habitProgress(input: {
     bestStreak: best,
     consistency: due === 0 ? null : kept / due,
     week,
+    daysDone: done.size,
   };
 }
 

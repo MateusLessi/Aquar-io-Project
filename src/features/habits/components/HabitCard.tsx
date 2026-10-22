@@ -14,6 +14,7 @@ import {
 
 import { creatures } from '../domain/creatures';
 import { weekdayInitial } from '../domain/progress';
+import { stageInfo } from '../domain/stages';
 import type { DayState, HabitWithProgress } from '../domain/types';
 import { CreatureBubble } from './CreatureBubble';
 
@@ -42,7 +43,7 @@ export function HabitCard({ habit, onToggle, onPress }: HabitCardProps) {
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${habit.name}, ${streakLabel(habit)}`}
+      accessibilityLabel={`${habit.name}, ${streakLabel(habit)}, ${stageInfo[habit.stage].label}`}
       accessibilityHint="Abre o hábito"
       style={({ pressed }) => [
         styles.card,
@@ -60,7 +61,12 @@ export function HabitCard({ habit, onToggle, onPress }: HabitCardProps) {
         ]}
       />
       <View style={styles.top}>
-        <CreatureBubble creature={habit.creature} done={habit.doneToday} resting={resting} />
+        <CreatureBubble
+          creature={habit.creature}
+          stage={habit.stage}
+          done={habit.doneToday}
+          resting={resting}
+        />
         <CheckButton
           done={habit.doneToday}
           tone={tone}
@@ -79,6 +85,9 @@ export function HabitCard({ habit, onToggle, onPress }: HabitCardProps) {
         <Text variant="footnote" tone={habit.streak > 0 ? 'primary' : 'secondary'}>
           {habit.streak > 0 ? '🌊 ' : ''}
           {streakLabel(habit)}
+        </Text>
+        <Text variant="caption" tone="tertiary">
+          {stageInfo[habit.stage].emoji} {stageInfo[habit.stage].label}
         </Text>
       </View>
       <WeekStrip week={habit.week} tone={tone} />

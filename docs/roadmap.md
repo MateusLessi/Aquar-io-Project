@@ -18,7 +18,7 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [●] To Do Advanced (repetição e lembretes prontos)
 [ ] Routines Core
 [ ] Routine Intelligence
-[ ] Gamification Foundation
+[✓] Gamification Foundation (pontos, profundidade, estágios)
 [✓] Habits V1 (criaturas, check-in, sequência, recife)
 ```
 

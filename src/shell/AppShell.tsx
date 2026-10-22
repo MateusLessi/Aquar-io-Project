@@ -13,6 +13,8 @@ import { AmbientDisplay } from './AmbientDisplay';
 import { destinations } from './destinations';
 import { NavigationRail } from './NavigationRail';
 import { isPhoneScreen, useOrientationPolicy } from './orientation';
+import { CelebrationBanner } from './progress/CelebrationBanner';
+import { useCelebrations } from './progress/useCelebrations';
 import { useReminderScheduler } from './reminders/useReminderScheduler';
 import { Sidebar } from './Sidebar';
 import { TabBar } from './TabBar';
@@ -41,6 +43,7 @@ export function AppShell() {
 function ShellLayout() {
   useOrientationPolicy();
   useReminderScheduler();
+  const celebration = useCelebrations();
   const breakpoint = useBreakpoint();
   const insets = useSafeAreaInsets();
   const [creating, setCreating] = useState(false);
@@ -108,6 +111,13 @@ function ShellLayout() {
         defaultListId={currentListId}
         dueToday={activeName === 'index'}
       />
+      {celebration.message ? (
+        <CelebrationBanner
+          key={celebration.message}
+          message={celebration.message}
+          onDone={celebration.dismiss}
+        />
+      ) : null}
       {showAmbient ? (
         <AmbientDisplay rotation={uprightRotation(tilt)} onExit={() => setDismissedTilt(tilt)} />
       ) : null}

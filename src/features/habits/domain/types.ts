@@ -1,4 +1,5 @@
 import type { CreatureId } from './creatures';
+import type { Stage } from './stages';
 
 /** Days of the week as a bitmask: bit 0 = Sunday … bit 6 = Saturday. */
 export type WeekdayMask = number;
@@ -27,11 +28,13 @@ export type HabitProgress = {
   consistency: number | null;
   /** This week, Sunday first. */
   week: DayState[];
+  /** Every day done, ever: what makes the creature grow. */
+  daysDone: number;
 };
 
 export type DayState = 'done' | 'missed' | 'pending' | 'rest' | 'future';
 
-export type HabitWithProgress = Habit & HabitProgress;
+export type HabitWithProgress = Habit & HabitProgress & { stage: Stage };
 
 export type NewHabit = {
   name: string;

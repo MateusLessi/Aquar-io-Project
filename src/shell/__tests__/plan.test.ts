@@ -16,6 +16,7 @@ function habit(overrides: Partial<HabitWithProgress> & { done?: string[] }): Hab
     days,
     reminderTimes: ['10:00', '14:00'],
     sortOrder: 1,
+    stage: 'egg',
     createdAt: '2026-10-01T00:00:00.000Z',
     updatedAt: '2026-10-01T00:00:00.000Z',
     ...habitProgress({
