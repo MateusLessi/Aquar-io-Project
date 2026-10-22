@@ -21,6 +21,7 @@ import { HabitCalendar } from '../components/HabitCalendar';
 import { HabitEditorSheet } from '../components/HabitEditorSheet';
 import { creatures } from '../domain/creatures';
 import { daysLabel } from '../domain/progress';
+import { nextStage, stageInfo } from '../domain/stages';
 import { useHabitsRepository } from '../hooks/habitsContext';
 import { useHabit } from '../hooks/queries';
 
@@ -50,6 +51,7 @@ export function HabitDetailScreen({ habitId }: { habitId: string }) {
   const { habit, doneDays } = data;
   const creature = creatures[habit.creature];
   const tone = listColors[creature.color][scheme];
+  const next = nextStage(habit.creature, habit.daysDone);
   const toggle = (date: string, done: boolean) =>
     repository.setChecked(habit.id, date, done).catch((e: unknown) => console.error(e));
 
@@ -61,7 +63,12 @@ export function HabitDetailScreen({ habitId }: { habitId: string }) {
       actions={<IconButton icon={Pencil} label="Editar hábito" onPress={() => setEditing(true)} />}
     >
       <View style={styles.hero}>
-        <CreatureBubble creature={habit.creature} size={112} done={habit.doneToday} />
+        <CreatureBubble
+          creature={habit.creature}
+          stage={habit.stage}
+          size={112}
+          done={habit.doneToday}
+        />
         <Text variant="title2" style={styles.center}>
           {habit.doneToday
             ? 'Feito hoje!'
@@ -71,6 +78,13 @@ export function HabitDetailScreen({ habitId }: { habitId: string }) {
         </Text>
         <Text variant="callout" tone="secondary" style={styles.center}>
           {streakLabel(habit)}
+        </Text>
+        <Text variant="callout" tone="secondary" style={styles.center}>
+          {stageInfo[habit.stage].emoji} {creature.name}{' '}
+          {stageInfo[habit.stage].label.toLowerCase()}
+          {next
+            ? ` · ${next.daysLeft === 1 ? 'falta 1 dia' : `faltam ${next.daysLeft} dias`} para ${stageInfo[next.stage].label.toLowerCase()}`
+            : ' · totalmente crescido!'}
         </Text>
       </View>
 

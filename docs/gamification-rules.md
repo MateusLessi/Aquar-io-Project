@@ -1,6 +1,6 @@
-# Regras da Fundação da Gamificação (proposta para aprovação)
+# Regras da Fundação da Gamificação
 
-**Status:** proposta (Checkpoint 021). Todos os números ficam em um único arquivo de regras, para ajustar com o uso real.
+**Status:** aprovado (Checkpoint 022) e implementado. Todos os números ficam em `src/core/progress/rules.ts` (pontos e zonas) e `src/features/habits/domain/stages.ts` (estágios), para ajustar com o uso real.
 
 ## De onde vêm os pontos
 
@@ -57,6 +57,19 @@ O estágio vem do **total de dias feitos** do hábito, desde sempre. Perder um d
 - **Hábitos:** o selo do estágio em cada cartão; a criatura cresce de tamanho.
 - **Detalhe do hábito:** "Faltam N dias para virar Jovem".
 - **Comemoração** ao mudar de zona e quando uma criatura evolui.
+
+## Como está implementado
+
+| Parte                                          | Onde                                                                              |
+| ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| Regras puras (pontos, limite, zonas)           | `src/core/progress/rules.ts`                                                      |
+| Fatos por dia vindos das tarefas e dos hábitos | `progressFacts()` nos repositórios de To Do e Hábitos                             |
+| Junção dos fatos + regras                      | `src/shell/progress/computeProgress.ts`, `useProgress.ts`                         |
+| Medidor na tela Hoje                           | `src/shell/progress/DepthGauge.tsx`                                               |
+| Estágios das criaturas                         | `src/features/habits/domain/stages.ts`; `CreatureBubble` mostra o ovo e o tamanho |
+| Comemorações (zona nova, criatura que evoluiu) | `src/shell/progress/useCelebrations.ts`, `CelebrationBanner.tsx`                  |
+
+As comemorações são **por aparelho** (`app_settings`). Na primeira vez que rodam, só registram onde as coisas estão, para não comemorar progresso antigo ao atualizar o app.
 
 ## Fora desta etapa
 

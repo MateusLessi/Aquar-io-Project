@@ -1,6 +1,6 @@
 # Gamificação
 
-**Status:** visão de produto. Nada aqui está implementado. A Fundação da Gamificação é a Etapa 9; cada parte terá seu próprio checkpoint.
+**Status:** visão de produto. A Fundação (pontos, profundidade e estágios das criaturas) está implementada; regras em [gamification-rules.md](gamification-rules.md). O resto terá seu próprio checkpoint.
 
 ## Princípios
 

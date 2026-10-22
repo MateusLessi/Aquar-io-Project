@@ -97,6 +97,7 @@ export function AmbientContent({ rotation, onExit }: AmbientDisplayProps) {
                   <CreatureBubble
                     key={habit.id}
                     creature={habit.creature}
+                    stage={habit.stage}
                     size={44}
                     done={habit.doneToday}
                   />

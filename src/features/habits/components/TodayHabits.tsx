@@ -45,7 +45,12 @@ export function TodayHabits() {
             aria-checked={habit.doneToday}
             style={({ pressed }) => [styles.item, { transform: [{ scale: pressed ? 0.94 : 1 }] }]}
           >
-            <CreatureBubble creature={habit.creature} size={64} done={habit.doneToday} />
+            <CreatureBubble
+              creature={habit.creature}
+              stage={habit.stage}
+              size={64}
+              done={habit.doneToday}
+            />
             <Text
               variant="caption"
               tone={habit.doneToday ? 'primary' : 'secondary'}

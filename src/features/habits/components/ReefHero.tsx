@@ -137,6 +137,7 @@ function Swimmer({
     <Animated.View style={[styles.swimmer, { left: x }, style]} pointerEvents="none">
       <CreatureBubble
         creature={habit.creature}
+        stage={habit.stage}
         size={BUBBLE}
         done={habit.doneToday}
         resting={!habit.scheduledToday && !habit.doneToday}

@@ -242,7 +242,9 @@ describe('Habits', () => {
 
     // The details show the streak.
     await fireEvent.press(screen.getByRole('tab', { name: 'Hábitos' }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Beber água, Primeiro dia!' }));
+    await fireEvent.press(
+      await screen.findByRole('button', { name: /^Beber água, Primeiro dia!/ }),
+    );
     expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
     expect(app.getPathname()).toMatch(/^\/habits\//);
   });
@@ -274,5 +276,36 @@ describe('Repeating tasks and reminders', () => {
     expect(
       await screen.findByRole('button', { name: 'Remover lembrete das 09:00' }),
     ).toBeOnTheScreen();
+  });
+});
+
+describe('Depth and celebrations', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('shows the depth gauge and celebrates reaching a new zone once', async () => {
+    await data.settings.set('celebratedZone', 'surface');
+    const listId = await data.todo.createList({ name: 'Casa' });
+    for (let i = 0; i < 10; i++) {
+      const id = await data.todo.createTask({ listId, title: `Tarefa ${i}` });
+      await data.todo.setCompleted(id, true);
+    }
+
+    await renderRouter(routes, { initialUrl: '/' });
+    expect(
+      await screen.findByRole('progressbar', { name: /Profundidade: 100 m, Águas Costeiras/ }),
+    ).toBeOnTheScreen();
+    expect(await screen.findByText('🏝️ Você chegou: Águas Costeiras!')).toBeOnTheScreen();
+    expect(await data.settings.get('celebratedZone')).toBe('coastal');
+  });
+
+  it('does not celebrate old progress the first time it runs', async () => {
+    const listId = await data.todo.createList({ name: 'Casa' });
+    for (let i = 0; i < 10; i++) {
+      const id = await data.todo.createTask({ listId, title: `Tarefa ${i}` });
+      await data.todo.setCompleted(id, true);
+    }
+    await renderRouter(routes, { initialUrl: '/' });
+    await waitFor(async () => expect(await data.settings.get('celebratedZone')).toBe('coastal'));
+    expect(screen.queryByText(/Você chegou/)).toBeNull();
   });
 });

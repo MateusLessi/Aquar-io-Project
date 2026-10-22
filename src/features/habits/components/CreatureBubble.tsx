@@ -10,6 +10,7 @@ import Animated, {
 import { Text, listColors, specular, springs, useTheme, withAlpha } from '@/design-system';
 
 import { creatures, type CreatureId } from '../domain/creatures';
+import { stageInfo, type Stage } from '../domain/stages';
 
 type CreatureBubbleProps = {
   creature: CreatureId;
@@ -18,6 +19,8 @@ type CreatureBubbleProps = {
   done?: boolean;
   /** Not scheduled today: the creature rests, dimmed. */
   resting?: boolean;
+  /** Growth stage: an egg shows an egg; the creature grows with each stage. */
+  stage?: Stage;
 };
 
 /** A creature inside a bubble of its own color. Decorative: the parent carries the label. */
@@ -26,6 +29,7 @@ export function CreatureBubble({
   size = 56,
   done = false,
   resting = false,
+  stage = 'young',
 }: CreatureBubbleProps) {
   const { scheme, reduceMotion } = useTheme();
   const tone = listColors[creatures[creature].color][scheme];
@@ -75,8 +79,13 @@ export function CreatureBubble({
           },
         ]}
       />
-      <Text style={{ fontSize: size * 0.5, lineHeight: size * 0.62 }}>
-        {creatures[creature].emoji}
+      <Text
+        style={{
+          fontSize: size * 0.5 * stageInfo[stage].scale,
+          lineHeight: size * 0.62 * stageInfo[stage].scale,
+        }}
+      >
+        {stage === 'egg' ? stageInfo.egg.emoji : creatures[creature].emoji}
       </Text>
     </Animated.View>
   );
