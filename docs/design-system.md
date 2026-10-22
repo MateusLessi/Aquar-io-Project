@@ -62,21 +62,24 @@ Se alguém mudar uma cor e quebrar a legibilidade, a CI falha.
 
 ## Componentes
 
-| Componente             | Para quê                                                            | Estados                                |
-| ---------------------- | ------------------------------------------------------------------- | -------------------------------------- |
-| `Text`                 | Todo texto. Títulos viram `header` para leitores de tela.           | tons; `struck` (concluído)             |
-| `Surface`              | Superfície sólida para conteúdo                                     | —                                      |
-| `GlassSurface`         | Vidro para o cromo; fallback sólido automático                      | blur / fallback                        |
-| `OceanBackground`      | Fundo de tela com gradiente de profundidade + cáusticas animadas    | movimento / estático                   |
-| `Button`               | Ações (`primary`, `secondary`, `ghost`)                             | pressed, focused, disabled, loading    |
-| `IconButton`           | Ações só com ícone (rótulo obrigatório)                             | pressed, focused, selected, disabled   |
-| `FloatingActionButton` | Criação principal, em forma de gota                                 | pressed, focused, disabled             |
-| `Checkbox`             | Circular; mola, ondulação e háptico ao marcar                       | checked, pressed, focused, disabled    |
-| `TextInput`            | Campo com rótulo e erro anunciado                                   | focused, error, disabled               |
-| `ListItem`             | Linha de lista; o controle à esquerda age de forma independente     | pressed, selected, completed, disabled |
-| `WaterLevel`           | Progresso como água enchendo uma cápsula                            | 0–100% (anunciado como `progressbar`)  |
-| `Waterline`            | Onda sutil entre a superfície (cabeçalho) e o conteúdo              | decorativo                             |
-| `Sheet`                | Painel de vidro que sobe de baixo; fecha arrastando ou tocando fora | aberto, arrastando, fechado            |
+| Componente             | Para quê                                                                                                             | Estados                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `Text`                 | Todo texto. Títulos viram `header` para leitores de tela.                                                            | tons; `struck` (concluído)                      |
+| `Surface`              | Superfície sólida para conteúdo                                                                                      | —                                               |
+| `GlassSurface`         | Vidro para o cromo; fallback sólido automático                                                                       | blur / fallback                                 |
+| `OceanBackground`      | Fundo de tela em duas faixas (superfície e profundidade) que se encontram onde as cáusticas somem, sem borda visível | movimento / estático                            |
+| `Button`               | Ações (`primary`, `secondary`, `ghost`)                                                                              | pressed, focused, disabled, loading             |
+| `IconButton`           | Ações só com ícone (rótulo obrigatório)                                                                              | pressed, focused, selected, disabled            |
+| `FloatingActionButton` | Criação principal, em forma de gota                                                                                  | pressed, focused, disabled                      |
+| `Checkbox`             | Circular; mola, ondulação e háptico ao marcar                                                                        | checked, pressed, focused, disabled             |
+| `TextInput`            | Campo com rótulo e erro anunciado                                                                                    | focused, error, disabled                        |
+| `ListItem`             | Linha de lista; o controle à esquerda age de forma independente                                                      | pressed, selected, completed, disabled          |
+| `WaterLevel`           | Progresso como água enchendo uma cápsula                                                                             | 0–100% (anunciado como `progressbar`)           |
+| `Waterline`            | Onda sutil entre a superfície (cabeçalho) e o conteúdo                                                               | decorativo                                      |
+| `Sheet`                | Painel de vidro que sobe de baixo; fecha arrastando ou tocando fora                                                  | aberto, arrastando, fechado                     |
+| `TideHero`             | Maré do dia: a água sobe com o progresso; detalhes à direita (ex.: tarefas/hábitos)                                  | vazio, enchendo, cheia (bolhas de comemoração)  |
+| `RisingBubbles`        | Bolhas subindo em água funda (recife, maré cheia)                                                                    | calmo, festivo; ausente com "Reduzir movimento" |
+| `TimePicker`           | Escolher horário em dois toques: hora e quarto de hora                                                               | —                                               |
 
 Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` / `.selection()` (ignorados na web).
 

@@ -12,17 +12,28 @@ import type { TaskWithList } from '../domain/types';
 import { useToday } from '../hooks/queries';
 import { useTodo } from '../hooks/todoContext';
 
+function greeting(date: Date): string {
+  const hour = date.getHours();
+  return hour < 5 ? 'Boa noite' : hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+}
+
 function todayLabel(date: Date): string {
   const label = new Intl.DateTimeFormat('pt-BR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
   }).format(date);
-  return label.charAt(0).toUpperCase() + label.slice(1);
+  return `${greeting(date)} · ${label.charAt(0).toUpperCase() + label.slice(1)}`;
 }
 
-/** `extra` shows other modules' parts of today (e.g. habits), composed by the route. */
-export function TodayScreen({ extra }: { extra?: ReactNode }) {
+type TodayScreenProps = {
+  /** Other modules' parts of today (e.g. habits), composed by the route. */
+  extra?: ReactNode;
+  /** Other modules' progress today, added to the day's tide. */
+  extraProgress?: { completed: number; total: number };
+};
+
+export function TodayScreen({ extra, extraProgress }: TodayScreenProps) {
   const router = useRouter();
   const todo = useTodo();
   const { data: tasks = [], todayKey } = useToday();
@@ -31,6 +42,9 @@ export function TodayScreen({ extra }: { extra?: ReactNode }) {
   const overdue = tasks.filter((t) => t.dueDate && dueStatus(t.dueDate, todayKey) === 'overdue');
   const dueToday = tasks.filter((t) => t.dueDate === todayKey);
   const completed = tasks.filter((t) => t.completedAt).length;
+  // The tide counts everything due today: tasks plus, when composed, habits.
+  const tideDone = completed + (extraProgress?.completed ?? 0);
+  const tideTotal = tasks.length + (extraProgress?.total ?? 0);
 
   const section = (title: string, items: TaskWithList[]) =>
     items.length > 0 ? (
@@ -62,14 +76,22 @@ export function TodayScreen({ extra }: { extra?: ReactNode }) {
     <Screen title="Hoje" eyebrow={todayLabel(new Date())}>
       <TideHero
         label="Maré do dia"
-        completed={completed}
-        total={tasks.length}
+        completed={tideDone}
+        total={tideTotal}
         caption={
-          completed === tasks.length && tasks.length > 0
-            ? 'maré cheia! tudo feito'
-            : 'tarefas concluídas'
+          tideDone === tideTotal && tideTotal > 0
+            ? 'Maré cheia! Tudo feito hoje 🎉'
+            : `Faltam ${tideTotal - tideDone} para a maré cheia`
         }
         emptyMessage="Mar calmo. Nada planejado para hoje."
+        details={
+          extraProgress && extraProgress.total > 0
+            ? [
+                { label: 'Tarefas', value: `${completed}/${tasks.length}` },
+                { label: 'Hábitos', value: `${extraProgress.completed}/${extraProgress.total}` },
+              ]
+            : undefined
+        }
       />
 
       {extra}

@@ -13,6 +13,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import {
   DeepSurface,
+  RisingBubbles,
   Text,
   listColors,
   spacing,
@@ -60,6 +61,7 @@ export function ReefHero({ habits }: ReefHeroProps) {
     >
       {width > 0 ? (
         <>
+          <RisingBubbles height={HEIGHT} count={9} />
           <Svg width={width} height={40} style={styles.sand} pointerEvents="none">
             <Path
               d={`M0 18 C ${width * 0.2} 6, ${width * 0.35} 26, ${width * 0.55} 16 S ${width * 0.85} 8, ${width} 20 V 40 H 0 Z`}
@@ -72,6 +74,7 @@ export function ReefHero({ habits }: ReefHeroProps) {
               habit={habit}
               x={((index + 0.5) / shown.length) * width - BUBBLE / 2}
               phase={index}
+              labelWidth={Math.min(140, Math.max(BUBBLE + 36, width / shown.length - 8))}
             />
           ))}
         </>
@@ -93,7 +96,18 @@ export function ReefHero({ habits }: ReefHeroProps) {
   );
 }
 
-function Swimmer({ habit, x, phase }: { habit: HabitWithProgress; x: number; phase: number }) {
+function Swimmer({
+  habit,
+  x,
+  phase,
+  labelWidth,
+}: {
+  habit: HabitWithProgress;
+  x: number;
+  phase: number;
+  /** Room for the name: wider reefs show more of it. */
+  labelWidth: number;
+}) {
   const { reduceMotion } = useTheme();
   const depth = useSharedValue(habit.doneToday ? SWIM_HIGH : SWIM_LOW);
   const bob = useSharedValue(0);
@@ -127,7 +141,12 @@ function Swimmer({ habit, x, phase }: { habit: HabitWithProgress; x: number; pha
         done={habit.doneToday}
         resting={!habit.scheduledToday && !habit.doneToday}
       />
-      <Text variant="caption" tone="onDeepSecondary" numberOfLines={1} style={styles.name}>
+      <Text
+        variant="caption"
+        tone="onDeepSecondary"
+        numberOfLines={1}
+        style={[styles.name, { width: labelWidth }]}
+      >
         {habit.name}
       </Text>
     </Animated.View>
@@ -138,6 +157,6 @@ const styles = StyleSheet.create({
   card: { height: HEIGHT, padding: spacing.lg, overflow: 'hidden' },
   sand: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   swimmer: { position: 'absolute', top: 0, width: BUBBLE, alignItems: 'center' },
-  name: { width: BUBBLE + 36, textAlign: 'center', marginTop: 2 },
+  name: { textAlign: 'center', marginTop: 2 },
   more: { position: 'absolute', right: spacing.lg, bottom: spacing.md },
 });

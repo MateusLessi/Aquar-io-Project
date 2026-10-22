@@ -18,6 +18,7 @@ export { GlassSurface, type GlassSurfaceProps } from './components/GlassSurface'
 export { IconButton, type IconButtonProps } from './components/IconButton';
 export { ListItem, type ListItemProps } from './components/ListItem';
 export { OceanBackground } from './components/OceanBackground';
+export { RisingBubbles, type RisingBubblesProps } from './components/RisingBubbles';
 export { Screen, type ScreenProps } from './components/Screen';
 export {
   SegmentedControl,

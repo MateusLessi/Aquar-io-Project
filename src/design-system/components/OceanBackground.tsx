@@ -32,26 +32,33 @@ type OceanBackgroundProps = {
  */
 export function OceanBackground({ children, caustics = true }: OceanBackgroundProps) {
   const { colors, scheme } = useTheme();
+  const surfaceId = useSvgId('surface');
   const depthId = useSvgId('depth');
 
   return (
     <View style={styles.root}>
-      <Svg
-        width="100%"
-        height="100%"
-        style={StyleSheet.absoluteFill}
-        preserveAspectRatio="none"
-        pointerEvents="none"
-      >
-        <Defs>
-          <LinearGradient id={depthId} x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={colors.surfaceTop} />
-            <Stop offset="0.34" stopColor={colors.surfaceBase} />
-            <Stop offset="1" stopColor={colors.surfaceDeep} />
-          </LinearGradient>
-        </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${depthId})`} />
-      </Svg>
+      {/* Two bands meeting at CAUSTICS_HEIGHT: the surface light ends exactly on the base
+          color, so the caustics fade into it without a visible edge. */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Svg width="100%" height={CAUSTICS_HEIGHT} preserveAspectRatio="none">
+          <Defs>
+            <LinearGradient id={surfaceId} x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={colors.surfaceTop} />
+              <Stop offset="1" stopColor={colors.surfaceBase} />
+            </LinearGradient>
+          </Defs>
+          <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${surfaceId})`} />
+        </Svg>
+        <Svg width="100%" style={styles.flex} preserveAspectRatio="none">
+          <Defs>
+            <LinearGradient id={depthId} x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={colors.surfaceBase} />
+              <Stop offset="1" stopColor={colors.surfaceDeep} />
+            </LinearGradient>
+          </Defs>
+          <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${depthId})`} />
+        </Svg>
+      </View>
       {caustics ? (
         <Caustics color={colors.caustic} opacity={scheme === 'dark' ? 0.06 : 0.11} />
       ) : null}
@@ -104,5 +111,6 @@ function Caustics({ color, opacity }: { color: string; opacity: number }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  flex: { flex: 1 },
   caustics: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
 });
