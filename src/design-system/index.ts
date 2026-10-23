@@ -28,6 +28,7 @@ export {
 } from './components/SegmentedControl';
 export { Sheet, type SheetProps } from './components/Sheet';
 export { Surface, type SurfaceProps } from './components/Surface';
+export { Switch, type SwitchProps } from './components/Switch';
 export { Text, type TextProps } from './components/Text';
 export { TideHero, tideLevel, type TideHeroProps } from './components/TideHero';
 export { TextInput, type TextInputProps } from './components/TextInput';
@@ -40,6 +41,7 @@ export {
   ThemeProvider,
   useBreakpoint,
   useTheme,
+  type AccessibilityChoices,
   type Theme,
   type ThemePreference,
 } from './theme/ThemeProvider';

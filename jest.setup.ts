@@ -32,3 +32,10 @@ jest.mock('expo-notifications', () => ({
   AndroidImportance: { HIGH: 4 },
   SchedulableTriggerInputTypes: { DATE: 'date' },
 }));
+
+// Reanimated's Jest mock has no ReducedMotionConfig (the theme renders one); it has no effect
+// in tests anyway.
+jest.mock('react-native-reanimated', () => ({
+  ...jest.requireActual<object>('react-native-reanimated/mock'),
+  ReducedMotionConfig: () => null,
+}));
