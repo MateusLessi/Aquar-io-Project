@@ -33,6 +33,8 @@ export type ScreenProps = {
   onBack?: () => void;
   /** Buttons at the top right, e.g. "Editar lista". */
   actions?: ReactNode;
+  /** Use the full width on large screens (dashboards); text-heavy screens keep a reading width. */
+  wide?: boolean;
   testID?: string;
 };
 
@@ -47,6 +49,7 @@ export function Screen({
   children,
   onBack,
   actions,
+  wide = false,
   testID,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
@@ -82,7 +85,7 @@ export function Screen({
           paddingBottom: chromeInsets.bottom + spacing.xxxl,
         }}
       >
-        <View style={styles.column}>
+        <View style={[styles.column, wide && styles.wide]}>
           {onBack || actions ? (
             <View style={styles.toolbar}>
               {onBack ? (
@@ -137,6 +140,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: spacing.lg,
   },
+  wide: { maxWidth: chrome.contentMaxWidthWide },
   toolbar: {
     flexDirection: 'row',
     alignItems: 'center',

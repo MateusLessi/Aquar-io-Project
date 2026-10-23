@@ -38,6 +38,8 @@ export const chrome = {
   compactHeaderHeight: 52,
   /** Max width of reading content on wide screens. */
   contentMaxWidth: 760,
+  /** Dashboards on tablets and desktop. */
+  contentMaxWidthWide: 1240,
 } as const;
 
 /**

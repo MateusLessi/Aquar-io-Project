@@ -13,7 +13,7 @@ import {
   type SettingsRepository,
 } from '@/core/settings/settingsRepository';
 import { SettingsContext } from '@/core/settings/useSetting';
-import type { ThemePreference } from '@/design-system';
+import type { AccessibilityChoices, ThemePreference } from '@/design-system';
 import {
   createHabitsRepository,
   type HabitsRepository,
@@ -40,6 +40,8 @@ export type AppData = {
   habits: HabitsRepository;
   routines: RoutinesRepository;
   themePreference: ThemePreference;
+  /** The person's accessibility choices (null: follow the device). */
+  accessibility: AccessibilityChoices;
 };
 
 const THEME_KEY = 'theme';
@@ -60,6 +62,11 @@ export async function createAppData(
   const routines = createRoutinesRepository({ db, changes, events, newId, now });
   const storedTheme = await settings.get(THEME_KEY);
   const themePreference = themePreferences.find((p) => p === storedTheme) ?? 'system';
+  const choice = (value: string | null) => (value === 'on' ? true : value === 'off' ? false : null);
+  const accessibility: AccessibilityChoices = {
+    reduceMotion: choice(await settings.get('reduceMotion')),
+    reduceTransparency: choice(await settings.get('reduceTransparency')),
+  };
   return {
     db,
     account,
@@ -70,6 +77,7 @@ export async function createAppData(
     habits,
     routines,
     themePreference,
+    accessibility,
   } satisfies AppData;
 }
 
@@ -126,6 +134,12 @@ export function AppDataProvider({ data, children }: { data: AppData; children: R
     </DataChangesContext.Provider>
   );
 }
+
+export const saveAccessibility = (
+  data: AppData,
+  key: keyof AccessibilityChoices,
+  value: boolean | null,
+) => data.settings.set(key, value === null ? '' : value ? 'on' : 'off');
 
 export const saveThemePreference = (data: AppData, preference: ThemePreference) =>
   data.settings.set(THEME_KEY, preference);

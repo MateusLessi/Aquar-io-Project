@@ -22,7 +22,11 @@ export function TodayHabits() {
         <Text variant="overline" tone="tertiary" style={styles.title}>
           Hábitos · {done} de {due.length}
         </Text>
-        <Button label="Ver todos" variant="ghost" onPress={() => router.navigate('/habits')} />
+        <Button
+          label="Ver todos"
+          variant="ghost"
+          onPress={() => router.navigate({ pathname: '/aquarium', params: { tab: 'habits' } })}
+        />
       </View>
       <ScrollView
         horizontal

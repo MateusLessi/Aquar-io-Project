@@ -51,7 +51,7 @@ export function Sidebar({ destinations, onCreate }: SidebarProps) {
         </View>
 
         <View style={styles.footer}>
-          <Button label="Nova tarefa" variant="energy" icon={Plus} block onPress={onCreate} />
+          <Button label="Criar" variant="energy" icon={Plus} block onPress={onCreate} />
         </View>
       </DeepSurface>
     </View>

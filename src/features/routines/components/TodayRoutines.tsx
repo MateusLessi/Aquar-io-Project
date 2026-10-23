@@ -12,8 +12,10 @@ export function TodayRoutines() {
   return (
     <RoutineTimeline
       routines={routines}
-      onSeeAll={() => router.navigate('/routines')}
-      onOpen={(id) => router.navigate({ pathname: '/routines', params: { edit: id } })}
+      onSeeAll={() => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } })}
+      onOpen={(id) =>
+        router.navigate({ pathname: '/aquarium', params: { tab: 'routines', edit: id } })
+      }
       onToggleItem={(routineId, itemId, done) =>
         repository
           .setItemChecked(routineId, itemId, todayKey, done)

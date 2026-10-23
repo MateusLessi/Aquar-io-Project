@@ -23,7 +23,10 @@ export function ListScreen({ listId }: { listId: string }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [showDone, setShowDone] = useState(false);
   const todayKey = toDateKey(new Date());
-  const back = () => (router.canGoBack() ? router.back() : router.replace('/lists'));
+  const back = () =>
+    router.canGoBack()
+      ? router.back()
+      : router.replace({ pathname: '/aquarium', params: { tab: 'lists' } });
 
   if (loading) return <Screen title="" onBack={back} />;
 
@@ -34,7 +37,10 @@ export function ListScreen({ listId }: { listId: string }) {
           icon={SearchX}
           title="Esta lista não existe mais"
           message="Ela pode ter sido excluída."
-          action={{ label: 'Ver listas', onPress: () => router.replace('/lists') }}
+          action={{
+            label: 'Ver listas',
+            onPress: () => router.replace({ pathname: '/aquarium', params: { tab: 'lists' } }),
+          }}
         />
       </Screen>
     );
@@ -121,7 +127,7 @@ export function ListScreen({ listId }: { listId: string }) {
         visible={editing}
         list={list}
         onClose={() => setEditing(false)}
-        onDeleted={() => router.replace('/lists')}
+        onDeleted={() => router.replace({ pathname: '/aquarium', params: { tab: 'lists' } })}
       />
     </Screen>
   );

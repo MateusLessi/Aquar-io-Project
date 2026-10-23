@@ -44,7 +44,7 @@ export function planReminders({
           at: atTime(day, time),
           title: `${creature.emoji} ${habit.name}`,
           body: 'Hora de cuidar deste hábito. Toque para abrir.',
-          url: `/habits/${habit.id}`,
+          url: `/aquarium/habits/${habit.id}`,
         });
       }
     }
@@ -59,7 +59,7 @@ export function planReminders({
         at: atTime(day, routine.start),
         title: `${routine.emoji ?? '⏱️'} ${routine.name}`,
         body: `Começa agora, até ${routine.end}.`,
-        url: '/routines',
+        url: '/aquarium?tab=routines',
       });
     }
   }
@@ -71,7 +71,7 @@ export function planReminders({
       at: atTime(task.dueDate, task.remindAt),
       title: `⏰ ${task.title}`,
       body: [task.listEmoji, task.listName].filter(Boolean).join(' '),
-      url: `/lists/${task.listId}`,
+      url: `/aquarium/lists/${task.listId}`,
     });
   }
 

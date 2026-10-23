@@ -31,7 +31,10 @@ export function HabitDetailScreen({ habitId }: { habitId: string }) {
   const { scheme } = useTheme();
   const { data, loading, todayKey } = useHabit(habitId);
   const [editing, setEditing] = useState(false);
-  const back = () => (router.canGoBack() ? router.back() : router.replace('/habits'));
+  const back = () =>
+    router.canGoBack()
+      ? router.back()
+      : router.replace({ pathname: '/aquarium', params: { tab: 'habits' } });
 
   if (loading) return <Screen title="" onBack={back} />;
 
@@ -42,7 +45,10 @@ export function HabitDetailScreen({ habitId }: { habitId: string }) {
           icon={SearchX}
           title="Este hábito não existe mais"
           message="Ele pode ter sido apagado em outro aparelho."
-          action={{ label: 'Ver hábitos', onPress: () => router.replace('/habits') }}
+          action={{
+            label: 'Ver hábitos',
+            onPress: () => router.replace({ pathname: '/aquarium', params: { tab: 'habits' } }),
+          }}
         />
       </Screen>
     );

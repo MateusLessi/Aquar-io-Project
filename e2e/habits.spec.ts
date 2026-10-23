@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('create a habit, check today, and it survives a reload', async ({ page }) => {
-  await page.goto('/habits');
+  await page.goto('/aquarium?tab=habits');
   await page.getByRole('button', { name: 'Novo hábito' }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Beber água');
   await page.getByRole('radio', { name: 'Peixe' }).click();

@@ -1,11 +1,4 @@
-import {
-  CalendarClock,
-  Fish,
-  ListTodo,
-  Settings2,
-  Sun,
-  type LucideIcon,
-} from 'lucide-react-native';
+import { Fish, House, ShoppingBag, UserRound, type LucideIcon } from 'lucide-react-native';
 import type { Href } from 'expo-router';
 
 export type Destination = {
@@ -14,34 +7,17 @@ export type Destination = {
   href: Href;
   label: string;
   icon: LucideIcon;
-  /** Whether the "new task" action is offered on this destination. */
+  /** Whether the "create" button is offered on this destination. */
   showsCreate: boolean;
-  /** Left out of the phone tab bar (no room for five); reached from elsewhere. */
-  notOnPhoneBar?: boolean;
 };
 
 /**
- * Top-level destinations. Only what exists appears here: modules join when they ship.
- * Plain Portuguese labels for now; brand names (docs/naming.md) come with more modules.
+ * Top-level destinations (Checkpoint 027): the dashboard with the day at a glance, the
+ * Aquarium where every module is managed, the shop, and the profile with all settings.
  */
 export const destinations: Destination[] = [
-  { name: 'index', href: '/', label: 'Hoje', icon: Sun, showsCreate: true },
-  { name: 'habits', href: '/habits', label: 'Hábitos', icon: Fish, showsCreate: false },
-  {
-    name: 'routines',
-    href: '/routines',
-    label: 'Rotinas',
-    icon: CalendarClock,
-    showsCreate: false,
-  },
-  { name: 'lists', href: '/lists', label: 'Listas', icon: ListTodo, showsCreate: true },
-  {
-    name: 'settings',
-    href: '/settings',
-    label: 'Ajustes',
-    icon: Settings2,
-    showsCreate: false,
-    // On phones, a gear on Today opens Settings.
-    notOnPhoneBar: true,
-  },
+  { name: 'index', href: '/', label: 'Início', icon: House, showsCreate: true },
+  { name: 'aquarium', href: '/aquarium', label: 'Aquário', icon: Fish, showsCreate: true },
+  { name: 'shop', href: '/shop', label: 'Loja', icon: ShoppingBag, showsCreate: false },
+  { name: 'profile', href: '/profile', label: 'Perfil', icon: UserRound, showsCreate: false },
 ];

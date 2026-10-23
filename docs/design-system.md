@@ -80,6 +80,8 @@ Se alguém mudar uma cor e quebrar a legibilidade, a CI falha.
 | `TideHero`             | Maré do dia: a água sobe com o progresso; detalhes à direita (ex.: tarefas/hábitos)                                  | vazio, enchendo, cheia (bolhas de comemoração)  |
 | `RisingBubbles`        | Bolhas subindo em água funda (recife, maré cheia)                                                                    | calmo, festivo; ausente com "Reduzir movimento" |
 | `TimePicker`           | Escolher horário em dois toques: hora e quarto de hora                                                               | —                                               |
+| `Switch`               | Interruptor liga/desliga com mola e háptico                                                                          | ligado, desligado, disabled                     |
+| `Grid`                 | Grade em linhas de células iguais (sem largura em pixels, imune a zoom)                                              | —                                               |
 
 Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` / `.selection()` (ignorados na web).
 

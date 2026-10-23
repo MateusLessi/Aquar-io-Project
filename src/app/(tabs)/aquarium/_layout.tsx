@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 
 import { useTheme } from '@/design-system';
 
-export default function ListsLayout() {
+export default function AquariumLayout() {
   const { colors } = useTheme();
   return (
     <Stack

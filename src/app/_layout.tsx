@@ -7,7 +7,12 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { appFonts, EmptyState, OceanBackground, ThemeProvider, useTheme } from '@/design-system';
-import { AppDataProvider, saveThemePreference, useAppDataBootstrap } from '@/shell/AppData';
+import {
+  AppDataProvider,
+  saveAccessibility,
+  saveThemePreference,
+  useAppDataBootstrap,
+} from '@/shell/AppData';
 
 // Keep the splash screen until fonts and data are ready, so nothing flashes.
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -37,6 +42,12 @@ export default function RootLayout() {
   return (
     <ThemeProvider
       initialPreference={boot.data.themePreference}
+      initialAccessibility={boot.data.accessibility}
+      onAccessibilityChange={(key, value) => {
+        saveAccessibility(boot.data, key, value).catch((error: unknown) =>
+          console.warn('Could not save the accessibility choice.', error),
+        );
+      }}
       onPreferenceChange={(preference) => {
         saveThemePreference(boot.data, preference).catch((error: unknown) =>
           console.warn('Could not save the theme preference.', error),

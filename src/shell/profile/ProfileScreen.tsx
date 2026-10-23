@@ -10,15 +10,17 @@ import {
   Screen,
   SegmentedControl,
   Surface,
+  Switch,
   Text,
   spacing,
   useTheme,
   type ThemePreference,
 } from '@/design-system';
-import { useAccount } from '@/shell/Account';
-import { AccountSection } from '@/shell/AccountSection';
-import { AMBIENT_SETTING, type AmbientSetting } from '@/shell/ambient';
-import { RemindersSection } from '@/shell/reminders/RemindersSection';
+import { useAccount } from '../Account';
+import { AccountSection } from '../AccountSection';
+import { AMBIENT_SETTING, type AmbientSetting } from '../ambient';
+import { RemindersSection } from '../reminders/RemindersSection';
+import { ProfileHeader } from './ProfileHeader';
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Sistema' },
@@ -31,14 +33,18 @@ const ambientOptions: { value: AmbientSetting; label: string }[] = [
   { value: 'off', label: 'Desligado' },
 ];
 
-export default function SettingsScreen() {
+/** Profile on top, then every setting of the app. */
+export function ProfileScreen() {
   const router = useRouter();
-  const { colors, preference, setPreference, reduceMotion, reduceTransparency } = useTheme();
+  const { colors, preference, setPreference, reduceMotion, reduceTransparency, setAccessibility } =
+    useTheme();
   const hasCloud = useAccount() !== null;
   const [ambient, setAmbient] = useSetting<AmbientSetting>(AMBIENT_SETTING, 'on');
 
   return (
-    <Screen title="Ajustes">
+    <Screen title="Perfil">
+      <ProfileHeader />
+
       {hasCloud ? (
         <Section title="Conta e sincronização">
           <AccountSection />
@@ -73,15 +79,33 @@ export default function SettingsScreen() {
 
       <Section title="Acessibilidade">
         <Surface>
-          <ListItem title="Reduzir movimento" trailing={<Status on={reduceMotion} />} />
+          <ListItem
+            title="Reduzir movimento"
+            subtitle="Menos animações e efeitos"
+            trailing={
+              <Switch
+                label="Reduzir movimento"
+                value={reduceMotion}
+                onChange={(on) => setAccessibility('reduceMotion', on)}
+              />
+            }
+          />
           <ListItem
             separator
             title="Reduzir transparência"
-            trailing={<Status on={reduceTransparency} />}
+            subtitle="Barras e painéis sólidos em vez de vidro"
+            trailing={
+              <Switch
+                label="Reduzir transparência"
+                value={reduceTransparency}
+                onChange={(on) => setAccessibility('reduceTransparency', on)}
+              />
+            }
           />
         </Surface>
         <Text variant="footnote" tone="tertiary" style={styles.note}>
-          O Aquar.io segue as configurações de acessibilidade do sistema.
+          Começam iguais às configurações do seu aparelho; o que você escolher aqui vale para o
+          Aquar.io.
         </Text>
       </Section>
 
@@ -97,6 +121,12 @@ export default function SettingsScreen() {
               separator
               title="Prévia dos Hábitos"
               onPress={() => router.push('/dev/habits')}
+              trailing={<ChevronRight size={20} color={colors.textTertiary} />}
+            />
+            <ListItem
+              separator
+              title="Prévia das Rotinas"
+              onPress={() => router.push('/dev/routines')}
               trailing={<ChevronRight size={20} color={colors.textTertiary} />}
             />
             <ListItem
@@ -133,14 +163,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       </Text>
       {children}
     </View>
-  );
-}
-
-function Status({ on }: { on: boolean }) {
-  return (
-    <Text variant="callout" tone={on ? 'accent' : 'secondary'}>
-      {on ? 'Ativado' : 'Desativado'}
-    </Text>
   );
 }
 
