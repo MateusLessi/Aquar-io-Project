@@ -44,7 +44,7 @@ Atualização pelo ar para quem já instalou esse build:
 npx eas-cli@latest update --channel preview --message "o que mudou"
 ```
 
-Versão web (Netlify, arrastando a pasta): `npx expo export --platform web` e arrastar a pasta `dist` em https://app.netlify.com/drop. Os arquivos `public/_headers` e `public/_redirects` já configuram o que a versão web precisa (o banco no navegador exige os cabeçalhos de isolamento).
+Versão web (Netlify, arrastando a pasta): `npm run export:web` e arrastar a pasta `dist` em https://app.netlify.com/drop. Os arquivos `public/_headers` e `public/_redirects` já configuram o que a versão web precisa (o banco no navegador exige os cabeçalhos de isolamento). Use sempre `npm run export:web`, não `npx expo export` direto: o Netlify ignora pastas chamadas `node_modules`, e é nelas que a exportação padrão põe o banco (wasm) e as fontes; o script as renomeia para `assets/vendor`.
 
 ## O caminho de uma expansão
 

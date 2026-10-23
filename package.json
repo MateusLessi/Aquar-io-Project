@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
-    "e2e": "expo export --platform web --output-dir dist && playwright test"
+    "export:web": "node scripts/export-web.mjs",
+    "e2e": "node scripts/export-web.mjs && playwright test"
   },
   "dependencies": {
     "@expo-google-fonts/manrope": "^0.4.2",
