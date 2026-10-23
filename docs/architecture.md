@@ -51,7 +51,7 @@ src/app/
 └── dev/                             prévias e catálogo (somente desenvolvimento)
 ```
 
-- **Início:** visão resumida do dia; cada bloco leva à parte completa no Aquário.
+- **Início** (`src/shell/dashboard/DashboardScreen.tsx`): visão resumida do dia, com saudação pelo nome do Perfil. No celular, blocos empilhados (maré, profundidade, rotinas, hábitos, tarefas, semana). No tablet em pé, 2 colunas; no tablet deitado e no notebook, um "bento" de 3 colunas com o botão Criar, o **calendário das marés** (dias mais cheios = mais pontos; maré cheia em destaque) e o **gráfico da semana** (pontos dos últimos 7 dias). Cada bloco leva à parte completa no Aquário.
 - **Aquário:** onde cada módulo é gerenciado em detalhe. Um seletor no topo escolhe o módulo; módulos futuros entram aqui. Hábitos, Rotinas e Listas são "painéis" das suas features (`HabitsPanel`, `RoutinesPanel`, `ListsPanel`).
 - **Loja:** vitrine de planos e cosméticos, sem compra (MOCK) até as Etapas 16/17.
 - **Perfil:** nome e criatura-avatar (por aparelho por enquanto) e os ajustes.

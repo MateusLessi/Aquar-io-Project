@@ -65,7 +65,10 @@ describe('App shell on phones', () => {
   it('opens on Today and navigates between destinations', async () => {
     const app = renderRouter(routes, { initialUrl: '/' });
     await app;
-    expect(screen.getByRole('header', { name: 'Hoje' })).toBeOnTheScreen();
+    // Início greets by the time of day.
+    expect(
+      screen.getByRole('header', { name: /^(Bom dia|Boa tarde|Boa noite)/ }),
+    ).toBeOnTheScreen();
     expect(screen.getByRole('tab', { name: 'Início' })).toBeSelected();
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
@@ -80,7 +83,7 @@ describe('App shell on phones', () => {
 
   it('creates a first list and a task for today, then completes it', async () => {
     await renderRouter(routes, { initialUrl: '/' });
-    expect(screen.getByText('Nada para hoje')).toBeOnTheScreen();
+    expect(screen.getByText('Nenhuma tarefa para hoje')).toBeOnTheScreen();
 
     // No lists yet: the quick add offers to create one first.
     await fireEvent.press(screen.getByRole('button', { name: 'Criar' }));
@@ -362,5 +365,17 @@ describe('Routines', () => {
     expect(await screen.findByText('Academia')).toBeOnTheScreen();
     const [routine] = await data.routines.listToday();
     expect(routine?.items.map((i) => i.title)).toEqual(['Aquecer']);
+  });
+});
+
+describe('Início as a bento on large screens', () => {
+  beforeEach(() => setWindowWidth(1240));
+
+  it('shows the create button, the tide calendar and the week chart', async () => {
+    await renderRouter(routes, { initialUrl: '/' });
+    // The sidebar has its own "Criar"; the dashboard adds one at the top of its first column.
+    expect(screen.getAllByRole('button', { name: 'Criar' })).toHaveLength(2);
+    expect(screen.getByText('0 dias de maré cheia')).toBeOnTheScreen();
+    expect(screen.getByLabelText(/^Sua semana: 0 pontos/)).toBeOnTheScreen();
   });
 });

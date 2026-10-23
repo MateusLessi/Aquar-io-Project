@@ -4,7 +4,7 @@ test('create a list and a task for today, complete it, and it survives a reload'
   page,
 }) => {
   await page.goto('/');
-  await expect(page.getByText('Nada para hoje')).toBeVisible();
+  await expect(page.getByText('Nenhuma tarefa para hoje')).toBeVisible();
   expect(await page.evaluate(() => crossOriginIsolated)).toBe(true);
 
   await page.getByRole('button', { name: 'Criar' }).first().click();

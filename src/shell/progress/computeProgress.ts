@@ -24,6 +24,8 @@ type RoutineFacts = {
 
 export type Progress = {
   depth: Depth;
+  /** Points (capped) and high tide per day, for the week chart and the calendar. */
+  byDay: Record<string, { points: number; fullTide: boolean }>;
   today: { points: number; raw: number; fullTide: boolean; capped: boolean };
 };
 
@@ -57,8 +59,13 @@ export function computeProgress(
 
   const today = days.get(todayKey) ?? emptyDay();
   const raw = rawPoints(today);
+  const byDay: Progress['byDay'] = {};
+  for (const [key, facts] of days) {
+    byDay[key] = { points: dayPoints(facts), fullTide: isFullTide(facts) };
+  }
   return {
     depth: depthFor(totalDepth(days.values())),
+    byDay,
     today: {
       points: dayPoints(today),
       raw,

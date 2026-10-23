@@ -10,6 +10,7 @@ import { ChromeInsetsProvider, OceanBackground, chrome, useBreakpoint } from '@/
 import { AMBIENT_SETTING, shouldShowAmbient, useCharging, type AmbientSetting } from './ambient';
 import { AmbientDisplay } from './AmbientDisplay';
 import { aquariumTab } from './aquarium/AquariumScreen';
+import { CreateContext } from './create/CreateContext';
 import { CreateFlow } from './create/CreateFlow';
 import { destinations } from './destinations';
 import { NavigationRail } from './NavigationRail';
@@ -97,11 +98,13 @@ function ShellLayout() {
           <NavigationRail destinations={destinations} onCreate={create} />
         ) : null}
         <ChromeInsetsProvider value={chromeInsets}>
-          <View style={styles.content}>
-            {/* TabSlot's container does not shrink by default: a long screen (e.g. Settings)
-                would grow past the window and never scroll. */}
-            <TabSlot style={styles.slot} />
-          </View>
+          <CreateContext.Provider value={create}>
+            <View style={styles.content}>
+              {/* TabSlot's container does not shrink by default: a long screen (e.g. Settings)
+                  would grow past the window and never scroll. */}
+              <TabSlot style={styles.slot} />
+            </View>
+          </CreateContext.Provider>
         </ChromeInsetsProvider>
       </View>
       {breakpoint === 'compact' ? (
