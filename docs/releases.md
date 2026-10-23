@@ -22,6 +22,30 @@ O **runtime version** diz quais atualizações OTA servem para qual build: uma O
 | iPhone         | Expo Go (desenvolvimento) e a versão web publicada     | App Store / TestFlight (conta Apple de US$ 99/ano) |
 | Notebook       | Versão web publicada (link)                            | —                                                  |
 
+## Comandos (no seu computador, logado na sua conta Expo)
+
+Uma vez só:
+
+```powershell
+npx eas-cli@latest login            # entrar na conta Expo (expo.dev, gratuita)
+npx eas-cli@latest init             # liga o projeto à sua conta (grava o projectId no app.json)
+npx eas-cli@latest update:configure # liga as atualizações pelo ar (grava a URL no app.json)
+```
+
+Instalador Android para o tablet (gera um link e um QR code para baixar o `.apk`):
+
+```powershell
+npx eas-cli@latest build --platform android --profile preview
+```
+
+Atualização pelo ar para quem já instalou esse build:
+
+```powershell
+npx eas-cli@latest update --channel preview --message "o que mudou"
+```
+
+Versão web (Netlify, arrastando a pasta): `npx expo export --platform web` e arrastar a pasta `dist` em https://app.netlify.com/drop. Os arquivos `public/_headers` e `public/_redirects` já configuram o que a versão web precisa (o banco no navegador exige os cabeçalhos de isolamento).
+
 ## O caminho de uma expansão
 
 1. **Checkpoint de aprovação** com o plano.

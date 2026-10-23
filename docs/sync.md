@@ -41,6 +41,7 @@ Como os dados do Aquar.io viajam entre o celular, o tablet e o computador. A dec
    - `20261021000000_habits_sync.sql`: hábitos e check-ins.
    - `20261022000000_reminders.sql`: repetição e lembretes.
    - `20261023000000_routines_sync.sql`: rotinas, itens e checks.
+   - `20261024000000_profile_sync.sql`: perfil (nome e avatar).
 
    Se uma tabela ainda não existir na nuvem, as outras continuam sincronizando; as mudanças dela ficam na fila e Ajustes mostra "Sem conexão" até o SQL ser rodado.
 
