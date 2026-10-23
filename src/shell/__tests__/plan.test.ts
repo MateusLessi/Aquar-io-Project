@@ -78,4 +78,31 @@ describe('planReminders', () => {
     );
     expect(planReminders({ habits: many, tasks: [], now })).toHaveLength(MAX_SCHEDULED);
   });
+
+  it('rings routines with a reminder when they start', () => {
+    const routine = {
+      id: 'r1',
+      name: 'Academia',
+      emoji: '🏋️',
+      color: 'coral' as const,
+      start: '19:00',
+      end: '20:00',
+      days: 0b0101010, // Mon, Wed, Fri
+      remind: true,
+      sortOrder: 1,
+      createdAt: '2026-10-01T00:00:00.000Z',
+      updatedAt: '2026-10-01T00:00:00.000Z',
+    };
+    const plan = planReminders({ habits: [], tasks: [], routines: [routine], now });
+    // Wed 21 (today, 19:00 still ahead), Fri 23, Mon 26.
+    expect(plan.map((r) => r.at.getDate())).toEqual([21, 23, 26]);
+    expect(plan[0]).toMatchObject({ title: '🏋️ Academia', url: '/routines' });
+    const silent = planReminders({
+      habits: [],
+      tasks: [],
+      routines: [{ ...routine, remind: false }],
+      now,
+    });
+    expect(silent).toEqual([]);
+  });
 });

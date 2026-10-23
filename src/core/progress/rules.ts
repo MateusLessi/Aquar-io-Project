@@ -8,6 +8,7 @@ export const POINTS = {
   subtask: 3,
   habitScheduled: 15,
   habitRestDay: 8,
+  routineItem: 5,
   fullTide: 25,
 } as const;
 
@@ -22,13 +23,22 @@ export type DayFacts = {
   subtasks: number;
   habitsScheduled: number;
   habitsRestDay: number;
-  /** Things due that day (top-level tasks due + habits scheduled) and how many got done. */
+  routineItems: number;
+  /** Things due that day (top-level tasks, scheduled habits, routine items) and how many got done. */
   due: number;
   dueDone: number;
 };
 
 export function emptyDay(): DayFacts {
-  return { tasks: 0, subtasks: 0, habitsScheduled: 0, habitsRestDay: 0, due: 0, dueDone: 0 };
+  return {
+    tasks: 0,
+    subtasks: 0,
+    habitsScheduled: 0,
+    habitsRestDay: 0,
+    routineItems: 0,
+    due: 0,
+    dueDone: 0,
+  };
 }
 
 export function isFullTide(day: DayFacts): boolean {
@@ -42,6 +52,7 @@ export function rawPoints(day: DayFacts): number {
     day.subtasks * POINTS.subtask +
     day.habitsScheduled * POINTS.habitScheduled +
     day.habitsRestDay * POINTS.habitRestDay +
+    day.routineItems * POINTS.routineItem +
     (isFullTide(day) ? POINTS.fullTide : 0)
   );
 }

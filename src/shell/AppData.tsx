@@ -19,6 +19,11 @@ import {
   type HabitsRepository,
 } from '@/features/habits/data/habitsRepository';
 import { HabitsContext } from '@/features/habits/hooks/habitsContext';
+import {
+  createRoutinesRepository,
+  type RoutinesRepository,
+} from '@/features/routines/data/routinesRepository';
+import { RoutinesContext } from '@/features/routines/hooks/routinesContext';
 import { createTodoRepository, type TodoRepository } from '@/features/todo/data/todoRepository';
 import { TodoContext } from '@/features/todo/hooks/todoContext';
 
@@ -33,6 +38,7 @@ export type AppData = {
   settings: SettingsRepository;
   todo: TodoRepository;
   habits: HabitsRepository;
+  routines: RoutinesRepository;
   themePreference: ThemePreference;
 };
 
@@ -51,6 +57,7 @@ export async function createAppData(
   const settings = createSettingsRepository(db, changes);
   const todo = createTodoRepository({ db, changes, events, newId, now });
   const habits = createHabitsRepository({ db, changes, events, newId, now });
+  const routines = createRoutinesRepository({ db, changes, events, newId, now });
   const storedTheme = await settings.get(THEME_KEY);
   const themePreference = themePreferences.find((p) => p === storedTheme) ?? 'system';
   return {
@@ -61,6 +68,7 @@ export async function createAppData(
     settings,
     todo,
     habits,
+    routines,
     themePreference,
   } satisfies AppData;
 }
@@ -107,9 +115,11 @@ export function AppDataProvider({ data, children }: { data: AppData; children: R
       <SettingsContext.Provider value={data.settings}>
         <TodoContext.Provider value={data.todo}>
           <HabitsContext.Provider value={data.habits}>
-            <AccountProvider account={data.account} db={data.db} changes={data.changes}>
-              {children}
-            </AccountProvider>
+            <RoutinesContext.Provider value={data.routines}>
+              <AccountProvider account={data.account} db={data.db} changes={data.changes}>
+                {children}
+              </AccountProvider>
+            </RoutinesContext.Provider>
           </HabitsContext.Provider>
         </TodoContext.Provider>
       </SettingsContext.Provider>

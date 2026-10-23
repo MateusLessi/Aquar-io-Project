@@ -12,6 +12,7 @@ async function setup() {
     computeProgress(
       await data.todo.progressFacts(today),
       await data.habits.progressFacts(today),
+      await data.routines.progressFacts(today),
       today,
     );
   return { data, progress };

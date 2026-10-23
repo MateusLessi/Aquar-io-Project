@@ -17,6 +17,10 @@ type HabitFacts = {
   checks: { day: string; scheduled: boolean }[];
   due: { day: string; total: number; done: number }[];
 };
+type RoutineFacts = {
+  checks: { day: string }[];
+  due: { day: string; total: number; done: number }[];
+};
 
 export type Progress = {
   depth: Depth;
@@ -24,7 +28,12 @@ export type Progress = {
 };
 
 /** Joins what tasks and habits report into one fact sheet per day, then applies the rules. */
-export function computeProgress(tasks: TaskFacts, habits: HabitFacts, todayKey: string): Progress {
+export function computeProgress(
+  tasks: TaskFacts,
+  habits: HabitFacts,
+  routines: RoutineFacts,
+  todayKey: string,
+): Progress {
   const days = new Map<string, DayFacts>();
   const day = (key: string) => {
     let facts = days.get(key);
@@ -40,7 +49,8 @@ export function computeProgress(tasks: TaskFacts, habits: HabitFacts, todayKey: 
     if (c.scheduled) day(c.day).habitsScheduled += 1;
     else day(c.day).habitsRestDay += 1;
   }
-  for (const d of [...tasks.due, ...habits.due]) {
+  for (const c of routines.checks) day(c.day).routineItems += 1;
+  for (const d of [...tasks.due, ...habits.due, ...routines.due]) {
     day(d.day).due += d.total;
     day(d.day).dueDone += d.done;
   }
