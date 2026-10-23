@@ -61,7 +61,7 @@ export function createSyncEngine({
          WHERE id IN (${batch.map(() => '?').join(', ')})`,
         batch.map((entry) => entry.row_id),
       );
-      if (rows.length > 0) await remote.push(table.name, rows);
+      if (rows.length > 0) await remote.push(table.name, rows, table.conflictKey);
       // Only clear entries that did not change again while we were uploading.
       for (const entry of batch) {
         await db.run('DELETE FROM sync_outbox WHERE table_name = ? AND row_id = ? AND seq = ?', [

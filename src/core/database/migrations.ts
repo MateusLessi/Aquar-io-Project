@@ -206,6 +206,22 @@ export const migrations: Migration[] = [
       ${outboxTriggers('routine_checks')}
     `,
   },
+  {
+    version: 6,
+    name: 'profile',
+    // A single row, id 'me': the person's name and creature avatar, synced across devices.
+    sql: `
+      CREATE TABLE profile (
+        id          TEXT PRIMARY KEY NOT NULL,
+        name        TEXT,
+        creature    TEXT,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+      ${outboxTriggers('profile')}
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

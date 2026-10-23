@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { toDateKey } from '@/core/dates';
-import { useSetting } from '@/core/settings/useSetting';
+import { useProfile } from '@/core/profile/useProfile';
 import { Button, Screen, TideHero, spacing, useBreakpoint } from '@/design-system';
 import { TodayHabits } from '@/features/habits/components/TodayHabits';
 import { useTodayHabitProgress } from '@/features/habits/hooks/queries';
@@ -13,7 +13,6 @@ import { TodayTasks } from '@/features/todo/components/TodayTasks';
 import { useToday } from '@/features/todo/hooks/queries';
 
 import { useCreate } from '../create/CreateContext';
-import { PROFILE_NAME } from '../profile/ProfileHeader';
 import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
 import { TideCalendar } from './TideCalendar';
@@ -44,7 +43,8 @@ export function DashboardScreen() {
   const create = useCreate();
   const now = new Date();
   const todayKey = toDateKey(now);
-  const [name] = useSetting<string>(PROFILE_NAME, '');
+  const { data: profile } = useProfile();
+  const name = profile?.name ?? '';
   const { data: tasks = [] } = useToday();
   const habits = useTodayHabitProgress();
   const routines = useTodayRoutineProgress();

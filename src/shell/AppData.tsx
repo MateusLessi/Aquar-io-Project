@@ -7,6 +7,8 @@ import type { Database } from '@/core/database/types';
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { createEventLog, type EventLog } from '@/core/events/eventLog';
 import { newId } from '@/core/ids';
+import { createProfileRepository, type ProfileRepository } from '@/core/profile/profileRepository';
+import { ProfileContext } from '@/core/profile/useProfile';
 import { createDefaultAccount, type AccountService } from '@/core/sync/account';
 import {
   createSettingsRepository,
@@ -39,6 +41,7 @@ export type AppData = {
   todo: TodoRepository;
   habits: HabitsRepository;
   routines: RoutinesRepository;
+  profile: ProfileRepository;
   themePreference: ThemePreference;
   /** The person's accessibility choices (null: follow the device). */
   accessibility: AccessibilityChoices;
@@ -60,6 +63,14 @@ export async function createAppData(
   const todo = createTodoRepository({ db, changes, events, newId, now });
   const habits = createHabitsRepository({ db, changes, events, newId, now });
   const routines = createRoutinesRepository({ db, changes, events, newId, now });
+  const profile = createProfileRepository(db, changes, now);
+  // The profile used to live in this device's settings: carry it over once.
+  const oldName = await settings.get('profileName');
+  const oldCreature = await settings.get('profileCreature');
+  const current = await profile.get();
+  if (!current.name && !current.creature && (oldName || oldCreature)) {
+    await profile.set({ name: oldName ?? '', creature: oldCreature });
+  }
   const storedTheme = await settings.get(THEME_KEY);
   const themePreference = themePreferences.find((p) => p === storedTheme) ?? 'system';
   const choice = (value: string | null) => (value === 'on' ? true : value === 'off' ? false : null);
@@ -76,6 +87,7 @@ export async function createAppData(
     todo,
     habits,
     routines,
+    profile,
     themePreference,
     accessibility,
   } satisfies AppData;
@@ -124,9 +136,11 @@ export function AppDataProvider({ data, children }: { data: AppData; children: R
         <TodoContext.Provider value={data.todo}>
           <HabitsContext.Provider value={data.habits}>
             <RoutinesContext.Provider value={data.routines}>
-              <AccountProvider account={data.account} db={data.db} changes={data.changes}>
-                {children}
-              </AccountProvider>
+              <ProfileContext.Provider value={data.profile}>
+                <AccountProvider account={data.account} db={data.db} changes={data.changes}>
+                  {children}
+                </AccountProvider>
+              </ProfileContext.Provider>
             </RoutinesContext.Provider>
           </HabitsContext.Provider>
         </TodoContext.Provider>

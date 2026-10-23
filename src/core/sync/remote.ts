@@ -9,8 +9,11 @@ export type RemoteRow = SyncRow & { server_updated_at: string };
  * (last write wins on `updated_at`) and stamps `server_updated_at` on every accepted write.
  */
 export type SyncRemote = {
-  /** Uploads rows; the server ignores any that are older than what it has. */
-  push(table: string, rows: SyncRow[]): Promise<void>;
+  /**
+   * Uploads rows; the server ignores any that are older than what it has. `conflictKey` names
+   * the columns that identify a row in the cloud (default `id`).
+   */
+  push(table: string, rows: SyncRow[], conflictKey?: string): Promise<void>;
   /** Rows accepted after `since` (all when null), oldest first. */
   pull(table: string, since: string | null, limit: number): Promise<RemoteRow[]>;
 };
