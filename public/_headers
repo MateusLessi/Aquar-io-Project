@@ -1,0 +1,5 @@
+# Netlify / Cloudflare Pages: the web build runs SQLite in WebAssembly, which needs a
+# cross-origin isolated page (same headers as metro.config.js and scripts/serve-web.mjs).
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
