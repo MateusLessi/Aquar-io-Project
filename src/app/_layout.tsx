@@ -4,7 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { CloudAlert } from 'lucide-react-native';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { appFonts, EmptyState, OceanBackground, ThemeProvider, useTheme } from '@/design-system';
 import {
@@ -77,14 +77,31 @@ function ThemedStack() {
   );
 }
 
+/**
+ * On the web, the database (SQLite in WebAssembly) needs a cross-origin isolated page. Inside
+ * another site's frame (e.g. a hosting dashboard's preview) that is impossible, so say so.
+ */
+function webNotIsolated(): boolean {
+  return (
+    Platform.OS === 'web' &&
+    typeof globalThis !== 'undefined' &&
+    (globalThis as { crossOriginIsolated?: boolean }).crossOriginIsolated === false
+  );
+}
+
 function StartupError({ onRetry }: { onRetry?: () => void }) {
+  const notIsolated = webNotIsolated();
   return (
     <OceanBackground>
       <View style={styles.center}>
         <EmptyState
           icon={CloudAlert}
           title="Não foi possível abrir seus dados"
-          message="Algo impediu o Aquar.io de abrir o banco de dados neste aparelho. Seus dados não foram apagados."
+          message={
+            notIsolated
+              ? 'Este navegador não liberou o banco de dados nesta página. Abra o Aquar.io numa aba própria (não dentro de uma pré-visualização ou de outro site).'
+              : 'Algo impediu o Aquar.io de abrir o banco de dados neste aparelho. Seus dados não foram apagados.'
+          }
           action={onRetry ? { label: 'Tentar de novo', onPress: onRetry } : undefined}
         />
       </View>
