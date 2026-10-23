@@ -12,6 +12,7 @@ Os pontos são **calculados a partir do estado atual**, não guardados: tarefas 
 | Concluir uma subtarefa                                     |      3 | dia da conclusão |
 | Hábito feito num dia previsto                              |     15 | dia do check-in  |
 | Hábito feito num dia de folga (bônus)                      |      8 | dia do check-in  |
+| Item de rotina marcado                                     |      5 | dia do check     |
 | **Maré cheia** (tudo do dia feito, com pelo menos 3 itens) |    +25 | o próprio dia    |
 
 - **Limite diário: 150 pontos.** Evita "farmar" criando tarefas falsas. Um dia excelente vale no máximo 150.

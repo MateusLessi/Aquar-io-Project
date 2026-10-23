@@ -29,11 +29,17 @@ function todayLabel(date: Date): string {
 type TodayScreenProps = {
   /** Other modules' parts of today (e.g. habits), composed by the route. */
   extra?: ReactNode;
-  /** Other modules' progress today, added to the day's tide. */
-  extraProgress?: { completed: number; total: number };
+  /** Other modules' progress today, added to the day's tide, with labeled parts. */
+  extraProgress?: {
+    completed: number;
+    total: number;
+    breakdown?: { label: string; value: string }[];
+  };
+  /** Buttons at the top right (e.g. Settings on phones). */
+  headerActions?: ReactNode;
 };
 
-export function TodayScreen({ extra, extraProgress }: TodayScreenProps) {
+export function TodayScreen({ extra, extraProgress, headerActions }: TodayScreenProps) {
   const router = useRouter();
   const todo = useTodo();
   const { data: tasks = [], todayKey } = useToday();
@@ -73,7 +79,7 @@ export function TodayScreen({ extra, extraProgress }: TodayScreenProps) {
     ) : null;
 
   return (
-    <Screen title="Hoje" eyebrow={todayLabel(new Date())}>
+    <Screen title="Hoje" eyebrow={todayLabel(new Date())} actions={headerActions}>
       <TideHero
         label="Maré do dia"
         completed={tideDone}
@@ -85,11 +91,11 @@ export function TodayScreen({ extra, extraProgress }: TodayScreenProps) {
         }
         emptyMessage="Mar calmo. Nada planejado para hoje."
         details={
-          extraProgress && extraProgress.total > 0
+          extraProgress?.breakdown?.length
             ? [
                 { label: 'Tarefas', value: `${completed}/${tasks.length}` },
-                { label: 'Hábitos', value: `${extraProgress.completed}/${extraProgress.total}` },
-              ]
+                ...extraProgress.breakdown,
+              ].slice(0, 3)
             : undefined
         }
       />

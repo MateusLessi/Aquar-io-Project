@@ -1,4 +1,11 @@
-import { Fish, ListTodo, Settings2, Sun, type LucideIcon } from 'lucide-react-native';
+import {
+  CalendarClock,
+  Fish,
+  ListTodo,
+  Settings2,
+  Sun,
+  type LucideIcon,
+} from 'lucide-react-native';
 import type { Href } from 'expo-router';
 
 export type Destination = {
@@ -9,6 +16,8 @@ export type Destination = {
   icon: LucideIcon;
   /** Whether the "new task" action is offered on this destination. */
   showsCreate: boolean;
+  /** Left out of the phone tab bar (no room for five); reached from elsewhere. */
+  notOnPhoneBar?: boolean;
 };
 
 /**
@@ -18,6 +27,21 @@ export type Destination = {
 export const destinations: Destination[] = [
   { name: 'index', href: '/', label: 'Hoje', icon: Sun, showsCreate: true },
   { name: 'habits', href: '/habits', label: 'Hábitos', icon: Fish, showsCreate: false },
+  {
+    name: 'routines',
+    href: '/routines',
+    label: 'Rotinas',
+    icon: CalendarClock,
+    showsCreate: false,
+  },
   { name: 'lists', href: '/lists', label: 'Listas', icon: ListTodo, showsCreate: true },
-  { name: 'settings', href: '/settings', label: 'Ajustes', icon: Settings2, showsCreate: false },
+  {
+    name: 'settings',
+    href: '/settings',
+    label: 'Ajustes',
+    icon: Settings2,
+    showsCreate: false,
+    // On phones, a gear on Today opens Settings.
+    notOnPhoneBar: true,
+  },
 ];

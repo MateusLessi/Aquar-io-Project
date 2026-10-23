@@ -16,7 +16,7 @@ Legenda: `[✓]` concluído · `[●]` em andamento · `[ ]` pendente
 [✓] To Do Core
 [✓] Layouts adaptativos + Modo Maré (Etapa B)
 [●] To Do Advanced (repetição e lembretes prontos)
-[ ] Routines Core
+[✓] Routines Core (V1: blocos, checklist diário, linha do tempo)
 [ ] Routine Intelligence
 [✓] Gamification Foundation (pontos, profundidade, estágios)
 [✓] Habits V1 (criaturas, check-in, sequência, recife)
