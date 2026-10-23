@@ -30,8 +30,8 @@ export function getSupabase(): SupabaseClient | null {
 
 export function createSupabaseRemote(supabase: SupabaseClient): SyncRemote {
   return {
-    async push(table, rows) {
-      const { error } = await supabase.from(table).upsert(rows, { onConflict: 'id' });
+    async push(table, rows, conflictKey = 'id') {
+      const { error } = await supabase.from(table).upsert(rows, { onConflict: conflictKey });
       if (error) throw new Error(`Upload to ${table} failed: ${error.message}`);
     },
     async pull(table, since, limit) {

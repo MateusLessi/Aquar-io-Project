@@ -6,6 +6,8 @@ export type SyncedTable = {
   columns: readonly string[];
   /** Live queries to refresh when rows arrive from the cloud. */
   topic: DataTopic;
+  /** Columns that identify a row in the cloud when `id` alone is not unique (default `id`). */
+  conflictKey?: string;
 };
 
 /** In upload order: parents (lists, habits, routines) before the rows that point to them. */
@@ -93,5 +95,12 @@ export const syncedTables: readonly SyncedTable[] = [
     name: 'routine_checks',
     topic: 'routines',
     columns: ['id', 'item_id', 'routine_id', 'date', 'created_at', 'updated_at', 'deleted_at'],
+  },
+  {
+    // One row per person with the fixed id 'me', so in the cloud a row is (user_id, id).
+    name: 'profile',
+    topic: 'profile',
+    conflictKey: 'user_id,id',
+    columns: ['id', 'name', 'creature', 'created_at', 'updated_at', 'deleted_at'],
   },
 ];

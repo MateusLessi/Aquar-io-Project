@@ -168,6 +168,34 @@ describe('routine sync', () => {
   });
 });
 
+describe('profile sync', () => {
+  it('shows the same name and avatar on every device, last change winning', async () => {
+    const clock = { now: new Date('2026-10-23T10:00:00.000Z') };
+    const cloud = createMemoryRemote();
+    const phone = await device(cloud, clock);
+    const tablet = await device(cloud, clock);
+    await phone.data.profile.set({ name: 'Mateus', creature: 'turtle' });
+    await phone.sync.sync();
+    await tablet.sync.sync();
+    expect(await tablet.data.profile.get()).toEqual({ name: 'Mateus', creature: 'turtle' });
+
+    clock.now = new Date('2026-10-23T11:00:00.000Z');
+    await tablet.data.profile.set({ name: 'Mateus L.', creature: 'whale' });
+    await tablet.sync.sync();
+    await phone.sync.sync();
+    expect(await phone.data.profile.get()).toEqual({ name: 'Mateus L.', creature: 'whale' });
+  });
+
+  it('carries over a profile saved in the device settings before sync existed', async () => {
+    const db = createMemoryDatabase();
+    const first = await createAppData(db);
+    await first.settings.set('profileName', 'Mateus');
+    await first.settings.set('profileCreature', 'octopus');
+    const again = await createAppData(db);
+    expect(await again.profile.get()).toEqual({ name: 'Mateus', creature: 'octopus' });
+  });
+});
+
 describe('sync when one cloud table is missing', () => {
   it('still syncs the other tables and keeps the failed changes queued', async () => {
     const clock = { now: new Date('2026-10-21T12:00:00.000Z') };

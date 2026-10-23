@@ -1,7 +1,7 @@
 import { createEmitter } from '../events/emitter';
 
 /** Which kind of data changed. Live queries re-run when a topic they read changes. */
-export type DataTopic = 'lists' | 'tasks' | 'habits' | 'routines' | 'settings';
+export type DataTopic = 'lists' | 'tasks' | 'habits' | 'routines' | 'profile' | 'settings';
 
 export type DataChanges = ReturnType<typeof createDataChanges>;
 

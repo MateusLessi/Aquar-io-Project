@@ -2,7 +2,7 @@ import { Pencil } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { useSetting } from '@/core/settings/useSetting';
+import { useProfile, useProfileRepository } from '@/core/profile/useProfile';
 import {
   Button,
   DeepSurface,
@@ -14,18 +14,23 @@ import {
   useTheme,
 } from '@/design-system';
 import { CreatureBubble } from '@/features/habits/components/CreatureBubble';
-import { creatureIds, creatures, type CreatureId } from '@/features/habits/domain/creatures';
+import {
+  creatureIds,
+  creatures,
+  isCreatureId,
+  type CreatureId,
+} from '@/features/habits/domain/creatures';
 
 import { useProgress } from '../progress/useProgress';
-
-export const PROFILE_NAME = 'profileName';
-export const PROFILE_CREATURE = 'profileCreature';
 
 /** Who you are in the ocean: your creature, your name and how deep you have gone. */
 export function ProfileHeader() {
   const { colors } = useTheme();
-  const [name, setName] = useSetting<string>(PROFILE_NAME, '');
-  const [creature, setCreature] = useSetting<CreatureId>(PROFILE_CREATURE, 'dolphin');
+  const repository = useProfileRepository();
+  const { data: profile } = useProfile();
+  const name = profile?.name ?? '';
+  const creature: CreatureId =
+    profile?.creature && isCreatureId(profile.creature) ? profile.creature : 'dolphin';
   const { data: progress } = useProgress();
   const [editing, setEditing] = useState(false);
   const depth = progress?.depth;
@@ -33,7 +38,7 @@ export function ProfileHeader() {
   return (
     <>
       <DeepSurface radius="xl" style={styles.card}>
-        <CreatureBubble creature={creatures[creature] ? creature : 'dolphin'} size={88} done />
+        <CreatureBubble creature={creature} size={88} done />
         <View style={styles.texts}>
           <Text variant="title1" tone="onDeep" numberOfLines={1}>
             {name || 'Mergulhador'}
@@ -61,8 +66,7 @@ export function ProfileHeader() {
             name={name}
             creature={creature}
             onSave={async (next) => {
-              await setName(next.name.trim());
-              await setCreature(next.creature);
+              await repository.set({ name: next.name, creature: next.creature });
               setEditing(false);
             }}
           />
