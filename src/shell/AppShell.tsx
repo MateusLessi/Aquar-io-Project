@@ -99,7 +99,7 @@ function ShellLayout() {
       </View>
       {breakpoint === 'compact' ? (
         <TabBar
-          destinations={destinations}
+          destinations={destinations.filter((d) => !d.notOnPhoneBar)}
           activeName={activeName}
           onCreate={create}
           iconRotation={uprightRotation(tilt)}

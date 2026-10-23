@@ -3,6 +3,8 @@ import type { Reminder } from '@/core/notifications';
 import { creatures } from '@/features/habits/domain/creatures';
 import { isScheduled } from '@/features/habits/domain/progress';
 import type { HabitWithProgress } from '@/features/habits/domain/types';
+import { isRoutineDay } from '@/features/routines/domain/schedule';
+import type { Routine } from '@/features/routines/domain/types';
 import type { TaskReminder } from '@/features/todo/domain/types';
 
 /** How far ahead reminders are scheduled; the plan is redone whenever the app opens. */
@@ -18,10 +20,13 @@ export const MAX_SCHEDULED = 60;
 export function planReminders({
   habits,
   tasks,
+  routines = [],
   now,
 }: {
   habits: HabitWithProgress[];
   tasks: TaskReminder[];
+  /** Routines that ring when they start. */
+  routines?: Routine[];
   now: Date;
 }): Reminder[] {
   const todayKey = toDateKey(now);
@@ -42,6 +47,20 @@ export function planReminders({
           url: `/habits/${habit.id}`,
         });
       }
+    }
+  }
+
+  for (let offset = 0; offset < HORIZON_DAYS; offset++) {
+    const day = addDays(todayKey, offset);
+    for (const routine of routines) {
+      if (!routine.remind || !isRoutineDay(routine.days, day)) continue;
+      plan.push({
+        id: `routine:${routine.id}:${day}T${routine.start}`,
+        at: atTime(day, routine.start),
+        title: `${routine.emoji ?? '⏱️'} ${routine.name}`,
+        body: `Começa agora, até ${routine.end}.`,
+        url: '/routines',
+      });
     }
   }
 

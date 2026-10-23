@@ -15,6 +15,7 @@ export {
   type FloatingActionButtonProps,
 } from './components/FloatingActionButton';
 export { GlassSurface, type GlassSurfaceProps } from './components/GlassSurface';
+export { Grid, type GridProps } from './components/Grid';
 export { IconButton, type IconButtonProps } from './components/IconButton';
 export { ListItem, type ListItemProps } from './components/ListItem';
 export { OceanBackground } from './components/OceanBackground';

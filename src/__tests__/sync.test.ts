@@ -142,6 +142,32 @@ describe('sync between devices', () => {
   });
 });
 
+describe('routine sync', () => {
+  it('brings routines, items and the day’s checks to the other device', async () => {
+    const clock = { now: new Date('2026-10-23T10:20:00.000Z') };
+    const cloud = createMemoryRemote();
+    const phone = await device(cloud, clock);
+    const tablet = await device(cloud, clock);
+    const id = await phone.data.routines.createRoutine({
+      name: 'Manhã',
+      start: '00:00',
+      end: '23:59',
+      items: ['Beber água', 'Alongar'],
+    });
+    const [routine] = await phone.data.routines.listToday(clock.now);
+    await phone.data.routines.setItemChecked(id, routine!.items[0]!.id, '2026-10-23', true);
+    await phone.sync.sync();
+    await tablet.sync.sync();
+
+    const [onTablet] = await tablet.data.routines.listToday(clock.now);
+    expect(onTablet?.name).toBe('Manhã');
+    expect(onTablet?.items.map((i) => [i.title, i.done])).toEqual([
+      ['Beber água', true],
+      ['Alongar', false],
+    ]);
+  });
+});
+
 describe('sync when one cloud table is missing', () => {
   it('still syncs the other tables and keeps the failed changes queued', async () => {
     const clock = { now: new Date('2026-10-21T12:00:00.000Z') };

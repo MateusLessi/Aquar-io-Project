@@ -100,6 +100,17 @@ habits.reminder_times  TEXT  -- "HH:MM,HH:MM", até 5
 
 Detalhes em [reminders.md](reminders.md).
 
+## Rotinas (migration 5)
+
+```
+routines        id, name, emoji, color, start_time, end_time (HH:MM), days (máscara), remind,
+                sort_order, created_at, updated_at, deleted_at
+routine_items   id, routine_id, title, sort_order, created_at, updated_at, deleted_at
+routine_checks  id ("<item_id>:<YYYY-MM-DD>"), item_id, routine_id, date, created_at, updated_at, deleted_at
+```
+
+Detalhes em [routines.md](routines.md).
+
 ### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;

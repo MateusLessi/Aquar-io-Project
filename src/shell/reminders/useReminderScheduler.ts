@@ -12,6 +12,7 @@ import {
 } from '@/core/notifications';
 import { useSetting } from '@/core/settings/useSetting';
 import { useHabitsRepository } from '@/features/habits/hooks/habitsContext';
+import { useRoutinesRepository } from '@/features/routines/hooks/routinesContext';
 import { useTodo } from '@/features/todo/hooks/todoContext';
 
 import { planReminders } from './plan';
@@ -32,6 +33,7 @@ export function useReminderScheduler() {
   const changes = useContext(DataChangesContext);
   const habits = useHabitsRepository();
   const todo = useTodo();
+  const routines = useRoutinesRepository();
   const [setting] = useSetting<RemindersSetting>(REMINDERS_SETTING, 'on');
 
   useEffect(() => {
@@ -52,6 +54,7 @@ export function useReminderScheduler() {
         ? planReminders({
             habits: await habits.listHabits(),
             tasks: await todo.listReminders(),
+            routines: await routines.listReminders(),
             now,
           })
         : [];
@@ -79,5 +82,5 @@ export function useReminderScheduler() {
       unsubscribe();
       appState.remove();
     };
-  }, [changes, habits, todo, setting]);
+  }, [changes, habits, todo, routines, setting]);
 }

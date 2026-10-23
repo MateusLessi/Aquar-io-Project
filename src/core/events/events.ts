@@ -7,6 +7,8 @@ export type DomainEventMap = {
   TASK_UNCOMPLETED: { taskId: string; listId: string; parentTaskId: string | null };
   HABIT_CHECKED: { habitId: string; date: string };
   HABIT_UNCHECKED: { habitId: string; date: string };
+  ROUTINE_ITEM_CHECKED: { routineId: string; itemId: string; date: string };
+  ROUTINE_ITEM_UNCHECKED: { routineId: string; itemId: string; date: string };
 };
 
 export type DomainEventType = keyof DomainEventMap;

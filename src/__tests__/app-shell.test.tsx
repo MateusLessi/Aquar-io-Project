@@ -9,6 +9,7 @@ import HabitsScreen from '@/app/(tabs)/habits/index';
 import ListRoute from '@/app/(tabs)/lists/[id]';
 import ListsLayout from '@/app/(tabs)/lists/_layout';
 import ListsScreen from '@/app/(tabs)/lists/index';
+import RoutinesScreen from '@/app/(tabs)/routines';
 import SettingsScreen from '@/app/(tabs)/settings';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
@@ -51,6 +52,7 @@ const routes = {
   '(tabs)/lists/_layout': ListsLayout,
   '(tabs)/lists/index': ListsScreen,
   '(tabs)/lists/[id]': ListRoute,
+  '(tabs)/routines': RoutinesScreen,
   '(tabs)/settings': SettingsScreen,
 };
 
@@ -132,7 +134,10 @@ describe('App shell with large text', () => {
     setWindowWidth(390, 1.4);
     await renderRouter(routes, { initialUrl: '/' });
     expect(screen.getByText('Listas')).toBeOnTheScreen();
-    expect(screen.getByText('Ajustes')).toBeOnTheScreen();
+    expect(screen.getByText('Rotinas')).toBeOnTheScreen();
+    // Settings left the phone tab bar for a gear on Today.
+    expect(screen.queryByRole('tab', { name: 'Ajustes' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Ajustes' })).toBeOnTheScreen();
   });
 });
 
@@ -307,5 +312,43 @@ describe('Depth and celebrations', () => {
     await renderRouter(routes, { initialUrl: '/' });
     await waitFor(async () => expect(await data.settings.get('celebratedZone')).toBe('coastal'));
     expect(screen.queryByText(/Você chegou/)).toBeNull();
+  });
+});
+
+describe('Routines', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('creates a routine with items and checks one on Today', async () => {
+    // A routine running all day, so it is "now" whenever the test runs.
+    const id = await data.routines.createRoutine({
+      name: 'Dia todo',
+      emoji: '🌅',
+      start: '00:00',
+      end: '23:59',
+      items: ['Beber água', 'Alongar'],
+    });
+
+    await renderRouter(routes, { initialUrl: '/' });
+    expect(await screen.findByText('Rotinas · 0 de 1')).toBeOnTheScreen();
+    await fireEvent.press(await screen.findByRole('checkbox', { name: 'Beber água' }));
+    await waitFor(async () => {
+      const [routine] = await data.routines.listToday();
+      expect(routine?.items.find((i) => i.title === 'Beber água')?.done).toBe(true);
+    });
+    expect(await data.events.count('ROUTINE_ITEM_CHECKED')).toBe(1);
+    expect(id).toBeTruthy();
+  });
+
+  it('creates a routine from the Routines tab', async () => {
+    await renderRouter(routes, { initialUrl: '/routines' });
+    expect(screen.getByRole('tab', { name: 'Rotinas' })).toBeSelected();
+    await fireEvent.press(await screen.findByRole('button', { name: 'Nova rotina' }));
+    await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Academia');
+    await fireEvent.changeText(screen.getByLabelText('Novo item'), 'Aquecer');
+    await fireEvent.press(screen.getByRole('button', { name: 'Adicionar item' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar rotina' }));
+    expect(await screen.findByText('Academia')).toBeOnTheScreen();
+    const [routine] = await data.routines.listToday();
+    expect(routine?.items.map((i) => i.title)).toEqual(['Aquecer']);
   });
 });

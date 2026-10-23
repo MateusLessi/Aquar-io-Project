@@ -159,6 +159,53 @@ export const migrations: Migration[] = [
       ALTER TABLE habits ADD COLUMN reminder_times TEXT;
     `,
   },
+  {
+    version: 5,
+    name: 'routines',
+    // A check's id is "<item id>:<day>", like habit check-ins: one row per item and day.
+    sql: `
+      CREATE TABLE routines (
+        id          TEXT PRIMARY KEY NOT NULL,
+        name        TEXT NOT NULL,
+        emoji       TEXT,
+        color       TEXT NOT NULL,
+        start_time  TEXT NOT NULL,
+        end_time    TEXT NOT NULL,
+        days        INTEGER NOT NULL,
+        remind      INTEGER NOT NULL DEFAULT 0,
+        sort_order  REAL NOT NULL,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+
+      CREATE TABLE routine_items (
+        id          TEXT PRIMARY KEY NOT NULL,
+        routine_id  TEXT NOT NULL REFERENCES routines(id),
+        title       TEXT NOT NULL,
+        sort_order  REAL NOT NULL,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+
+      CREATE TABLE routine_checks (
+        id          TEXT PRIMARY KEY NOT NULL,
+        item_id     TEXT NOT NULL REFERENCES routine_items(id),
+        routine_id  TEXT NOT NULL REFERENCES routines(id),
+        date        TEXT NOT NULL,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+
+      CREATE INDEX idx_routine_items_routine ON routine_items(routine_id, deleted_at);
+      CREATE INDEX idx_routine_checks_date ON routine_checks(date);
+      ${outboxTriggers('routines')}
+      ${outboxTriggers('routine_items')}
+      ${outboxTriggers('routine_checks')}
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */
