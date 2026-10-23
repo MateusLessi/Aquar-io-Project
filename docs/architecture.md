@@ -35,32 +35,29 @@ As pastas marcadas com etapa ainda **não existem**. Elas são criadas quando o 
 
 > Ajuste em relação à proposta da Etapa 0: as rotas ficam em `src/app/` (convenção do template atual do Expo), e não em `app/` na raiz.
 
-## Navegação (Etapa 3)
+## Navegação (2.0, Checkpoint 027)
 
 ```
 src/app/
-├── _layout.tsx               raiz: fontes, banco local, tema, Stack
-├── (tabs)/_layout.tsx        AppShell (abas headless do Expo Router)
-├── (tabs)/index.tsx          Hoje
-├── (tabs)/habits/_layout.tsx pilha dos hábitos
-├── (tabs)/habits/index.tsx  Hábitos
-├── (tabs)/habits/[id].tsx   Um hábito
-├── (tabs)/lists/_layout.tsx  pilha das listas
-├── (tabs)/lists/index.tsx    Listas
-├── (tabs)/lists/[id].tsx     Uma lista
-├── (tabs)/routines.tsx       Rotinas
-├── (tabs)/settings.tsx       Ajustes
-├── dev/design-system.tsx     catálogo (somente desenvolvimento)
-├── dev/ambient.tsx           prévia do Modo Maré (somente desenvolvimento)
-├── dev/habits.tsx            prévia dos Hábitos com dados de exemplo (somente desenvolvimento)
-└── dev/routines.tsx          prévia das Rotinas com dados de exemplo (somente desenvolvimento)
+├── _layout.tsx                      raiz: fontes, banco local, tema, Stack
+├── (tabs)/_layout.tsx               AppShell (abas headless do Expo Router)
+├── (tabs)/index.tsx                 Início: o dia resumido (maré, profundidade, rotinas, hábitos, tarefas)
+├── (tabs)/aquarium/_layout.tsx      pilha do Aquário
+├── (tabs)/aquarium/index.tsx        Aquário: Hábitos · Rotinas · Listas (?tab=habits|routines|lists)
+├── (tabs)/aquarium/habits/[id].tsx  Um hábito
+├── (tabs)/aquarium/lists/[id].tsx   Uma lista
+├── (tabs)/shop.tsx                  Loja (vitrine "em breve")
+├── (tabs)/profile.tsx               Perfil + todos os ajustes
+└── dev/                             prévias e catálogo (somente desenvolvimento)
 ```
 
-- **Celular (`compact`):** barra flutuante de águas profundas (72 pt): a aba ativa é uma pílula clara com o nome, as outras são círculos; ao lado, a gota coral "+".
-- **Tablet em pé e foldable aberto (`medium`):** trilho lateral de águas profundas (104 pt) com o botão coral "+" no topo e os destinos com ícone e nome curto.
-- **Tablet deitado e notebook (`expanded`):** barra lateral completa com a marca, os destinos e o botão "Nova tarefa".
-- Os destinos ficam em `src/shell/destinations.ts`. Só aparecem módulos que já existem.
-- A navegação usa as abas "headless" de `expo-router/ui`: o roteamento é do Expo Router, e o visual é todo nosso.
+- **Início:** visão resumida do dia; cada bloco leva à parte completa no Aquário.
+- **Aquário:** onde cada módulo é gerenciado em detalhe. Um seletor no topo escolhe o módulo; módulos futuros entram aqui. Hábitos, Rotinas e Listas são "painéis" das suas features (`HabitsPanel`, `RoutinesPanel`, `ListsPanel`).
+- **Loja:** vitrine de planos e cosméticos, sem compra (MOCK) até as Etapas 16/17.
+- **Perfil:** nome e criatura-avatar (por aparelho por enquanto) e os ajustes.
+- **Criar (+):** no Início e no Aquário, abre "O que você quer criar?" (tarefa, hábito, rotina, lista); no Aquário, a seção aberta vem destacada (`src/shell/create/CreateFlow.tsx`).
+- **Celular:** a cápsula de águas profundas com 4 destinos; o destino ativo ganha um destaque arredondado com o nome, que desliza de uma aba para outra.
+- **Tablet em pé:** trilho; **tablet deitado e notebook:** barra lateral. Os mesmos 4 destinos em todos.
 
 ## Matriz de layouts (Etapa B: layouts adaptativos)
 

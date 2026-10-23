@@ -110,7 +110,10 @@ export function TodayScreen({ extra, extraProgress, headerActions }: TodayScreen
           icon={Waves}
           title="Nada para hoje"
           message="Toque em + para criar uma tarefa para hoje, ou dê um prazo às tarefas das suas listas."
-          action={{ label: 'Ver listas', onPress: () => router.navigate('/lists') }}
+          action={{
+            label: 'Ver listas',
+            onPress: () => router.navigate({ pathname: '/aquarium', params: { tab: 'lists' } }),
+          }}
         />
       ) : null}
 

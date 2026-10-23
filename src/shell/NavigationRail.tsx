@@ -40,7 +40,7 @@ export function NavigationRail({ destinations, onCreate }: NavigationRailProps) 
         <Pressable
           onPress={onCreate}
           accessibilityRole="button"
-          accessibilityLabel="Nova tarefa"
+          accessibilityLabel="Criar"
           style={({ pressed }) => [
             styles.create,
             { backgroundColor: pressed ? colors.energyPressed : colors.energy },

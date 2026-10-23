@@ -7,8 +7,9 @@ test('create a list and a task for today, complete it, and it survives a reload'
   await expect(page.getByText('Nada para hoje')).toBeVisible();
   expect(await page.evaluate(() => crossOriginIsolated)).toBe(true);
 
-  await page.getByRole('button', { name: 'Nova tarefa' }).first().click();
-  await page.getByRole('button', { name: 'Criar lista' }).click();
+  await page.getByRole('button', { name: 'Criar' }).first().click();
+  await page.getByRole('button', { name: /^Criar tarefa/ }).click();
+  await page.getByRole('button', { name: 'Criar lista', exact: true }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Academia');
   await page.getByRole('button', { name: 'Criar lista' }).last().click();
 
@@ -29,10 +30,10 @@ test('create a list and a task for today, complete it, and it survives a reload'
 });
 
 test('open a list, add tasks inline and see them counted on the list tile', async ({ page }) => {
-  await page.goto('/lists');
+  await page.goto('/aquarium?tab=lists');
   await page.getByRole('button', { name: 'Nova lista' }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Casa');
-  await page.getByRole('button', { name: 'Criar lista' }).click();
+  await page.getByRole('button', { name: 'Criar lista', exact: true }).click();
 
   // Creating a list opens it. Wait until the editor sheet has fully closed: on web, a
   // closing modal returns focus to the element that opened it.

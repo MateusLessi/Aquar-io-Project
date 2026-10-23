@@ -2,28 +2,24 @@ import { useRouter } from 'expo-router';
 import { CloudAlert } from 'lucide-react-native';
 import { useState } from 'react';
 
-import { EmptyState, Screen } from '@/design-system';
+import { EmptyState } from '@/design-system';
 
 import { HabitEditorSheet } from '../components/HabitEditorSheet';
 import { HabitsView } from '../components/HabitsView';
 import { useHabitsRepository } from '../hooks/habitsContext';
 import { useHabits } from '../hooks/queries';
 
-export function HabitsScreen() {
+/** Habits inside the Aquarium: the reef, today's cards and the ones resting today. */
+export function HabitsPanel() {
   const router = useRouter();
   const repository = useHabitsRepository();
   const { data: habits, error, todayKey } = useHabits();
   const [creating, setCreating] = useState(false);
 
-  const open = (id: string) => router.push({ pathname: '/habits/[id]', params: { id } });
-  const due = (habits ?? []).filter((h) => h.scheduledToday || h.doneToday);
-  const done = due.filter((h) => h.doneToday).length;
+  const open = (id: string) => router.push({ pathname: '/aquarium/habits/[id]', params: { id } });
 
   return (
-    <Screen
-      title="Hábitos"
-      eyebrow={due.length > 0 ? `${done} de ${due.length} feitos hoje` : undefined}
-    >
+    <>
       {error ? (
         <EmptyState
           icon={CloudAlert}
@@ -48,6 +44,6 @@ export function HabitsScreen() {
           await repository.createHabit(input);
         }}
       />
-    </Screen>
+    </>
   );
 }

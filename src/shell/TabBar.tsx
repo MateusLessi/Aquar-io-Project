@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
   type PressableProps,
 } from 'react-native';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Animated, {
   FadeIn,
   LinearTransition,
@@ -15,6 +15,7 @@ import Animated, {
   ZoomOut,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -49,14 +50,39 @@ type TabBarProps = {
 };
 
 /**
- * Phones: a deep-water track with one circle per destination. The active one opens into
- * a bright pill with its name. The coral drop beside it creates.
+ * Phones: the deep-water capsule with the destinations side by side. Icons sit bare; the
+ * active one gets a rounded highlight with its name, and the highlight slides from tab to
+ * tab. The round button beside the capsule creates.
  */
 export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const { fontScale } = useWindowDimensions();
   const showAllLabels = fontScale >= LABELS_FONT_SCALE;
   const showsCreate = destinations.find((d) => d.name === activeName)?.showsCreate ?? false;
+
+  // The highlight follows the active tab's measured box.
+  const [layouts, setLayouts] = useState<Record<string, { x: number; width: number }>>({});
+  const active = activeName ? layouts[activeName] : undefined;
+  const x = useSharedValue(0);
+  const width = useSharedValue(0);
+  const placed = useRef(false);
+  useEffect(() => {
+    if (!active) return;
+    if (!placed.current) {
+      // First time: appear in place instead of sliding in from the edge.
+      x.set(active.x);
+      width.set(active.width);
+      placed.current = true;
+      return;
+    }
+    x.set(withSpring(active.x, springs.responsive));
+    width.set(withSpring(active.width, springs.responsive));
+  }, [active, x, width]);
+  const highlightStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: x.get() }],
+    width: width.get(),
+  }));
 
   return (
     <View
@@ -66,6 +92,16 @@ export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }:
       <Animated.View layout={layoutTransition} style={styles.barWrap}>
         <DeepSurface radius="pill" style={styles.bar}>
           <View accessibilityRole="tablist" style={styles.tabs}>
+            {active ? (
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.highlight,
+                  { backgroundColor: colors.deepAccentSoft, borderColor: colors.deepAccent },
+                  highlightStyle,
+                ]}
+              />
+            ) : null}
             {destinations.map((destination) => (
               <TabTrigger key={destination.name} name={destination.name} asChild>
                 <TabBarButton
@@ -73,6 +109,14 @@ export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }:
                   label={destination.label}
                   showLabel={showAllLabels}
                   rotation={iconRotation}
+                  onMeasure={(box) =>
+                    setLayouts((current) =>
+                      current[destination.name]?.x === box.x &&
+                      current[destination.name]?.width === box.width
+                        ? current
+                        : { ...current, [destination.name]: box },
+                    )
+                  }
                 />
               </TabTrigger>
             ))}
@@ -81,7 +125,7 @@ export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }:
       </Animated.View>
       {showsCreate ? (
         <Animated.View entering={ZoomIn.springify()} exiting={ZoomOut.duration(150)}>
-          <FloatingActionButton label="Nova tarefa" onPress={onCreate} />
+          <FloatingActionButton label="Criar" onPress={onCreate} />
         </Animated.View>
       ) : null}
     </View>
@@ -94,6 +138,7 @@ type TabBarButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   /** Show the name even when not focused (large OS text sizes). */
   showLabel: boolean;
   rotation: number;
+  onMeasure: (box: { x: number; width: number }) => void;
   /** Injected by TabTrigger. */
   isFocused?: boolean;
 };
@@ -103,6 +148,7 @@ function TabBarButton({
   label,
   showLabel,
   rotation,
+  onMeasure,
   isFocused = false,
   onPress,
   ...rest
@@ -110,6 +156,22 @@ function TabBarButton({
   const { colors } = useTheme();
   // Sideways, names would read rotated: show icons only, turned upright.
   const labelVisible = (isFocused || showLabel) && rotation === 0;
+  const press = useSharedValue(1);
+  const hop = useSharedValue(1);
+  const first = useRef(true);
+
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    // A small hop when the tab becomes active.
+    if (isFocused)
+      hop.set(withSequence(withSpring(1.22, springs.responsive), withSpring(1, springs.buoyant)));
+  }, [isFocused, hop]);
+
+  const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: press.get() }] }));
+  const iconStyle = useAnimatedStyle(() => ({ transform: [{ scale: hop.get() }] }));
 
   return (
     <Pressable
@@ -118,33 +180,33 @@ function TabBarButton({
         if (!isFocused) haptics.selection();
         onPress?.(event);
       }}
+      onPressIn={() => press.set(withSpring(0.9, springs.responsive))}
+      onPressOut={() => press.set(withSpring(1, springs.buoyant))}
+      onLayout={(event) =>
+        onMeasure({ x: event.nativeEvent.layout.x, width: event.nativeEvent.layout.width })
+      }
       accessibilityRole="tab"
       accessibilityLabel={label}
       accessibilityState={{ selected: isFocused }}
       aria-selected={isFocused}
-      style={[styles.button, isFocused && styles.buttonFocused]}
+      style={[styles.button, labelVisible && styles.buttonWithLabel]}
     >
-      <Animated.View
-        layout={layoutTransition}
-        style={[
-          styles.pill,
-          labelVisible && styles.pillWithLabel,
-          { backgroundColor: isFocused ? colors.deepAccent : colors.deepAccentSoft },
-        ]}
-      >
-        <Upright rotation={rotation}>
-          <Icon
-            size={24}
-            strokeWidth={isFocused ? 2.2 : 1.8}
-            color={isFocused ? colors.onDeepAccent : colors.onDeep}
-          />
-        </Upright>
+      <Animated.View layout={layoutTransition} style={[styles.item, pressStyle]}>
+        <Animated.View style={iconStyle}>
+          <Upright rotation={rotation}>
+            <Icon
+              size={24}
+              strokeWidth={isFocused ? 2.3 : 1.8}
+              color={isFocused ? colors.deepAccent : colors.onDeepSecondary}
+            />
+          </Upright>
+        </Animated.View>
         {labelVisible ? (
-          <Animated.View entering={FadeIn.duration(180)}>
+          <Animated.View entering={FadeIn.duration(200)}>
             <Text
               variant="bodyStrong"
-              tone={isFocused ? 'onDeepAccent' : 'onDeep'}
               numberOfLines={1}
+              style={{ color: isFocused ? colors.deepAccent : colors.onDeepSecondary }}
             >
               {label}
             </Text>
@@ -179,19 +241,17 @@ const styles = StyleSheet.create({
   tabs: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
+    justifyContent: 'space-around',
   },
-  button: { justifyContent: 'center' },
-  buttonFocused: { flexShrink: 1 },
-  pill: {
+  highlight: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
     height: 52,
-    width: 52,
-    borderRadius: radius.pill,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
+    borderRadius: radius.lg,
+    borderWidth: 1,
   },
-  pillWithLabel: { width: 'auto', paddingHorizontal: spacing.lg },
+  button: { height: 52, minWidth: 52, justifyContent: 'center', alignItems: 'center' },
+  buttonWithLabel: { paddingHorizontal: spacing.md },
+  item: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
 });

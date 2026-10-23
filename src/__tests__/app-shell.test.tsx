@@ -3,16 +3,14 @@ import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-li
 import { Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import HabitRoute from '@/app/(tabs)/habits/[id]';
-import HabitsLayout from '@/app/(tabs)/habits/_layout';
-import HabitsScreen from '@/app/(tabs)/habits/index';
-import ListRoute from '@/app/(tabs)/lists/[id]';
-import ListsLayout from '@/app/(tabs)/lists/_layout';
-import ListsScreen from '@/app/(tabs)/lists/index';
-import RoutinesScreen from '@/app/(tabs)/routines';
-import SettingsScreen from '@/app/(tabs)/settings';
+import HabitRoute from '@/app/(tabs)/aquarium/habits/[id]';
+import AquariumScreen from '@/app/(tabs)/aquarium/index';
+import AquariumLayout from '@/app/(tabs)/aquarium/_layout';
+import ListRoute from '@/app/(tabs)/aquarium/lists/[id]';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
+import ProfileScreen from '@/app/(tabs)/profile';
+import ShopScreen from '@/app/(tabs)/shop';
 import { createMemoryDatabase } from '@/core/database/testing';
 import { toDateKey } from '@/core/dates';
 import { createMemoryAccount, createMemoryRemote } from '@/core/sync/testing';
@@ -46,14 +44,12 @@ const routes = {
   _layout: TestRoot,
   '(tabs)/_layout': TabsLayout,
   '(tabs)/index': TodayScreen,
-  '(tabs)/habits/_layout': HabitsLayout,
-  '(tabs)/habits/index': HabitsScreen,
-  '(tabs)/habits/[id]': HabitRoute,
-  '(tabs)/lists/_layout': ListsLayout,
-  '(tabs)/lists/index': ListsScreen,
-  '(tabs)/lists/[id]': ListRoute,
-  '(tabs)/routines': RoutinesScreen,
-  '(tabs)/settings': SettingsScreen,
+  '(tabs)/aquarium/_layout': AquariumLayout,
+  '(tabs)/aquarium/index': AquariumScreen,
+  '(tabs)/aquarium/habits/[id]': HabitRoute,
+  '(tabs)/aquarium/lists/[id]': ListRoute,
+  '(tabs)/shop': ShopScreen,
+  '(tabs)/profile': ProfileScreen,
 };
 
 function setWindowWidth(width: number, fontScale = 1) {
@@ -70,12 +66,16 @@ describe('App shell on phones', () => {
     const app = renderRouter(routes, { initialUrl: '/' });
     await app;
     expect(screen.getByRole('header', { name: 'Hoje' })).toBeOnTheScreen();
-    expect(screen.getByRole('tab', { name: 'Hoje' })).toBeSelected();
+    expect(screen.getByRole('tab', { name: 'Início' })).toBeSelected();
 
-    await fireEvent.press(screen.getByRole('tab', { name: 'Listas' }));
-    expect(screen.getByRole('header', { name: 'Listas' })).toBeOnTheScreen();
-    expect(screen.getByRole('tab', { name: 'Listas' })).toBeSelected();
-    expect(app.getPathname()).toBe('/lists');
+    await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
+    expect(screen.getByRole('header', { name: 'Aquário' })).toBeOnTheScreen();
+    expect(screen.getByRole('tab', { name: 'Aquário' })).toBeSelected();
+    expect(app.getPathname()).toBe('/aquarium');
+
+    // The Aquarium's switch opens each module.
+    await fireEvent.press(screen.getByRole('radio', { name: 'Listas' }));
+    expect(await screen.findByRole('button', { name: 'Nova lista' })).toBeOnTheScreen();
   });
 
   it('creates a first list and a task for today, then completes it', async () => {
@@ -83,7 +83,8 @@ describe('App shell on phones', () => {
     expect(screen.getByText('Nada para hoje')).toBeOnTheScreen();
 
     // No lists yet: the quick add offers to create one first.
-    await fireEvent.press(screen.getByRole('button', { name: 'Nova tarefa' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar' }));
+    await fireEvent.press(await screen.findByRole('button', { name: /^Criar tarefa/ }));
     await fireEvent.press(await screen.findByRole('button', { name: 'Criar lista' }));
     await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Academia');
     const createButtons = screen.getAllByRole('button', { name: 'Criar lista' });
@@ -101,13 +102,25 @@ describe('App shell on phones', () => {
     expect(await data.events.count('TASK_COMPLETED')).toBe(1);
   });
 
-  it('does not offer "Nova tarefa" on Settings', async () => {
-    await renderRouter(routes, { initialUrl: '/settings' });
-    expect(screen.queryByRole('button', { name: 'Nova tarefa' })).toBeNull();
+  it('offers "Criar" on Início and the Aquarium, not on the profile or the shop', async () => {
+    await renderRouter(routes, { initialUrl: '/profile' });
+    expect(screen.queryByRole('button', { name: 'Criar' })).toBeNull();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Loja' }));
+    expect(screen.queryByRole('button', { name: 'Criar' })).toBeNull();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
+    expect(await screen.findByRole('button', { name: 'Criar' })).toBeOnTheScreen();
+  });
+
+  it('lets the person choose reduce motion and transparency, over the system', async () => {
+    await renderRouter(routes, { initialUrl: '/profile' });
+    const motion = screen.getByRole('switch', { name: 'Reduzir movimento' });
+    expect(motion).not.toBeChecked();
+    await fireEvent.press(motion);
+    expect(screen.getByRole('switch', { name: 'Reduzir movimento' })).toBeChecked();
   });
 
   it('switches the theme from Settings', async () => {
-    await renderRouter(routes, { initialUrl: '/settings' });
+    await renderRouter(routes, { initialUrl: '/profile' });
     const dark = screen.getByRole('radio', { name: 'Escuro' });
     expect(dark).not.toBeChecked();
     await fireEvent.press(dark);
@@ -115,7 +128,7 @@ describe('App shell on phones', () => {
   });
 
   it('turns Modo Maré off from Settings and remembers it', async () => {
-    await renderRouter(routes, { initialUrl: '/settings' });
+    await renderRouter(routes, { initialUrl: '/profile' });
     expect(await screen.findByRole('radio', { name: 'Ligado' })).toBeChecked();
     await fireEvent.press(screen.getByRole('radio', { name: 'Desligado' }));
     expect(await screen.findByRole('radio', { name: 'Desligado' })).toBeChecked();
@@ -127,17 +140,15 @@ describe('App shell with large text', () => {
   it('shows only the active tab name at normal sizes', async () => {
     setWindowWidth(390, 1.0);
     await renderRouter(routes, { initialUrl: '/' });
-    expect(screen.queryByText('Listas')).toBeNull();
+    expect(screen.queryByText('Aquário')).toBeNull();
   });
 
   it('shows every tab name when the OS text size is large', async () => {
     setWindowWidth(390, 1.4);
     await renderRouter(routes, { initialUrl: '/' });
-    expect(screen.getByText('Listas')).toBeOnTheScreen();
-    expect(screen.getByText('Rotinas')).toBeOnTheScreen();
-    // Settings left the phone tab bar for a gear on Today.
-    expect(screen.queryByRole('tab', { name: 'Ajustes' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Ajustes' })).toBeOnTheScreen();
+    expect(screen.getByText('Aquário')).toBeOnTheScreen();
+    expect(screen.getByText('Loja')).toBeOnTheScreen();
+    expect(screen.getByText('Perfil')).toBeOnTheScreen();
   });
 });
 
@@ -147,14 +158,14 @@ describe('App shell on tablets and desktop', () => {
   it('uses a sidebar with the same destinations', async () => {
     await renderRouter(routes, { initialUrl: '/' });
     expect(screen.getByText('Aquar.io')).toBeOnTheScreen();
-    expect(screen.getByRole('tab', { name: 'Hoje' })).toBeSelected();
+    expect(screen.getByRole('tab', { name: 'Início' })).toBeSelected();
     // The active item is filled so it reads clearly on the deep-water sidebar.
-    expect(screen.getByRole('tab', { name: 'Hoje' })).toHaveStyle({
+    expect(screen.getByRole('tab', { name: 'Início' })).toHaveStyle({
       backgroundColor: lightColors.deepAccent,
     });
 
-    await fireEvent.press(screen.getByRole('tab', { name: 'Ajustes' }));
-    expect(screen.getByRole('header', { name: 'Ajustes' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Perfil' }));
+    expect(screen.getByRole('header', { name: 'Perfil' })).toBeOnTheScreen();
   });
 });
 
@@ -165,11 +176,11 @@ describe('App shell on tablets in portrait', () => {
     await renderRouter(routes, { initialUrl: '/' });
     // The rail has no brand title, unlike the sidebar.
     expect(screen.queryByText('Aquar.io')).toBeNull();
-    expect(screen.getByRole('tab', { name: 'Hoje' })).toBeSelected();
-    expect(screen.getByRole('button', { name: 'Nova tarefa' })).toBeOnTheScreen();
+    expect(screen.getByRole('tab', { name: 'Início' })).toBeSelected();
+    expect(screen.getByRole('button', { name: 'Criar' })).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('tab', { name: 'Listas' }));
-    expect(screen.getByRole('header', { name: 'Listas' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
+    expect(screen.getByRole('header', { name: 'Aquário' })).toBeOnTheScreen();
   });
 });
 
@@ -177,7 +188,7 @@ describe('Account and sync', () => {
   beforeEach(() => setWindowWidth(390));
 
   it('is hidden when the app has no cloud', async () => {
-    await renderRouter(routes, { initialUrl: '/settings' });
+    await renderRouter(routes, { initialUrl: '/profile' });
     expect(screen.queryByText('Sincronizar aparelhos')).toBeNull();
   });
 
@@ -187,7 +198,7 @@ describe('Account and sync', () => {
     data = await createAppData(createMemoryDatabase(), undefined, account);
     await data.todo.createList({ name: 'Academia' });
 
-    await renderRouter(routes, { initialUrl: '/settings' });
+    await renderRouter(routes, { initialUrl: '/profile' });
     await fireEvent.press(await screen.findByText('Sincronizar aparelhos'));
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Criar conta' }));
@@ -224,9 +235,10 @@ describe('Habits', () => {
   beforeEach(() => setWindowWidth(390));
 
   it('creates a habit, checks it today, and shows it on Today and in its details', async () => {
-    const app = renderRouter(routes, { initialUrl: '/habits' });
+    const app = renderRouter(routes, { initialUrl: '/aquarium?tab=habits' });
     await app;
-    expect(screen.getByRole('tab', { name: 'Hábitos' })).toBeSelected();
+    expect(screen.getByRole('tab', { name: 'Aquário' })).toBeSelected();
+    expect(screen.getByRole('radio', { name: 'Hábitos' })).toBeChecked();
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Novo hábito' }));
     await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Beber água');
@@ -242,16 +254,16 @@ describe('Habits', () => {
     expect(await data.events.count('HABIT_CHECKED')).toBe(1);
 
     // Today shows the creature, already done.
-    await fireEvent.press(screen.getByRole('tab', { name: 'Hoje' }));
+    await fireEvent.press(screen.getByRole('tab', { name: 'Início' }));
     expect(await screen.findByText('Hábitos · 1 de 1')).toBeOnTheScreen();
 
     // The details show the streak.
-    await fireEvent.press(screen.getByRole('tab', { name: 'Hábitos' }));
+    await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
     await fireEvent.press(
       await screen.findByRole('button', { name: /^Beber água, Primeiro dia!/ }),
     );
     expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
-    expect(app.getPathname()).toMatch(/^\/habits\//);
+    expect(app.getPathname()).toMatch(/^\/aquarium\/habits\//);
   });
 });
 
@@ -340,8 +352,8 @@ describe('Routines', () => {
   });
 
   it('creates a routine from the Routines tab', async () => {
-    await renderRouter(routes, { initialUrl: '/routines' });
-    expect(screen.getByRole('tab', { name: 'Rotinas' })).toBeSelected();
+    await renderRouter(routes, { initialUrl: '/aquarium?tab=routines' });
+    expect(screen.getByRole('radio', { name: 'Rotinas' })).toBeChecked();
     await fireEvent.press(await screen.findByRole('button', { name: 'Nova rotina' }));
     await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Academia');
     await fireEvent.changeText(screen.getByLabelText('Novo item'), 'Aquecer');

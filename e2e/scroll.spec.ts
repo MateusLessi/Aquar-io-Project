@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-// Regression: screens shown directly in a tab (Settings, Today) once grew past the window
+// Regression: screens shown directly in a tab (Profile, Início) once grew past the window
 // and could not scroll.
-for (const path of ['/settings', '/']) {
+for (const path of ['/profile', '/']) {
   test(`${path} scrolls when it is taller than the window`, async ({ page }) => {
     const width = page.viewportSize()?.width ?? 390;
     await page.setViewportSize({ width, height: 420 });

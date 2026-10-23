@@ -6,10 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSetting } from '@/core/settings/useSetting';
 import { ChromeInsetsProvider, OceanBackground, chrome, useBreakpoint } from '@/design-system';
-import { QuickAddSheet } from '@/features/todo/components/QuickAddSheet';
 
 import { AMBIENT_SETTING, shouldShowAmbient, useCharging, type AmbientSetting } from './ambient';
 import { AmbientDisplay } from './AmbientDisplay';
+import { aquariumTab } from './aquarium/AquariumScreen';
+import { CreateFlow } from './create/CreateFlow';
 import { destinations } from './destinations';
 import { NavigationRail } from './NavigationRail';
 import { isPhoneScreen, useOrientationPolicy } from './orientation';
@@ -53,8 +54,14 @@ function ShellLayout() {
   const activeName = destinations.find((d) => getTrigger(d.name)?.isFocused)?.name;
   // When a list is open, new tasks go to it by default.
   const pathname = usePathname();
-  const params = useGlobalSearchParams<{ id?: string }>();
-  const currentListId = pathname.startsWith('/lists/') ? params.id : undefined;
+  const params = useGlobalSearchParams<{ id?: string; tab?: string }>();
+  const currentListId = pathname.startsWith('/aquarium/lists/') ? params.id : undefined;
+  // In the Aquarium, the open section is the most likely thing to create.
+  const suggestedCreate = pathname.startsWith('/aquarium/lists/')
+    ? 'task'
+    : pathname.startsWith('/aquarium')
+      ? ({ habits: 'habit', routines: 'routine', lists: 'list' } as const)[aquariumTab(params.tab)]
+      : undefined;
 
   // Phones: follow the physical tilt for icons and Modo Maré.
   const isPhone = isPhoneScreen();
@@ -99,15 +106,16 @@ function ShellLayout() {
       </View>
       {breakpoint === 'compact' ? (
         <TabBar
-          destinations={destinations.filter((d) => !d.notOnPhoneBar)}
+          destinations={destinations}
           activeName={activeName}
           onCreate={create}
           iconRotation={uprightRotation(tilt)}
         />
       ) : null}
-      <QuickAddSheet
+      <CreateFlow
         visible={creating}
         onClose={() => setCreating(false)}
+        suggested={suggestedCreate}
         defaultListId={currentListId}
         dueToday={activeName === 'index'}
       />
