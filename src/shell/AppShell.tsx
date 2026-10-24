@@ -57,12 +57,18 @@ function ShellLayout() {
   const pathname = usePathname();
   const params = useGlobalSearchParams<{ id?: string; tab?: string }>();
   const currentListId = pathname.startsWith('/aquarium/lists/') ? params.id : undefined;
+  // Inside a folder, new lists and folders go into it.
+  const currentFolderId = pathname.startsWith('/aquarium/folders/') ? params.id : undefined;
   // In the Aquarium, the open section is the most likely thing to create.
   const suggestedCreate = pathname.startsWith('/aquarium/lists/')
     ? 'task'
-    : pathname.startsWith('/aquarium')
-      ? ({ habits: 'habit', routines: 'routine', lists: 'list' } as const)[aquariumTab(params.tab)]
-      : undefined;
+    : currentFolderId
+      ? 'list'
+      : pathname.startsWith('/aquarium')
+        ? ({ habits: 'habit', routines: 'routine', lists: 'list' } as const)[
+            aquariumTab(params.tab)
+          ]
+        : undefined;
 
   // Phones: follow the physical tilt for icons and Modo Maré.
   const isPhone = isPhoneScreen();
@@ -120,6 +126,7 @@ function ShellLayout() {
         onClose={() => setCreating(false)}
         suggested={suggestedCreate}
         defaultListId={currentListId}
+        defaultFolderId={currentFolderId}
         dueToday={activeName === 'index'}
       />
       {celebration.message ? (

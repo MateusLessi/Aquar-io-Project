@@ -38,6 +38,8 @@ type ListEditorSheetProps = {
   list?: TaskList | null;
   onCreated?: (id: string) => void;
   onDeleted?: () => void;
+  /** New lists go into this folder. */
+  folderId?: string | null;
 };
 
 export function ListEditorSheet({
@@ -46,18 +48,31 @@ export function ListEditorSheet({
   list,
   onCreated,
   onDeleted,
+  folderId,
 }: ListEditorSheetProps) {
   return (
     <Sheet visible={visible} onClose={onClose} title={list ? 'Editar lista' : 'Nova lista'}>
       {/* Remount the form for each opening so it starts from the list's current values. */}
       {visible ? (
-        <ListForm list={list} onClose={onClose} onCreated={onCreated} onDeleted={onDeleted} />
+        <ListForm
+          list={list}
+          onClose={onClose}
+          onCreated={onCreated}
+          onDeleted={onDeleted}
+          folderId={folderId}
+        />
       ) : null}
     </Sheet>
   );
 }
 
-function ListForm({ list, onClose, onCreated, onDeleted }: Omit<ListEditorSheetProps, 'visible'>) {
+function ListForm({
+  list,
+  onClose,
+  onCreated,
+  onDeleted,
+  folderId,
+}: Omit<ListEditorSheetProps, 'visible'>) {
   const todo = useTodo();
   const { colors, scheme } = useTheme();
   const [name, setName] = useState(list?.name ?? '');
@@ -73,7 +88,7 @@ function ListForm({ list, onClose, onCreated, onDeleted }: Omit<ListEditorSheetP
       if (list) {
         await todo.updateList(list.id, { name, emoji, color });
       } else {
-        const id = await todo.createList({ name, emoji, color });
+        const id = await todo.createList({ name, emoji, color, folderId });
         onCreated?.(id);
       }
       onClose();

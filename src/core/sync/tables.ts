@@ -13,6 +13,22 @@ export type SyncedTable = {
 /** In upload order: parents (lists, habits, routines) before the rows that point to them. */
 export const syncedTables: readonly SyncedTable[] = [
   {
+    name: 'task_folders',
+    topic: 'lists',
+    columns: [
+      'id',
+      'parent_id',
+      'name',
+      'emoji',
+      'color',
+      'pinned',
+      'sort_order',
+      'created_at',
+      'updated_at',
+      'deleted_at',
+    ],
+  },
+  {
     name: 'task_lists',
     topic: 'lists',
     columns: [
@@ -20,6 +36,7 @@ export const syncedTables: readonly SyncedTable[] = [
       'name',
       'emoji',
       'color',
+      'folder_id',
       'sort_order',
       'created_at',
       'updated_at',

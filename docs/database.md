@@ -122,6 +122,15 @@ habit_timers    habit_id, date, started_at   (só local, não sincroniza)
 
 Detalhes em [habits.md](habits.md#hábitos-20-first-dive-etapa-1).
 
+## Pastas (migration 8)
+
+```
+task_folders  id, parent_id, name, emoji, color, pinned, sort_order, created_at, updated_at, deleted_at
+task_lists    + folder_id
+```
+
+Detalhes em [todo.md](todo.md#pastas-first-dive-etapa-2).
+
 ### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;

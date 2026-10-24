@@ -54,3 +54,17 @@ As rotas em `src/app/(tabs)/` só apontam para as telas. A raiz de composição 
 - **Sem sincronização** entre aparelhos ainda (ADR-002): iPhone, tablet e notebook têm dados separados.
 - Reordenar tarefas arrastando não existe na V1 (a ordem é a de criação).
 - Falhas inesperadas ao concluir uma tarefa são registradas no console; um aviso visual (toast) virá depois.
+
+## Pastas (First Dive, etapa 2)
+
+Proposta aprovada no checkpoint 038: `docs/design/proposals/folders.png`.
+
+- **Pastas** (`task_folders`) guardam listas e outras pastas, até **4 níveis** (`MAX_FOLDER_DEPTH`). Cada lista guarda `folder_id`; sem pasta, ela fica no topo ("Listas soltas").
+- **Árvore** (`data/folders.ts`, `loadTree`): conta listas, subpastas e tarefas abertas/concluídas de tudo o que está dentro (anel de progresso). Uma pasta cuja mãe sumiu (apagada ou ainda não sincronizada), ou um laço criado por dois aparelhos movendo pastas ao mesmo tempo, aparece **no topo**: nada some.
+- **Mover** (`moveFolder`, `moveList`): uma pasta nunca vai para dentro dela mesma, nem tão fundo que suas subpastas passem do limite. A folha "Mover para…" escurece esses lugares.
+- **Apagar pasta**: `keep` sobe o conteúdo para a pasta de cima; `all` apaga pastas, listas e tarefas de dentro (sempre soft delete, com confirmação).
+- **Visualizações** (`ListsBrowser.tsx`, lembradas por aparelho): **Grade** (pastas como cartas empilhadas), **Lista** (linhas compactas) e **Tudo junto** (`folderTasks`: tarefas de todas as listas de dentro, por prazo, concluídas escondidas no fim).
+- **Trilha** `Listas › UnB › Semestre 3` (`FolderScreen.tsx`, `Crumbs`); a tela de uma lista mostra o caminho dela.
+- **Criar**: o card "Nova lista ou pasta" e o botão Criar do app sabem em que pasta você está.
+- **Painel Início**: tarefas de hoje mostram de onde vêm (`listPath`) e pastas **fixadas** (`pinned`) aparecem com anel e próximas tarefas (`PinnedFolders.tsx`).
+- **Pendente**: arrastar e soltar no tablet/PC (hoje: segurar → "Mover para…", que funciona em qualquer aparelho e com leitor de tela).

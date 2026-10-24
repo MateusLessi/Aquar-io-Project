@@ -43,6 +43,7 @@ Como os dados do Aquar.io viajam entre o celular, o tablet e o computador. A dec
    - `20261023000000_routines_sync.sql`: rotinas, itens e checks.
    - `20261024000000_profile_sync.sql`: perfil (nome e avatar).
    - `20261025000000_habit_kinds.sql`: tipos de hábito e progresso parcial (First Dive).
+   - `20261026000000_folders.sql`: pastas de listas (First Dive).
 
    Se uma tabela ainda não existir na nuvem, as outras continuam sincronizando; as mudanças dela ficam na fila e Ajustes mostra "Sem conexão" até o SQL ser rodado.
 

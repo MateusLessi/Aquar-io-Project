@@ -39,7 +39,7 @@ export function TodayTasks() {
               task={task}
               todayKey={todayKey}
               listColor={task.listColor}
-              listName={task.listName}
+              listName={[...task.listPath, task.listName].join(' › ')}
               listEmoji={task.listEmoji}
               separator={index > 0}
               onToggle={(done) =>
