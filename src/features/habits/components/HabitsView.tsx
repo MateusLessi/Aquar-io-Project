@@ -8,7 +8,7 @@ import type { HabitActions } from '../hooks/useHabitActions';
 import { HabitCard } from './HabitCard';
 import { ReefHero } from './ReefHero';
 
-const COLUMNS = { compact: 1, medium: 2, expanded: 3 } as const;
+const COLUMNS = { compact: 1, medium: 2, expanded: 2 } as const;
 const GAP = spacing.md;
 
 type HabitsViewProps = {

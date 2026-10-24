@@ -14,7 +14,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 
 | #   | Etapa                                                                                            | Estado |
 | --- | ------------------------------------------------------------------------------------------------ | ------ |
-| 1   | **Hábitos 2.0**: tipos de hábito, cronômetro, contador, nova visualização                        | ☐      |
+| 1   | **Hábitos 2.0**: tipos de hábito, cronômetro, contador, nova visualização                        | ✓      |
 | 2   | **Pastas e listas**: pastas dentro de pastas, visualizações de pasta                             | ☐      |
 | 3   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ☐      |
 | 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ☐      |

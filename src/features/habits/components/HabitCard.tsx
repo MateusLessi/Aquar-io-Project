@@ -119,7 +119,7 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
           />
           <View style={styles.body}>
             <View style={styles.titleRow}>
-              <Text variant="headline" numberOfLines={1} style={styles.shrink}>
+              <Text variant="headline" numberOfLines={1} style={styles.name}>
                 {habit.name}
               </Text>
               {badge ? <Badge label={badge} tone={tone} /> : null}
@@ -323,7 +323,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, gap: spacing.md },
   main: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   body: { flex: 1, gap: 2, minWidth: 0 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  titleRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xs },
+  name: { flexShrink: 1, minWidth: 72 },
   shrink: { flexShrink: 1 },
   badge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
   badgeText: { fontWeight: '700', fontVariant: ['tabular-nums'] },
