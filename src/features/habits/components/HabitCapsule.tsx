@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -31,6 +31,8 @@ type HabitCapsuleProps = {
   height: number;
   /** Small text at the bottom, such as "3/8". */
   caption?: string | null;
+  /** A round window instead of a capsule (inside the dive's ring). */
+  round?: boolean;
 };
 
 /**
@@ -47,10 +49,11 @@ export function HabitCapsule({
   width,
   height,
   caption,
+  round = false,
 }: HabitCapsuleProps) {
   const { scheme, reduceMotion } = useTheme();
   const tone = listColors[creatures[creature].color][scheme];
-  const fontSize = Math.round(width * 0.4 * stageInfo[stage].scale);
+  const fontSize = Math.round(Math.min(width * 0.4, 64) * stageInfo[stage].scale);
   const level = useSharedValue(ratio);
   const drift = useSharedValue(0);
   const bob = useSharedValue(0);
@@ -91,7 +94,8 @@ export function HabitCapsule({
   const creatureStyle = useAnimatedStyle(() => {
     // Float at the surface, but never above the rim or below the floor.
     const surface = height - level.get() * height;
-    const top = Math.min(height - fontSize * 1.25, Math.max(4, surface - fontSize * 0.7));
+    const floor = height - fontSize * 1.25 - (caption ? 16 : 0);
+    const top = Math.min(floor, Math.max(4, surface - fontSize * 0.7));
     return {
       transform: [{ translateY: top + (bob.get() - 0.5) * 4 }, { scale: hop.get() }],
     };
@@ -106,8 +110,10 @@ export function HabitCapsule({
     `S ${w * 1.25} ${WAVE}, ${w * 1.5} ${WAVE / 2} ` +
     `S ${w * 1.75} 0, ${w * 2} ${WAVE / 2} ` +
     `V ${height + WAVE * 2} H 0 Z`;
-  const gradientId = `water-${creature}`;
-  const corner = Math.min(width, height) * 0.32;
+  // Unique per capsule: on the web, SVG ids are global, and a hidden capsule with the same id
+  // would hide this one's water.
+  const gradientId = `water-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  const corner = Math.min(width, height) * (round ? 0.5 : 0.32);
 
   return (
     <View

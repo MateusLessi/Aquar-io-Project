@@ -141,6 +141,7 @@ export default function HabitsPreview() {
       update(habit, (sample, goal) =>
         setAmount(sample, goal, (sample.amount ?? 0) + (done ? 1 : -1) * (stepId ? 1 : 0)),
       ),
+    startTimer: () => {},
     toggleTimer: (habit) =>
       update(habit, (sample, goal) => setAmount(sample, goal, (sample.amount ?? 0) + 5 * 60)),
     open: () => setEditing(true),

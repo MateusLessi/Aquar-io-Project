@@ -16,6 +16,8 @@ export type HabitActions = {
   setStep: (habit: HabitWithProgress, stepId: string, done: boolean) => void;
   /** Starts the timer and opens the dive, or stops a running timer. */
   toggleTimer: (habit: HabitWithProgress) => void;
+  /** Starts the timer without leaving the screen. */
+  startTimer: (habit: HabitWithProgress) => void;
   open: (habit: HabitWithProgress, options?: { dive?: boolean }) => void;
 };
 
@@ -49,6 +51,10 @@ export function useHabitActions(todayKey: string): HabitActions {
       setStep: (habit, stepId, done) => {
         feel(done && !habit.doneToday && habit.today.stepsDone.length + 1 >= habit.steps.length);
         repository.setStep(habit.id, todayKey, stepId, done).catch(report);
+      },
+      startTimer: (habit) => {
+        haptics.selection();
+        repository.startTimer(habit.id, todayKey).catch(report);
       },
       toggleTimer: (habit) => {
         haptics.selection();

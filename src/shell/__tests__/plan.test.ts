@@ -115,4 +115,25 @@ describe('planReminders', () => {
     });
     expect(silent).toEqual([]);
   });
+
+  it('rings when a running timer reaches the goal', () => {
+    const reading = habit({
+      kind: 'time',
+      target: 20,
+      reminderTimes: [],
+      today: {
+        amount: 5 * 60,
+        stepsDone: [],
+        ratio: 0.25,
+        timerStartedAt: '2026-10-21T15:30:00.000Z',
+      },
+    });
+    const plan = planReminders({ habits: [reading], tasks: [], now });
+    const timer = plan.find((r) => r.id.startsWith('timer:'));
+    expect(timer?.at.toISOString()).toBe('2026-10-21T15:45:00.000Z');
+    expect(timer?.url).toBe('/aquarium/habits/h1?dive=1');
+    // Not while stopped.
+    const stopped = habit({ kind: 'time', target: 20, reminderTimes: [] });
+    expect(planReminders({ habits: [stopped], tasks: [], now }).length).toBe(0);
+  });
 });

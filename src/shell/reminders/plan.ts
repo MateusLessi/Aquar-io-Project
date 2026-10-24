@@ -1,5 +1,6 @@
 import { addDays, atTime, toDateKey } from '@/core/dates';
 import type { Reminder } from '@/core/notifications';
+import { goalOf } from '@/features/habits/domain/amount';
 import { creatures } from '@/features/habits/domain/creatures';
 import { isScheduled } from '@/features/habits/domain/progress';
 import type { HabitWithProgress } from '@/features/habits/domain/types';
@@ -48,6 +49,20 @@ export function planReminders({
         });
       }
     }
+  }
+
+  // A running timer rings when it reaches the day's goal, even with the app closed.
+  for (const habit of habits) {
+    const startedAt = habit.today.timerStartedAt;
+    if (habit.kind !== 'time' || !startedAt || habit.doneToday) continue;
+    const left = goalOf(habit) - habit.today.amount;
+    plan.push({
+      id: `timer:${habit.id}:${startedAt}`,
+      at: new Date(new Date(startedAt).getTime() + left * 1000),
+      title: `${creatures[habit.creature].emoji} Meta de ${habit.name} alcançada!`,
+      body: `${habit.target} min hoje. Toque para parar o cronômetro.`,
+      url: `/aquarium/habits/${habit.id}?dive=1`,
+    });
   }
 
   for (let offset = 0; offset < HORIZON_DAYS; offset++) {
