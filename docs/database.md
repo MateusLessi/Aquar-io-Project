@@ -111,12 +111,24 @@ routine_checks  id ("<item_id>:<YYYY-MM-DD>"), item_id, routine_id, date, create
 
 Detalhes em [routines.md](routines.md).
 
+## Tipos de hábito (migration 7)
+
+```
+habits          + kind ('check' | 'count' | 'time' | 'checklist'), target, unit, steps (JSON [{id, title}])
+habit_progress  id ("<habit_id>:<YYYY-MM-DD>"), habit_id, date, amount, steps_done (JSON [ids]),
+                created_at, updated_at, deleted_at
+habit_timers    habit_id, date, started_at   (só local, não sincroniza)
+```
+
+Detalhes em [habits.md](habits.md#hábitos-20-first-dive-etapa-1).
+
 ### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;
 - `tasks(parent_task_id)`: carregar subtarefas;
 - `tasks(due_date)`: futuras visões "Planejado" e "Meu Dia";
 - `domain_events(type, occurred_at)`: consultas do futuro Progress Engine;
-- `habit_checks(habit_id, date)`: check-ins de um hábito.
+- `habit_checks(habit_id, date)`: check-ins de um hábito;
+- `habit_progress(habit_id, date)`: progresso parcial de um hábito.
 
 > **Índice:** uma estrutura auxiliar que o banco mantém para encontrar linhas rapidamente, como o índice remissivo de um livro. Acelera leituras e deixa as escritas um pouco mais lentas, por isso só criamos os que serão usados.

@@ -263,7 +263,7 @@ describe('Habits', () => {
     // The details show the streak.
     await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
     await fireEvent.press(
-      await screen.findByRole('button', { name: /^Beber água, Primeiro dia!/ }),
+      await screen.findByRole('button', { name: /^Beber água, Feito, Primeiro dia!/ }),
     );
     expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
     expect(app.getPathname()).toMatch(/^\/aquarium\/habits\//);

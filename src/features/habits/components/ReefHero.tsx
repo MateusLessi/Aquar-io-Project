@@ -27,7 +27,10 @@ import { CreatureBubble } from './CreatureBubble';
 
 const HEIGHT = 216;
 const BUBBLE = 48;
-/** Where creatures swim: near the surface when done today, down by the sand when not. */
+/**
+ * Where creatures swim: down by the sand with nothing done, near the surface when done, and
+ * in between as a habit fills up (3 of 8 copos swims a third of the way up).
+ */
 const SWIM_HIGH = 74;
 const SWIM_LOW = HEIGHT - BUBBLE - 26;
 
@@ -50,6 +53,8 @@ export function ReefHero({ habits }: ReefHeroProps) {
       : done === due.length
         ? 'Todo mundo nadando na superfície!'
         : `${done} de ${due.length} hábitos feitos hoje`;
+  // Partial progress counts too: the reef subtitle says who is on the way up.
+  const rising = due.filter((h) => !h.doneToday && h.today.ratio > 0).length;
 
   return (
     <DeepSurface
@@ -86,6 +91,11 @@ export function ReefHero({ habits }: ReefHeroProps) {
         <Text variant="headline" tone="onDeep">
           {summary}
         </Text>
+        {rising > 0 ? (
+          <Text variant="footnote" tone="onDeepSecondary">
+            {rising === 1 ? '1 subindo' : `${rising} subindo`} 🫧
+          </Text>
+        ) : null}
       </View>
       {habits.length > 8 ? (
         <Text variant="caption" tone="onDeepSecondary" style={styles.more}>
@@ -109,12 +119,13 @@ function Swimmer({
   labelWidth: number;
 }) {
   const { reduceMotion } = useTheme();
-  const depth = useSharedValue(habit.doneToday ? SWIM_HIGH : SWIM_LOW);
+  const target = SWIM_LOW - habit.today.ratio * (SWIM_LOW - SWIM_HIGH);
+  const depth = useSharedValue(target);
   const bob = useSharedValue(0);
 
   useEffect(() => {
-    depth.set(withSpring(habit.doneToday ? SWIM_HIGH : SWIM_LOW, springs.gentle));
-  }, [depth, habit.doneToday]);
+    depth.set(withSpring(target, springs.gentle));
+  }, [depth, target]);
 
   useEffect(() => {
     if (reduceMotion) return;

@@ -1,0 +1,277 @@
+<!doctype html>
+<!-- PROPOSAL: Hábitos 2.0 for Checkpoint 036 (First Dive, etapa 1). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Hábitos 2.0</title>
+<style>
+  @font-face { font-family: Outfit; font-weight: 600; src: url(../../../node_modules/@expo-google-fonts/outfit/600SemiBold/Outfit_600SemiBold.ttf); }
+  @font-face { font-family: Outfit; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/outfit/700Bold/Outfit_700Bold.ttf); }
+  @font-face { font-family: Manrope; font-weight: 500; src: url(../../../node_modules/@expo-google-fonts/manrope/500Medium/Manrope_500Medium.ttf); }
+  @font-face { font-family: Manrope; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/manrope/700Bold/Manrope_700Bold.ttf); }
+  :root {
+    --display: Outfit, system-ui, sans-serif; --text: Manrope, system-ui, sans-serif;
+    --top: #0b2129; --base: #07121a; --deep: #040b11; --raised: #0e1c26;
+    --glass: rgba(18, 38, 50, 0.62); --glass-border: rgba(140, 200, 210, 0.16);
+    --t1: #e6f0f4; --t2: #9db2be; --t3: #6a8291; --sep: rgba(157, 178, 190, 0.12);
+    --accent: #5cc3bd; --coral: #ee8a73;
+    --kelp: #86bf7f; --sand: #d7b477; --anemone: #b697de; --tide: #6fa9e0; --lagoon: #4cc0b9; --coralc: #ee8a73;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #0a1218; color: var(--t1); padding: 36px; width: 1300px; }
+  h1 { font-family: var(--display); font-size: 30px; font-weight: 700; }
+  .lead { color: var(--t2); font-size: 15px; margin-top: 6px; max-width: 1100px; line-height: 22px; }
+  .row { display: flex; gap: 40px; margin-top: 30px; align-items: flex-start; }
+  .cap-title { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); margin-bottom: 10px; }
+  .note { font-size: 13px; color: var(--t2); width: 360px; margin-top: 12px; line-height: 19px; }
+  .note b { color: var(--t1); }
+
+  .phone { width: 360px; height: 760px; border-radius: 44px; overflow: hidden; position: relative;
+    background: linear-gradient(180deg, var(--top) 0%, var(--base) 35%, var(--deep) 100%);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; }
+  .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 14px; font-weight: 700; }
+  .pad { padding: 6px 18px; }
+  .eyebrow { font-size: 13px; color: var(--t2); }
+  .big { font-family: var(--display); font-size: 32px; font-weight: 700; letter-spacing: -.02em; }
+  .section { font-size: 12px; font-weight: 700; color: var(--t3); letter-spacing: .07em; text-transform: uppercase; margin: 16px 2px 10px; display: flex; justify-content: space-between; }
+  .section span:last-child { color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 13px; }
+  .glass { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06); }
+
+  /* The capsule: a small aquarium whose water level is today's progress. */
+  .capsule { position: relative; border-radius: 22px; overflow: hidden; background: rgba(255,255,255,.04);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 45%, transparent), inset 0 8px 18px rgba(255,255,255,.05); }
+  .capsule .water { position: absolute; left: 0; right: 0; bottom: 0; height: var(--lvl);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 70%, transparent), color-mix(in srgb, var(--c) 35%, transparent)); }
+  .capsule .water svg { position: absolute; top: -9px; left: 0; width: 100%; height: 10px; }
+  .capsule .creature { position: absolute; left: 50%; bottom: min(calc(var(--lvl) - 6px), calc(100% - var(--fs, 30px) * 1.35)); transform: translateX(-50%); font-size: var(--fs, 30px); filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+  .capsule .bub { position: absolute; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.35); }
+  .capsule.full { box-shadow: inset 0 0 0 2px var(--c), 0 0 22px color-mix(in srgb, var(--c) 40%, transparent); }
+
+  /* Painel: today's habits strip */
+  .strip { display: flex; gap: 10px; }
+  .mini { width: 74px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .mini .capsule { width: 70px; height: 92px; --fs: 26px; }
+  .mini .name { font-size: 11.5px; color: var(--t2); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 74px; }
+  .act { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700;
+    background: rgba(4,11,17,.65); color: var(--t1); border: 1px solid rgba(255,255,255,.18); }
+  .amount { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-size: 11px; font-weight: 700; color: var(--t1); text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+
+  /* Habit card (page) */
+  .card { display: flex; gap: 14px; padding: 14px; margin-bottom: 10px; align-items: center; }
+  .card .capsule { width: 64px; height: 84px; flex: none; --fs: 26px; }
+  .card .body { flex: 1; min-width: 0; }
+  .card .t { font-weight: 700; font-size: 15.5px; }
+  .card .s { font-size: 12.5px; color: var(--t2); margin-top: 2px; }
+  .tide { display: flex; gap: 5px; margin-top: 10px; align-items: flex-end; }
+  .tide i { display: block; width: 15px; height: 22px; border-radius: 6px; position: relative; overflow: hidden; background: rgba(255,255,255,.06); }
+  .tide i::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: var(--h); background: var(--c); opacity: .9; }
+  .tide i.today { box-shadow: 0 0 0 1.5px var(--c); }
+  .tide i.rest { background: repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 3px, transparent 3px 6px); }
+  .ctl { width: 46px; height: 46px; border-radius: 16px; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 18px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 34%, #0e1c26), color-mix(in srgb, var(--c) 14%, #0e1c26));
+    box-shadow: 0 6px 14px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent); color: var(--t1); }
+  .ctl.done { background: var(--c); color: #062224; }
+  .badge { display: inline-flex; gap: 4px; align-items: center; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.07); color: var(--t2); margin-left: 6px; vertical-align: 2px; }
+
+  /* Detail */
+  .hero { display: flex; gap: 16px; align-items: center; padding: 16px; }
+  .hero .capsule { width: 120px; height: 160px; --fs: 54px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px; }
+  .stat b { display: block; font-family: var(--display); font-size: 20px; }
+  .stat span { font-size: 11px; color: var(--t3); }
+  .growth { padding: 14px 16px; }
+  .path { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 18px; }
+  .path .seg { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+  .path .seg::after { content: ''; position: absolute; inset: 0; width: var(--p); background: var(--c); }
+  .reef { display: grid; grid-template-columns: repeat(18, 1fr); gap: 3px; padding: 14px 16px; }
+  .reef i { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,.06); }
+
+  /* Editor */
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 70px; border-radius: 30px 30px 0 0; background: #0d1a23; border-top: 1px solid var(--glass-border); padding: 10px 18px; }
+  .grabber { width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 0 auto 12px; }
+  .types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .type { border-radius: 16px; padding: 10px 4px; text-align: center; font-size: 11.5px; font-weight: 700; color: var(--t2); background: rgba(255,255,255,.04); border: 1px solid var(--sep); }
+  .type .ic { font-size: 20px; display: block; margin-bottom: 4px; }
+  .type.on { background: color-mix(in srgb, var(--accent) 18%, transparent); border-color: var(--accent); color: var(--t1); }
+  .field { margin-top: 16px; }
+  .field label { font-size: 12.5px; color: var(--t2); font-weight: 700; }
+  .slider { margin-top: 14px; position: relative; height: 34px; }
+  .slider .track { position: absolute; top: 14px; left: 0; right: 0; height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); }
+  .slider .fill { position: absolute; top: 14px; left: 0; width: 30%; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--tide), var(--accent)); }
+  .slider .thumb { position: absolute; top: 3px; left: calc(30% - 14px); width: 28px; height: 28px; border-radius: 50%; background: #e6f0f4; box-shadow: 0 4px 10px rgba(0,0,0,.4); }
+  .slider .bubble { position: absolute; top: -30px; left: calc(30% - 30px); width: 60px; text-align: center; font-family: var(--display); font-weight: 700; font-size: 18px; }
+  .ticks { display: flex; justify-content: space-between; font-size: 11px; color: var(--t3); margin-top: 2px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip { font-size: 12.5px; font-weight: 700; padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,.06); color: var(--t2); }
+  .chip.on { background: var(--accent); color: #062224; }
+  .preview { display: flex; gap: 12px; align-items: center; margin-top: 18px; padding: 12px; }
+  .preview .capsule { width: 54px; height: 70px; --fs: 22px; }
+
+  /* Timer */
+  .dive { position: absolute; inset: 0; background: radial-gradient(120% 70% at 50% 0%, #0f3b44 0%, #06202a 45%, #02090e 100%); }
+  .ring { position: absolute; left: 50%; top: 170px; transform: translateX(-50%); width: 250px; height: 250px; }
+  .ring .face { position: absolute; inset: 22px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .ring .face .water { position: absolute; left: 0; right: 0; bottom: 0; height: 60%; background: linear-gradient(180deg, rgba(111,169,224,.55), rgba(111,169,224,.15)); }
+  .ring .face .creature { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); font-size: 64px; }
+  .clock { position: absolute; top: 450px; width: 100%; text-align: center; }
+  .clock b { font-family: var(--display); font-size: 54px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .clock div { color: var(--t2); font-size: 14px; }
+  .buttons { position: absolute; bottom: 70px; width: 100%; display: flex; justify-content: center; gap: 22px; }
+  .round { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); }
+  .round.main { background: var(--tide); color: #062224; width: 84px; height: 84px; font-size: 26px; }
+  .floating { position: absolute; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.25); }
+
+  /* Checklist expanded */
+  .steps { padding: 6px 14px 12px; }
+  .step { display: flex; gap: 12px; align-items: center; padding: 10px 2px; border-top: 1px solid var(--sep); font-size: 14.5px; }
+  .step:first-child { border-top: 0; }
+  .box { width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--c); display: grid; place-items: center; font-size: 13px; font-weight: 800; color: #062224; flex: none; }
+  .box.on { background: var(--c); }
+  .step.on span { color: var(--t3); text-decoration: line-through; }
+</style>
+</head>
+<body>
+<h1>Hábitos 2.0 · proposta</h1>
+<p class="lead">Cada hábito vira uma <b>cápsula</b>: um pequeno aquário de vidro em que o <b>nível da água é o progresso de hoje</b>. A criatura nada na superfície da água, então ela sobe conforme você avança e chega ao topo quando o hábito está feito. Funciona igual para os 4 tipos: <b>Sim/não</b> enche de uma vez, <b>Contador</b> enche a cada +1, <b>Tempo</b> enche com o cronômetro e <b>Checklist</b> enche a cada passo. Tema escuro mostrado; o claro segue os mesmos tokens.</p>
+
+<div class="row">
+  <!-- 1. Painel -->
+  <div>
+    <div class="cap-title">1 · Painel Início</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="pad">
+        <div class="eyebrow">Sábado, 24 de outubro</div>
+        <div class="big">Bom dia, Mateus</div>
+        <div class="section"><span>Hábitos · 2 de 5</span><span>Ver todos</span></div>
+        <div class="strip">
+          <div class="mini"><div class="capsule full" style="--c: var(--kelp); --lvl: 100%"><div class="water"><svg viewBox="0 0 70 10" preserveAspectRatio="none"><path d="M0 6 Q 9 1 18 6 T 35 6 T 52 6 T 70 6 V10 H0Z" fill="currentColor" style="color: color-mix(in srgb, var(--kelp) 70%, transparent)"/></svg></div><div class="creature">🐢</div><div class="act">✓</div></div><div class="name">Meditar</div></div>
+          <div class="mini"><div class="capsule" style="--c: var(--tide); --lvl: 38%"><div class="water"></div><div class="creature">🐬</div><div class="amount">3/8</div><div class="act">+1</div></div><div class="name">Água</div></div>
+          <div class="mini"><div class="capsule" style="--c: var(--sand); --lvl: 60%"><div class="water"></div><div class="creature">🐠</div><div class="amount">12/20 min</div><div class="act">▶</div></div><div class="name">Ler</div></div>
+          <div class="mini"><div class="capsule" style="--c: var(--anemone); --lvl: 50%"><div class="water"></div><div class="creature">🐙</div><div class="amount">2/4</div><div class="act">☰</div></div><div class="name">Skincare</div></div>
+        </div>
+        <div class="section" style="margin-top: 22px"><span>Rotinas · 1 de 3</span><span>Ver todas</span></div>
+        <div class="glass" style="height: 120px; display: grid; place-items: center; color: var(--t3); font-size: 13px">(rotinas, como hoje)</div>
+        <div class="section"><span>Tarefas de hoje</span><span>Ver todas</span></div>
+        <div class="glass" style="height: 150px; display: grid; place-items: center; color: var(--t3); font-size: 13px">(tarefas, como hoje)</div>
+      </div>
+    </div>
+    <p class="note">O botão no canto de cada cápsula muda com o tipo: <b>✓</b> marca, <b>+1</b> soma, <b>▶</b> abre o cronômetro e <b>☰</b> abre o checklist. Tocar no resto abre o hábito. No tablet e no PC, as cápsulas viram um bloco maior do bento.</p>
+  </div>
+
+  <!-- 2. Página de hábitos -->
+  <div>
+    <div class="cap-title">2 · Aquário › Hábitos</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="pad">
+        <div class="big" style="font-size: 28px">Hábitos</div>
+        <div class="section"><span>Hoje</span><span></span></div>
+        <div class="glass card" style="--c: var(--kelp)"><div class="capsule full" style="--lvl: 100%"><div class="water"></div><div class="creature">🐢</div></div>
+          <div class="body"><div class="t">Meditar <span class="badge">🌊 12 dias</span></div><div class="s">Feito · Jovem 🌱</div>
+            <div class="tide"><i style="--h:100%"></i><i style="--h:100%"></i><i style="--h:100%"></i><i class="rest"></i><i style="--h:100%"></i><i style="--h:100%"></i><i class="today" style="--h:100%"></i></div></div>
+          <div class="ctl done">✓</div></div>
+        <div class="glass card" style="--c: var(--tide)"><div class="capsule" style="--lvl: 38%"><div class="water"></div><div class="creature">🐬</div></div>
+          <div class="body"><div class="t">Água <span class="badge">3/8 copos</span></div><div class="s">Faltam 5 · Filhote 🍼</div>
+            <div class="tide"><i style="--h:100%"></i><i style="--h:75%"></i><i style="--h:100%"></i><i style="--h:50%"></i><i style="--h:100%"></i><i style="--h:88%"></i><i class="today" style="--h:38%"></i></div></div>
+          <div class="ctl">+1</div></div>
+        <div class="glass card" style="--c: var(--sand)"><div class="capsule" style="--lvl: 60%"><div class="water"></div><div class="creature">🐠</div></div>
+          <div class="body"><div class="t">Ler <span class="badge">12/20 min</span></div><div class="s">Pausado · Adulto ⭐</div>
+            <div class="tide"><i style="--h:100%"></i><i style="--h:100%"></i><i style="--h:40%"></i><i style="--h:100%"></i><i style="--h:0%"></i><i style="--h:100%"></i><i class="today" style="--h:60%"></i></div></div>
+          <div class="ctl">▶</div></div>
+        <div class="glass" style="--c: var(--anemone); margin-bottom: 10px">
+          <div class="card" style="margin: 0"><div class="capsule" style="--lvl: 50%"><div class="water"></div><div class="creature">🐙</div></div>
+            <div class="body"><div class="t">Skincare <span class="badge">2/4 passos</span></div><div class="s">Noite · Ovo 🥚</div></div>
+            <div class="ctl">⌃</div></div>
+          <div class="steps"><div class="step on"><div class="box on">✓</div><span>Limpar</span></div><div class="step on"><div class="box on">✓</div><span>Tônico</span></div><div class="step"><div class="box"></div><span>Sérum</span></div><div class="step"><div class="box"></div><span>Hidratante</span></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">As bolinhas da semana viram a <b>maré da semana</b>: 7 mini-cápsulas que mostram <b>quanto</b> foi feito em cada dia, não só "sim ou não". O hábito de checklist <b>abre no próprio cartão</b>, com animação, e recomeça todo dia.</p>
+  </div>
+
+  <!-- 3. Detalhe -->
+  <div>
+    <div class="cap-title">3 · Detalhe do hábito</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="pad">
+        <div class="eyebrow">‹ Hábitos · Golfinho · Todo dia</div>
+        <div class="big" style="font-size: 28px">Água</div>
+        <div class="glass hero" style="--c: var(--tide); margin-top: 12px"><div class="capsule" style="--lvl: 38%"><div class="water"></div><div class="creature">🐬</div><div class="bub" style="width:10px;height:10px;left:24px;top:40px"></div><div class="bub" style="width:6px;height:6px;left:80px;top:24px"></div></div>
+          <div><div style="font-family: var(--display); font-size: 34px; font-weight: 700">3<span style="color: var(--t3)">/8</span></div><div class="s" style="color: var(--t2); font-size: 13px">copos hoje</div>
+            <div style="display:flex; gap:8px; margin-top: 12px"><div class="ctl" style="--c: var(--tide)">−</div><div class="ctl" style="--c: var(--tide); width: 74px">+1</div></div></div></div>
+        <div class="glass stats" style="margin-top: 10px"><div class="stat"><b>6</b><span>sequência</span></div><div class="stat"><b>14</b><span>melhor</span></div><div class="stat"><b>86%</b><span>30 dias</span></div><div class="stat"><b>41</b><span>dias feitos</span></div></div>
+        <div class="glass growth" style="--c: var(--tide); margin-top: 10px"><div style="font-size: 13px; font-weight: 700">Crescimento</div><div class="s" style="color: var(--t2); font-size: 12px">Faltam 9 dias para Jovem</div>
+          <div class="path"><span>🍼</span><div class="seg" style="--p: 100%"></div><span>🌱</span><div class="seg" style="--p: 10%"></div><span>⭐</span></div></div>
+        <div class="glass" style="margin-top: 10px; --c: var(--tide)"><div style="font-size: 13px; font-weight: 700; padding: 14px 16px 0">Recife · últimos 4 meses</div>
+          <div class="reef" id="reef"></div></div>
+      </div>
+    </div>
+    <p class="note">O calendário vira o <b>recife</b>: cada dia é um quadradinho, mais forte quanto mais você fez (como o mapa de contribuições do GitHub). Abaixo dele continuam o calendário mensal, os lembretes e a edição.</p>
+  </div>
+</div>
+
+<div class="row">
+  <!-- 4. Editor -->
+  <div>
+    <div class="cap-title">4 · Criar hábito · tipo Tempo</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="sheet">
+        <div class="grabber"></div>
+        <div style="font-family: var(--display); font-size: 22px; font-weight: 700; margin-bottom: 12px">Novo hábito</div>
+        <div class="glass" style="padding: 12px 14px; border-radius: 14px; font-size: 15px">Ler</div>
+        <div class="field"><label>Tipo</label>
+          <div class="types" style="margin-top: 8px"><div class="type"><span class="ic">✓</span>Sim/não</div><div class="type"><span class="ic">+1</span>Contador</div><div class="type on"><span class="ic">⏱</span>Tempo</div><div class="type"><span class="ic">☰</span>Checklist</div></div></div>
+        <div class="field"><label>Meta por dia</label>
+          <div class="slider" style="margin-top: 40px"><div class="track"></div><div class="fill"></div><div class="bubble">20 min</div><div class="thumb"></div></div>
+          <div class="ticks"><span>5 min</span><span>1 h</span><span>2 h</span><span>3 h</span></div>
+          <div class="chips"><span class="chip">10</span><span class="chip on">20</span><span class="chip">30</span><span class="chip">45</span><span class="chip">60</span></div></div>
+        <div class="field"><label>Criatura · Peixe</label><div class="chips" style="font-size: 22px; gap: 10px; margin-top: 10px">🐢 🐠 🐙 🐬 🐳 🦀 🐡 🦈</div></div>
+        <div class="glass preview" style="--c: var(--sand)"><div class="capsule" style="--lvl: 30%"><div class="water"></div><div class="creature">🐠</div></div><div><div style="font-weight: 700">Prévia</div><div style="font-size: 12.5px; color: var(--t2)">A água sobe enquanto o cronômetro corre</div></div></div>
+      </div>
+    </div>
+    <p class="note">O tipo é a primeira escolha depois do nome. <b>Tempo</b> usa um <b>slider de minutos</b> com atalhos (10, 20, 30…). <b>Contador</b> pede meta e unidade (copos, páginas, vezes, km). <b>Checklist</b> pede os passos.</p>
+  </div>
+
+  <!-- 5. Cronômetro -->
+  <div>
+    <div class="cap-title">5 · Cronômetro (mergulho)</div>
+    <div class="phone">
+      <div class="dive"></div>
+      <div class="status" style="position: relative"><span>9:41</span><span>●●● 100%</span></div>
+      <div style="position: relative; text-align: center; margin-top: 40px"><div class="eyebrow">Ler · meta 20 min</div><div style="font-family: var(--display); font-size: 24px; font-weight: 700; margin-top: 4px">Mergulho de leitura</div></div>
+      <svg class="ring" viewBox="0 0 250 250"><circle cx="125" cy="125" r="115" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8"/><circle cx="125" cy="125" r="115" fill="none" stroke="#6fa9e0" stroke-width="8" stroke-linecap="round" stroke-dasharray="722" stroke-dashoffset="289" transform="rotate(-90 125 125)"/></svg>
+      <div class="ring" style="pointer-events: none"><div class="face"><div class="water"></div><div class="creature">🐠</div></div></div>
+      <div class="floating" style="width: 14px; height: 14px; left: 70px; top: 520px"></div><div class="floating" style="width: 8px; height: 8px; left: 290px; top: 470px"></div><div class="floating" style="width: 10px; height: 10px; left: 250px; top: 150px"></div>
+      <div class="clock"><b>12:04</b><div>faltam 7:56 · tela acesa</div></div>
+      <div class="buttons"><div class="round">Parar</div><div class="round main">❚❚</div><div class="round">+5 min</div></div>
+    </div>
+    <p class="note">Tela cheia, escura, com a água subindo junto com o anel. <b>Continua contando com o app fechado</b> (guarda a hora de início) e avisa por notificação quando bater a meta. O tempo também pode ser lançado à mão (“li 15 min”).</p>
+  </div>
+
+  <div style="width: 360px">
+    <div class="cap-title">Por baixo · dados</div>
+    <div class="glass" style="padding: 18px; font-size: 13.5px; line-height: 21px; color: var(--t2)">
+      <p><b style="color: var(--t1)">Hábito</b> ganha: <code>tipo</code> (sim/não · contador · tempo · checklist), <code>meta</code>, <code>unidade</code> e os <code>passos</code> do checklist.</p>
+      <p style="margin-top: 10px"><b style="color: var(--t1)">Registro do dia</b> ganha <code>quantidade</code> (copos, minutos ou passos feitos). O dia conta como <b style="color: var(--t1)">feito</b> quando a quantidade chega na meta.</p>
+      <p style="margin-top: 10px">Com isso <b style="color: var(--t1)">nada do que já existe muda</b>: sequência, crescimento da criatura, pontos de Profundidade e lembretes continuam valendo “dia feito”. Os hábitos atuais viram tipo Sim/não automaticamente.</p>
+      <p style="margin-top: 10px">Sincroniza como hoje: uma migração local (v7) e um SQL novo para o Supabase.</p>
+      <p style="margin-top: 10px"><b style="color: var(--t1)">Painel:</b> a fileira de cápsulas com ação rápida (celular) e um bloco de hábitos no bento (tablet/PC).</p>
+      <p style="margin-top: 10px"><b style="color: var(--t1)">Acessibilidade:</b> com “Reduzir movimento” a água não ondula, só muda de nível; cada cápsula tem rótulo (“Água, 3 de 8 copos”).</p>
+    </div>
+  </div>
+</div>
+<script>
+  const reef = document.getElementById('reef');
+  const levels = [0, .25, .5, .75, 1];
+  for (let i = 0; i < 126; i++) {
+    const v = i > 118 ? (i === 125 ? .38 : 1) : levels[Math.floor((Math.sin(i * 1.7) + Math.cos(i * .6) + 2) / 4 * 4.9)];
+    const el = document.createElement('i');
+    if (v > 0) el.style.background = `color-mix(in srgb, var(--c) ${Math.round(18 + v * 72)}%, transparent)`;
+    reef.appendChild(el);
+  }
+</script>
+</body>
+</html>

@@ -4,21 +4,21 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Grid, Text, radius, spacing, useBreakpoint, useTheme } from '@/design-system';
 
 import type { HabitWithProgress } from '../domain/types';
+import type { HabitActions } from '../hooks/useHabitActions';
 import { HabitCard } from './HabitCard';
 import { ReefHero } from './ReefHero';
 
-const COLUMNS = { compact: 2, medium: 3, expanded: 3 } as const;
+const COLUMNS = { compact: 1, medium: 2, expanded: 2 } as const;
 const GAP = spacing.md;
 
 type HabitsViewProps = {
   habits: HabitWithProgress[];
-  onToggle: (id: string, done: boolean) => void;
-  onOpen: (id: string) => void;
+  actions: HabitActions;
   onCreate: () => void;
 };
 
 /** The reef on top, then today's habits first and resting ones after. */
-export function HabitsView({ habits, onToggle, onOpen, onCreate }: HabitsViewProps) {
+export function HabitsView({ habits, actions, onCreate }: HabitsViewProps) {
   const breakpoint = useBreakpoint();
   const columns = COLUMNS[breakpoint];
 
@@ -28,12 +28,7 @@ export function HabitsView({ habits, onToggle, onOpen, onCreate }: HabitsViewPro
   const grid = (items: HabitWithProgress[], withNew: boolean) => (
     <Grid columns={columns} gap={GAP} accessibilityRole="list">
       {items.map((habit) => (
-        <HabitCard
-          key={habit.id}
-          habit={habit}
-          onToggle={(done) => onToggle(habit.id, done)}
-          onPress={() => onOpen(habit.id)}
-        />
+        <HabitCard key={habit.id} habit={habit} actions={actions} />
       ))}
       {withNew ? <NewHabitCard onPress={onCreate} /> : null}
     </Grid>
@@ -77,14 +72,16 @@ function NewHabitCard({ onPress }: { onPress: () => void }) {
       ]}
     >
       <View style={[styles.newBadge, { backgroundColor: colors.accentSoft }]}>
-        <Plus size={26} color={colors.accent} strokeWidth={2.2} />
+        <Plus size={24} color={colors.accent} strokeWidth={2.2} />
       </View>
-      <Text variant="headline" tone="accent">
-        Novo hábito
-      </Text>
-      <Text variant="footnote" tone="secondary" style={styles.center}>
-        Escolha uma criatura para cuidar
-      </Text>
+      <View style={styles.newTexts}>
+        <Text variant="headline" tone="accent">
+          Novo hábito
+        </Text>
+        <Text variant="footnote" tone="secondary">
+          Escolha uma criatura para cuidar
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -94,22 +91,21 @@ const styles = StyleSheet.create({
   section: { gap: spacing.sm },
   sectionTitle: { marginLeft: spacing.xs },
   newCard: {
-    minHeight: 196,
+    minHeight: 104,
     borderRadius: radius.xl,
     borderWidth: 1.5,
     borderStyle: 'dashed',
     padding: spacing.lg,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
+    gap: spacing.md,
   },
   newBadge: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 60,
+    height: 60,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.xs,
   },
-  center: { textAlign: 'center' },
+  newTexts: { flex: 1, gap: 2 },
 });
