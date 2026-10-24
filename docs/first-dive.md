@@ -6,6 +6,10 @@ Base: a V1 já pronta ([v1.md](v1.md)), com tarefas, hábitos-criaturas, rotinas
 
 ## Etapas
 
+**Regra de todas as etapas:** cada etapa também atualiza o **painel Início** (o dashboard interativo). Uma funcionalidade só está ✓ quando aparece, de forma resumida e tocável, no painel do celular, do tablet e do PC.
+
+**Decisões do checkpoint 035:** pastas com no máximo 4 níveis; checklists de hábitos e de peças da rotina recomeçam todo dia (uma lista de tarefas normal anexada continua).
+
 Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas), depois as telas que usam esses dados, por último a recepção, que apresenta tudo.
 
 | #   | Etapa                                                                                            | Estado |
