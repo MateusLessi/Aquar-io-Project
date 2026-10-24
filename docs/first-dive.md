@@ -6,20 +6,21 @@ Base: a V1 já pronta ([v1.md](v1.md)), com tarefas, hábitos-criaturas, rotinas
 
 ## Etapas
 
-Ordem pensada por dependência: primeiro o que muda os dados, depois as telas que usam esses dados, por último a recepção, que apresenta tudo.
+Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas), depois as telas que usam esses dados, por último a recepção, que apresenta tudo.
 
 | #   | Etapa                                                                                            | Estado |
 | --- | ------------------------------------------------------------------------------------------------ | ------ |
 | 1   | **Hábitos 2.0**: tipos de hábito, cronômetro, contador, nova visualização                        | ☐      |
-| 2   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ☐      |
-| 3   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ☐      |
-| 4   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ☐      |
-| 5   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ☐      |
-| 6   | **Ajustes completos**: personalização ampla do app                                               | ☐      |
-| 7   | **Perfil personalizável** com privacidade por informação                                         | ☐      |
-| 8   | **Boas-vindas imersivas** e quiz inicial                                                         | ☐      |
-| 9   | **Pronto para testadores**: marca, comunidade, Founding Diver, apagar conta, privacidade, GitHub | ☐      |
-| 10  | **Lançamento**: tag `v1.0.0`, Release "First Dive", site fixo, APK, anúncio                      | ☐      |
+| 2   | **Pastas e listas**: pastas dentro de pastas, visualizações de pasta                             | ☐      |
+| 3   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ☐      |
+| 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ☐      |
+| 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ☐      |
+| 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ☐      |
+| 7   | **Ajustes completos**: personalização ampla do app                                               | ☐      |
+| 8   | **Perfil personalizável** com privacidade por informação                                         | ☐      |
+| 9   | **Boas-vindas imersivas** e quiz inicial                                                         | ☐      |
+| 10  | **Pronto para testadores**: marca, comunidade, Founding Diver, apagar conta, privacidade, GitHub | ☐      |
+| 11  | **Lançamento**: tag `v1.0.0`, Release "First Dive", site fixo, APK, anúncio                      | ☐      |
 
 ## Detalhes por etapa
 
@@ -33,48 +34,62 @@ Ordem pensada por dependência: primeiro o que muda os dados, depois as telas qu
 - **Nova visualização** do hábito, no painel e na página dedicada. Substitui as bolinhas por algo mais ousado: anel de progresso, a criatura reagindo ao progresso parcial, e um histórico mais rico.
 - A criatura continua sendo o coração do hábito.
 
-### 2. Tudo conectado
+### 2. Pastas e listas
+
+- Na aba Listas, o **Criar** oferece **Nova lista** ou **Nova pasta**.
+- **Pastas dentro de pastas**, por exemplo `UnB › Semestre 3 › Cálculo 3`, com no máximo 4 níveis para ninguém se perder no celular.
+- **Navegação por trilha** (breadcrumb) no topo: tocar em "UnB" volta direto para a pasta.
+- **Visual:** a pasta é um bloco de vidro elevado, com as listas "aparecendo" atrás como cartas empilhadas; tem cor e emoji próprios e um anel com o progresso de tudo o que está dentro.
+- **Visualizações da pasta:**
+  - **Grade:** cartões de pastas e listas;
+  - **Lista compacta;**
+  - **Tudo junto:** as tarefas de todas as listas da pasta e das subpastas numa tela só, agrupadas por lista. Por exemplo: tudo o que vence nesta semana em "Semestre 3".
+- **Organizar:** "Mover para…" (acessível, funciona em qualquer aparelho) e arrastar no tablet e no PC.
+- **Apagar pasta:** escolher entre mover o conteúdo para a pasta de cima ou apagar tudo, sempre com confirmação.
+- **Dados:** tabela nova de pastas, sincronizada como as demais, e cada lista guarda em qual pasta está.
+
+### 3. Tudo conectado
 
 - **Hábito dentro da rotina:** um bloco da rotina pode ser um hábito com horário. Marcar na rotina marca o hábito, e vice-versa. **Uma fonte só de verdade.**
 - **Listas em rotinas e hábitos:** anexar uma lista existente ou criar um checklist próprio.
 - **Peça que abre:** tocar num bloco da rotina expande o bloco com uma animação, mostrando a lista. Ao sair, a animação fecha, e o bloco ganha um sinal (relevo ou ícone com a contagem) indicando que tem uma lista.
 - **Visual:** aero, vidro, blocos elevados, marinho.
 
-### 3. Visualizações de rotina
+### 4. Visualizações de rotina
 
 - A pessoa escolhe a visualização: **Linha do tempo** (a atual), **Semana em colunas** (referência: o modelo de rotina do Notion, com um dia por coluna e blocos com etiqueta colorida e horário) e **Agenda/lista**.
 - Disponível no **painel** (compacta) e em **Rotinas** (detalhada).
 - No celular, a semana vira um carrossel de dias. No tablet e no PC aparecem as 7 colunas.
 
-### 4. Estatísticas
+### 5. Estatísticas
 
 - Visões semanal e mensal, com gráficos e tabelas, cobrindo hábitos, tarefas, rotinas e Profundidade.
 - Sequências, taxa de conclusão por dia da semana, horários em que você mais conclui e equilíbrio entre áreas.
 - Gráficos desenhados com `react-native-svg`, que já está no projeto. Sem biblioteca nova.
 
-### 5. Sons e toque
+### 6. Sons e toque
 
 - Um som curto para cada conclusão (tarefa, subtarefa, hábito, item de rotina, maré completa e mudança de zona), mais vibração leve.
 - Sons **próprios ou com licença livre (CC0)**. Nunca copiados de outro app.
 - Liga e desliga em Ajustes. Os sons respeitam o modo silencioso do celular.
 
-### 6. Ajustes completos
+### 7. Ajustes completos
 
 Ver [recomendações](#recomendações-de-ajustes-e-perfil) abaixo.
 
-### 7. Perfil personalizável
+### 8. Perfil personalizável
 
 - Avatar (criatura), cor/tema do perfil, frase, selos exibidos, destaques (zona de Profundidade, criatura favorita, sequência).
 - **Privacidade por informação:** público / só amigos / só eu, já preparado para quando os perfis forem visíveis. **Padrão: só eu.**
 
-### 8. Boas-vindas imersivas e quiz
+### 9. Boas-vindas imersivas e quiz
 
 - Estilo "primeiro uso de um iPhone": limpo, uma ideia por tela, e uma descida pelo oceano (luz da superfície → recife → profundezas) com criaturas e flora.
 - Quiz curto e **opcional**: o que você quer organizar, rotina de estudo ou trabalho, hábitos que quer começar. Já **sugere hábitos e rotinas prontos** no final.
 - Idade em **faixa etária**, opcional, nunca a data de nascimento.
 - Respeita "Reduzir movimento".
 
-### 9. Pronto para testadores
+### 10. Pronto para testadores
 
 Ver [community.md](community.md): marca dentro do app, Comunidade e feedback, Founding Diver, apagar conta, aviso de privacidade, "Adicionar à Tela de Início" no iPhone, estados vazios com o mascote, e o "Sobre" do GitHub, modelos de issue e etiquetas.
 
