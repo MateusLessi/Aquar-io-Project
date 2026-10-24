@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+import { AndroidImportance } from 'expo-notifications';
 import { Platform } from 'react-native';
 
 /** Local notifications exist on iOS and Android; the web build has no reminders. */
@@ -49,7 +50,7 @@ export function configureNotifications() {
   if (Platform.OS === 'android') {
     Notifications.setNotificationChannelAsync(CHANNEL, {
       name: 'Lembretes',
-      importance: Notifications.AndroidImportance.HIGH,
+      importance: AndroidImportance.HIGH,
     }).catch((error: unknown) => console.warn('Could not create the reminders channel.', error));
   }
 }
