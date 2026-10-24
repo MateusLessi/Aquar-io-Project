@@ -24,6 +24,7 @@ import { creatures } from '@/features/habits/domain/creatures';
 import { MAX_FOLDER_DEPTH } from '@/features/todo/domain/validation';
 import { useTodo } from '@/features/todo/hooks/todoContext';
 
+import { ConnectMode } from './ConnectMode';
 import { HabitTimeSheet, type HabitTimeRequest } from './HabitTimeSheet';
 import { useConnections } from './useConnected';
 
@@ -41,6 +42,8 @@ type ConnectApi = {
   connect: (item: ConnectItem, target: ConnectTarget) => void;
   /** Whether `item` can go into `target` (used to light up drop targets). */
   accepts: (item: ConnectItem, target: ConnectTarget) => boolean;
+  /** Opens the drag-and-drop mode. */
+  startMode: () => void;
 };
 
 const ConnectContext = createContext<ConnectApi | null>(null);
@@ -67,6 +70,7 @@ export function ConnectProvider({ children }: { children: React.ReactNode }) {
     (HabitTimeRequest & { item: ConnectItem; target: ConnectTarget }) | null
   >(null);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [modeOpen, setModeOpen] = useState(false);
   const hide = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const show = useCallback((next: Toast) => {
@@ -175,14 +179,13 @@ export function ConnectProvider({ children }: { children: React.ReactNode }) {
   );
 
   const api = useMemo<ConnectApi>(
-    () => ({ open: setRequest, connect, accepts }),
+    () => ({ open: setRequest, connect, accepts, startMode: () => setModeOpen(true) }),
     [connect, accepts],
   );
 
-  return (
-    <ConnectContext.Provider value={api}>
-      {children}
-      <ConnectSheet request={request} onClose={() => setRequest(null)} />
+  // The time question and the toast: inside the mode while it is open (it covers the app).
+  const overlays = (
+    <>
       <HabitTimeSheet
         request={timing}
         onClose={() => setTiming(null)}
@@ -201,6 +204,21 @@ export function ConnectProvider({ children }: { children: React.ReactNode }) {
           }}
         />
       ) : null}
+    </>
+  );
+
+  return (
+    <ConnectContext.Provider value={api}>
+      {children}
+      <ConnectSheet request={request} onClose={() => setRequest(null)} />
+      {modeOpen ? null : overlays}
+      <ConnectMode
+        visible={modeOpen}
+        onClose={() => setModeOpen(false)}
+        accepts={accepts}
+        onDrop={connect}
+        overlays={modeOpen ? overlays : null}
+      />
     </ConnectContext.Provider>
   );
 }

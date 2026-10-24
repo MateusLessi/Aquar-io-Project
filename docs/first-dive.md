@@ -16,7 +16,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | --- | ------------------------------------------------------------------------------------------------ | ------ |
 | 1   | **Hábitos 2.0**: tipos de hábito, cronômetro, contador, nova visualização                        | ✓      |
 | 2   | **Pastas e listas**: pastas dentro de pastas, visualizações de pasta                             | ✓      |
-| 3   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ☐      |
+| 3   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ✓      |
 | 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ☐      |
 | 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ☐      |
 | 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ☐      |
@@ -48,7 +48,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
   - **Grade:** cartões de pastas e listas;
   - **Lista compacta;**
   - **Tudo junto:** as tarefas de todas as listas da pasta e das subpastas numa tela só, agrupadas por lista. Por exemplo: tudo o que vence nesta semana em "Semestre 3".
-- **Organizar:** "Mover para…" (acessível, funciona em qualquer aparelho). Arrastar no tablet e no PC ficou **pendente**.
+- **Organizar:** "Mover para…" (acessível, funciona em qualquer aparelho) e arrastar no modo Conectar (etapa 3).
 - **Apagar pasta:** escolher entre mover o conteúdo para a pasta de cima ou apagar tudo, sempre com confirmação.
 - **Dados:** tabela nova de pastas, sincronizada como as demais, e cada lista guarda em qual pasta está.
 

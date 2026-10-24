@@ -1,5 +1,6 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { CloudAlert } from 'lucide-react-native';
@@ -67,12 +68,15 @@ function ThemedStack() {
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.surfaceBase },
-        }}
-      />
+      {/* Drag and drop (modo Conectar) needs the gesture system at the root. */}
+      <GestureHandlerRootView style={styles.fill}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.surfaceBase },
+          }}
+        />
+      </GestureHandlerRootView>
     </>
   );
 }
@@ -111,4 +115,5 @@ function StartupError({ onRetry }: { onRetry?: () => void }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center' },
+  fill: { flex: 1 },
 });

@@ -1,7 +1,9 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { Screen, SegmentedControl } from '@/design-system';
+import { Link2 } from 'lucide-react-native';
+
+import { Button, Screen, SegmentedControl } from '@/design-system';
 import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
 import { ListsPanel } from '@/features/todo/screens/ListsPanel';
@@ -29,11 +31,12 @@ export function AquariumScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const tab = aquariumTab(params.tab);
-  const { open } = useConnect();
+  const { open, startMode } = useConnect();
 
   return (
     <Screen
       title="Aquário"
+      actions={<Button label="Conectar" variant="secondary" icon={Link2} onPress={startMode} />}
       accessory={
         <View style={styles.switch}>
           <SegmentedControl
