@@ -7,6 +7,8 @@ import type { Database } from '@/core/database/types';
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { createEventLog, type EventLog } from '@/core/events/eventLog';
 import { newId } from '@/core/ids';
+import { LinksContext } from '@/core/links/linksContext';
+import { createLinksRepository, type LinksRepository } from '@/core/links/linksRepository';
 import { createProfileRepository, type ProfileRepository } from '@/core/profile/profileRepository';
 import { ProfileContext } from '@/core/profile/useProfile';
 import { createDefaultAccount, type AccountService } from '@/core/sync/account';
@@ -42,6 +44,7 @@ export type AppData = {
   habits: HabitsRepository;
   routines: RoutinesRepository;
   profile: ProfileRepository;
+  links: LinksRepository;
   themePreference: ThemePreference;
   /** The person's accessibility choices (null: follow the device). */
   accessibility: AccessibilityChoices;
@@ -64,6 +67,7 @@ export async function createAppData(
   const habits = createHabitsRepository({ db, changes, events, newId, now });
   const routines = createRoutinesRepository({ db, changes, events, newId, now });
   const profile = createProfileRepository(db, changes, now);
+  const links = createLinksRepository({ db, changes, now });
   // The profile used to live in this device's settings: carry it over once.
   const oldName = await settings.get('profileName');
   const oldCreature = await settings.get('profileCreature');
@@ -88,6 +92,7 @@ export async function createAppData(
     habits,
     routines,
     profile,
+    links,
     themePreference,
     accessibility,
   } satisfies AppData;
@@ -137,9 +142,11 @@ export function AppDataProvider({ data, children }: { data: AppData; children: R
           <HabitsContext.Provider value={data.habits}>
             <RoutinesContext.Provider value={data.routines}>
               <ProfileContext.Provider value={data.profile}>
-                <AccountProvider account={data.account} db={data.db} changes={data.changes}>
-                  {children}
-                </AccountProvider>
+                <LinksContext.Provider value={data.links}>
+                  <AccountProvider account={data.account} db={data.db} changes={data.changes}>
+                    {children}
+                  </AccountProvider>
+                </LinksContext.Provider>
               </ProfileContext.Provider>
             </RoutinesContext.Provider>
           </HabitsContext.Provider>

@@ -277,6 +277,30 @@ export const migrations: Migration[] = [
       ${outboxTriggers('task_folders')}
     `,
   },
+  {
+    version: 9,
+    name: 'links',
+    // "Tudo conectado": a list, folder or habit placed in a habit or routine. The id comes from
+    // the pair, so linking the same two things on two devices is one row. Unlinking is a soft
+    // delete; linking again revives the row.
+    sql: `
+      CREATE TABLE links (
+        id           TEXT PRIMARY KEY NOT NULL,
+        item_kind    TEXT NOT NULL,
+        item_id      TEXT NOT NULL,
+        target_kind  TEXT NOT NULL,
+        target_id    TEXT NOT NULL,
+        at_time      TEXT,
+        sort_order   REAL NOT NULL,
+        created_at   TEXT NOT NULL,
+        updated_at   TEXT NOT NULL,
+        deleted_at   TEXT
+      );
+      CREATE INDEX idx_links_target ON links(target_kind, target_id);
+      CREATE INDEX idx_links_item ON links(item_kind, item_id);
+      ${outboxTriggers('links')}
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

@@ -132,6 +132,23 @@ export const syncedTables: readonly SyncedTable[] = [
     columns: ['id', 'item_id', 'routine_id', 'date', 'created_at', 'updated_at', 'deleted_at'],
   },
   {
+    // After everything a link can point to.
+    name: 'links',
+    topic: 'links',
+    columns: [
+      'id',
+      'item_kind',
+      'item_id',
+      'target_kind',
+      'target_id',
+      'at_time',
+      'sort_order',
+      'created_at',
+      'updated_at',
+      'deleted_at',
+    ],
+  },
+  {
     // One row per person with the fixed id 'me', so in the cloud a row is (user_id, id).
     name: 'profile',
     topic: 'profile',
