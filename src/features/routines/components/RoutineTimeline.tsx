@@ -19,6 +19,8 @@ type RoutineTimelineProps = {
   onToggleItem: (routineId: string, itemId: string, done: boolean) => void;
   onOpen: (routineId: string) => void;
   onSeeAll: () => void;
+  /** Extra content under a routine (the app shell shows the habits and lists placed in it). */
+  renderExtra?: (routine: RoutineToday) => React.ReactNode;
 };
 
 /**
@@ -30,6 +32,7 @@ export function RoutineTimeline({
   onToggleItem,
   onOpen,
   onSeeAll,
+  renderExtra,
 }: RoutineTimelineProps) {
   const today = routines.filter((r) => r.phase !== 'rest');
   if (today.length === 0) return null;
@@ -51,6 +54,7 @@ export function RoutineTimeline({
             last={index === today.length - 1}
             onToggleItem={(itemId, checked) => onToggleItem(routine.id, itemId, checked)}
             onOpen={() => onOpen(routine.id)}
+            extra={renderExtra?.(routine)}
           />
         ))}
       </View>
@@ -63,11 +67,13 @@ function TimelineRow({
   last,
   onToggleItem,
   onOpen,
+  extra,
 }: {
   routine: RoutineToday;
   last: boolean;
   onToggleItem: (itemId: string, done: boolean) => void;
   onOpen: () => void;
+  extra?: React.ReactNode;
 }) {
   const { colors, scheme } = useTheme();
   const tone = listColors[routine.color][scheme];
@@ -141,6 +147,8 @@ function TimelineRow({
             ))}
           </View>
         ) : null}
+
+        {extra}
 
         {routine.items.length > 0 ? (
           <View style={[styles.track, { backgroundColor: withAlpha(tone, 0.18) }]}>

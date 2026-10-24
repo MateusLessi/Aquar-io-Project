@@ -38,7 +38,14 @@ const STAGES: Stage[] = ['egg', 'baby', 'young', 'adult'];
 /** Days done where each stage begins (mirrors domain/stages). */
 const STAGE_FROM: Record<Stage, number> = { egg: 0, baby: 3, young: 10, adult: 30 };
 
-export function HabitDetailScreen({ habitId }: { habitId: string }) {
+export function HabitDetailScreen({
+  habitId,
+  footer,
+}: {
+  habitId: string;
+  /** Extra section after the growth path (the app shell's "Conectado a"). */
+  footer?: (habit: { id: string; name: string }) => React.ReactNode;
+}) {
   const router = useRouter();
   const { dive } = useLocalSearchParams<{ dive?: string }>();
   const repository = useHabitsRepository();
@@ -122,6 +129,7 @@ export function HabitDetailScreen({ habitId }: { habitId: string }) {
       </View>
 
       <Growth habit={habit} tone={tone} />
+      {footer?.({ id: habit.id, name: habit.name })}
 
       <Surface style={styles.card}>
         <Text variant="headline">Recife</Text>

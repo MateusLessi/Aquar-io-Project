@@ -13,7 +13,14 @@ import { toDateKey } from '../domain/dates';
 import { useFolderContents, useList, useListTasks } from '../hooks/queries';
 import { useTodo } from '../hooks/todoContext';
 
-export function ListScreen({ listId }: { listId: string }) {
+export function ListScreen({
+  listId,
+  footer,
+}: {
+  listId: string;
+  /** Extra section after the tasks (the app shell's "Usada em"). */
+  footer?: (list: { id: string; name: string }) => React.ReactNode;
+}) {
   const router = useRouter();
   const todo = useTodo();
   const { colors } = useTheme();
@@ -126,6 +133,8 @@ export function ListScreen({ listId }: { listId: string }) {
           ) : null}
         </View>
       ) : null}
+
+      {footer?.({ id: list.id, name: list.name })}
 
       <TaskDetailSheet taskId={selected} todayKey={todayKey} onClose={() => setSelected(null)} />
       <ListEditorSheet

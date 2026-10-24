@@ -1,10 +1,15 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { Screen, SegmentedControl } from '@/design-system';
+import { Link2 } from 'lucide-react-native';
+
+import { Button, Screen, SegmentedControl } from '@/design-system';
 import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
 import { ListsPanel } from '@/features/todo/screens/ListsPanel';
+
+import { useConnect } from '../connections/ConnectProvider';
+import { ConnectedRoutinePiece } from '../connections/ConnectedRoutinePiece';
 
 export type AquariumTab = 'habits' | 'routines' | 'lists';
 
@@ -26,10 +31,12 @@ export function AquariumScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const tab = aquariumTab(params.tab);
+  const { open, startMode } = useConnect();
 
   return (
     <Screen
       title="Aquário"
+      actions={<Button label="Conectar" variant="secondary" icon={Link2} onPress={startMode} />}
       accessory={
         <View style={styles.switch}>
           <SegmentedControl
@@ -42,8 +49,18 @@ export function AquariumScreen() {
       }
     >
       {tab === 'habits' ? <HabitsPanel /> : null}
-      {tab === 'routines' ? <RoutinesPanel /> : null}
-      {tab === 'lists' ? <ListsPanel /> : null}
+      {tab === 'routines' ? (
+        <RoutinesPanel
+          renderRoutine={(routine, onEdit) => (
+            <ConnectedRoutinePiece
+              routine={routine}
+              onEdit={onEdit}
+              initiallyOpen={routine.phase === 'now'}
+            />
+          )}
+        />
+      ) : null}
+      {tab === 'lists' ? <ListsPanel onConnect={(item) => open({ from: item })} /> : null}
     </Screen>
   );
 }

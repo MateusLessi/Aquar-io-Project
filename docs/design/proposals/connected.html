@@ -1,0 +1,281 @@
+<!doctype html>
+<!-- PROPOSAL: Tudo conectado for Checkpoint 042 (First Dive, etapa 3). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Tudo conectado</title>
+<style>
+  @font-face { font-family: Outfit; font-weight: 600; src: url(../../../node_modules/@expo-google-fonts/outfit/600SemiBold/Outfit_600SemiBold.ttf); }
+  @font-face { font-family: Outfit; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/outfit/700Bold/Outfit_700Bold.ttf); }
+  @font-face { font-family: Manrope; font-weight: 500; src: url(../../../node_modules/@expo-google-fonts/manrope/500Medium/Manrope_500Medium.ttf); }
+  @font-face { font-family: Manrope; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/manrope/700Bold/Manrope_700Bold.ttf); }
+  :root {
+    --display: Outfit, system-ui, sans-serif; --text: Manrope, system-ui, sans-serif;
+    --top: #0b2129; --base: #07121a; --deep: #040b11; --raised: #0e1c26;
+    --glass: rgba(18, 38, 50, 0.62); --glass-border: rgba(140, 200, 210, 0.16);
+    --t1: #e6f0f4; --t2: #9db2be; --t3: #6a8291; --sep: rgba(157, 178, 190, 0.12);
+    --accent: #5cc3bd; --coral: #ee8a73;
+    --kelp: #86bf7f; --sand: #d7b477; --anemone: #b697de; --tide: #6fa9e0; --lagoon: #4cc0b9; --coralc: #ee8a73;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #0a1218; color: var(--t1); padding: 36px; width: 1300px; }
+  h1 { font-family: var(--display); font-size: 30px; font-weight: 700; }
+  .lead { color: var(--t2); font-size: 15px; margin-top: 6px; max-width: 1180px; line-height: 22px; }
+  .lead b { color: var(--t1); }
+  .row { display: flex; gap: 40px; margin-top: 30px; align-items: flex-start; }
+  .cap-title { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); margin-bottom: 10px; }
+  .note { font-size: 13px; color: var(--t2); width: 360px; margin-top: 12px; line-height: 19px; }
+  .note b { color: var(--t1); }
+  .phone { width: 360px; height: 760px; border-radius: 44px; overflow: hidden; position: relative;
+    background: linear-gradient(180deg, var(--top) 0%, var(--base) 35%, var(--deep) 100%);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; }
+  .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 14px; font-weight: 700; }
+  .pad { padding: 4px 18px; }
+  .big { font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+  .crumbs { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--t2); margin-bottom: 4px; flex-wrap: wrap; }
+  .crumbs a { color: var(--accent); font-weight: 700; text-decoration: none; }
+  .crumbs i { font-style: normal; color: var(--t3); }
+  .toolbar { display: flex; gap: 8px; align-items: center; margin: 12px 0 14px; }
+  .seg { display: flex; background: rgba(255,255,255,.05); border-radius: 999px; padding: 3px; flex: 1; }
+  .seg span { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--t2); padding: 7px 0; border-radius: 999px; }
+  .seg span.on { background: rgba(255,255,255,.1); color: var(--t1); }
+  .plus { width: 38px; height: 38px; border-radius: 13px; background: var(--coral); color: #2a0f08; display: grid; place-items: center; font-size: 22px; font-weight: 700; box-shadow: 0 6px 14px rgba(238,138,115,.35); }
+  .section { font-size: 12px; font-weight: 700; color: var(--t3); letter-spacing: .07em; text-transform: uppercase; margin: 14px 2px 10px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Folder: a glass block with its lists peeking out behind, like stacked cards. */
+  .folder { position: relative; height: 150px; margin-top: 12px; }
+  .folder .back { position: absolute; left: 10px; right: 10px; top: -10px; height: 60px; border-radius: 18px; background: color-mix(in srgb, var(--c) 28%, #0e1c26); transform: rotate(-3deg); box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+  .folder .back2 { left: 18px; right: 4px; top: -5px; background: color-mix(in srgb, var(--c) 42%, #0e1c26); transform: rotate(2.5deg); }
+  .folder .front { position: absolute; inset: 0; border-radius: 22px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--c) 30%, rgba(18,38,50,.9)), rgba(14,28,38,.92));
+    border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+    box-shadow: 0 12px 26px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.12); }
+  .front .tab { position: absolute; top: -1px; left: 16px; width: 54px; height: 6px; border-radius: 0 0 6px 6px; background: var(--c); opacity: .9; }
+  .front .head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .emoji { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: color-mix(in srgb, var(--c) 30%, transparent); }
+  .ring { position: relative; width: 42px; height: 42px; }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 10.5px; font-weight: 700; }
+  .front .t { font-weight: 700; font-size: 15.5px; }
+  .front .s { font-size: 12px; color: var(--t2); }
+
+  .list { height: 120px; border-radius: 22px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;
+    background: color-mix(in srgb, var(--c) 22%, #0e1c26); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
+  .list .head { display: flex; justify-content: space-between; }
+  .list .n { font-family: var(--display); font-size: 24px; font-weight: 700; color: var(--c); }
+  .list .t { font-weight: 700; font-size: 15px; }
+  .list .s { font-size: 12px; color: var(--t2); }
+  .new { height: 120px; border-radius: 22px; border: 1.5px dashed rgba(255,255,255,.18); display: grid; place-items: center; color: var(--accent); font-weight: 700; font-size: 14px; }
+
+  /* Compact list view */
+  .rows { border-radius: 22px; overflow: hidden; }
+  .r { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--sep); }
+  .r:first-child { border-top: 0; }
+  .r .ic { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font-size: 17px; background: color-mix(in srgb, var(--c) 28%, transparent); }
+  .r .b { flex: 1; } .r .t { font-weight: 700; font-size: 14.5px; } .r .s { font-size: 12px; color: var(--t2); }
+  .r .chev { color: var(--t3); font-size: 18px; }
+
+  /* All together */
+  .group { margin-bottom: 12px; padding: 12px 14px; }
+  .group .gh { display: flex; gap: 8px; align-items: center; font-weight: 700; font-size: 13px; color: var(--c); margin-bottom: 4px; }
+  .group .gh small { color: var(--t3); font-weight: 700; }
+  .task { display: flex; gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--sep); font-size: 14px; }
+  .task:first-of-type { border-top: 0; }
+  .ck { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--t3); flex: none; }
+  .ck.on { background: var(--c); border-color: var(--c); }
+  .task .due { margin-left: auto; font-size: 11.5px; font-weight: 700; color: var(--coral); background: rgba(238,138,115,.12); padding: 2px 8px; border-radius: 999px; }
+  .task .due.ok { color: var(--t2); background: rgba(255,255,255,.06); }
+  .glass { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06); }
+
+  /* Sheets */
+  .dim { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 30px 30px 0 0; background: #0d1a23; border-top: 1px solid var(--glass-border); padding: 10px 18px 26px; }
+  .grabber { width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 0 auto 14px; }
+  .sheet h3 { font-family: var(--display); font-size: 22px; margin-bottom: 4px; }
+  .sheet p { font-size: 13px; color: var(--t2); margin-bottom: 14px; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice { border-radius: 20px; padding: 16px 14px; background: rgba(255,255,255,.04); border: 1px solid var(--sep); }
+  .choice .ci { font-size: 28px; }
+  .choice b { display: block; margin-top: 8px; font-size: 15px; }
+  .choice span { font-size: 12px; color: var(--t2); }
+  .tree .n { display: flex; gap: 10px; align-items: center; padding: 10px 4px; border-top: 1px solid var(--sep); font-size: 14.5px; }
+  .tree .n:first-child { border-top: 0; }
+  .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--t3); margin-left: auto; }
+  .radio.on { border: 6px solid var(--accent); }
+  .btn { margin-top: 14px; text-align: center; padding: 14px; border-radius: 999px; background: var(--accent); color: #062224; font-weight: 700; }
+
+  /* Routine piece */
+  .piece { border-radius: 22px; padding: 14px; position: relative; margin-bottom: 12px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--c) 26%, rgba(18,38,50,.9)), rgba(14,28,38,.94));
+    border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+    box-shadow: 0 12px 26px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.12); }
+  .piece .h { display: flex; gap: 10px; align-items: center; }
+  .piece .em { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-size: 19px; background: color-mix(in srgb, var(--c) 30%, transparent); }
+  .piece .t { font-weight: 700; font-size: 15.5px; } .piece .s { font-size: 12px; color: var(--t2); }
+  .badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .bd { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--t1); }
+  .lip { position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); width: 46px; height: 18px; border-radius: 0 0 12px 12px;
+    background: color-mix(in srgb, var(--c) 40%, #0e1c26); display: grid; place-items: center; font-size: 11px; color: var(--t1); box-shadow: 0 4px 8px rgba(0,0,0,.35); }
+  .open { padding-bottom: 8px; }
+  .sub { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); margin: 12px 0 6px; }
+  .line { display: flex; gap: 10px; align-items: center; padding: 7px 0; font-size: 14px; border-top: 1px solid var(--sep); }
+  .line:first-of-type { border-top: 0; }
+  .time { font-size: 11.5px; color: var(--t2); font-weight: 700; width: 38px; }
+  .mini { width: 26px; height: 34px; border-radius: 9px; position: relative; overflow: hidden; border: 1.5px solid color-mix(in srgb, var(--h) 60%, transparent); background: rgba(255,255,255,.04); flex: none; }
+  .mini i { position: absolute; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--h) 70%, transparent); }
+  .mini b { position: absolute; left: 0; right: 0; top: 4px; text-align: center; font-size: 13px; }
+  .ctl { margin-left: auto; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font-weight: 700; font-size: 13px;
+    background: color-mix(in srgb, var(--h) 25%, #0e1c26); border: 1px solid color-mix(in srgb, var(--h) 55%, transparent); box-shadow: 0 4px 10px rgba(0,0,0,.35); }
+  .add { margin-top: 10px; text-align: center; font-size: 13px; font-weight: 700; color: var(--accent); padding: 9px; border-radius: 12px; border: 1.5px dashed rgba(92,195,189,.4); }
+
+  /* Connect mode */
+  .targets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tg { border-radius: 18px; padding: 12px; background: rgba(255,255,255,.04); border: 1.5px dashed rgba(255,255,255,.14); font-size: 13.5px; font-weight: 700; }
+  .tg small { display: block; font-weight: 500; color: var(--t2); font-size: 11.5px; margin-top: 2px; }
+  .tg.hot { border: 2px solid var(--accent); background: rgba(92,195,189,.14); box-shadow: 0 0 0 6px rgba(92,195,189,.12), 0 0 26px rgba(92,195,189,.35); }
+  .drop { margin-top: 6px; font-size: 11.5px; color: var(--accent); }
+  .ghost { position: absolute; left: 150px; top: 262px; padding: 10px 14px; border-radius: 14px; font-weight: 700; font-size: 14px; transform: rotate(-4deg);
+    background: color-mix(in srgb, var(--anemone) 40%, #0e1c26); border: 1px solid var(--anemone); box-shadow: 0 18px 30px rgba(0,0,0,.55); }
+  .tray { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 26px; border-radius: 26px 26px 0 0; background: #0d1a23; border-top: 1px solid var(--glass-border); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .chip { padding: 9px 12px; border-radius: 14px; font-size: 13px; font-weight: 700; background: rgba(255,255,255,.06); border: 1px solid var(--sep); }
+  .chip.lift { opacity: .35; border-style: dashed; }
+  .toast { position: absolute; left: 16px; right: 16px; top: 52px; padding: 11px 14px; border-radius: 16px; background: rgba(14,28,38,.96); border: 1px solid var(--glass-border); font-size: 13px; display: flex; justify-content: space-between; box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+  .toast b { color: var(--accent); }
+  table.rules { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--t2); }
+  table.rules td, table.rules th { text-align: left; padding: 7px 8px; border-top: 1px solid var(--sep); vertical-align: top; }
+  table.rules th { color: var(--t1); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; border-top: 0; }
+  table.rules td:first-child, table.rules td:nth-child(2) { color: var(--t1); font-weight: 700; white-space: nowrap; }
+  .slider { margin: 22px 4px 6px; position: relative; height: 26px; }
+  .slider .tr { position: absolute; top: 11px; left: 0; right: 0; height: 5px; border-radius: 3px; background: rgba(255,255,255,.08); }
+  .slider .fi { position: absolute; top: 11px; left: 0; width: 22%; height: 5px; border-radius: 3px; background: var(--tide); }
+  .slider .th { position: absolute; top: 0; left: calc(22% - 13px); width: 26px; height: 26px; border-radius: 50%; background: #e6f0f4; }
+</style>
+</head>
+<body>
+<h1>Tudo conectado · proposta</h1>
+<p class="lead">Listas, hábitos e rotinas passam a <b>se encaixar uns nos outros</b>. Uma <b>peça de rotina</b> (o bloco com horário) pode guardar <b>passos</b>, <b>hábitos com horário</b> e <b>listas</b>; um hábito pode ter listas. Fechada, a peça mostra <b>selos do que tem dentro e uma aba em relevo</b> convidando a abrir; aberta, ela se expande com animação. Para ligar as coisas existe o <b>modo Conectar</b>: <b>arraste</b> uma lista, pasta ou hábito e <b>solte</b> sobre onde ele deve ficar. Sem arrastar, o mesmo vale pelo menu <b>"Conectar a…"</b> (leitor de tela, mãos ocupadas).</p>
+
+<div class="row">
+  <div>
+    <div class="cap-title">1 · Peças da rotina: fechada e aberta</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="pad">
+        <div class="big" style="font-size: 26px; margin-bottom: 12px">Rotinas de hoje</div>
+        <div class="piece" style="--c: var(--sand)"><div class="h"><div class="em">🌅</div><div><div class="t">Manhã</div><div class="s">07:00–08:00 · 3 de 5 feitos</div></div></div>
+          <div class="badges"><span class="bd">✓ 3 passos</span><span class="bd">🐋 Meditar 07:10</span><span class="bd">📋 1 lista</span></div><div class="lip">⌄</div></div>
+        <div class="piece open" style="--c: var(--coralc); margin-top: 18px"><div class="h"><div class="em">🏋️</div><div><div class="t">Academia</div><div class="s">Agora · até 19:30</div></div></div>
+          <div class="sub">Passos</div>
+          <div class="line"><span class="time"></span>☑︎ <span style="text-decoration: line-through; color: var(--t3)">Aquecer</span></div>
+          <div class="line"><span class="time"></span>☐ Alongar</div>
+          <div class="sub">Hábitos</div>
+          <div class="line" style="--h: var(--tide)"><span class="time">18:10</span><div class="mini"><i style="height: 38%"></i><b>🐬</b></div>Beber água · 3/8<div class="ctl">+1</div></div>
+          <div class="line" style="--h: var(--kelp)"><span class="time">19:15</span><div class="mini"><i style="height: 0"></i><b>🐢</b></div>Alongar 10 min<div class="ctl">▶</div></div>
+          <div class="sub">Lista · Treino A</div>
+          <div class="line">○ Supino 4×10</div><div class="line">○ Remada 4×12</div>
+          <div class="add">+ Conectar algo a esta peça</div>
+          <div class="lip">⌃</div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Marcar <b>Beber água</b> aqui marca o hábito em todo lugar, e vice-versa: <b>uma fonte só</b>. Os passos recomeçam todo dia; a lista é a lista de verdade (as tarefas são as mesmas da aba Listas).</p>
+  </div>
+
+  <div>
+    <div class="cap-title">2 · Modo Conectar (arrastando)</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="toast"><span>Solte em uma rotina, hábito ou pasta</span><b>Cancelar</b></div>
+      <div class="pad" style="margin-top: 52px">
+        <div class="sub" style="margin-top: 0">Rotinas</div>
+        <div class="targets">
+          <div class="tg">🌅 Manhã<small>07:00–08:00</small></div>
+          <div class="tg">🏋️ Academia<small>18:00–19:30</small></div>
+          <div class="tg">📚 Estudo<small>19:30–21:00</small></div>
+          <div class="tg">🌙 Noite<small>22:00–23:00</small></div>
+        </div>
+        <div class="sub">Hábitos</div>
+        <div class="targets">
+          <div class="tg hot">🐢 Academia (hábito)<small>Sim/não</small><div class="drop">Soltar para ligar a lista</div></div>
+          <div class="tg">🐬 Beber água<small>3/8 copos</small></div>
+        </div>
+        <div class="sub">Pastas</div>
+        <div class="targets"><div class="tg">🎓 UnB<small>2 pastas</small></div><div class="tg">🏠 Casa<small>3 listas</small></div></div>
+      </div>
+      <div class="ghost">📋 Treino A</div>
+      <div class="tray">
+        <div class="seg"><span class="on">Listas</span><span>Pastas</span><span>Hábitos</span></div>
+        <div class="chips"><span class="chip lift">📋 Treino A</span><span class="chip">🛒 Mercado</span><span class="chip">∫ Cálculo 3</span><span class="chip">💡 Ideias</span></div>
+      </div>
+    </div>
+    <p class="note">Segure um item da <b>bandeja</b> e arraste: os lugares onde ele pode encaixar ficam tracejados e o alvo sob o dedo <b>acende</b>. Ao soltar: vibração, um aviso “Treino A ligada a Academia” com <b>Desfazer</b>.</p>
+  </div>
+
+  <div>
+    <div class="cap-title">3 · Hábito dentro da rotina, com horário</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="pad" style="opacity: .3"><div class="big" style="font-size: 26px">Aquário</div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="grabber"></div>
+        <h3>🐬 Beber água em 🏋️ Academia</h3>
+        <p>Em que horário, dentro de 18:00–19:30?</p>
+        <div style="text-align: center; font-family: var(--display); font-size: 30px; font-weight: 700">18:10</div>
+        <div class="slider"><div class="tr"></div><div class="fi"></div><div class="th"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--t3)"><span>18:00</span><span>19:30</span></div>
+        <div class="chips" style="margin-top: 14px"><span class="chip">No começo</span><span class="chip">Sem horário</span></div>
+        <div class="btn">Colocar na rotina</div>
+      </div>
+    </div>
+    <p class="note">Hábitos ganham <b>horário dentro da peça</b>, ordenados com os passos. Na semana em colunas (etapa 4) eles aparecem como “mini-peças” dentro do bloco.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div>
+    <div class="cap-title">4 · “Conectado a” (hábito e lista)</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>●●● 100%</span></div>
+      <div class="pad">
+        <div class="crumbs"><a>Hábitos</a></div>
+        <div class="big">🐢 Academia</div>
+        <div class="glass" style="padding: 14px; margin-top: 14px">
+          <div class="sub" style="margin-top: 0">Conectado a</div>
+          <div class="line"><span>🏋️</span><div style="flex:1"><b>Rotina Academia</b><div style="font-size: 12px; color: var(--t2)">Seg, Qua, Sex · 18:00</div></div><span style="color: var(--t3)">›</span></div>
+          <div class="line"><span>📋</span><div style="flex:1"><b>Treino A</b><div style="font-size: 12px; color: var(--t2)">Lista · 3 pendentes</div></div><span style="color: var(--t3)">›</span></div>
+          <div class="line"><span>🎓</span><div style="flex:1"><b>UnB › Educação Física</b><div style="font-size: 12px; color: var(--t2)">Pasta · tudo junto</div></div><span style="color: var(--t3)">›</span></div>
+          <div class="add">+ Conectar a…</div>
+        </div>
+        <div class="glass" style="padding: 14px; margin-top: 12px; font-size: 13px; color: var(--t2); line-height: 19px">
+          Na <b style="color: var(--t1)">lista Treino A</b> aparece o caminho inverso: “Usada em 🐢 Academia e 🏋️ rotina Academia”. Tirar uma ligação nunca apaga nada: só desliga.
+        </div>
+      </div>
+    </div>
+    <p class="note">Toda ligação aparece <b>dos dois lados</b>. “Conectar a…” abre a mesma lista de destinos do modo Conectar, como um menu: funciona sem arrastar.</p>
+  </div>
+
+  <div style="width: 760px">
+    <div class="cap-title">Regras de encaixe</div>
+    <div class="glass" style="padding: 18px">
+      <table class="rules">
+        <tr><th>Arrastar</th><th>Soltar em</th><th>Resultado</th></tr>
+        <tr><td>📋 Lista</td><td>📁 Pasta</td><td>Guarda a lista na pasta (o arrastar que faltou na etapa 2)</td></tr>
+        <tr><td>📁 Pasta</td><td>📁 Pasta</td><td>Guarda a pasta dentro (respeitando os 4 níveis)</td></tr>
+        <tr><td>📋 Lista</td><td>🐢 Hábito</td><td>A lista passa a ser do hábito: aparece no detalhe e na cápsula (selo ☰)</td></tr>
+        <tr><td>📋 Lista</td><td>⏱ Rotina</td><td>A lista abre dentro da peça, com as tarefas de verdade</td></tr>
+        <tr><td>📁 Pasta</td><td>🐢 Hábito / ⏱ Rotina</td><td>Liga a pasta inteira: mostra o “Tudo junto” dela</td></tr>
+        <tr><td>🐢 Hábito</td><td>⏱ Rotina</td><td>O hábito entra na peça com horário; marcar em um marca no outro</td></tr>
+        <tr><td colspan="3" style="font-weight: 500; color: var(--t2); white-space: normal">Alvos que não aceitam o item ficam apagados enquanto você arrasta. O que é ligado <b style="color: var(--t1)">nunca é copiado nem movido de lugar</b> (exceto lista/pasta → pasta, que é guardar).</td></tr>
+      </table>
+    </div>
+    <div class="glass" style="padding: 18px; margin-top: 14px; font-size: 13.5px; line-height: 21px; color: var(--t2)">
+      <p><b style="color: var(--t1)">Onde fica o modo Conectar:</b> um botão “Conectar” no Aquário (as três abas), e o arrastar direto também funciona <b style="color: var(--t1)">dentro de cada aba</b> (lista sobre pasta, hábito sobre rotina) no tablet/PC.</p>
+      <p style="margin-top: 8px"><b style="color: var(--t1)">Painel Início:</b> a rotina de agora mostra os hábitos e a lista dela, com os controles; um toque abre a peça.</p>
+      <p style="margin-top: 8px"><b style="color: var(--t1)">Dados:</b> uma tabela de <b style="color: var(--t1)">ligações</b> (o quê → onde, horário, ordem), sincronizada; passos continuam como hoje. Migração v9 + SQL novo. Arrastar usa a biblioteca de gestos que já vem no Expo Go.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

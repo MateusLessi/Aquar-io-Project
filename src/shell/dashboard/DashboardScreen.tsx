@@ -13,6 +13,7 @@ import { PinnedFolders } from '@/features/todo/components/PinnedFolders';
 import { TodayTasks } from '@/features/todo/components/TodayTasks';
 import { useToday } from '@/features/todo/hooks/queries';
 
+import { RoutineExtras } from '../connections/RoutineExtras';
 import { useCreate } from '../create/CreateContext';
 import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
@@ -92,7 +93,7 @@ export function DashboardScreen() {
         <>
           {tide}
           <DepthGauge />
-          <TodayRoutines />
+          <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />
           <TodayHabits />
           <TodayTasks />
           <PinnedFolders />
@@ -107,7 +108,7 @@ export function DashboardScreen() {
             {week}
           </Column>
           <Column>
-            <TodayRoutines />
+            <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />
             <TodayTasks />
             <PinnedFolders />
             {calendar}
@@ -123,7 +124,7 @@ export function DashboardScreen() {
           <Column flex={1.1}>
             {tide}
             <DepthGauge />
-            <TodayRoutines />
+            <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />
           </Column>
           <Column flex={1.1}>
             <TodayTasks />

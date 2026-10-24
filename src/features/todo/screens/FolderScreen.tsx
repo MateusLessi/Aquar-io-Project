@@ -6,11 +6,17 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { EmptyState, IconButton, Screen, Text, useTheme } from '@/design-system';
 
 import { FolderEditorSheet } from '../components/FolderEditorSheet';
-import { ListsBrowser } from '../components/ListsBrowser';
+import { ListsBrowser, type ConnectableItem } from '../components/ListsBrowser';
 import type { FolderCrumb } from '../domain/types';
 import { useFolderContents } from '../hooks/queries';
 
-export function FolderScreen({ folderId }: { folderId: string }) {
+export function FolderScreen({
+  folderId,
+  onConnect,
+}: {
+  folderId: string;
+  onConnect?: (item: ConnectableItem) => void;
+}) {
   const router = useRouter();
   const { data, loading } = useFolderContents(folderId);
   const [editing, setEditing] = useState(false);
@@ -40,7 +46,7 @@ export function FolderScreen({ folderId }: { folderId: string }) {
       actions={<IconButton icon={Pencil} label="Editar pasta" onPress={() => setEditing(true)} />}
     >
       <Crumbs path={data.path} onTop={toLists} />
-      <ListsBrowser folderId={folderId} />
+      <ListsBrowser folderId={folderId} onConnect={onConnect} />
       <FolderEditorSheet
         visible={editing}
         folder={folder}

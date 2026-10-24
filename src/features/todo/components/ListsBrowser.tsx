@@ -40,7 +40,16 @@ type Item = { kind: 'folder'; folder: FolderSummary } | { kind: 'list'; list: Ta
  * lists, as a grid, as rows, or every task together. The + asks whether to create a list or
  * a folder here; holding an item offers to move, edit or pin it.
  */
-export function ListsBrowser({ folderId }: { folderId: string | null }) {
+export type ConnectableItem = { kind: 'list' | 'folder'; id: string; name: string };
+
+export function ListsBrowser({
+  folderId,
+  onConnect,
+}: {
+  folderId: string | null;
+  /** "Conectar a…" in an item's options (the app shell's connection system). */
+  onConnect?: (item: ConnectableItem) => void;
+}) {
   const router = useRouter();
   const todo = useTodo();
   const breakpoint = useBreakpoint();
@@ -239,6 +248,21 @@ export function ListsBrowser({ folderId }: { folderId: string | null }) {
                 );
               }}
             />
+            {onConnect ? (
+              <Button
+                label="Conectar a…"
+                variant="secondary"
+                block
+                onPress={() => {
+                  setActions(null);
+                  onConnect(
+                    actions.kind === 'folder'
+                      ? { kind: 'folder', id: actions.folder.id, name: actions.folder.name }
+                      : { kind: 'list', id: actions.list.id, name: actions.list.name },
+                  );
+                }}
+              />
+            ) : null}
             {actions.kind === 'folder' ? (
               <>
                 <Button

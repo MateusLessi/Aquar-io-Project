@@ -131,6 +131,15 @@ task_lists    + folder_id
 
 Detalhes em [todo.md](todo.md#pastas-first-dive-etapa-2).
 
+## Ligações (migration 9)
+
+```
+links  id (derivado do par), item_kind, item_id, target_kind, target_id, at_time, sort_order,
+       created_at, updated_at, deleted_at
+```
+
+Detalhes em [connections.md](connections.md).
+
 ### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;

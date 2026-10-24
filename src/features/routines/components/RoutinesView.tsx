@@ -12,25 +12,32 @@ type RoutinesViewProps = {
   routines: RoutineToday[];
   onOpen: (id: string) => void;
   onCreate: () => void;
+  /**
+   * Draws a routine richer than the plain card (the app shell's connected "piece", which also
+   * shows the habits and lists placed in it). Defaults to RoutineCard.
+   */
+  renderRoutine?: (routine: RoutineToday, onEdit: () => void) => React.ReactNode;
 };
 
 /** All routines in time order: today's first, then the ones resting today. */
-export function RoutinesView({ routines, onOpen, onCreate }: RoutinesViewProps) {
+export function RoutinesView({ routines, onOpen, onCreate, renderRoutine }: RoutinesViewProps) {
+  const draw = (r: RoutineToday) =>
+    renderRoutine ? (
+      <View key={r.id}>{renderRoutine(r, () => onOpen(r.id))}</View>
+    ) : (
+      <RoutineCard key={r.id} routine={r} onPress={() => onOpen(r.id)} />
+    );
   const today = routines.filter((r) => r.phase !== 'rest');
   const resting = routines.filter((r) => r.phase === 'rest');
   return (
     <View style={styles.root}>
       <Section title="Hoje">
-        {today.map((r) => (
-          <RoutineCard key={r.id} routine={r} onPress={() => onOpen(r.id)} />
-        ))}
+        {today.map(draw)}
         {resting.length === 0 ? <NewRoutineCard onPress={onCreate} /> : null}
       </Section>
       {resting.length > 0 ? (
         <Section title="Outros dias">
-          {resting.map((r) => (
-            <RoutineCard key={r.id} routine={r} onPress={() => onOpen(r.id)} />
-          ))}
+          {resting.map(draw)}
           <NewRoutineCard onPress={onCreate} />
         </Section>
       ) : null}

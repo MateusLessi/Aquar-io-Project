@@ -67,4 +67,4 @@ Proposta aprovada no checkpoint 038: `docs/design/proposals/folders.png`.
 - **Trilha** `Listas › UnB › Semestre 3` (`FolderScreen.tsx`, `Crumbs`); a tela de uma lista mostra o caminho dela.
 - **Criar**: o card "Nova lista ou pasta" e o botão Criar do app sabem em que pasta você está.
 - **Painel Início**: tarefas de hoje mostram de onde vêm (`listPath`) e pastas **fixadas** (`pinned`) aparecem com anel e próximas tarefas (`PinnedFolders.tsx`).
-- **Pendente**: arrastar e soltar no tablet/PC (hoje: segurar → "Mover para…", que funciona em qualquer aparelho e com leitor de tela).
+- **Arrastar**: no modo Conectar (etapa 3), soltar uma lista ou pasta numa pasta guarda ela lá, em qualquer aparelho. Segurar → "Mover para…" continua valendo.
