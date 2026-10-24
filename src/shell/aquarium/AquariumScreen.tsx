@@ -6,6 +6,9 @@ import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
 import { ListsPanel } from '@/features/todo/screens/ListsPanel';
 
+import { useConnect } from '../connections/ConnectProvider';
+import { ConnectedRoutinePiece } from '../connections/ConnectedRoutinePiece';
+
 export type AquariumTab = 'habits' | 'routines' | 'lists';
 
 export const aquariumTabs: { value: AquariumTab; label: string }[] = [
@@ -26,6 +29,7 @@ export function AquariumScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const tab = aquariumTab(params.tab);
+  const { open } = useConnect();
 
   return (
     <Screen
@@ -42,8 +46,18 @@ export function AquariumScreen() {
       }
     >
       {tab === 'habits' ? <HabitsPanel /> : null}
-      {tab === 'routines' ? <RoutinesPanel /> : null}
-      {tab === 'lists' ? <ListsPanel /> : null}
+      {tab === 'routines' ? (
+        <RoutinesPanel
+          renderRoutine={(routine, onEdit) => (
+            <ConnectedRoutinePiece
+              routine={routine}
+              onEdit={onEdit}
+              initiallyOpen={routine.phase === 'now'}
+            />
+          )}
+        />
+      ) : null}
+      {tab === 'lists' ? <ListsPanel onConnect={(item) => open({ from: item })} /> : null}
     </Screen>
   );
 }

@@ -11,6 +11,7 @@ import { AMBIENT_SETTING, shouldShowAmbient, useCharging, type AmbientSetting } 
 import { AmbientDisplay } from './AmbientDisplay';
 import { aquariumTab } from './aquarium/AquariumScreen';
 import { CreateContext } from './create/CreateContext';
+import { ConnectProvider } from './connections/ConnectProvider';
 import { CreateFlow } from './create/CreateFlow';
 import { destinations } from './destinations';
 import { NavigationRail } from './NavigationRail';
@@ -96,49 +97,51 @@ function ShellLayout() {
 
   return (
     <OceanBackground caustics={false}>
-      <View style={[styles.body, breakpoint !== 'compact' && styles.row]}>
-        {breakpoint === 'expanded' ? (
-          <Sidebar destinations={destinations} onCreate={create} />
-        ) : null}
-        {breakpoint === 'medium' ? (
-          <NavigationRail destinations={destinations} onCreate={create} />
-        ) : null}
-        <ChromeInsetsProvider value={chromeInsets}>
-          <CreateContext.Provider value={create}>
-            <View style={styles.content}>
-              {/* TabSlot's container does not shrink by default: a long screen (e.g. Settings)
+      <ConnectProvider>
+        <View style={[styles.body, breakpoint !== 'compact' && styles.row]}>
+          {breakpoint === 'expanded' ? (
+            <Sidebar destinations={destinations} onCreate={create} />
+          ) : null}
+          {breakpoint === 'medium' ? (
+            <NavigationRail destinations={destinations} onCreate={create} />
+          ) : null}
+          <ChromeInsetsProvider value={chromeInsets}>
+            <CreateContext.Provider value={create}>
+              <View style={styles.content}>
+                {/* TabSlot's container does not shrink by default: a long screen (e.g. Settings)
                   would grow past the window and never scroll. */}
-              <TabSlot style={styles.slot} />
-            </View>
-          </CreateContext.Provider>
-        </ChromeInsetsProvider>
-      </View>
-      {breakpoint === 'compact' ? (
-        <TabBar
-          destinations={destinations}
-          activeName={activeName}
-          onCreate={create}
-          iconRotation={uprightRotation(tilt)}
+                <TabSlot style={styles.slot} />
+              </View>
+            </CreateContext.Provider>
+          </ChromeInsetsProvider>
+        </View>
+        {breakpoint === 'compact' ? (
+          <TabBar
+            destinations={destinations}
+            activeName={activeName}
+            onCreate={create}
+            iconRotation={uprightRotation(tilt)}
+          />
+        ) : null}
+        <CreateFlow
+          visible={creating}
+          onClose={() => setCreating(false)}
+          suggested={suggestedCreate}
+          defaultListId={currentListId}
+          defaultFolderId={currentFolderId}
+          dueToday={activeName === 'index'}
         />
-      ) : null}
-      <CreateFlow
-        visible={creating}
-        onClose={() => setCreating(false)}
-        suggested={suggestedCreate}
-        defaultListId={currentListId}
-        defaultFolderId={currentFolderId}
-        dueToday={activeName === 'index'}
-      />
-      {celebration.message ? (
-        <CelebrationBanner
-          key={celebration.message}
-          message={celebration.message}
-          onDone={celebration.dismiss}
-        />
-      ) : null}
-      {showAmbient ? (
-        <AmbientDisplay rotation={uprightRotation(tilt)} onExit={() => setDismissedTilt(tilt)} />
-      ) : null}
+        {celebration.message ? (
+          <CelebrationBanner
+            key={celebration.message}
+            message={celebration.message}
+            onDone={celebration.dismiss}
+          />
+        ) : null}
+        {showAmbient ? (
+          <AmbientDisplay rotation={uprightRotation(tilt)} onExit={() => setDismissedTilt(tilt)} />
+        ) : null}
+      </ConnectProvider>
     </OceanBackground>
   );
 }

@@ -7,10 +7,15 @@ import { EmptyState } from '@/design-system';
 import { RoutineEditorSheet } from '../components/RoutineEditorSheet';
 import { RoutinesView } from '../components/RoutinesView';
 import { useRoutinesRepository } from '../hooks/routinesContext';
+import type { RoutineToday } from '../domain/types';
 import { useRoutine, useRoutinesToday } from '../hooks/queries';
 
 /** Routines inside the Aquarium: today's and the other days', with the editor. */
-export function RoutinesPanel() {
+export function RoutinesPanel({
+  renderRoutine,
+}: {
+  renderRoutine?: (routine: RoutineToday, onEdit: () => void) => React.ReactNode;
+} = {}) {
   const repository = useRoutinesRepository();
   const params = useLocalSearchParams<{ edit?: string }>();
   const { data: routines, error } = useRoutinesToday();
@@ -39,6 +44,7 @@ export function RoutinesPanel() {
           routines={routines}
           onOpen={setEditingId}
           onCreate={() => setCreating(true)}
+          renderRoutine={renderRoutine}
         />
       ) : null}
 
