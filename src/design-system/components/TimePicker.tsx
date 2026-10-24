@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, type ScrollViewInstance } from 'react-native';
 
 import { spacing } from '../tokens';
 import { Chip } from './Chip';
@@ -23,7 +23,7 @@ export type TimePickerProps = {
 export function TimePicker({ value, onChange }: TimePickerProps) {
   const [hour = '08', minute = '00'] = value.split(':');
   const snapped = MINUTES.find((m) => m === minute) ?? '00';
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
 
   useEffect(() => {
     // Start with the chosen hour in view.

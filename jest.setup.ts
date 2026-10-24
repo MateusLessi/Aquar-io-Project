@@ -33,6 +33,16 @@ jest.mock('expo-notifications', () => ({
   SchedulableTriggerInputTypes: { DATE: 'date' },
 }));
 
+// Reanimated 4.7's mock runs on top of Worklets, whose real module needs a native UI thread.
+jest.mock('react-native-worklets', () =>
+  jest.requireActual<object>('react-native-worklets/lib/module/mock'),
+);
+// Reanimated 4.7 initializes its CSS animations on import, which its Jest stand-in
+// (JSReanimated) refuses to do. Nothing to initialize in tests.
+jest.mock('react-native-reanimated/src/initializers', () => ({
+  initializeReanimatedModule: () => {},
+}));
+
 // Reanimated's Jest mock has no ReducedMotionConfig (the theme renders one); it has no effect
 // in tests anyway.
 jest.mock('react-native-reanimated', () => ({

@@ -63,7 +63,7 @@ describe('App shell on phones', () => {
   beforeEach(() => setWindowWidth(390));
 
   it('opens on Today and navigates between destinations', async () => {
-    const app = renderRouter(routes, { initialUrl: '/' });
+    const app = await renderRouter(routes, { initialUrl: '/' });
     await app;
     // Início greets by the time of day.
     expect(
@@ -238,7 +238,7 @@ describe('Habits', () => {
   beforeEach(() => setWindowWidth(390));
 
   it('creates a habit, checks it today, and shows it on Today and in its details', async () => {
-    const app = renderRouter(routes, { initialUrl: '/aquarium?tab=habits' });
+    const app = await renderRouter(routes, { initialUrl: '/aquarium?tab=habits' });
     await app;
     expect(screen.getByRole('tab', { name: 'Aquário' })).toBeSelected();
     expect(screen.getByRole('radio', { name: 'Hábitos' })).toBeChecked();

@@ -94,7 +94,7 @@ export function HabitCapsule({
   const creatureStyle = useAnimatedStyle(() => {
     // Float at the surface, but never above the rim or below the floor.
     const surface = height - level.get() * height;
-    const floor = height - fontSize * 1.25 - (caption ? 16 : 0);
+    const floor = height - fontSize * 1.25 - (caption ? 22 : 0);
     const top = Math.min(floor, Math.max(4, surface - fontSize * 0.7));
     return {
       transform: [{ translateY: top + (bob.get() - 0.5) * 4 }, { scale: hop.get() }],

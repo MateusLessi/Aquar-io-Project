@@ -68,6 +68,10 @@ O projeto começou no Expo SDK 58, mas o Expo Go disponível na App Store (57.0.
 
 Regra a partir de agora: enquanto o teste em aparelhos depender do Expo Go, usamos **o SDK suportado pelo Expo Go publicado nas lojas**, não o mais recente do npm. A atualização de SDK passa a ser uma tarefa deliberada, feita quando as lojas acompanharem.
 
+**Atualização (2026-10-24): de volta ao SDK 58**
+
+O Expo Go do iPhone se atualizou para o SDK 58 e deixou de abrir o projeto. Seguindo a regra acima, subimos para o **SDK 58** (React Native 0.88, React 19.3, Reanimated 4.7). Mudanças no código: `renderRouter` dos testes agora é assíncrono; o tipo da referência de `ScrollView` virou `ScrollViewInstance`; nos testes, Worklets usa o próprio mock e a inicialização de CSS do Reanimated é simulada (`jest.setup.ts`). O Playwright ficou fixo em 1.56 (fora do escopo do SDK).
+
 ---
 
 ## ADR-002

@@ -7,7 +7,7 @@ Visão geral técnica do Aquar.io. Decisões e seus motivos ficam em [decisions.
 | Camada    | Tecnologia                                         | Status |
 | --------- | -------------------------------------------------- | ------ |
 | Linguagem | TypeScript (modo `strict` + checagens extras)      | REAL   |
-| Framework | React Native + Expo SDK 57                         | REAL   |
+| Framework | React Native + Expo SDK 58                         | REAL   |
 | Navegação | Expo Router (rotas por arquivo em `src/app/`)      | REAL   |
 | Testes    | Jest (`jest-expo`) + React Native Testing Library  | REAL   |
 | Qualidade | ESLint (`eslint-config-expo`) + Prettier           | REAL   |
