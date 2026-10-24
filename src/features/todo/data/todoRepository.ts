@@ -7,6 +7,8 @@ import { idFrom } from '@/core/ids';
 import { toDateKey } from '../domain/dates';
 import { formatRepeat, nextDueDate } from '../domain/repeat';
 import type {
+  FolderCrumb,
+  FolderSummary,
   ListPatch,
   NewList,
   NewTask,
@@ -34,6 +36,7 @@ import {
   type TaskRow,
   type TaskWithListRow,
 } from './rows';
+import { createFolderMethods } from './folders';
 
 export type TodoDeps = {
   db: Database;
@@ -44,7 +47,7 @@ export type TodoDeps = {
 };
 
 const LIST_COLUMNS = `
-  l.id, l.name, l.emoji, l.color, l.sort_order, l.created_at, l.updated_at,
+  l.id, l.name, l.emoji, l.color, l.folder_id, l.sort_order, l.created_at, l.updated_at,
   (SELECT COUNT(*) FROM tasks t
     WHERE t.list_id = l.id AND t.parent_task_id IS NULL
       AND t.deleted_at IS NULL AND t.completed_at IS NULL) AS pending_count`;
@@ -62,8 +65,10 @@ const TASK_COLUMNS = `
  * All To Do reads and writes. Every write validates its input, stamps `updated_at`
  * and announces which data changed so live screens refresh.
  */
-export function createTodoRepository({ db, changes, events, newId, now }: TodoDeps) {
+export function createTodoRepository(deps: TodoDeps) {
+  const { db, changes, events, newId, now } = deps;
   const timestamp = () => now().toISOString();
+  const folders = createFolderMethods(deps);
 
   async function nextSortOrder(sql: string, params: (string | null)[]): Promise<number> {
     const row = await db.get<{ max: number | null }>(sql, params);
@@ -113,7 +118,84 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
     await db.run('UPDATE tasks SET repeat = NULL WHERE id = ?', [task.id]);
   }
 
+  /** Top-level tasks of the given lists, each with its list and the list's folder path. */
+  async function tasksOfLists(
+    where: string,
+    params: (string | null)[],
+    orderBy = 't.sort_order',
+  ): Promise<TaskWithList[]> {
+    const tree = await folders.loadTree();
+    const rows = await db.all<TaskWithListRow>(
+      `SELECT ${TASK_COLUMNS}, l.folder_id AS list_folder_id, l.name AS list_name,
+              l.emoji AS list_emoji, l.color AS list_color
+       FROM tasks t JOIN task_lists l ON l.id = t.list_id AND l.deleted_at IS NULL
+       WHERE t.parent_task_id IS NULL AND t.deleted_at IS NULL AND ${where}
+       ORDER BY ${orderBy}`,
+      params,
+    );
+    return rows.map((row) =>
+      toTaskWithList(
+        row,
+        tree.path(tree.folderOfList(row.list_folder_id)).map((c) => c.name),
+      ),
+    );
+  }
+
   return {
+    // ---------- Folders ----------
+
+    ...folders,
+
+    /**
+     * What a folder shows: its subfolders and lists, and the trail to it. `null` is the top
+     * level: folders without a parent and lists without a folder.
+     */
+    async folderContents(folderId: string | null): Promise<{
+      folder: FolderSummary | null;
+      path: FolderCrumb[];
+      folders: FolderSummary[];
+      lists: TaskList[];
+    } | null> {
+      const tree = await folders.loadTree();
+      const folder = folderId ? (tree.folders.get(folderId) ?? null) : null;
+      if (folderId && !folder) return null;
+      const rows = await db.all<TaskListRow>(
+        `SELECT ${LIST_COLUMNS} FROM task_lists l
+         WHERE l.deleted_at IS NULL ORDER BY l.sort_order`,
+      );
+      return {
+        folder,
+        path: tree.path(folderId),
+        folders: [...tree.folders.values()].filter((f) => f.parentId === folderId),
+        lists: rows.map(toTaskList).filter((l) => tree.folderOfList(l.folderId) === folderId),
+      };
+    },
+
+    /**
+     * Every top-level task in the folder's lists and subfolders: open ones by due date (no
+     * date last), then completed ones, newest first.
+     */
+    async folderTasks(folderId: string): Promise<TaskWithList[]> {
+      const tree = await folders.loadTree();
+      if (!tree.folders.has(folderId)) return [];
+      const inside = new Set(tree.subtree(folderId));
+      const tasks = await tasksOfLists('1 = 1', []);
+      const lists = await db.all<{ id: string; folder_id: string | null }>(
+        'SELECT id, folder_id FROM task_lists WHERE deleted_at IS NULL',
+      );
+      const listIds = new Set(
+        lists.filter((l) => inside.has(tree.folderOfList(l.folder_id) ?? '')).map((l) => l.id),
+      );
+      return tasks
+        .filter((t) => listIds.has(t.listId))
+        .sort((a, b) => {
+          if (!a.completedAt !== !b.completedAt) return a.completedAt ? 1 : -1;
+          if (a.completedAt && b.completedAt) return b.completedAt.localeCompare(a.completedAt);
+          const due = (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999');
+          return due !== 0 ? due : a.sortOrder - b.sortOrder;
+        });
+    },
+
     // ---------- Lists ----------
 
     async listLists(): Promise<TaskList[]> {
@@ -135,6 +217,10 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
     async createList(input: NewList): Promise<string> {
       const name = validateListName(input.name);
       const color = validateListColor(input.color);
+      const folderId = input.folderId ?? null;
+      if (folderId && !(await folders.loadTree()).folders.has(folderId)) {
+        throw new ValidationError('Esta pasta não existe mais.');
+      }
       const id = newId();
       const at = timestamp();
       const sortOrder = await nextSortOrder(
@@ -142,9 +228,10 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
         [],
       );
       await db.run(
-        `INSERT INTO task_lists (id, name, emoji, color, sort_order, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id, name, input.emoji?.trim() || null, color, sortOrder, at, at],
+        `INSERT INTO task_lists
+           (id, name, emoji, color, folder_id, sort_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, name, input.emoji?.trim() || null, color, folderId, sortOrder, at, at],
       );
       changes.notify('lists');
       return id;
@@ -280,16 +367,12 @@ export function createTodoRepository({ db, changes, events, newId, now }: TodoDe
     },
 
     async listToday(todayKey: string = toDateKey(now())): Promise<TaskWithList[]> {
-      const rows = await db.all<TaskWithListRow>(
-        `SELECT ${TASK_COLUMNS}, l.name AS list_name, l.emoji AS list_emoji, l.color AS list_color
-         FROM tasks t JOIN task_lists l ON l.id = t.list_id AND l.deleted_at IS NULL
-         WHERE t.parent_task_id IS NULL AND t.deleted_at IS NULL AND (
-           t.due_date = ? OR (t.due_date < ? AND t.completed_at IS NULL)
-         )
-         ORDER BY t.due_date = ?, t.completed_at IS NOT NULL, l.sort_order, t.sort_order`,
+      return tasksOfLists(
+        '(t.due_date = ? OR (t.due_date < ? AND t.completed_at IS NULL))',
+        // The last ? belongs to ORDER BY: today's tasks after the overdue ones.
         [todayKey, todayKey, todayKey],
+        't.due_date = ?, t.completed_at IS NOT NULL, l.sort_order, t.sort_order',
       );
-      return rows.map(toTaskWithList);
     },
 
     async createTask(input: NewTask): Promise<string> {

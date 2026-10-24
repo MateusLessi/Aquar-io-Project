@@ -6,6 +6,8 @@ import { isDateKey } from './dates';
 import type { Priority } from './types';
 
 export const LIMITS = { listName: 60, taskTitle: 300, notes: 5000 } as const;
+/** Folders nest at most this deep: UnB › Semestre 3 › Cálculo is three. */
+export const MAX_FOLDER_DEPTH = 4;
 
 /** A user-facing validation problem, with a message ready to show. */
 export class ValidationError extends Error {
@@ -21,6 +23,10 @@ function requiredText(value: string, max: number, what: string): string {
 
 export function validateListName(name: string): string {
   return requiredText(name, LIMITS.listName, 'a lista');
+}
+
+export function validateFolderName(name: string): string {
+  return requiredText(name, LIMITS.listName, 'a pasta');
 }
 
 export function validateTaskTitle(title: string): string {

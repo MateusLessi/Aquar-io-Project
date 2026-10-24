@@ -10,6 +10,8 @@ export type TaskList = {
   name: string;
   emoji: string | null;
   color: ListColorName | null;
+  /** The folder it lives in, or null at the top level (see docs/todo.md). */
+  folderId: string | null;
   sortOrder: number;
   /** Top-level tasks not yet completed. */
   pendingCount: number;
@@ -44,9 +46,56 @@ export type TaskWithList = Task & {
   listName: string;
   listEmoji: string | null;
   listColor: ListColorName | null;
+  /** Names of the folders the list is in, outermost first ("UnB", "Semestre 3"). */
+  listPath: string[];
 };
 
-export type NewList = { name: string; emoji?: string | null; color?: ListColorName | null };
+/** Folders hold lists and other folders, up to MAX_FOLDER_DEPTH levels. */
+export type Folder = {
+  id: string;
+  parentId: string | null;
+  name: string;
+  emoji: string | null;
+  color: ListColorName | null;
+  /** Shown on the dashboard. */
+  pinned: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** A folder with what is inside it, counted through every subfolder. */
+export type FolderSummary = Folder & {
+  /** 1 at the top level. */
+  depth: number;
+  folderCount: number;
+  listCount: number;
+  /** Top-level tasks inside, open and completed. */
+  openCount: number;
+  doneCount: number;
+};
+
+export type FolderCrumb = { id: string; name: string; emoji: string | null };
+
+export type NewFolder = {
+  name: string;
+  emoji?: string | null;
+  color?: ListColorName | null;
+  parentId?: string | null;
+};
+export type FolderPatch = {
+  name?: string;
+  emoji?: string | null;
+  color?: ListColorName | null;
+  pinned?: boolean;
+};
+
+export type NewList = {
+  name: string;
+  emoji?: string | null;
+  color?: ListColorName | null;
+  folderId?: string | null;
+};
 export type ListPatch = Partial<NewList>;
 
 export type NewTask = {

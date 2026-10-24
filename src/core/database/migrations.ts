@@ -255,6 +255,28 @@ export const migrations: Migration[] = [
       ${outboxTriggers('habit_progress')}
     `,
   },
+  {
+    version: 8,
+    name: 'folders',
+    // Folders hold lists and other folders (up to 4 levels). A list or folder whose parent
+    // is missing (deleted, or not synced yet) shows at the top level.
+    sql: `
+      CREATE TABLE task_folders (
+        id          TEXT PRIMARY KEY NOT NULL,
+        parent_id   TEXT,
+        name        TEXT NOT NULL,
+        emoji       TEXT,
+        color       TEXT,
+        pinned      INTEGER NOT NULL DEFAULT 0,
+        sort_order  REAL NOT NULL,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+      ALTER TABLE task_lists ADD COLUMN folder_id TEXT;
+      ${outboxTriggers('task_folders')}
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

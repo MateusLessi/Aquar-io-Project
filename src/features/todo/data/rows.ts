@@ -9,6 +9,7 @@ export type TaskListRow = {
   name: string;
   emoji: string | null;
   color: string | null;
+  folder_id: string | null;
   sort_order: number;
   pending_count: number;
   created_at: string;
@@ -34,6 +35,7 @@ export type TaskRow = {
 };
 
 export type TaskWithListRow = TaskRow & {
+  list_folder_id: string | null;
   list_name: string;
   list_emoji: string | null;
   list_color: string | null;
@@ -45,6 +47,7 @@ export function toTaskList(row: TaskListRow): TaskList {
     name: row.name,
     emoji: row.emoji,
     color: row.color as ListColorName | null,
+    folderId: row.folder_id,
     sortOrder: row.sort_order,
     pendingCount: row.pending_count,
     createdAt: row.created_at,
@@ -72,11 +75,12 @@ export function toTask(row: TaskRow): Task {
   };
 }
 
-export function toTaskWithList(row: TaskWithListRow): TaskWithList {
+export function toTaskWithList(row: TaskWithListRow, listPath: string[] = []): TaskWithList {
   return {
     ...toTask(row),
     listName: row.list_name,
     listEmoji: row.list_emoji,
     listColor: row.list_color as ListColorName | null,
+    listPath,
   };
 }
