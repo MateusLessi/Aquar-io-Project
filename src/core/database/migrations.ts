@@ -222,6 +222,39 @@ export const migrations: Migration[] = [
       ${outboxTriggers('profile')}
     `,
   },
+  {
+    version: 7,
+    name: 'habit kinds',
+    // A habit can be done in parts (count, time, checklist). The day's partial progress lives in
+    // habit_progress ("<habit id>:<day>", like check-ins); habit_checks still means "day done",
+    // so streaks, growth and points read it unchanged. Running timers stay on this device.
+    sql: `
+      ALTER TABLE habits ADD COLUMN kind TEXT NOT NULL DEFAULT 'check';
+      ALTER TABLE habits ADD COLUMN target INTEGER NOT NULL DEFAULT 1;
+      ALTER TABLE habits ADD COLUMN unit TEXT;
+      ALTER TABLE habits ADD COLUMN steps TEXT;
+
+      CREATE TABLE habit_progress (
+        id          TEXT PRIMARY KEY NOT NULL,
+        habit_id    TEXT NOT NULL REFERENCES habits(id),
+        date        TEXT NOT NULL,
+        amount      INTEGER NOT NULL DEFAULT 0,
+        steps_done  TEXT,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+
+      CREATE TABLE habit_timers (
+        habit_id    TEXT PRIMARY KEY NOT NULL,
+        date        TEXT NOT NULL,
+        started_at  TEXT NOT NULL
+      );
+
+      CREATE INDEX idx_habit_progress_habit ON habit_progress(habit_id, date);
+      ${outboxTriggers('habit_progress')}
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

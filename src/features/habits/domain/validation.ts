@@ -1,7 +1,7 @@
 import { isTimeOfDay } from '@/core/dates';
 
 import { isCreatureId, type CreatureId } from './creatures';
-import type { WeekdayMask } from './types';
+import { habitKinds, type HabitKind, type WeekdayMask } from './types';
 
 export const HABIT_NAME_MAX = 60;
 export const MAX_REMINDERS = 5;
@@ -40,4 +40,45 @@ export function validateReminderTimes(times: string[]): string[] {
     throw new HabitValidationError(`Use no máximo ${MAX_REMINDERS} lembretes por hábito.`);
   }
   return unique;
+}
+
+export const STEPS_MAX = 12;
+export const UNIT_MAX = 20;
+/** Upper bounds for a day's goal: units for `count`, minutes for `time`. */
+export const TARGET_MAX = { count: 999, time: 600 } as const;
+
+export function validateKind(kind: string): HabitKind {
+  if (!(habitKinds as readonly string[]).includes(kind)) {
+    throw new HabitValidationError('Escolha um tipo de hábito.');
+  }
+  return kind as HabitKind;
+}
+
+/** A whole number of units or minutes the day needs; `check` and `checklist` derive theirs. */
+export function validateTarget(kind: 'count' | 'time', target: number): number {
+  const max = TARGET_MAX[kind];
+  if (!Number.isInteger(target) || target < 1 || target > max) {
+    throw new HabitValidationError(
+      kind === 'time' ? `Escolha entre 1 e ${max} minutos.` : `Escolha uma meta entre 1 e ${max}.`,
+    );
+  }
+  return target;
+}
+
+export function validateUnit(unit: string | null | undefined): string | null {
+  const text = (unit ?? '').trim().replace(/\s+/g, ' ');
+  if (text.length > UNIT_MAX) throw new HabitValidationError(`Use no máximo ${UNIT_MAX} letras.`);
+  return text || null;
+}
+
+export function validateStepTitles(titles: string[]): string[] {
+  const clean = titles.map((t) => t.trim().replace(/\s+/g, ' ')).filter(Boolean);
+  if (clean.length === 0) throw new HabitValidationError('Adicione pelo menos um passo.');
+  if (clean.length > STEPS_MAX) {
+    throw new HabitValidationError(`Use no máximo ${STEPS_MAX} passos.`);
+  }
+  if (clean.some((t) => t.length > HABIT_NAME_MAX)) {
+    throw new HabitValidationError(`Cada passo pode ter até ${HABIT_NAME_MAX} caracteres.`);
+  }
+  return clean;
 }
