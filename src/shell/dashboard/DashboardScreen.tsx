@@ -9,6 +9,7 @@ import { TodayHabits } from '@/features/habits/components/TodayHabits';
 import { useTodayHabitProgress } from '@/features/habits/hooks/queries';
 import { TodayRoutines } from '@/features/routines/components/TodayRoutines';
 import { useTodayRoutineProgress } from '@/features/routines/hooks/queries';
+import { PinnedFolders } from '@/features/todo/components/PinnedFolders';
 import { TodayTasks } from '@/features/todo/components/TodayTasks';
 import { useToday } from '@/features/todo/hooks/queries';
 
@@ -94,6 +95,7 @@ export function DashboardScreen() {
           <TodayRoutines />
           <TodayHabits />
           <TodayTasks />
+          <PinnedFolders />
           {week}
         </>
       ) : breakpoint === 'medium' ? (
@@ -107,6 +109,7 @@ export function DashboardScreen() {
           <Column>
             <TodayRoutines />
             <TodayTasks />
+            <PinnedFolders />
             {calendar}
           </Column>
         </Columns>
@@ -125,6 +128,7 @@ export function DashboardScreen() {
           <Column flex={1.1}>
             <TodayTasks />
             <TodayHabits />
+            <PinnedFolders />
           </Column>
         </Columns>
       )}

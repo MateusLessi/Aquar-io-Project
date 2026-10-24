@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react-native';
+import { ChevronRight, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design-system';
@@ -7,13 +7,13 @@ import type { TaskList } from '../domain/types';
 
 const CARD_HEIGHT = 148;
 
-type ListCardProps = { list: TaskList; onPress: () => void };
+type ListCardProps = { list: TaskList; onPress: () => void; onLongPress?: () => void };
 
 /**
  * A list as a bold colored tile: the list's color fills the card, its emoji sits in a bubble
  * and the number of open tasks is the biggest thing on it.
  */
-export function ListCard({ list, onPress }: ListCardProps) {
+export function ListCard({ list, onPress, onLongPress }: ListCardProps) {
   const { colors, scheme } = useTheme();
   const tone = list.color ? listColors[list.color][scheme] : colors.accent;
   const pending =
@@ -24,8 +24,11 @@ export function ListCard({ list, onPress }: ListCardProps) {
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       accessibilityRole="button"
       accessibilityLabel={`${list.name}, ${pending}`}
+      accessibilityActions={onLongPress ? [{ name: 'longpress', label: 'Mais opções' }] : []}
+      onAccessibilityAction={onLongPress}
       style={({ pressed }) => [
         styles.card,
         {
@@ -71,14 +74,67 @@ export function ListCard({ list, onPress }: ListCardProps) {
   );
 }
 
-/** The last tile of the grid: create a list. */
-export function NewListCard({ onPress }: { onPress: () => void }) {
+/** A list as a compact row, for the "Lista" view. */
+export function ListRow({
+  list,
+  onPress,
+  onLongPress,
+  separator,
+}: ListCardProps & { separator?: boolean }) {
+  const { colors, scheme } = useTheme();
+  const tone = list.color ? listColors[list.color][scheme] : colors.accent;
+  const pending =
+    list.pendingCount === 0
+      ? 'Tudo em dia'
+      : `${list.pendingCount} ${list.pendingCount === 1 ? 'pendente' : 'pendentes'}`;
+  return (
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${list.name}, ${pending}`}
+      accessibilityActions={onLongPress ? [{ name: 'longpress', label: 'Mais opções' }] : []}
+      onAccessibilityAction={onLongPress}
+      style={({ pressed }) => [
+        styles.row,
+        separator && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.separator },
+        pressed && { backgroundColor: colors.surfacePressed },
+      ]}
+    >
+      <View style={[styles.rowIcon, { backgroundColor: withAlpha(tone, 0.24) }]}>
+        {list.emoji ? (
+          <Text variant="headline">{list.emoji}</Text>
+        ) : (
+          <View style={[styles.dot, { backgroundColor: tone }]} />
+        )}
+      </View>
+      <View style={styles.flex}>
+        <Text variant="headline" numberOfLines={1}>
+          {list.name}
+        </Text>
+        <Text variant="footnote" tone="secondary">
+          Lista · {pending}
+        </Text>
+      </View>
+      <ChevronRight size={18} color={colors.textTertiary} />
+    </Pressable>
+  );
+}
+
+/** The last tile of the grid: create a list or a folder. */
+export function NewListCard({
+  onPress,
+  label = 'Nova lista',
+}: {
+  onPress: () => void;
+  label?: string;
+}) {
   const { colors } = useTheme();
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Nova lista"
+      accessibilityLabel={label}
       style={({ pressed }) => [
         styles.card,
         styles.newCard,
@@ -92,7 +148,7 @@ export function NewListCard({ onPress }: { onPress: () => void }) {
         <Plus size={24} color={colors.accent} strokeWidth={2.2} />
       </View>
       <Text variant="headline" tone="accent">
-        Nova lista
+        {label}
       </Text>
     </Pressable>
   );
@@ -116,6 +172,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dot: { width: 16, height: 16, borderRadius: 8 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  rowIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flex: { flex: 1 },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   wave: {
     position: 'absolute',

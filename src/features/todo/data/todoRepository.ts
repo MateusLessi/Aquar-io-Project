@@ -172,19 +172,22 @@ export function createTodoRepository(deps: TodoDeps) {
     },
 
     /**
-     * Every top-level task in the folder's lists and subfolders: open ones by due date (no
-     * date last), then completed ones, newest first.
+     * Every top-level task in the folder's lists and subfolders (every list when `null`):
+     * open ones by due date (no date last), then completed ones, newest first.
      */
-    async folderTasks(folderId: string): Promise<TaskWithList[]> {
+    async folderTasks(folderId: string | null): Promise<TaskWithList[]> {
       const tree = await folders.loadTree();
-      if (!tree.folders.has(folderId)) return [];
-      const inside = new Set(tree.subtree(folderId));
+      if (folderId && !tree.folders.has(folderId)) return [];
+      const inside = folderId ? new Set(tree.subtree(folderId)) : null;
       const tasks = await tasksOfLists('1 = 1', []);
       const lists = await db.all<{ id: string; folder_id: string | null }>(
         'SELECT id, folder_id FROM task_lists WHERE deleted_at IS NULL',
       );
+      // No folder: every list, as the top level's "all together".
       const listIds = new Set(
-        lists.filter((l) => inside.has(tree.folderOfList(l.folder_id) ?? '')).map((l) => l.id),
+        lists
+          .filter((l) => !inside || inside.has(tree.folderOfList(l.folder_id) ?? ''))
+          .map((l) => l.id),
       );
       return tasks
         .filter((t) => listIds.has(t.listId))

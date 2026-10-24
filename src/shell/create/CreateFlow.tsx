@@ -1,4 +1,11 @@
-import { CalendarClock, CheckSquare, Fish, ListTodo, type LucideIcon } from 'lucide-react-native';
+import {
+  CalendarClock,
+  CheckSquare,
+  Fish,
+  FolderPlus,
+  ListTodo,
+  type LucideIcon,
+} from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -18,10 +25,11 @@ import { HabitEditorSheet } from '@/features/habits/components/HabitEditorSheet'
 import { useHabitsRepository } from '@/features/habits/hooks/habitsContext';
 import { RoutineEditorSheet } from '@/features/routines/components/RoutineEditorSheet';
 import { useRoutinesRepository } from '@/features/routines/hooks/routinesContext';
+import { FolderEditorSheet } from '@/features/todo/components/FolderEditorSheet';
 import { ListEditorSheet } from '@/features/todo/components/ListEditorSheet';
 import { QuickAddSheet } from '@/features/todo/components/QuickAddSheet';
 
-export type CreateKind = 'task' | 'habit' | 'routine' | 'list';
+export type CreateKind = 'task' | 'habit' | 'routine' | 'list' | 'folder';
 
 const options: {
   kind: CreateKind;
@@ -40,6 +48,7 @@ const options: {
     color: 'tide',
   },
   { kind: 'list', label: 'Lista', hint: 'Para juntar tarefas', icon: ListTodo, color: 'anemone' },
+  { kind: 'folder', label: 'Pasta', hint: 'Para separar listas', icon: FolderPlus, color: 'coral' },
 ];
 
 type CreateFlowProps = {
@@ -49,6 +58,8 @@ type CreateFlowProps = {
   suggested?: CreateKind;
   /** New tasks go to this list when one is open. */
   defaultListId?: string;
+  /** New lists and folders go into this folder when one is open. */
+  defaultFolderId?: string;
   dueToday: boolean;
 };
 
@@ -61,6 +72,7 @@ export function CreateFlow({
   onClose,
   suggested,
   defaultListId,
+  defaultFolderId,
   dueToday,
 }: CreateFlowProps) {
   const habits = useHabitsRepository();
@@ -70,12 +82,14 @@ export function CreateFlow({
     setKind(null);
     onClose();
   };
+  // Folders are offered where lists live: in Listas and inside a folder.
+  const available = options.filter((o) => o.kind !== 'folder' || suggested === 'list');
   const ordered = suggested
     ? [
-        ...options.filter((o) => o.kind === suggested),
-        ...options.filter((o) => o.kind !== suggested),
+        ...available.filter((o) => o.kind === suggested),
+        ...available.filter((o) => o.kind !== suggested),
       ]
-    : options;
+    : available;
 
   return (
     <>
@@ -115,7 +129,16 @@ export function CreateFlow({
           await routines.createRoutine(input);
         }}
       />
-      <ListEditorSheet visible={visible && kind === 'list'} onClose={close} />
+      <ListEditorSheet
+        visible={visible && kind === 'list'}
+        onClose={close}
+        folderId={defaultFolderId ?? null}
+      />
+      <FolderEditorSheet
+        visible={visible && kind === 'folder'}
+        onClose={close}
+        parentId={defaultFolderId ?? null}
+      />
     </>
   );
 }

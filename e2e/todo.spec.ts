@@ -31,7 +31,8 @@ test('create a list and a task for today, complete it, and it survives a reload'
 
 test('open a list, add tasks inline and see them counted on the list tile', async ({ page }) => {
   await page.goto('/aquarium?tab=lists');
-  await page.getByRole('button', { name: 'Nova lista' }).click();
+  await page.getByRole('button', { name: 'Nova lista ou pasta' }).click();
+  await page.getByRole('button', { name: /^Nova lista:/ }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Casa');
   await page.getByRole('button', { name: 'Criar lista', exact: true }).click();
 

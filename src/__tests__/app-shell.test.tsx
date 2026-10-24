@@ -78,7 +78,7 @@ describe('App shell on phones', () => {
 
     // The Aquarium's switch opens each module.
     await fireEvent.press(screen.getByRole('radio', { name: 'Listas' }));
-    expect(await screen.findByRole('button', { name: 'Nova lista' })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: 'Nova lista ou pasta' })).toBeOnTheScreen();
   });
 
   it('creates a first list and a task for today, then completes it', async () => {

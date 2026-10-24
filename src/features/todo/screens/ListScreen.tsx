@@ -10,7 +10,7 @@ import { ListEditorSheet } from '../components/ListEditorSheet';
 import { TaskDetailSheet } from '../components/TaskDetailSheet';
 import { TaskRow } from '../components/TaskRow';
 import { toDateKey } from '../domain/dates';
-import { useList, useListTasks } from '../hooks/queries';
+import { useFolderContents, useList, useListTasks } from '../hooks/queries';
 import { useTodo } from '../hooks/todoContext';
 
 export function ListScreen({ listId }: { listId: string }) {
@@ -19,6 +19,7 @@ export function ListScreen({ listId }: { listId: string }) {
   const { colors } = useTheme();
   const { data: list, loading } = useList(listId);
   const { data: tasks = [] } = useListTasks(listId);
+  const { data: place } = useFolderContents(list?.folderId ?? null);
   const [editing, setEditing] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [showDone, setShowDone] = useState(false);
@@ -55,9 +56,13 @@ export function ListScreen({ listId }: { listId: string }) {
   return (
     <Screen
       title={list.name}
-      eyebrow={[list.emoji, open.length === 0 ? 'Tudo em dia' : `${open.length} pendentes`]
+      eyebrow={[
+        place?.path.length ? place.path.map((c) => c.name).join(' › ') : null,
+        list.emoji,
+        open.length === 0 ? 'Tudo em dia' : `${open.length} pendentes`,
+      ]
         .filter(Boolean)
-        .join('  ')}
+        .join('  ·  ')}
       onBack={back}
       actions={<IconButton icon={Pencil} label="Editar lista" onPress={() => setEditing(true)} />}
     >
