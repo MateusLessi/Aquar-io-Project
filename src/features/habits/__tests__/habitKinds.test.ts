@@ -184,9 +184,7 @@ describe('habit kinds', () => {
   it('validates goals, units and steps', async () => {
     const { habits } = await setup();
     const base = { name: 'X', creature: 'fish' } as const;
-    await expect(habits.createHabit({ ...base, kind: 'count', target: 0 })).rejects.toThrow(
-      'meta',
-    );
+    await expect(habits.createHabit({ ...base, kind: 'count', target: 0 })).rejects.toThrow('meta');
     await expect(habits.createHabit({ ...base, kind: 'time', target: 601 })).rejects.toThrow(
       'minutos',
     );
@@ -203,7 +201,7 @@ describe('habit kinds', () => {
 });
 
 describe('amount helpers', () => {
-  const time = { kind: 'time', target: 20, steps: [], unit: null } as const;
+  const time = { kind: 'time' as const, target: 20, steps: [], unit: null };
   it('measures time in seconds against a goal in minutes', () => {
     expect(goalOf(time)).toBe(1200);
     expect(fillRatio(time, 600, false)).toBe(0.5);

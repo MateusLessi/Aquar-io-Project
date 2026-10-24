@@ -9,13 +9,14 @@ import { HabitsView } from '@/features/habits/components/HabitsView';
 import type { CreatureId } from '@/features/habits/domain/creatures';
 import { habitProgress } from '@/features/habits/domain/progress';
 import { creatureStage } from '@/features/habits/domain/stages';
-import { fillRatio } from '@/features/habits/domain/amount';
+import { fillRatio, goalOf } from '@/features/habits/domain/amount';
 import {
   EVERY_DAY,
   type HabitKind,
   type HabitStep,
   type HabitWithProgress,
 } from '@/features/habits/domain/types';
+import type { HabitActions } from '@/features/habits/hooks/useHabitActions';
 
 const today = toDateKey(new Date());
 const daysAgo = (n: number) => addDays(today, -n);
@@ -110,34 +111,44 @@ function sampleHabits(): HabitWithProgress[] {
 
 export default function HabitsPreview() {
   const { editor } = useLocalSearchParams<{ editor?: string }>();
-  const [habits, setHabits] = useState(sampleHabits);
+  const [, setVersion] = useState(0);
   const [editing, setEditing] = useState(editor === '1');
   if (!__DEV__) return <Redirect href="/" />;
 
-  const toggle = (id: string, done: boolean) =>
-    setHabits((current) =>
-      current.map((h) => {
-        if (h.id !== id) return h;
-        const sample = samples[Number(id)]!;
-        const set = new Set(sample.done);
-        if (done) set.add(today);
-        else set.delete(today);
-        sample.done = [...set];
-        return {
-          ...h,
-          ...habitProgress({ days: h.days, done: set, startKey: daysAgo(30), todayKey: today }),
-        };
+  // The samples are the preview's whole state: change one, then rebuild the habits from them.
+  const update = (habit: HabitWithProgress, change: (sample: Sample, goal: number) => void) => {
+    const sample = samples[Number(habit.id)]!;
+    change(sample, goalOf(habit));
+    setVersion((v) => v + 1);
+  };
+  const setAmount = (sample: Sample, goal: number, amount: number) => {
+    sample.amount = Math.max(0, amount);
+    const done = new Set(sample.done);
+    if (sample.amount >= goal) done.add(today);
+    else done.delete(today);
+    sample.done = [...done];
+  };
+  const actions: HabitActions = {
+    toggle: (habit, done) =>
+      update(habit, (sample, goal) => {
+        if (habit.kind === 'check') {
+          sample.done = done ? [...sample.done, today] : sample.done.filter((d) => d !== today);
+        } else setAmount(sample, goal, done ? goal : 0);
       }),
-    );
+    add: (habit, delta) =>
+      update(habit, (sample, goal) => setAmount(sample, goal, (sample.amount ?? 0) + delta)),
+    setStep: (habit, stepId, done) =>
+      update(habit, (sample, goal) =>
+        setAmount(sample, goal, (sample.amount ?? 0) + (done ? 1 : -1) * (stepId ? 1 : 0)),
+      ),
+    toggleTimer: (habit) =>
+      update(habit, (sample, goal) => setAmount(sample, goal, (sample.amount ?? 0) + 5 * 60)),
+    open: () => setEditing(true),
+  };
 
   return (
     <Screen title="Hábitos" eyebrow="Prévia de design">
-      <HabitsView
-        habits={habits}
-        onToggle={toggle}
-        onOpen={() => setEditing(true)}
-        onCreate={() => setEditing(true)}
-      />
+      <HabitsView habits={sampleHabits()} actions={actions} onCreate={() => setEditing(true)} />
       <HabitEditorSheet
         visible={editing}
         onClose={() => setEditing(false)}
