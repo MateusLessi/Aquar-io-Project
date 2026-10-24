@@ -10,14 +10,19 @@
 
 ## Arquivos (`docs/design/brand/`)
 
-| Arquivo               | O que é                                         | Onde usar                                     |
-| --------------------- | ----------------------------------------------- | --------------------------------------------- |
-| `logo-horizontal.png` | Ícone + "Aquar.io" + slogan sobre azul profundo | Banners, README, página de lançamento         |
-| `logo-glow.png`       | Logotipo com brilho, fundo transparente         | Destaques sobre fundo escuro                  |
-| `logo-short.png`      | Versão curta "Aq.io"                            | Espaços pequenos, marca d'água                |
-| `icon-framed.png`     | Ícone com moldura e brilho                      | Material de divulgação (nunca o ícone do app) |
-| `icon-mono.png`       | Ícone em tons de cinza                          | Impressão de uma cor, fundos coloridos        |
-| `mascot.png`          | O peixe sozinho                                 | Avatar do Discord, figurinhas, estados vazios |
+| Arquivo               | O que é                                                         | Onde usar                                              |
+| --------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| `logo-horizontal.png` | Ícone + "Aquar.io" + slogan sobre azul profundo                 | Banners, README, página de lançamento                  |
+| `logo-glow.png`       | Logotipo com brilho, fundo transparente                         | Destaques sobre fundo escuro                           |
+| `logo-light.png`      | Logotipo azul-marinho, cores chapadas, fundo transparente limpo | Fundos claros: documentos, LinkedIn, GitHub, impressão |
+| `logo-short.png`      | Versão curta "Aq.io"                                            | Espaços pequenos, marca d'água                         |
+| `icon-framed.png`     | Ícone com moldura e brilho                                      | Material de divulgação (nunca o ícone do app)          |
+| `icon-mono.png`       | Ícone em tons de cinza                                          | Impressão de uma cor, fundos coloridos                 |
+| `mascot.png`          | O peixe sozinho                                                 | Avatar do Discord, figurinhas, estados vazios          |
+
+**Fundo claro × escuro:** `logo-light.png` só funciona em fundo claro (o marinho some no escuro); `logo-glow.png` e `logo-horizontal.png` são para fundo escuro.
+
+**Base para o vetor:** `logo-light.png` é a melhor referência para redesenhar o logotipo em SVG, porque as formas e cores são chapadas e sem brilho.
 
 **Atenção:** os PNGs com transparência têm um brilho semitransparente irregular nas bordas, que sobrou de quando o fundo foi removido. Sobre fundo escuro ele aparece como uma névoa. Use-os sobre o azul profundo da marca, ou peça versões sem brilho.
 
@@ -33,14 +38,17 @@ Gerados a partir de `icon-framed.png` e `mascot.png`:
 
 ## Cores
 
-| Papel             | Marca (logo)       | App (interface)                 |
-| ----------------- | ------------------ | ------------------------------- |
-| Fundo profundo    | `#011928`          | `deepBottom` `#06202A`          |
-| Ciano / água      | ≈ `#00E5F0` (neon) | `ocean` 300 `#5CC3BD`, `lagoon` |
-| Coral / energia   | ≈ `#FD7E54`        | `coral` (`#EE8A73` no escuro)   |
-| Texto do logotipo | branco             | —                               |
+| Papel                | Marca (logo)       | App (interface)                 |
+| -------------------- | ------------------ | ------------------------------- |
+| Fundo profundo       | `#011928`          | `deepBottom` `#06202A`          |
+| Ciano / água         | ≈ `#00E5F0` (neon) | `ocean` 300 `#5CC3BD`, `lagoon` |
+| Coral / energia      | ≈ `#FD7E54`        | `coral` (`#EE8A73` no escuro)   |
+| Marinho (logo claro) | ≈ `#032A48`        | `abyss` 900 `#15212B`           |
+| Texto do logotipo    | branco             | —                               |
 
 **Decisão:** a interface continua com os tons do design system (`src/design-system/tokens`). O ciano neon fica **só** nas peças de marca, onde chama atenção sem brigar com a leitura. Na versão vetorial, o ciano da marca será levemente aproximado do `ocean`. O coral fica igual nos dois.
+
+**Pendente:** o coral não é o mesmo em todas as peças. A bolinha do `logo-light.png` é mais avermelhada (≈ `#FD6260`) que o peixe (≈ `#FD7E54`). Na versão vetorial, escolher um coral só.
 
 ## Regras de uso
 
