@@ -99,6 +99,7 @@ describe('planReminders', () => {
       end: '20:00',
       days: 0b0101010, // Mon, Wed, Fri
       remind: true,
+      tag: null,
       sortOrder: 1,
       createdAt: '2026-10-01T00:00:00.000Z',
       updatedAt: '2026-10-01T00:00:00.000Z',

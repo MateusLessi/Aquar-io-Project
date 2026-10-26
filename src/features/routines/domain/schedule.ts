@@ -32,3 +32,10 @@ export function durationLabel(minutes: number): string {
   const m = minutes % 60;
   return m === 0 ? `${h} h` : `${h} h ${String(m).padStart(2, '0')}`;
 }
+
+/** The distinct labels in use, alphabetically: suggestions for the editor. */
+export function tagsOf(routines: readonly { tag: string | null }[] | undefined): string[] {
+  const tags = new Set<string>();
+  for (const r of routines ?? []) if (r.tag) tags.add(r.tag);
+  return [...tags].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}

@@ -7,6 +7,7 @@ import { EmptyState } from '@/design-system';
 import { RoutineEditorSheet } from '../components/RoutineEditorSheet';
 import { RoutinesView } from '../components/RoutinesView';
 import { useRoutinesRepository } from '../hooks/routinesContext';
+import { tagsOf } from '../domain/schedule';
 import type { RoutineToday } from '../domain/types';
 import { useRoutine, useRoutinesToday } from '../hooks/queries';
 
@@ -50,6 +51,7 @@ export function RoutinesPanel({
 
       <RoutineEditorSheet
         visible={creating}
+        tagSuggestions={tagsOf(routines)}
         onClose={() => setCreating(false)}
         onSubmit={async (input) => {
           await repository.createRoutine(input);
@@ -58,6 +60,7 @@ export function RoutinesPanel({
       <RoutineEditorSheet
         visible={Boolean(editingId && editing)}
         routine={editing}
+        tagSuggestions={tagsOf(routines)}
         onClose={() => setEditingId(null)}
         onSubmit={(input) => repository.updateRoutine(editingId!, input)}
         onDelete={() => repository.deleteRoutine(editingId!)}

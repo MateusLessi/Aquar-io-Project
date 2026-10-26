@@ -65,6 +65,7 @@ function sampleRoutines(minutesNow: number): RoutineToday[] {
     end: s.end,
     days: s.days,
     remind: true,
+    tag: null,
     sortOrder: i,
     createdAt: at,
     updatedAt: at,

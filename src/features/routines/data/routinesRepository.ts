@@ -13,6 +13,7 @@ import {
   validateRoutineDays,
   validateRoutineItems,
   validateRoutineName,
+  validateRoutineTag,
   validateRoutineTimes,
 } from '../domain/validation';
 
@@ -33,6 +34,7 @@ type RoutineRow = {
   end_time: string;
   days: number;
   remind: number;
+  tag: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -40,7 +42,7 @@ type RoutineRow = {
 type ItemRow = { id: string; routine_id: string; title: string; sort_order: number };
 
 const ROUTINE_COLUMNS =
-  'id, name, emoji, color, start_time, end_time, days, remind, sort_order, created_at, updated_at';
+  'id, name, emoji, color, start_time, end_time, days, remind, tag, sort_order, created_at, updated_at';
 
 function toRoutine(row: RoutineRow): Routine {
   return {
@@ -52,6 +54,7 @@ function toRoutine(row: RoutineRow): Routine {
     end: row.end_time,
     days: row.days,
     remind: row.remind === 1,
+    tag: row.tag,
     sortOrder: row.sort_order,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -146,6 +149,7 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
       ...validateRoutineTimes(input.start, input.end),
       days: validateRoutineDays(input.days ?? 0b1111111),
       remind: input.remind ? 1 : 0,
+      tag: validateRoutineTag(input.tag),
       items: validateRoutineItems(input.items ?? []),
     };
   }
@@ -187,9 +191,9 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
           'SELECT MAX(sort_order) AS max FROM routines WHERE deleted_at IS NULL',
         );
         await db.run(
-          `INSERT INTO routines (id, name, emoji, color, start_time, end_time, days, remind,
+          `INSERT INTO routines (id, name, emoji, color, start_time, end_time, days, remind, tag,
              sort_order, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             id,
             v.name,
@@ -199,6 +203,7 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
             v.end,
             v.days,
             v.remind,
+            v.tag,
             (max?.max ?? 0) + 1,
             at,
             at,
@@ -217,9 +222,9 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
       await db.transaction(async () => {
         const { changes: updated } = await db.run(
           `UPDATE routines SET name = ?, emoji = ?, color = ?, start_time = ?, end_time = ?,
-             days = ?, remind = ?, updated_at = ?
+             days = ?, remind = ?, tag = ?, updated_at = ?
            WHERE id = ? AND deleted_at IS NULL`,
-          [v.name, v.emoji, v.color, v.start, v.end, v.days, v.remind, at, id],
+          [v.name, v.emoji, v.color, v.start, v.end, v.days, v.remind, v.tag, at, id],
         );
         if (updated === 0) throw new RoutineValidationError('Esta rotina não existe mais.');
         await syncItems(id, v.items, at);
@@ -267,6 +272,21 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
       });
       changes.notify('routines');
       if (event) events.publish(event);
+    },
+
+    /**
+     * How many of each routine's items were checked on each day from `from` to `to` (inclusive),
+     * keyed `<routine id>:<day>`. Items removed since then don't count.
+     */
+    async doneBetween(from: string, to: string): Promise<Map<string, number>> {
+      const rows = await db.all<{ routine_id: string; day: string; done: number }>(
+        `SELECT c.routine_id, c.date AS day, COUNT(*) AS done FROM routine_checks c
+         JOIN routine_items i ON i.id = c.item_id AND i.deleted_at IS NULL
+         WHERE c.deleted_at IS NULL AND c.date BETWEEN ? AND ?
+         GROUP BY c.routine_id, c.date`,
+        [from, to],
+      );
+      return new Map(rows.map((r) => [`${r.routine_id}:${r.day}`, r.done]));
     },
 
     /**

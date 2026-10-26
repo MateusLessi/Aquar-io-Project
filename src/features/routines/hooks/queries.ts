@@ -42,3 +42,11 @@ export function useTodayRoutineProgress(): { completed: number; total: number } 
     total: today.reduce((n, r) => n + r.items.length, 0),
   };
 }
+
+/** Items checked per routine and day between two days, keyed `<routine id>:<day>`. Live. */
+export function useRoutineDone(from: string, to: string) {
+  const routines = useRoutinesRepository();
+  return useLiveQuery(`routine-done:${from}:${to}`, ['routines'], () =>
+    routines.doneBetween(from, to),
+  );
+}
