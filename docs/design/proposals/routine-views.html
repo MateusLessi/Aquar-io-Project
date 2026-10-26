@@ -1,0 +1,298 @@
+<!doctype html>
+<!-- PROPOSAL: Visualizações de rotina for Checkpoint 044 (First Dive, etapa 4). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Visualizações de rotina</title>
+<style>
+  @font-face { font-family: Outfit; font-weight: 600; src: url(../../../node_modules/@expo-google-fonts/outfit/600SemiBold/Outfit_600SemiBold.ttf); }
+  @font-face { font-family: Outfit; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/outfit/700Bold/Outfit_700Bold.ttf); }
+  @font-face { font-family: Manrope; font-weight: 500; src: url(../../../node_modules/@expo-google-fonts/manrope/500Medium/Manrope_500Medium.ttf); }
+  @font-face { font-family: Manrope; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/manrope/700Bold/Manrope_700Bold.ttf); }
+  :root {
+    --display: Outfit, system-ui, sans-serif; --text: Manrope, system-ui, sans-serif;
+    --top: #0b2129; --base: #07121a; --deep: #040b11; --raised: #0e1c26;
+    --glass: rgba(18, 38, 50, 0.62); --glass-border: rgba(140, 200, 210, 0.16);
+    --t1: #e6f0f4; --t2: #9db2be; --t3: #6a8291; --sep: rgba(157, 178, 190, 0.12);
+    --accent: #5cc3bd; --coral: #ee8a73;
+    --kelp: #86bf7f; --sand: #d7b477; --anemone: #b697de; --tide: #6fa9e0; --lagoon: #4cc0b9; --coralc: #ee8a73;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #0a1218; color: var(--t1); padding: 36px; width: 1300px; }
+  h1 { font-family: var(--display); font-size: 30px; font-weight: 700; }
+  h2 { font-family: var(--display); font-size: 21px; font-weight: 700; margin-top: 44px; }
+  .lead { color: var(--t2); font-size: 15px; margin-top: 6px; max-width: 1180px; line-height: 22px; }
+  .lead b { color: var(--t1); }
+  .row { display: flex; gap: 40px; margin-top: 24px; align-items: flex-start; }
+  .cap-title { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); margin-bottom: 10px; }
+  .note { font-size: 13px; color: var(--t2); width: 360px; margin-top: 12px; line-height: 19px; }
+  .note b { color: var(--t1); }
+  .phone { width: 360px; height: 760px; border-radius: 44px; overflow: hidden; position: relative;
+    background: linear-gradient(180deg, var(--top) 0%, var(--base) 35%, var(--deep) 100%);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; }
+  .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 14px; font-weight: 700; }
+  .pad { padding: 4px 18px; }
+  .big { font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+  .sub { color: var(--t2); font-size: 13px; margin-top: 2px; }
+  .seg { display: flex; background: rgba(255,255,255,.05); border-radius: 999px; padding: 3px; margin: 12px 0; }
+  .seg span { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--t2); padding: 7px 0; border-radius: 999px; }
+  .seg span.on { background: rgba(255,255,255,.1); color: var(--t1); }
+  .section { font-size: 12px; font-weight: 700; color: var(--t3); letter-spacing: .07em; text-transform: uppercase; margin: 14px 2px 8px; }
+
+  /* Day strip (phone carousel) */
+  .days { display: flex; gap: 6px; }
+  .day { flex: 1; border-radius: 14px; padding: 7px 0 8px; text-align: center; background: rgba(255,255,255,.04); }
+  .day b { display: block; font-family: var(--display); font-size: 17px; }
+  .day small { font-size: 11px; color: var(--t3); font-weight: 700; }
+  .day.on { background: var(--accent); color: #062421; }
+  .day.on small { color: #0b3b36; }
+  .dots { display: flex; gap: 2px; justify-content: center; margin-top: 4px; height: 4px; }
+  .dots i { width: 4px; height: 4px; border-radius: 2px; }
+
+  /* Time grid */
+  .grid { position: relative; margin-top: 12px; }
+  .hour { position: absolute; left: 0; right: 0; border-top: 1px solid var(--sep); font-size: 10.5px; color: var(--t3); font-weight: 700; }
+  .hour span { position: absolute; top: -7px; left: 0; background: transparent; }
+  .block { position: absolute; border-radius: 14px; padding: 7px 9px; overflow: hidden; border: 1px solid; }
+  .block .t { font-family: var(--display); font-weight: 700; font-size: 14px; line-height: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .block .h { font-size: 11px; color: var(--t2); font-weight: 700; margin-top: 1px; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 6px; padding: 1px 6px; margin-top: 4px; }
+  .mini { white-space: nowrap; overflow: hidden; display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; margin-top: 5px; background: rgba(0,0,0,.18); border-radius: 8px; padding: 3px 6px; }
+  .mini .ring { width: 13px; height: 13px; border-radius: 50%; border: 2px solid; flex: none; }
+  .mini .at { color: var(--t3); margin-left: auto; }
+  .nowline { position: absolute; left: 34px; right: 0; height: 2px; background: var(--coral); box-shadow: 0 0 8px var(--coral); }
+  .nowline::before { content: ''; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 5px; background: var(--coral); }
+  .nowline span { position: absolute; right: 0; top: -17px; font-size: 10.5px; font-weight: 700; color: var(--coral); }
+
+  /* Agenda */
+  .ag-day { font-family: var(--display); font-weight: 700; font-size: 15px; margin: 14px 2px 6px; display: flex; justify-content: space-between; }
+  .ag-day small { font-family: var(--text); font-size: 12px; color: var(--t3); }
+  .ag { display: flex; gap: 10px; align-items: center; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 10px 12px; margin-bottom: 6px; }
+  .ag .bar { width: 4px; align-self: stretch; border-radius: 2px; }
+  .ag .time { font-size: 12px; font-weight: 700; color: var(--t2); width: 46px; line-height: 15px; }
+  .ag .name { font-weight: 700; font-size: 14px; flex: 1; }
+  .ag .meta { font-size: 11.5px; color: var(--t3); margin-top: 1px; }
+
+  /* Dashboard week ribbon */
+  .card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 22px; padding: 14px; margin-bottom: 12px; }
+  .card-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .card-h b { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); }
+  .card-h a { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .ribbon { display: flex; gap: 6px; height: 150px; }
+  .rcol { flex: 1; position: relative; background: rgba(255,255,255,.035); border-radius: 10px; }
+  .rcol.today { background: rgba(92,195,189,.12); outline: 1px solid rgba(92,195,189,.45); }
+  .rcol i { position: absolute; left: 3px; right: 3px; border-radius: 4px; }
+  .rlabels { display: flex; gap: 6px; margin-top: 6px; }
+  .rlabels span { flex: 1; text-align: center; font-size: 11px; font-weight: 700; color: var(--t3); }
+  .rlabels span.today { color: var(--accent); }
+  .next { display: flex; gap: 10px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--sep); }
+  .emoji { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-size: 19px; }
+
+  /* Wide (tablet / PC) */
+  .wide { width: 1228px; border-radius: 28px; overflow: hidden; background: linear-gradient(180deg, var(--top) 0%, var(--base) 40%, var(--deep) 100%);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; padding: 22px 26px 26px; }
+  .wide-h { display: flex; align-items: center; gap: 16px; }
+  .wide-h .seg { width: 330px; margin: 0 0 0 auto; }
+  .weeknav { display: flex; gap: 8px; align-items: center; color: var(--t2); font-weight: 700; font-size: 14px; }
+  .weeknav span { width: 30px; height: 30px; border-radius: 10px; background: rgba(255,255,255,.06); display: grid; place-items: center; color: var(--t1); }
+  .cols { display: grid; grid-template-columns: 44px repeat(7, 1fr); gap: 8px; margin-top: 16px; }
+  .colh { text-align: center; padding: 8px 0; border-radius: 12px; font-weight: 700; font-size: 13px; color: var(--t2); }
+  .colh b { display: block; font-family: var(--display); font-size: 20px; color: var(--t1); }
+  .colh.today { background: rgba(92,195,189,.14); color: var(--accent); }
+  .colh.today b { color: var(--accent); }
+  .wgrid { position: relative; height: 775px; grid-column: 1 / -1; }
+  .wcol { position: absolute; top: 0; bottom: 0; border-radius: 12px; background: rgba(255,255,255,.025); }
+  .wcol.today { background: rgba(92,195,189,.06); }
+  .tray { margin-top: 14px; display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--t2); }
+  .chip { display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px dashed rgba(157,178,190,.35); color: var(--t1); font-weight: 700; }
+
+  .decisions { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .dec { background: var(--raised); border: 1px solid var(--glass-border); border-radius: 18px; padding: 16px; font-size: 13px; line-height: 19px; color: var(--t2); }
+  .dec h3 { font-family: var(--display); color: var(--t1); font-size: 16px; margin-bottom: 6px; }
+  .dec b { color: var(--t1); }
+</style>
+</head>
+<body>
+  <h1>Etapa 4 · Visualizações de rotina</h1>
+  <p class="lead">
+    Em <b>Rotinas</b> aparece um seletor com três jeitos de ver o seu tempo: <b>Linha do tempo</b> (a de hoje, que já existe),
+    <b>Semana</b> (colunas por dia, como a sua referência do Notion) e <b>Agenda</b> (lista dos próximos dias). O app lembra a
+    última escolha. Os blocos usam a <b>cor</b> e o <b>emoji</b> de cada rotina, ganham uma <b>etiqueta</b> opcional
+    (ex.: Faculdade, Saúde) e mostram os hábitos e listas conectados na etapa 3 como <b>mini-peças</b>. No celular a semana
+    vira um <b>carrossel de dias</b>; no tablet e no PC são <b>7 colunas</b>. O painel Início ganha a <b>faixa da semana</b>.
+  </p>
+
+  <div class="row">
+    <!-- Phone: Semana as a day carousel -->
+    <div>
+      <div class="cap-title">Celular · Semana (carrossel de dias)</div>
+      <div class="phone">
+        <div class="status"><span>10:42</span><span>●●● ▮</span></div>
+        <div class="pad">
+          <div class="big">Rotinas</div>
+          <div class="seg"><span>Linha do tempo</span><span class="on">Semana</span><span>Agenda</span></div>
+          <div class="days">
+            <div class="day"><small>DOM</small><b>25</b><div class="dots"><i style="background:var(--kelp)"></i><i style="background:var(--sand)"></i></div></div>
+            <div class="day on"><small>SEG</small><b>26</b><div class="dots"><i style="background:#062421"></i><i style="background:#062421"></i><i style="background:#062421"></i><i style="background:#062421"></i></div></div>
+            <div class="day"><small>TER</small><b>27</b><div class="dots"><i style="background:var(--kelp)"></i><i style="background:var(--anemone)"></i><i style="background:var(--coralc)"></i><i style="background:var(--sand)"></i></div></div>
+            <div class="day"><small>QUA</small><b>28</b><div class="dots"><i style="background:var(--kelp)"></i><i style="background:var(--tide)"></i><i style="background:var(--anemone)"></i><i style="background:var(--sand)"></i></div></div>
+            <div class="day"><small>QUI</small><b>29</b><div class="dots"><i style="background:var(--kelp)"></i><i style="background:var(--anemone)"></i><i style="background:var(--coralc)"></i></div></div>
+            <div class="day"><small>SEX</small><b>30</b><div class="dots"><i style="background:var(--kelp)"></i><i style="background:var(--tide)"></i><i style="background:var(--anemone)"></i></div></div>
+            <div class="day"><small>SÁB</small><b>31</b><div class="dots"><i style="background:var(--coralc)"></i></div></div>
+          </div>
+          <!-- 06:00 → 22:30 in 540px: 1 h ≈ 32.7px -->
+          <div class="grid" style="height:545px">
+            <div class="hour" style="top:6px"><span>06</span></div>
+            <div class="hour" style="top:71px"><span>08</span></div>
+            <div class="hour" style="top:137px"><span>10</span></div>
+            <div class="hour" style="top:202px"><span>12</span></div>
+            <div class="hour" style="top:268px"><span>14</span></div>
+            <div class="hour" style="top:333px"><span>16</span></div>
+            <div class="hour" style="top:399px"><span>18</span></div>
+            <div class="hour" style="top:464px"><span>20</span></div>
+            <div class="hour" style="top:530px"><span>22</span></div>
+
+            <div class="block" style="top:22px;left:34px;right:0;height:46px;background:rgba(134,191,127,.16);border-color:rgba(134,191,127,.5)">
+              <div class="t">🌅 Manhã</div><div class="h">06:30–07:30 · 2 de 3</div>
+            </div>
+            <div class="block" style="top:79px;left:34px;right:0;height:72px;background:rgba(111,169,224,.24);border-color:rgba(111,169,224,.8)">
+              <div class="t">📐 Aula de Cálculo 3</div><div class="h">08:00–10:00</div>
+              <span class="tag" style="background:rgba(111,169,224,.3);color:#cfe3f7">Faculdade</span>
+            </div>
+            <div class="nowline" style="top:156px"><span>agora · 10:42</span></div>
+            <div class="block" style="top:271px;left:34px;right:0;height:68px;background:rgba(182,151,222,.16);border-color:rgba(182,151,222,.5)">
+              <div class="t">📚 Estudo</div><div class="h">14:00–16:00</div>
+              <div class="mini"><span>📋 Lista Cálculo 3</span><span class="at">4 tarefas</span></div>
+            </div>
+            <div class="block" style="top:500px;left:34px;right:0;height:30px;padding-top:6px;background:rgba(215,180,119,.16);border-color:rgba(215,180,119,.5)">
+              <div class="t" style="font-size:13px">📖 Leitura · 21:30–22:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Deslize para os lados para trocar de dia (ou toque no dia). Os <b>pontinhos</b> mostram as cores das rotinas de cada dia. A <b>linha coral</b> marca agora. Tocar num bloco abre a peça com a checklist.</p>
+    </div>
+
+    <!-- Phone: Agenda -->
+    <div>
+      <div class="cap-title">Celular · Agenda</div>
+      <div class="phone">
+        <div class="status"><span>10:42</span><span>●●● ▮</span></div>
+        <div class="pad">
+          <div class="big">Rotinas</div>
+          <div class="seg"><span>Linha do tempo</span><span>Semana</span><span class="on">Agenda</span></div>
+          <div class="ag-day">Hoje <small>seg, 26 out</small></div>
+          <div class="ag" style="opacity:.55"><div class="bar" style="background:var(--kelp)"></div><div class="time">06:30<br>07:30</div><div><div class="name">🌅 Manhã</div><div class="meta">2 de 3 feitos · 💧 Água · 🧘 Meditar</div></div></div>
+          <div class="ag" style="opacity:.55"><div class="bar" style="background:var(--tide)"></div><div class="time">08:00<br>10:00</div><div><div class="name">📐 Aula de Cálculo 3</div><div class="meta">Faculdade</div></div></div>
+          <div class="ag"><div class="bar" style="background:var(--anemone)"></div><div class="time">14:00<br>16:00</div><div><div class="name">📚 Estudo</div><div class="meta">Em 3 h 18 · 📋 Lista Cálculo 3</div></div></div>
+          <div class="ag"><div class="bar" style="background:var(--sand)"></div><div class="time">21:30<br>22:00</div><div><div class="name">📖 Leitura</div><div class="meta">📖 Ler 20 páginas</div></div></div>
+          <div class="ag-day">Amanhã <small>ter, 27 out</small></div>
+          <div class="ag"><div class="bar" style="background:var(--kelp)"></div><div class="time">06:30<br>07:30</div><div><div class="name">🌅 Manhã</div><div class="meta">3 itens</div></div></div>
+          <div class="ag"><div class="bar" style="background:var(--anemone)"></div><div class="time">14:00<br>16:00</div><div><div class="name">📚 Estudo</div><div class="meta">Faculdade</div></div></div>
+          <div class="ag"><div class="bar" style="background:var(--coralc)"></div><div class="time">18:00<br>19:00</div><div><div class="name">🏋️ Treino</div><div class="meta">Saúde</div></div></div>
+          <div class="ag-day">Quarta <small>28 out</small></div>
+          <div class="ag"><div class="bar" style="background:var(--kelp)"></div><div class="time">06:30<br>07:30</div><div><div class="name">🌅 Manhã</div><div class="meta">3 itens</div></div></div>
+        </div>
+      </div>
+      <p class="note">Bom para quem pensa em “o que vem por aí”: hoje, amanhã e os próximos dias em lista. O que já passou hoje fica <b>apagadinho</b> com quanto foi feito.</p>
+    </div>
+
+    <!-- Phone: dashboard -->
+    <div>
+      <div class="cap-title">Painel Início · faixa da semana</div>
+      <div class="phone">
+        <div class="status"><span>10:42</span><span>●●● ▮</span></div>
+        <div class="pad">
+          <div class="sub">Segunda, 26 de outubro</div>
+          <div class="big" style="margin-bottom:14px">Bom dia, Mateus</div>
+          <div class="card">
+            <div class="card-h"><b>Sua semana</b><a>Abrir Rotinas</a></div>
+            <!-- 06:00 → 22:30 into 150px: 1 h ≈ 9.1px -->
+            <div class="ribbon">
+              <div class="rcol"><i style="top:5px;height:9px;background:var(--kelp)"></i><i style="top:141px;height:5px;background:var(--sand)"></i></div>
+              <div class="rcol today"><i style="top:5px;height:9px;background:var(--kelp)"></i><i style="top:18px;height:18px;background:var(--tide)"></i><i style="top:73px;height:18px;background:var(--anemone)"></i><i style="top:141px;height:5px;background:var(--sand)"></i>
+                <i style="top:43px;height:2px;left:0;right:0;background:var(--coral);box-shadow:0 0 6px var(--coral)"></i></div>
+              <div class="rcol"><i style="top:5px;height:9px;background:var(--kelp)"></i><i style="top:73px;height:18px;background:var(--anemone)"></i><i style="top:109px;height:9px;background:var(--coralc)"></i><i style="top:141px;height:5px;background:var(--sand)"></i></div>
+              <div class="rcol"><i style="top:5px;height:9px;background:var(--kelp)"></i><i style="top:18px;height:18px;background:var(--tide)"></i><i style="top:73px;height:18px;background:var(--anemone)"></i><i style="top:141px;height:5px;background:var(--sand)"></i></div>
+              <div class="rcol"><i style="top:5px;height:9px;background:var(--kelp)"></i><i style="top:73px;height:18px;background:var(--anemone)"></i><i style="top:109px;height:9px;background:var(--coralc)"></i><i style="top:141px;height:5px;background:var(--sand)"></i></div>
+              <div class="rcol"><i style="top:5px;height:9px;background:var(--kelp)"></i><i style="top:18px;height:18px;background:var(--tide)"></i><i style="top:73px;height:18px;background:var(--anemone)"></i></div>
+              <div class="rcol"><i style="top:100px;height:9px;background:var(--coralc)"></i></div>
+            </div>
+            <div class="rlabels"><span>D</span><span class="today">S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+            <div class="next">
+              <div class="emoji" style="background:rgba(182,151,222,.22)">📚</div>
+              <div style="flex:1"><div style="font-weight:700">Próxima: Estudo</div><div class="sub">14:00–16:00 · em 3 h 18</div></div>
+            </div>
+          </div>
+          <div class="section">Rotinas · 1 de 4</div>
+          <div class="card" style="opacity:.6;padding:12px 14px"><div style="font-weight:700">🌅 Manhã <span class="sub" style="float:right">06:30–07:30</span></div><div class="sub">2 de 3 feitos</div></div>
+          <div class="card" style="padding:12px 14px"><div style="font-weight:700">📚 Estudo <span class="sub" style="float:right">14:00–16:00</span></div><div class="sub" style="color:var(--anemone)">Em 3 h 18</div></div>
+        </div>
+      </div>
+      <p class="note">A <b>faixa da semana</b> fica em cima da linha do tempo de hoje: um mapa de calor das suas rotinas, com hoje destacado e a linha de agora. Tocar num dia abre Rotinas &gt; Semana naquele dia.</p>
+    </div>
+  </div>
+
+  <h2>Tablet e PC · Semana em 7 colunas</h2>
+  <div class="row">
+    <div class="wide">
+      <div class="wide-h">
+        <div class="big">Rotinas</div>
+        <div class="weeknav"><span>‹</span>26 out – 1 nov<span>›</span><span style="width:auto;padding:0 10px">Hoje</span></div>
+        <div class="seg"><span>Linha do tempo</span><span class="on">Semana</span><span>Agenda</span></div>
+      </div>
+      <div class="cols">
+        <div></div>
+        <div class="colh">DOM<b>25</b></div>
+        <div class="colh today">SEG<b>26</b></div>
+        <div class="colh">TER<b>27</b></div>
+        <div class="colh">QUA<b>28</b></div>
+        <div class="colh">QUI<b>29</b></div>
+        <div class="colh">SEX<b>30</b></div>
+        <div class="colh">SÁB<b>31</b></div>
+        <!-- grid: 06:00 → 22:30 into 630px, 1 h ≈ 38.2px; columns start at 52px, each ≈ 160px + 8 gap -->
+        <div class="wgrid" id="wgrid"></div>
+      </div>
+      <div class="tray">Arraste para um bloco:
+        <span class="chip">🧘 Meditar</span><span class="chip">💧 Água</span><span class="chip">📋 Lista Cálculo 3</span><span class="chip">📁 Semestre 3</span>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="width:1100px">Igual à sua referência do Notion: uma coluna por dia, blocos coloridos na altura do horário, etiqueta e hora de início/fim. Os <b>hábitos conectados</b> aparecem como mini-peças com o anel de progresso de hoje (e o horário dentro da rotina, se tiver). Tocar abre a peça; segurar e arrastar um hábito ou lista da bandeja para um bloco usa o mesmo sistema de <b>Conectar</b> da etapa 3.</p>
+
+  <div class="decisions">
+    <div class="dec"><h3>O que muda nos dados</h3><b>Etiqueta</b> opcional em cada rotina (texto curto, até 20 letras, com sugestões das que você já usou). É uma coluna nova na tabela de rotinas (migração v10, mais um SQL curto no Supabase). A escolha de visualização fica salva no aparelho.</div>
+    <div class="dec"><h3>Honesto, sem fingir</h3>Dias passados mostram <b>quanto foi feito</b> de verdade (o app já guarda a checklist por dia). Dias futuros mostram só o planejado. Rotinas que atravessam a meia-noite continuam fora (regra da V1).</div>
+    <div class="dec"><h3>Acessível</h3>Cada bloco é um botão com nome, dia e horário lidos em voz alta. Na Semana do celular, o carrossel também tem os botões dos dias, para quem não usa gesto de deslizar.</div>
+  </div>
+
+<script>
+  // Draws the 7-column week from data, so the proposal stays consistent.
+  const C = { kelp: '134,191,127', tide: '111,169,224', anemone: '182,151,222', coral: '238,138,115', sand: '215,180,119' };
+  const routines = [
+    { n: '🌅 Manhã', s: '06:00', e: '07:50', c: 'kelp', d: [0,1,2,3,4,5], tag: 'Saúde', minis: [['💧 Água', '5 de 8', .62], ['🧘 Meditar', '07:00', 1]] },
+    { n: '📐 Aula de Cálculo 3', s: '08:00', e: '10:00', c: 'tide', d: [1,3,5], tag: 'Faculdade' },
+    { n: '📚 Estudo', s: '14:00', e: '16:00', c: 'anemone', d: [1,2,3,4,5], tag: 'Faculdade', minis: [['📋 Lista Cálculo 3', '4', .25]] },
+    { n: '🏋️ Treino', s: '18:00', e: '19:00', c: 'coral', d: [2,4], tag: 'Saúde' },
+    { n: '🏋️ Treino', s: '15:00', e: '16:00', c: 'coral', d: [6], tag: 'Saúde' },
+    { n: '📖 Leitura', s: '21:30', e: '22:00', c: 'sand', d: [0,1,2,3,4], minis: [] },
+  ];
+  const g = document.getElementById('wgrid');
+  const H = 46, base = 6 * 60, colW = (1176 - 52 - 6 * 8) / 7;
+  const y = (t) => { const [h, m] = t.split(':').map(Number); return ((h * 60 + m - base) / 60) * H; };
+  for (let h = 6; h <= 22; h += 2) g.insertAdjacentHTML('beforeend', `<div class="hour" style="top:${y(String(h).padStart(2,'0') + ':00')}px"><span>${String(h).padStart(2,'0')}:00</span></div>`);
+  for (let d = 0; d < 7; d++) g.insertAdjacentHTML('beforeend', `<div class="wcol${d === 1 ? ' today' : ''}" style="left:${52 + d * (colW + 8)}px;width:${colW}px"></div>`);
+  for (const r of routines) for (const d of r.d) {
+    const top = y(r.s), h = y(r.e) - top, rgb = C[r.c];
+    const past = d === 0 || (d === 1 && r.e <= '10:42');
+    let inner = `<div class="t">${r.n}</div><div class="h">${r.s}–${r.e}</div>`;
+    if (r.tag && h > 50 && !(r.minis?.length && d === 1)) inner += `<span class="tag" style="background:rgba(${rgb},.3);color:#eef4f7">${r.tag}</span>`;
+    if (r.minis && d === 1) for (const [label, at, p] of r.minis.slice(0, Math.max(0, Math.floor((h - 46) / 26))))
+      inner += `<div class="mini"><span class="ring" style="border-color:rgba(${rgb},.35);border-top-color:rgb(${rgb});${p >= 1 ? `background:rgb(${rgb})` : ''}"></span>${label}<span class="at">${at}</span></div>`;
+    if (h <= 30) inner = `<div class="t" style="font-size:12px">${r.n} · ${r.s}</div>`;
+    g.insertAdjacentHTML('beforeend', `<div class="block" style="top:${top}px;height:${h}px;left:${52 + d * (colW + 8) + 4}px;width:${colW - 8}px;background:rgba(${rgb},${d === 1 ? .22 : .14});border-color:rgba(${rgb},${d === 1 ? .7 : .4});${past ? 'opacity:.55' : ''}">${inner}</div>`);
+  }
+  g.insertAdjacentHTML('beforeend', `<div class="nowline" style="top:${y('10:42')}px;left:${52 + (colW + 8)}px;right:auto;width:${colW}px"><span>10:42</span></div>`);
+</script>
+</body>
+</html>
