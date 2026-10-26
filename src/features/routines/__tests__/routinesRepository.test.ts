@@ -95,9 +95,7 @@ describe('routines repository', () => {
     expect((await repo.getRoutine(id))?.tag).toBe('Saúde');
     await repo.updateRoutine(id, { ...morning, tag: ' ' });
     expect((await repo.getRoutine(id))?.tag).toBeNull();
-    await expect(repo.createRoutine({ ...morning, tag: 'x'.repeat(21) })).rejects.toThrow(
-      'até 20',
-    );
+    await expect(repo.createRoutine({ ...morning, tag: 'x'.repeat(21) })).rejects.toThrow('até 20');
   });
 
   it('counts checked items per routine and day in a range', async () => {

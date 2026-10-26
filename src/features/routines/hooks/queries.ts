@@ -22,6 +22,8 @@ export function useRoutinesToday() {
   const minuteKey = `${toDateKey(now)}T${now.getHours()}:${now.getMinutes()}`;
   return {
     todayKey: toDateKey(now),
+    /** Minutes since local midnight. */
+    nowMinutes: now.getHours() * 60 + now.getMinutes(),
     ...useLiveQuery(`routines:${minuteKey}`, ['routines'], () => routines.listToday(now)),
   };
 }

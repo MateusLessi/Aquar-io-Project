@@ -38,6 +38,7 @@ export function SegmentedControl<T extends string>({
             accessibilityRole="radio"
             accessibilityLabel={option.label}
             accessibilityState={{ checked: selected }}
+            aria-checked={selected}
             onPress={() => {
               if (selected) return;
               haptics.selection();
