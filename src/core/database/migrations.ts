@@ -301,6 +301,13 @@ export const migrations: Migration[] = [
       ${outboxTriggers('links')}
     `,
   },
+  {
+    version: 10,
+    name: 'routine_tags',
+    // An optional short label on a routine ("Faculdade", "Saúde"), shown on its block in the
+    // week view.
+    sql: `ALTER TABLE routines ADD COLUMN tag TEXT;`,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

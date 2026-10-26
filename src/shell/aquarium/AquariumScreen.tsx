@@ -4,12 +4,15 @@ import { StyleSheet, View } from 'react-native';
 import { Link2 } from 'lucide-react-native';
 
 import { Button, Screen, SegmentedControl } from '@/design-system';
+import { creatures } from '@/features/habits/domain/creatures';
 import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
 import { ListsPanel } from '@/features/todo/screens/ListsPanel';
 
 import { useConnect } from '../connections/ConnectProvider';
 import { ConnectedRoutinePiece } from '../connections/ConnectedRoutinePiece';
+import { ConnectedWeek } from '../connections/ConnectedWeek';
+import { useConnections } from '../connections/useConnected';
 
 export type AquariumTab = 'habits' | 'routines' | 'lists';
 
@@ -32,6 +35,7 @@ export function AquariumScreen() {
   const params = useLocalSearchParams<{ tab?: string }>();
   const tab = aquariumTab(params.tab);
   const { open, startMode } = useConnect();
+  const { inside } = useConnections();
 
   return (
     <Screen
@@ -51,6 +55,16 @@ export function AquariumScreen() {
       {tab === 'habits' ? <HabitsPanel /> : null}
       {tab === 'routines' ? (
         <RoutinesPanel
+          renderWeek={(week) => <ConnectedWeek {...week} />}
+          describe={(routine) =>
+            inside('routine', routine.id).map((c) =>
+              c.kind === 'habit'
+                ? `${creatures[c.habit.creature].emoji} ${c.habit.name}${c.link.at ? ` ${c.link.at}` : ''}`
+                : c.kind === 'list'
+                  ? `${c.list.emoji ?? '📋'} ${c.list.name}`
+                  : `${c.folder.emoji ?? '📁'} ${c.folder.name}`,
+            )
+          }
           renderRoutine={(routine, onEdit) => (
             <ConnectedRoutinePiece
               routine={routine}

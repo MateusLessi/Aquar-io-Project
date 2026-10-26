@@ -88,4 +88,25 @@ describe('routines repository', () => {
     expect(facts.checks).toEqual([{ day: '2026-10-23' }]);
     expect(facts.due).toEqual([{ day: '2026-10-23', total: 3, done: 1 }]);
   });
+
+  it('keeps an optional tag, trimmed, and clears it when blank', async () => {
+    const repo = await setup();
+    const id = await repo.createRoutine({ ...morning, tag: '  Saúde ' });
+    expect((await repo.getRoutine(id))?.tag).toBe('Saúde');
+    await repo.updateRoutine(id, { ...morning, tag: ' ' });
+    expect((await repo.getRoutine(id))?.tag).toBeNull();
+    await expect(repo.createRoutine({ ...morning, tag: 'x'.repeat(21) })).rejects.toThrow('até 20');
+  });
+
+  it('counts checked items per routine and day in a range', async () => {
+    const repo = await setup();
+    const id = await repo.createRoutine(morning);
+    const items = (await repo.getRoutine(id))!.items;
+    await repo.setItemChecked(id, items[0]!.id, '2026-10-21', true);
+    await repo.setItemChecked(id, items[1]!.id, '2026-10-21', true);
+    await repo.setItemChecked(id, items[0]!.id, '2026-10-23', true);
+    await repo.setItemChecked(id, items[0]!.id, '2026-10-30', true);
+    const done = await repo.doneBetween('2026-10-19', '2026-10-25');
+    expect(Object.fromEntries(done)).toEqual({ [`${id}:2026-10-21`]: 2, [`${id}:2026-10-23`]: 1 });
+  });
 });

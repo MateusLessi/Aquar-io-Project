@@ -115,6 +115,7 @@ export const syncedTables: readonly SyncedTable[] = [
       'end_time',
       'days',
       'remind',
+      'tag',
       'sort_order',
       'created_at',
       'updated_at',

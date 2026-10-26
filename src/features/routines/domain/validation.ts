@@ -3,7 +3,7 @@ import { listColorNames, type ListColorName } from '@/design-system';
 
 import { toMinutes } from './schedule';
 
-export const ROUTINE_LIMITS = { name: 60, item: 120, items: 20 } as const;
+export const ROUTINE_LIMITS = { name: 60, item: 120, items: 20, tag: 20 } as const;
 
 /** A user-facing validation problem, with a message ready to show. */
 export class RoutineValidationError extends Error {
@@ -54,4 +54,14 @@ export function validateRoutineItems(items: string[]): string[] {
     throw new RoutineValidationError(`Cada item pode ter até ${ROUTINE_LIMITS.item} caracteres.`);
   }
   return titles;
+}
+
+/** An optional label: blank means none. */
+export function validateRoutineTag(tag: string | null | undefined): string | null {
+  const value = text(tag ?? '');
+  if (!value) return null;
+  if (value.length > ROUTINE_LIMITS.tag) {
+    throw new RoutineValidationError(`A etiqueta pode ter até ${ROUTINE_LIMITS.tag} caracteres.`);
+  }
+  return value;
 }

@@ -15,6 +15,8 @@ export type Routine = {
   days: WeekdayMask;
   /** Ring a reminder when the routine starts. */
   remind: boolean;
+  /** A short label shown on the routine's block ("Faculdade", "Saúde"). */
+  tag: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -40,5 +42,6 @@ export type NewRoutine = {
   end: string;
   days?: WeekdayMask;
   remind?: boolean;
+  tag?: string | null;
   items?: string[];
 };

@@ -17,7 +17,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | 1   | **Hábitos 2.0**: tipos de hábito, cronômetro, contador, nova visualização                        | ✓      |
 | 2   | **Pastas e listas**: pastas dentro de pastas, visualizações de pasta                             | ✓      |
 | 3   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ✓      |
-| 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ☐      |
+| 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ✓      |
 | 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ☐      |
 | 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ☐      |
 | 7   | **Ajustes completos**: personalização ampla do app                                               | ☐      |
@@ -64,6 +64,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 - A pessoa escolhe a visualização: **Linha do tempo** (a atual), **Semana em colunas** (referência: o modelo de rotina do Notion, com um dia por coluna e blocos com etiqueta colorida e horário) e **Agenda/lista**.
 - Disponível no **painel** (compacta) e em **Rotinas** (detalhada).
 - No celular, a semana vira um carrossel de dias. No tablet e no PC aparecem as 7 colunas.
+- **Feito:** seletor **Hoje / Semana / Agenda** em Rotinas (a escolha fica salva); **etiqueta** opcional nas rotinas (migração 10); blocos com os hábitos e listas conectados; bandeja de arrastar na semana do tablet e do PC; cartão **"Sua semana"** no painel, que abre a Semana no dia tocado. Detalhes em [routines.md](routines.md).
 
 ### 5. Estatísticas
 

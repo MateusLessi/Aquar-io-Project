@@ -24,6 +24,8 @@ import {
 import { HabitEditorSheet } from '@/features/habits/components/HabitEditorSheet';
 import { useHabitsRepository } from '@/features/habits/hooks/habitsContext';
 import { RoutineEditorSheet } from '@/features/routines/components/RoutineEditorSheet';
+import { tagsOf } from '@/features/routines/domain/schedule';
+import { useRoutinesToday } from '@/features/routines/hooks/queries';
 import { useRoutinesRepository } from '@/features/routines/hooks/routinesContext';
 import { FolderEditorSheet } from '@/features/todo/components/FolderEditorSheet';
 import { ListEditorSheet } from '@/features/todo/components/ListEditorSheet';
@@ -77,6 +79,7 @@ export function CreateFlow({
 }: CreateFlowProps) {
   const habits = useHabitsRepository();
   const routines = useRoutinesRepository();
+  const { data: routineList } = useRoutinesToday();
   const [kind, setKind] = useState<CreateKind | null>(null);
   const close = () => {
     setKind(null);
@@ -124,6 +127,7 @@ export function CreateFlow({
       />
       <RoutineEditorSheet
         visible={visible && kind === 'routine'}
+        tagSuggestions={tagsOf(routineList)}
         onClose={close}
         onSubmit={async (input) => {
           await routines.createRoutine(input);

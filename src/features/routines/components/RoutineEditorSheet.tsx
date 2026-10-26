@@ -36,6 +36,8 @@ type RoutineEditorSheetProps = {
   routine?: (Routine & { items: RoutineItem[] }) | null;
   onSubmit: (input: NewRoutine) => Promise<void>;
   onDelete?: () => Promise<void>;
+  /** Labels already used on other routines, offered as one-tap choices. */
+  tagSuggestions?: string[];
 };
 
 export function RoutineEditorSheet({
@@ -57,6 +59,7 @@ function RoutineForm({
   onClose,
   onSubmit,
   onDelete,
+  tagSuggestions = [],
 }: Omit<RoutineEditorSheetProps, 'visible'>) {
   const { colors, scheme } = useTheme();
   const [name, setName] = useState(routine?.name ?? '');
@@ -67,6 +70,7 @@ function RoutineForm({
   const [editingTime, setEditingTime] = useState<'start' | 'end' | null>(null);
   const [days, setDays] = useState(routine?.days ?? EVERY_DAY);
   const [remind, setRemind] = useState(routine?.remind ?? false);
+  const [tag, setTag] = useState(routine?.tag ?? '');
   const [items, setItems] = useState<string[]>(routine?.items.map((i) => i.title) ?? []);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +89,7 @@ function RoutineForm({
   const save = async () => {
     setSaving(true);
     try {
-      await onSubmit({ name, emoji, color, start, end, days, remind, items });
+      await onSubmit({ name, emoji, color, start, end, days, remind, tag, items });
       if (remind) await requestNotificationPermission();
       onClose();
     } catch (e) {
@@ -148,6 +152,28 @@ function RoutineForm({
             />
           ))}
         </View>
+      </Group>
+
+      <Group label="Etiqueta (opcional)">
+        <TextInput
+          label="Etiqueta"
+          value={tag}
+          onChangeText={setTag}
+          placeholder="Faculdade, Saúde, Trabalho…"
+          maxLength={20}
+        />
+        {tagSuggestions.length > 0 ? (
+          <View style={styles.wrap}>
+            {tagSuggestions.map((option) => (
+              <Chip
+                key={option}
+                label={option}
+                selected={tag.trim() === option}
+                onPress={() => setTag(tag.trim() === option ? '' : option)}
+              />
+            ))}
+          </View>
+        ) : null}
       </Group>
 
       <Group label="Horário">

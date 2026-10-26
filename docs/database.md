@@ -140,6 +140,10 @@ links  id (derivado do par), item_kind, item_id, target_kind, target_id, at_time
 
 Detalhes em [connections.md](connections.md).
 
+## Etiqueta das rotinas (migration 10)
+
+`routines.tag`: texto curto opcional (até 20 caracteres), mostrado no bloco da rotina na visão Semana. Sincroniza com a coluna `tag` (`supabase/migrations/20261028000000_routine_tags.sql`).
+
 ### Índices
 
 - `tasks(list_id, deleted_at)`: listar tarefas de uma lista;
