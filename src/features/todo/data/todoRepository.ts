@@ -314,6 +314,20 @@ export function createTodoRepository(deps: TodoDeps) {
      * day how many top-level tasks were due and done. Completed tasks count even if deleted
      * later: the effort happened.
      */
+    /** For statistics: when each task (not subtask) was completed, between two days. */
+    async completionTimes(from: string, to: string): Promise<string[]> {
+      const rows = await db.all<{ completed_at: string }>(
+        `SELECT completed_at FROM tasks
+         WHERE completed_at IS NOT NULL AND parent_task_id IS NULL AND deleted_at IS NULL`,
+      );
+      return rows
+        .map((r) => r.completed_at)
+        .filter((at) => {
+          const day = toDateKey(new Date(at));
+          return day >= from && day <= to;
+        });
+    },
+
     async progressFacts(todayKey: string = toDateKey(now())): Promise<{
       completions: { day: string; subtask: boolean }[];
       due: { day: string; total: number; done: number }[];

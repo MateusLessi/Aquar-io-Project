@@ -275,6 +275,31 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
     },
 
     /**
+     * For statistics: every routine with its current number of items, and each item checked
+     * between `from` and `to` (inclusive) with when it was marked.
+     */
+    async statsFacts(
+      from: string,
+      to: string,
+    ): Promise<{
+      routines: (Routine & { itemCount: number })[];
+      checks: { routineId: string; day: string; at: string }[];
+    }> {
+      const routines = await listRoutines();
+      const items = await itemsOf(routines.map((r) => r.id));
+      const checks = await db.all<{ routine_id: string; date: string; updated_at: string }>(
+        `SELECT c.routine_id, c.date, c.updated_at FROM routine_checks c
+         JOIN routine_items i ON i.id = c.item_id AND i.deleted_at IS NULL
+         WHERE c.deleted_at IS NULL AND c.date BETWEEN ? AND ?`,
+        [from, to],
+      );
+      return {
+        routines: routines.map((r) => ({ ...r, itemCount: items.get(r.id)?.length ?? 0 })),
+        checks: checks.map((c) => ({ routineId: c.routine_id, day: c.date, at: c.updated_at })),
+      };
+    },
+
+    /**
      * How many of each routine's items were checked on each day from `from` to `to` (inclusive),
      * keyed `<routine id>:<day>`. Items removed since then don't count.
      */
