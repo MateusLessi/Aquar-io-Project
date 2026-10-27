@@ -9,7 +9,8 @@ import AquariumLayout from '@/app/(tabs)/aquarium/_layout';
 import ListRoute from '@/app/(tabs)/aquarium/lists/[id]';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
-import ProfileScreen from '@/app/(tabs)/profile';
+import ProfileScreen from '@/app/(tabs)/profile/index';
+import ProfileLayout from '@/app/(tabs)/profile/_layout';
 import ShopScreen from '@/app/(tabs)/shop';
 import { createMemoryDatabase } from '@/core/database/testing';
 import { toDateKey } from '@/core/dates';
@@ -49,7 +50,8 @@ const routes = {
   '(tabs)/aquarium/habits/[id]': HabitRoute,
   '(tabs)/aquarium/lists/[id]': ListRoute,
   '(tabs)/shop': ShopScreen,
-  '(tabs)/profile': ProfileScreen,
+  '(tabs)/profile/_layout': ProfileLayout,
+  '(tabs)/profile/index': ProfileScreen,
 };
 
 function setWindowWidth(width: number, fontScale = 1) {

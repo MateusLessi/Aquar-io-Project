@@ -18,7 +18,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | 2   | **Pastas e listas**: pastas dentro de pastas, visualizações de pasta                             | ✓      |
 | 3   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ✓      |
 | 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ✓      |
-| 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ☐      |
+| 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ✓      |
 | 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ☐      |
 | 7   | **Ajustes completos**: personalização ampla do app                                               | ☐      |
 | 8   | **Perfil personalizável** com privacidade por informação                                         | ☐      |
@@ -71,6 +71,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 - Visões semanal e mensal, com gráficos e tabelas, cobrindo hábitos, tarefas, rotinas e Profundidade.
 - Sequências, taxa de conclusão por dia da semana, horários em que você mais conclui e equilíbrio entre áreas.
 - Gráficos desenhados com `react-native-svg`, que já está no projeto. Sem biblioteca nova.
+- **Feito:** tela **Estatísticas** (`/profile/stats`, aberta pelo Perfil e pelo cartão **"Esta semana"** do painel), semana e mês, 4 números-resumo, concluídos por dia, Profundidade, calendário de maré cheia, taxa por dia da semana, horários e tabelas de hábitos e rotinas. Detalhes em [stats.md](stats.md).
 
 ### 6. Sons e toque
 

@@ -1,5 +1,15 @@
 export { Button, type ButtonProps, type ButtonVariant } from './components/Button';
 export { CalendarMonth, type CalendarMonthProps } from './components/CalendarMonth';
+export {
+  AreaLine,
+  Columns,
+  Heatmap,
+  Legend,
+  Sparkline,
+  type AreaLineProps,
+  type ColumnsProps,
+  type HeatmapProps,
+} from './components/Charts';
 export { Checkbox, type CheckboxProps } from './components/Checkbox';
 export { Chip, type ChipProps } from './components/Chip';
 export { ConfirmDialog, type ConfirmDialogProps } from './components/ConfirmDialog';

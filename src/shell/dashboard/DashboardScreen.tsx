@@ -17,6 +17,7 @@ import { RoutineExtras } from '../connections/RoutineExtras';
 import { useCreate } from '../create/CreateContext';
 import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
+import { WeekStatsCard } from '../stats/WeekStatsCard';
 import { TideCalendar } from './TideCalendar';
 import { WeekChart } from './WeekChart';
 
@@ -93,6 +94,7 @@ export function DashboardScreen() {
         <>
           {tide}
           <DepthGauge />
+          <WeekStatsCard />
           <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />
           <TodayHabits />
           <TodayTasks />
@@ -104,6 +106,7 @@ export function DashboardScreen() {
           <Column>
             {tide}
             <DepthGauge />
+            <WeekStatsCard />
             <TodayHabits />
             {week}
           </Column>
@@ -118,6 +121,7 @@ export function DashboardScreen() {
         <Columns>
           <Column flex={0.9}>
             <Button label="Criar" variant="energy" icon={Plus} block onPress={create} />
+            <WeekStatsCard />
             {calendar}
             {week}
           </Column>

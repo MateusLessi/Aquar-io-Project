@@ -47,7 +47,8 @@ src/app/
 ├── (tabs)/aquarium/habits/[id].tsx  Um hábito
 ├── (tabs)/aquarium/lists/[id].tsx   Uma lista
 ├── (tabs)/shop.tsx                  Loja (vitrine "em breve")
-├── (tabs)/profile.tsx               Perfil + todos os ajustes
+├── (tabs)/profile/index.tsx         Perfil + todos os ajustes
+├── (tabs)/profile/stats.tsx         Estatísticas
 └── dev/                             prévias e catálogo (somente desenvolvimento)
 ```
 
