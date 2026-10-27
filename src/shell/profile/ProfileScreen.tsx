@@ -45,6 +45,15 @@ export function ProfileScreen() {
     <Screen title="Perfil">
       <ProfileHeader />
 
+      <Surface>
+        <ListItem
+          title="Estatísticas"
+          subtitle="Sua semana e seu mês em gráficos e tabelas"
+          onPress={() => router.push('/profile/stats')}
+          trailing={<ChevronRight size={20} color={colors.textTertiary} />}
+        />
+      </Surface>
+
       {hasCloud ? (
         <Section title="Conta e sincronização">
           <AccountSection />

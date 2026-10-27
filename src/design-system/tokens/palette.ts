@@ -47,4 +47,17 @@ export const listColors = {
 } as const;
 
 export type ListColorName = keyof typeof listColors;
+
+/**
+ * Chart series for the three areas of the app, in this fixed order. Validated with the dataviz
+ * palette checks (lightness band per mode, colorblind separation ΔE ≥ 17, contrast ≥ 3:1);
+ * the dark tones are a step deeper than the list colors to sit inside the dark band.
+ */
+export const chartColors = {
+  tasks: { light: '#2F75B5', dark: '#4F8FD0' },
+  habits: { light: '#C9573F', dark: '#DC6C56' },
+  routines: { light: '#8358B3', dark: '#9D7BD0' },
+} as const;
+
+export type ChartSeries = keyof typeof chartColors;
 export const listColorNames = Object.keys(listColors) as ListColorName[];

@@ -319,6 +319,29 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
   }
 
   return {
+    /**
+     * For statistics: every habit, and each day one was done between `from` and `to`
+     * (inclusive) with when it was marked.
+     */
+    async statsFacts(
+      from: string,
+      to: string,
+    ): Promise<{ habits: Habit[]; done: { habitId: string; day: string; at: string }[] }> {
+      const rows = await db.all<HabitRow>(
+        `SELECT ${HABIT_COLUMNS} FROM habits WHERE deleted_at IS NULL ORDER BY sort_order`,
+      );
+      const done = await db.all<{ habit_id: string; date: string; updated_at: string }>(
+        `SELECT c.habit_id, c.date, c.updated_at FROM habit_checks c
+         JOIN habits h ON h.id = c.habit_id AND h.deleted_at IS NULL
+         WHERE c.deleted_at IS NULL AND c.date BETWEEN ? AND ?`,
+        [from, to],
+      );
+      return {
+        habits: rows.map(toHabit),
+        done: done.map((r) => ({ habitId: r.habit_id, day: r.date, at: r.updated_at })),
+      };
+    },
+
     async listHabits(todayKey: string = toDateKey(now())): Promise<HabitWithProgress[]> {
       const rows = await db.all<HabitRow>(
         `SELECT ${HABIT_COLUMNS} FROM habits WHERE deleted_at IS NULL ORDER BY sort_order`,

@@ -109,4 +109,17 @@ describe('routines repository', () => {
     const done = await repo.doneBetween('2026-10-19', '2026-10-25');
     expect(Object.fromEntries(done)).toEqual({ [`${id}:2026-10-21`]: 2, [`${id}:2026-10-23`]: 1 });
   });
+
+  it('reports routines and dated checks for statistics', async () => {
+    const repo = await setup();
+    const id = await repo.createRoutine(morning);
+    const items = (await repo.getRoutine(id))!.items;
+    await repo.setItemChecked(id, items[0]!.id, '2026-10-23', true);
+    await repo.setItemChecked(id, items[1]!.id, '2026-10-10', true);
+    const facts = await repo.statsFacts('2026-10-19', '2026-10-25');
+    expect(facts.routines.map((r) => [r.name, r.itemCount])).toEqual([['Manhã', 3]]);
+    expect(facts.checks).toEqual([
+      { routineId: id, day: '2026-10-23', at: clock.now.toISOString() },
+    ]);
+  });
 });

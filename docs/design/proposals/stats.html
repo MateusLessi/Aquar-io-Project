@@ -1,0 +1,292 @@
+<!doctype html>
+<!-- PROPOSAL: Estatísticas for Checkpoint 046 (First Dive, etapa 5). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Estatísticas</title>
+<style>
+  @font-face { font-family: Outfit; font-weight: 600; src: url(../../../node_modules/@expo-google-fonts/outfit/600SemiBold/Outfit_600SemiBold.ttf); }
+  @font-face { font-family: Outfit; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/outfit/700Bold/Outfit_700Bold.ttf); }
+  @font-face { font-family: Manrope; font-weight: 500; src: url(../../../node_modules/@expo-google-fonts/manrope/500Medium/Manrope_500Medium.ttf); }
+  @font-face { font-family: Manrope; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/manrope/700Bold/Manrope_700Bold.ttf); }
+  :root {
+    --display: Outfit, system-ui, sans-serif; --text: Manrope, system-ui, sans-serif;
+    --top: #0b2129; --base: #07121a; --deep: #040b11; --raised: #0e1c26;
+    --glass: rgba(18, 38, 50, 0.62); --glass-border: rgba(140, 200, 210, 0.16);
+    --t1: #e6f0f4; --t2: #9db2be; --t3: #6a8291; --sep: rgba(157, 178, 190, 0.12); --grid: rgba(157,178,190,.10);
+    --accent: #5cc3bd; --coral: #ee8a73;
+    /* Chart series (validated: dark band, CVD ΔE ≥ 17) */
+    --s-tasks: #4f8fd0; --s-habits: #dc6c56; --s-routines: #9d7bd0;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #0a1218; color: var(--t1); padding: 36px; width: 1300px; }
+  h1 { font-family: var(--display); font-size: 30px; font-weight: 700; }
+  h2 { font-family: var(--display); font-size: 21px; font-weight: 700; margin-top: 44px; }
+  .lead { color: var(--t2); font-size: 15px; margin-top: 6px; max-width: 1180px; line-height: 22px; }
+  .lead b { color: var(--t1); }
+  .row { display: flex; gap: 40px; margin-top: 24px; align-items: flex-start; }
+  .cap-title { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); margin-bottom: 10px; }
+  .note { font-size: 13px; color: var(--t2); width: 360px; margin-top: 12px; line-height: 19px; }
+  .note b { color: var(--t1); }
+  .phone { width: 360px; height: 760px; border-radius: 44px; overflow: hidden; position: relative;
+    background: linear-gradient(180deg, var(--top) 0%, var(--base) 35%, var(--deep) 100%);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; }
+  .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 14px; font-weight: 700; }
+  .pad { padding: 4px 16px; }
+  .big { font-family: var(--display); font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
+  .sub { color: var(--t2); font-size: 13px; margin-top: 2px; }
+  .seg { display: flex; background: rgba(255,255,255,.05); border-radius: 999px; padding: 3px; margin: 10px 0; }
+  .seg span { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--t2); padding: 7px 0; border-radius: 999px; }
+  .seg span.on { background: rgba(255,255,255,.1); color: var(--t1); }
+  .nav { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+  .nav i { font-style: normal; width: 28px; height: 28px; border-radius: 9px; background: rgba(255,255,255,.06); display: grid; place-items: center; color: var(--t2); }
+  .card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 12px 14px; margin-bottom: 10px; }
+  .card h4 { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); font-weight: 700; display: flex; justify-content: space-between; }
+  .card h4 a { color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 12px; }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .kpi { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 18px; padding: 10px 12px; }
+  .kpi small { font-size: 11px; color: var(--t3); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .kpi b { display: block; font-family: var(--display); font-size: 26px; margin-top: 2px; }
+  .kpi span { font-size: 11.5px; color: var(--t2); font-weight: 700; }
+  .kpi span.up { color: #86bf7f; }
+  .legend { display: flex; gap: 12px; font-size: 11.5px; color: var(--t2); font-weight: 700; margin: 6px 0 2px; }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 6px; }
+  th { text-align: left; color: var(--t3); font-weight: 700; font-size: 11px; padding: 4px 0; border-bottom: 1px solid var(--sep); }
+  td { padding: 6px 0; border-bottom: 1px solid var(--sep); color: var(--t1); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .meter { height: 6px; border-radius: 3px; background: rgba(92,195,189,.18); overflow: hidden; width: 70px; display: inline-block; vertical-align: middle; margin-left: 6px; }
+  .meter b { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .tip { position: absolute; background: #1b2f3b; border: 1px solid rgba(157,178,190,.25); border-radius: 12px; padding: 7px 10px; font-size: 11.5px; line-height: 16px; box-shadow: 0 10px 24px rgba(0,0,0,.4); }
+  .tip b { font-size: 12px; }
+  .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+  .wide { width: 1228px; border-radius: 28px; overflow: hidden; background: linear-gradient(180deg, var(--top) 0%, var(--base) 40%, var(--deep) 100%);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; padding: 22px 26px 26px; }
+  .wide-h { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .wide-h .seg { width: 220px; margin: 0 0 0 auto; }
+  .wgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .wgrid .card { margin: 0; }
+  .span2 { grid-column: span 2; } .span4 { grid-column: span 4; }
+  .decisions { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .dec { background: var(--raised); border: 1px solid var(--glass-border); border-radius: 18px; padding: 16px; font-size: 13px; line-height: 19px; color: var(--t2); }
+  .dec h3 { font-family: var(--display); color: var(--t1); font-size: 16px; margin-bottom: 6px; }
+  .dec b { color: var(--t1); }
+  svg text { font-family: var(--text); font-weight: 700; fill: var(--t3); font-size: 10px; }
+</style>
+</head>
+<body>
+  <h1>Etapa 5 · Estatísticas</h1>
+  <p class="lead">
+    Uma tela nova, <b>Estatísticas</b>, aberta pelo painel Início e pelo Perfil. Mostra a <b>semana</b> ou o <b>mês</b>, com setas para
+    voltar no tempo. Tudo vem do que você realmente marcou no app: <b>tarefas</b> concluídas, <b>hábitos</b> feitos, itens de <b>rotina</b>
+    e a <b>Profundidade</b> ganha. Cada gráfico tem um <b>toque para ver os números</b> e um botão <b>“Ver como tabela”</b>. As cores das três
+    áreas foram validadas para daltonismo (azul, coral e roxo), e cada gráfico também traz legenda e rótulos.
+  </p>
+
+  <div class="row">
+    <!-- Phone: week -->
+    <div>
+      <div class="cap-title">Celular · Semana</div>
+      <div class="phone">
+        <div class="status"><span>21:10</span><span>●●● ▮</span></div>
+        <div class="pad">
+          <div class="big">Estatísticas</div>
+          <div class="seg"><span class="on">Semana</span><span>Mês</span></div>
+          <div class="nav"><i>‹</i>25 – 31 de outubro<i>›</i></div>
+          <div class="kpis">
+            <div class="kpi"><small>Concluídos</small><b>64</b><span class="up">▲ 12 vs. semana passada</span></div>
+            <div class="kpi"><small>Do planejado</small><b>78%</b><span>hábitos e rotinas</span></div>
+            <div class="kpi"><small>Maior sequência</small><b>9 dias</b><span>🐢 Meditar</span></div>
+            <div class="kpi"><small>Profundidade</small><b>+46 m</b><span>agora 312 m</span></div>
+          </div>
+          <div class="card" style="position:relative">
+            <h4>Por dia <a>Ver como tabela</a></h4>
+            <div class="legend"><span><i style="background:var(--s-tasks)"></i>Tarefas</span><span><i style="background:var(--s-habits)"></i>Hábitos</span><span><i style="background:var(--s-routines)"></i>Rotinas</span></div>
+            <svg id="weekbars" width="304" height="150"></svg>
+            <div class="tip" style="left:150px;top:62px"><b>Quarta, 28</b><br><i style="background:var(--s-tasks)"></i>5 tarefas<br><i style="background:var(--s-habits)"></i>3 hábitos<br><i style="background:var(--s-routines)"></i>6 itens de rotina</div>
+          </div>
+          <div class="card">
+            <h4>Quando você mais conclui</h4>
+            <svg id="hours" width="304" height="122"></svg>
+          </div>
+        </div>
+      </div>
+      <p class="note">Os <b>4 números</b> no topo resumem a semana e comparam com a anterior. O gráfico de colunas empilha as três áreas por dia; <b>tocar numa coluna</b> mostra os números dela. O mapa de horários mostra em que parte do dia você mais marca coisas (pela hora em que marcou).</p>
+    </div>
+
+    <!-- Phone: month -->
+    <div>
+      <div class="cap-title">Celular · Mês (rolando para baixo)</div>
+      <div class="phone">
+        <div class="status"><span>21:10</span><span>●●● ▮</span></div>
+        <div class="pad">
+          <div class="seg"><span>Semana</span><span class="on">Mês</span></div>
+          <div class="nav"><i>‹</i>Outubro de 2026<i>›</i></div>
+          <div class="card">
+            <h4>Dias de maré cheia</h4>
+            <svg id="calendar" width="304" height="186"></svg>
+          </div>
+          <div class="card">
+            <h4>Por dia da semana</h4>
+            <svg id="weekday" width="304" height="112"></svg>
+          </div>
+          <div class="card">
+            <h4>Hábitos <a>Ver todos</a></h4>
+            <table>
+              <tr><th>Hábito</th><th class="n">Feitos</th><th class="n">Sequência</th></tr>
+              <tr><td>🐢 Meditar</td><td class="n">22 de 26 <span class="meter"><b style="width:85%"></b></span></td><td class="n">9</td></tr>
+              <tr><td>🐠 Beber água</td><td class="n">18 de 26 <span class="meter"><b style="width:69%"></b></span></td><td class="n">4</td></tr>
+              <tr><td>🦀 Ler 20 páginas</td><td class="n">11 de 18 <span class="meter"><b style="width:61%"></b></span></td><td class="n">2</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p class="note">No mês, o <b>calendário</b> pinta cada dia pela quantidade de pontos (mais escuro = mais perto da maré cheia; 🌊 = maré cheia). <b>Por dia da semana</b> mostra a taxa média do planejado que você fez. As <b>tabelas</b> trazem cada hábito e cada rotina com feitos, planejados e sequência.</p>
+    </div>
+
+    <!-- Phone: dashboard card -->
+    <div>
+      <div class="cap-title">Painel Início · resumo</div>
+      <div class="phone">
+        <div class="status"><span>21:10</span><span>●●● ▮</span></div>
+        <div class="pad">
+          <div class="sub">Segunda, 26 de outubro</div>
+          <div class="big" style="margin-bottom:12px">Boa noite, Mateus</div>
+          <div class="card" style="opacity:.55;height:120px"><h4>Maré do dia</h4></div>
+          <div class="card">
+            <h4>Esta semana <a>Ver estatísticas</a></h4>
+            <div style="display:flex;gap:14px;margin-top:8px;align-items:flex-end">
+              <div style="flex:1"><div style="font-family:var(--display);font-size:26px;font-weight:700">64</div><div class="sub" style="font-size:12px">concluídos · <span style="color:#86bf7f;font-weight:700">▲ 12</span></div></div>
+              <svg id="spark" width="150" height="46"></svg>
+            </div>
+            <div style="height:10px;border-radius:5px;overflow:hidden;display:flex;gap:2px;margin-top:12px">
+              <div style="flex:28;background:var(--s-tasks)"></div><div style="flex:17;background:var(--s-habits)"></div><div style="flex:19;background:var(--s-routines)"></div>
+            </div>
+            <div class="legend" style="margin-top:6px"><span><i style="background:var(--s-tasks)"></i>28 tarefas</span><span><i style="background:var(--s-habits)"></i>17 hábitos</span><span><i style="background:var(--s-routines)"></i>19 rotina</span></div>
+          </div>
+          <div class="card" style="opacity:.55;height:150px"><h4>Sua semana</h4></div>
+        </div>
+      </div>
+      <p class="note">No painel entra um cartão <b>“Esta semana”</b>: o total de concluídos com a comparação, uma linha dos últimos 7 dias e a barra de <b>equilíbrio entre áreas</b>. Tocar abre as Estatísticas.</p>
+    </div>
+  </div>
+
+  <h2>Tablet e PC · tudo numa grade</h2>
+  <div class="row">
+    <div class="wide">
+      <div class="wide-h">
+        <div class="big">Estatísticas</div>
+        <div class="nav" style="margin:0;gap:12px"><i>‹</i>Outubro de 2026<i>›</i></div>
+        <div class="seg"><span>Semana</span><span class="on">Mês</span></div>
+      </div>
+      <div class="wgrid">
+        <div class="kpi"><small>Concluídos</small><b>263</b><span class="up">▲ 31 vs. setembro</span></div>
+        <div class="kpi"><small>Do planejado</small><b>74%</b><span>hábitos e rotinas</span></div>
+        <div class="kpi"><small>Maior sequência</small><b>9 dias</b><span>🐢 Meditar</span></div>
+        <div class="kpi"><small>Profundidade</small><b>+188 m</b><span>agora 312 m · 🪸 Recife</span></div>
+        <div class="card span2"><h4>Concluídos por dia <a>Ver como tabela</a></h4>
+          <div class="legend"><span><i style="background:var(--s-tasks)"></i>Tarefas</span><span><i style="background:var(--s-habits)"></i>Hábitos</span><span><i style="background:var(--s-routines)"></i>Rotinas</span></div>
+          <svg id="monthbars" width="560" height="170"></svg></div>
+        <div class="card span2"><h4>Profundidade no mês</h4><svg id="depth" width="560" height="190"></svg></div>
+        <div class="card"><h4>Dias de maré cheia</h4><svg id="calendar2" width="252" height="160"></svg></div>
+        <div class="card"><h4>Por dia da semana</h4><svg id="weekday2" width="252" height="160"></svg></div>
+        <div class="card span2"><h4>Rotinas <a>Ver todas</a></h4>
+          <table>
+            <tr><th>Rotina</th><th>Etiqueta</th><th class="n">Itens feitos</th><th class="n">Dias completos</th></tr>
+            <tr><td>🌅 Manhã</td><td>Saúde</td><td class="n">71 de 93 <span class="meter"><b style="width:76%"></b></span></td><td class="n">19 de 31</td></tr>
+            <tr><td>📚 Estudo</td><td>Faculdade</td><td class="n">30 de 44 <span class="meter"><b style="width:68%"></b></span></td><td class="n">13 de 22</td></tr>
+            <tr><td>🏋️ Treino</td><td>Saúde</td><td class="n">9 de 13 <span class="meter"><b style="width:69%"></b></span></td><td class="n">9 de 13</td></tr>
+          </table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="decisions">
+    <div class="dec"><h3>Honesto, sem fingir</h3>Só números que o app já guarda: hora em que cada coisa foi marcada, dias planejados de hábitos e rotinas, pontos da Profundidade. Dias antes de você criar um hábito ou rotina não contam como “perdidos”. Sem dados ainda, a tela explica o que vai aparecer.</div>
+    <div class="dec"><h3>Sem migração, sem SQL</h3>Não precisa de tabela nova nem de rodar nada no Supabase: as estatísticas são calculadas no aparelho a partir dos dados que já sincronizam. Os gráficos são desenhados com <b>react-native-svg</b> (já está no projeto), sem biblioteca nova.</div>
+    <div class="dec"><h3>Acessível</h3>Cada gráfico tem título, legenda, rótulos e uma <b>tabela equivalente</b>. Leitores de tela ouvem um resumo (“Quarta: 5 tarefas, 3 hábitos, 6 itens de rotina”). As cores têm separação validada para os três tipos de daltonismo e no modo claro e escuro.</div>
+  </div>
+
+<script>
+  const S = { t: '#4f8fd0', h: '#dc6c56', r: '#9d7bd0' };
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (svg, tag, attrs, text) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; svg.appendChild(e); return e; };
+  // Rounded top only (data end), flat base.
+  const topBar = (svg, x, y, w, h, fill, round) => {
+    if (h <= 0) return;
+    const r = round ? Math.min(4, h, w / 2) : 0;
+    el(svg, 'path', { d: `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`, fill });
+  };
+  function stacked(id, data, labels, opts = {}) {
+    const svg = document.getElementById(id); const W = +svg.getAttribute('width'), H = +svg.getAttribute('height');
+    const pad = { l: 22, b: 18, t: 6 }; const max = opts.max ?? Math.max(...data.map(d => d[0] + d[1] + d[2]));
+    const ch = H - pad.b - pad.t; const n = data.length; const slot = (W - pad.l) / n; const bw = Math.max(4, Math.min(opts.bw ?? 26, slot * .62));
+    for (const v of opts.ticks ?? [0, 10, 20]) { const y = pad.t + ch - v / max * ch; el(svg, 'line', { x1: pad.l, x2: W, y1: y, y2: y, stroke: 'rgba(157,178,190,.10)' }); el(svg, 'text', { x: 0, y: y + 3 }, v); }
+    data.forEach((d, i) => {
+      const x = pad.l + i * slot + (slot - bw) / 2; let y = pad.t + ch;
+      const segs = [[d[0], S.t], [d[1], S.h], [d[2], S.r]].filter(s => s[0] > 0);
+      // 2px surface gap between stacked segments; only the top one is rounded.
+      segs.forEach(([v, c], j) => { const h = v / max * ch; y -= h; topBar(svg, x, y, bw, h - (j ? 2 : 0), c, j === segs.length - 1); });
+      if (opts.hi === i) el(svg, 'rect', { x: x - 3, y: pad.t, width: bw + 6, height: ch, fill: 'rgba(255,255,255,.05)', rx: 6 });
+      if (labels[i]) el(svg, 'text', { x: x + bw / 2, y: H - 4, 'text-anchor': 'middle', fill: opts.today === i ? '#5cc3bd' : undefined }, labels[i]);
+    });
+  }
+  stacked('weekbars', [[2,2,3],[4,3,5],[6,3,5],[5,3,6],[3,2,0],[0,0,0],[0,0,0]], ['D','S','T','Q','Q','S','S'], { max: 16, ticks: [0, 8, 16], hi: 3, today: 1 });
+  const month = Array.from({ length: 31 }, (_, i) => i < 26 ? [ (i*7)%5+1, (i*3)%4+1, (i%7 === 0 || i%7 === 6) ? 1 : (i*5)%4+2 ] : [0,0,0]);
+  stacked('monthbars', month, month.map((_, i) => (i + 1) % 5 === 1 ? String(i + 1) : ''), { max: 15, ticks: [0, 5, 10, 15], bw: 12, today: 25 });
+
+  // Hour bands × weekday heatmap (sequential: lagoon, light→dark = less→more)
+  function heat(id) {
+    const svg = document.getElementById(id); const rows = ['Madrugada', 'Manhã', 'Tarde', 'Noite']; const days = ['D','S','T','Q','Q','S','S'];
+    const v = [[0,0,1,0,0,0,0],[3,6,5,6,5,4,1],[1,4,5,4,3,1,2],[2,3,4,3,2,1,0]];
+    const x0 = 66, cw = 32, chh = 22;
+    rows.forEach((r, i) => { el(svg, 'text', { x: 0, y: 6 + i * (chh + 3) + 15 }, r);
+      days.forEach((d, j) => { const t = v[i][j] / 6; el(svg, 'rect', { x: x0 + j * (cw + 3), y: 4 + i * (chh + 3), width: cw, height: chh, rx: 5, fill: t === 0 ? 'rgba(157,178,190,.07)' : `rgba(76,192,185,${0.18 + t * 0.8})` }); }); });
+    days.forEach((d, j) => el(svg, 'text', { x: x0 + j * (cw + 3) + cw / 2, y: 118, 'text-anchor': 'middle' }, d));
+  }
+  heat('hours');
+
+  // Month calendar (sequential by points; 🌊 on full tide)
+  function calendar(id, size) {
+    const svg = document.getElementById(id); const days = ['D','S','T','Q','Q','S','S'];
+    const gap = 4, c = size; days.forEach((d, j) => el(svg, 'text', { x: j * (c + gap) + c / 2, y: 10, 'text-anchor': 'middle' }, d));
+    const first = 4; // 1 Oct 2026 is a Thursday
+    for (let d = 1; d <= 31; d++) { const k = d - 1 + first; const x = (k % 7) * (c + gap), y = 16 + Math.floor(k / 7) * (c * .72 + gap);
+      const p = d > 26 ? -1 : ((d * 37) % 100) / 100; const full = p > .8;
+      el(svg, 'rect', { x, y, width: c, height: c * .72, rx: 6, fill: p < 0 ? 'rgba(157,178,190,.05)' : `rgba(76,192,185,${0.15 + p * 0.75})`, stroke: d === 26 ? '#e6f0f4' : 'none', 'stroke-width': 1.5 });
+      el(svg, 'text', { x: x + 5, y: y + 12, fill: p > .55 ? '#04201d' : '#9db2be' }, full ? `${d} 🌊` : d); }
+  }
+  calendar('calendar', 40); calendar('calendar2', 33);
+
+  // Weekday completion rate (single hue)
+  function weekday(id, W) {
+    const svg = document.getElementById(id); const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']; const v = [.52,.86,.81,.79,.74,.63,.48];
+    const H = +svg.getAttribute('height'), slot = W / 7, bw = Math.min(22, slot * .6), ch = H - 34;
+    v.forEach((p, i) => { const x = i * slot + (slot - bw) / 2, h = p * ch; topBar(svg, x, 14 + ch - h, bw, h, '#4cc0b9', true);
+      el(svg, 'text', { x: x + bw / 2, y: 14 + ch - h - 4, 'text-anchor': 'middle', fill: i === 1 ? '#e6f0f4' : undefined }, i === 1 || i === 6 ? `${Math.round(p * 100)}%` : '');
+      el(svg, 'text', { x: x + bw / 2, y: H - 4, 'text-anchor': 'middle' }, days[i]); });
+  }
+  weekday('weekday', 304); weekday('weekday2', 252);
+
+  // Depth line (cumulative meters) with crosshair
+  (() => {
+    const svg = document.getElementById('depth'); const W = 560, H = 190, l = 34, b = 20, t = 10;
+    const pts = []; let m = 124; for (let d = 1; d <= 26; d++) { m += 4 + (d * 13) % 9; pts.push([d, m]); }
+    const max = 360, min = 100; const X = d => l + (d - 1) / 30 * (W - l - 6), Y = v => t + (1 - (v - min) / (max - min)) * (H - t - b);
+    for (const v of [100, 200, 300]) { el(svg, 'line', { x1: l, x2: W, y1: Y(v), y2: Y(v), stroke: 'rgba(157,178,190,.10)' }); el(svg, 'text', { x: 0, y: Y(v) + 3 }, `${v} m`); }
+    el(svg, 'path', { d: 'M' + pts.map(([d, v]) => `${X(d)},${Y(v)}`).join(' L') + ` L${X(26)},${H - b} L${X(1)},${H - b} Z`, fill: 'rgba(76,192,185,.12)' });
+    el(svg, 'path', { d: 'M' + pts.map(([d, v]) => `${X(d)},${Y(v)}`).join(' L'), fill: 'none', stroke: '#4cc0b9', 'stroke-width': 2, 'stroke-linejoin': 'round' });
+    const [hd, hv] = pts[17]; el(svg, 'line', { x1: X(hd), x2: X(hd), y1: t, y2: H - b, stroke: 'rgba(230,240,244,.35)', 'stroke-dasharray': '3 3' });
+    el(svg, 'circle', { cx: X(hd), cy: Y(hv), r: 5, fill: '#4cc0b9', stroke: '#0e1c26', 'stroke-width': 2 });
+    el(svg, 'text', { x: X(hd) + 9, y: Y(hv) - 8, fill: '#e6f0f4' }, `18 out · ${hv} m`);
+    for (const d of [1, 8, 15, 22, 29]) el(svg, 'text', { x: X(d), y: H - 4, 'text-anchor': 'middle' }, d);
+    el(svg, 'text', { x: X(26) - 4, y: Y(pts[25][1]) - 8, 'text-anchor': 'end', fill: '#e6f0f4' }, `312 m`);
+  })();
+
+  // Sparkline (last 7 days total)
+  (() => { const svg = document.getElementById('spark'); const v = [7, 12, 14, 14, 5, 0, 12]; const X = i => 4 + i * 23.5, Y = n => 40 - n / 16 * 34;
+    el(svg, 'path', { d: 'M' + v.map((n, i) => `${X(i)},${Y(n)}`).join(' L'), fill: 'none', stroke: '#4cc0b9', 'stroke-width': 2, 'stroke-linejoin': 'round' });
+    el(svg, 'circle', { cx: X(6), cy: Y(12), r: 4, fill: '#4cc0b9' }); })();
+</script>
+</body>
+</html>
