@@ -26,3 +26,7 @@
 
 - Se o app ficar mais de 7 dias sem abrir, os lembretes param até a próxima abertura.
 - O horário escolhe quartos de hora (:00, :15, :30, :45), para o seletor ser simples.
+
+## Expo Go no Android
+
+No SDK 58, o `expo-notifications` pede, ao ser importado, um módulo de push (`ExpoTopicSubscriptionModule`) que o Expo Go do Android não tem, e isso derrubava o app inteiro. Por isso `src/core/notifications.ts` carrega a biblioteca com um `require` protegido: se não carregar, o app segue sem lembretes e as telas explicam que eles funcionam no app instalado (build de desenvolvimento ou APK). iOS e builds reais não mudam.

@@ -2,7 +2,11 @@ import { Bell, Plus, X } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { notificationsSupported, requestNotificationPermission } from '@/core/notifications';
+import {
+  notificationsSupported,
+  remindersUnavailableNote,
+  requestNotificationPermission,
+} from '@/core/notifications';
 import { Button, Chip, Text, TimePicker, radius, spacing, useTheme } from '@/design-system';
 
 import { formatRepeat, type Repeat } from '../domain/repeat';
@@ -61,7 +65,7 @@ export function ReminderField({ task, onChange }: Props) {
         </Pressable>
         {!notificationsSupported ? (
           <Text variant="footnote" tone="tertiary">
-            Toca no celular e no tablet.
+            {remindersUnavailableNote}
           </Text>
         ) : null}
       </View>

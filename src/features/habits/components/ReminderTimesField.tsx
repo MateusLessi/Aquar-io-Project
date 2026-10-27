@@ -2,7 +2,7 @@ import { Bell, Plus, X } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { notificationsSupported } from '@/core/notifications';
+import { notificationsSupported, remindersUnavailableNote } from '@/core/notifications';
 import { Button, Chip, Text, TimePicker, radius, spacing, useTheme } from '@/design-system';
 
 import { MAX_REMINDERS } from '../domain/validation';
@@ -60,7 +60,7 @@ export function ReminderTimesField({ value, onChange }: ReminderTimesFieldProps)
 
       {!notificationsSupported && value.length > 0 ? (
         <Text variant="footnote" tone="tertiary">
-          Os lembretes tocam no celular e no tablet.
+          {remindersUnavailableNote}
         </Text>
       ) : null}
     </View>

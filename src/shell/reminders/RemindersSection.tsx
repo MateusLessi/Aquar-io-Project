@@ -3,6 +3,7 @@ import { AppState, Linking, StyleSheet, View } from 'react-native';
 
 import {
   notificationPermission,
+  remindersUnavailableNote,
   requestNotificationPermission,
   type NotificationPermission,
 } from '@/core/notifications';
@@ -40,7 +41,7 @@ export function RemindersSection() {
   if (permission === 'unsupported') {
     return (
       <Text variant="footnote" tone="tertiary" style={styles.note}>
-        Os lembretes tocam no celular e no tablet. Configure-os nos hábitos e nas tarefas.
+        {remindersUnavailableNote} Configure-os nos hábitos e nas tarefas.
       </Text>
     );
   }
