@@ -7,7 +7,13 @@ test('organize lists in nested folders and see their tasks together', async ({ p
   await page.goto('/aquarium?tab=lists');
 
   const create = async (kind: 'Nova lista' | 'Nova pasta', name: string) => {
-    await visible(page.getByRole('button', { name: 'Nova lista ou pasta' })).click();
+    // While a folder screen slides in, the screen below still shows its own button: wait for
+    // the animation to end, when only one is visible.
+    const button = page
+      .getByRole('button', { name: 'Nova lista ou pasta' })
+      .locator('visible=true');
+    await expect(button).toHaveCount(1);
+    await button.click();
     await page.getByRole('button', { name: new RegExp(`^${kind}:`) }).click();
     await page.getByRole('textbox', { name: 'Nome' }).fill(name);
     await page
@@ -34,7 +40,9 @@ test('organize lists in nested folders and see their tasks together', async ({ p
 
   // Everything inside UnB, together.
   await visible(page.getByRole('link', { name: 'Ir para UnB' })).click();
-  await visible(page.getByRole('radio', { name: 'Tudo junto' })).click();
+  const together = page.getByRole('radio', { name: 'Tudo junto' }).locator('visible=true');
+  await expect(together).toHaveCount(1);
+  await together.click();
   await expect(visible(page.getByText('Lista 4'))).toBeVisible();
 
   // Survives a reload, folder trail included.
