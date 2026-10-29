@@ -19,7 +19,7 @@ import {
   type LinkItemKind,
   type LinkTargetKind,
 } from '@/core/links/linksRepository';
-import { Sheet, Text, haptics, radius, spacing, useTheme } from '@/design-system';
+import { Sheet, Text, haptics, radius, sound, spacing, useTheme } from '@/design-system';
 import { creatures } from '@/features/habits/domain/creatures';
 import { MAX_FOLDER_DEPTH } from '@/features/todo/domain/validation';
 import { useTodo } from '@/features/todo/hooks/todoContext';
@@ -138,7 +138,8 @@ export function ConnectProvider({ children }: { children: React.ReactNode }) {
             undo: () => links.unlink(id),
           });
         }
-        haptics.success();
+        haptics.medium();
+        sound.play('connect');
       } catch (e) {
         show({
           message: e instanceof Error && e.name !== 'Error' ? e.message : 'Não deu para conectar.',

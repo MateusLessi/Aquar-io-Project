@@ -42,7 +42,15 @@
       ],
       "expo-asset",
       "expo-sqlite",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

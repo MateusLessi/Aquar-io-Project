@@ -49,3 +49,9 @@ jest.mock('react-native-reanimated', () => ({
   ...jest.requireActual<object>('react-native-reanimated/mock'),
   ReducedMotionConfig: () => null,
 }));
+
+// Sound effects: no audio in tests.
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: () => ({ play: jest.fn(), seekTo: () => Promise.resolve(), volume: 1 }),
+  setAudioModeAsync: () => Promise.resolve(),
+}));

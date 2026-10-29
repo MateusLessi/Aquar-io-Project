@@ -45,21 +45,8 @@ export function ListItem({
 }: ListItemProps) {
   const { colors } = useTheme();
 
-  return (
-    <Pressable
-      testID={testID}
-      onPress={onPress}
-      disabled={disabled || !onPress}
-      accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityLabel={title}
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled, selected }}
-      style={({ pressed }) => [
-        styles.row,
-        (pressed || selected) && { backgroundColor: colors.surfacePressed },
-        disabled && styles.disabled,
-      ]}
-    >
+  const content = (
+    <>
       {separator ? (
         <View
           style={[
@@ -83,6 +70,42 @@ export function ListItem({
         ) : null}
       </View>
       {trailing ? <View style={styles.trailing}>{trailing}</View> : null}
+    </>
+  );
+
+  // A row that does nothing itself (its switch or control acts) is a plain container: a
+  // disabled button around it would make screen readers announce the control as disabled too.
+  if (!onPress) {
+    return (
+      <View
+        testID={testID}
+        style={[
+          styles.row,
+          selected && { backgroundColor: colors.surfacePressed },
+          disabled && styles.disabled,
+        ]}
+      >
+        {content}
+      </View>
+    );
+  }
+
+  return (
+    <Pressable
+      testID={testID}
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled, selected }}
+      style={({ pressed }) => [
+        styles.row,
+        (pressed || selected) && { backgroundColor: colors.surfacePressed },
+        disabled && styles.disabled,
+      ]}
+    >
+      {content}
     </Pressable>
   );
 }
