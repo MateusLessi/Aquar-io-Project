@@ -47,7 +47,15 @@ export { TimePicker, type TimePickerProps } from './components/TimePicker';
 export { WaterLevel, type WaterLevelProps } from './components/WaterLevel';
 export { Waterline } from './components/Waterline';
 export { appFonts } from './fonts';
+export {
+  configureFeedback,
+  defaultFeedbackPrefs,
+  feedbackPrefs,
+  type FeedbackPrefs,
+  type SoundGroup,
+} from './feedback';
 export { haptics } from './haptics';
+export { sound, type SoundName } from './sound';
 export {
   ThemeProvider,
   useBreakpoint,

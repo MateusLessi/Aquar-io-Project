@@ -1,5 +1,5 @@
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Pause, Play, X } from 'lucide-react-native';
 import { Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +7,8 @@ import Svg, { Circle, Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 
 import {
   RisingBubbles,
+  haptics,
+  sound,
   abyss,
   specular,
   Text,
@@ -64,6 +66,15 @@ export function HabitDive({ habit, actions, visible, onClose }: HabitDiveProps) 
   const goal = goalOf(habit);
   const ratio = Math.min(1, amount / goal);
   const reached = amount >= goal;
+  // The goal reached while diving: two bells (once, not on opening an already-full day).
+  const wasReached = useRef(reached);
+  useEffect(() => {
+    if (reached && !wasReached.current && running) {
+      sound.play('timer');
+      haptics.success();
+    }
+    wasReached.current = reached;
+  }, [reached, running]);
   const ring = Math.min(width - spacing.xl * 2, 280);
   const stroke = 8;
   const r = (ring - stroke) / 2;

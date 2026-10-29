@@ -14,6 +14,8 @@ import { CreateContext } from './create/CreateContext';
 import { ConnectProvider } from './connections/ConnectProvider';
 import { CreateFlow } from './create/CreateFlow';
 import { destinations } from './destinations';
+import { useFeedbackMoments } from './feedback/useFeedbackMoments';
+import { useFeedbackSync } from './feedback/useFeedbackSettings';
 import { NavigationRail } from './NavigationRail';
 import { isPhoneScreen, useOrientationPolicy } from './orientation';
 import { CelebrationBanner } from './progress/CelebrationBanner';
@@ -46,6 +48,8 @@ export function AppShell() {
 function ShellLayout() {
   useOrientationPolicy();
   useReminderScheduler();
+  useFeedbackSync();
+  useFeedbackMoments();
   const celebration = useCelebrations();
   const breakpoint = useBreakpoint();
   const insets = useSafeAreaInsets();

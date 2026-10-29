@@ -19,7 +19,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | 3   | **Tudo conectado**: hábitos dentro de rotinas, listas em hábitos e rotinas, peça que abre        | ✓      |
 | 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ✓      |
 | 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ✓      |
-| 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ☐      |
+| 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ✓      |
 | 7   | **Ajustes completos**: personalização ampla do app                                               | ☐      |
 | 8   | **Perfil personalizável** com privacidade por informação                                         | ☐      |
 | 9   | **Boas-vindas imersivas** e quiz inicial                                                         | ☐      |
@@ -78,6 +78,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 - Um som curto para cada conclusão (tarefa, subtarefa, hábito, item de rotina, maré completa e mudança de zona), mais vibração leve.
 - Sons **próprios ou com licença livre (CC0)**. Nunca copiados de outro app.
 - Liga e desliga em Ajustes. Os sons respeitam o modo silencioso do celular.
+- **Feito:** 8 sons sintetizados (gota, bolhas, sino de madeira, onda), vibrações por momento e **Perfil → Sons e toque** (sons, volume, grupos, vibração). Detalhes em [sounds.md](sounds.md).
 
 ### 7. Ajustes completos
 

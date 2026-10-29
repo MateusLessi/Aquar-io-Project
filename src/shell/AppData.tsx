@@ -6,6 +6,7 @@ import { migrate } from '@/core/database/migrations';
 import type { Database } from '@/core/database/types';
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { createEventLog, type EventLog } from '@/core/events/eventLog';
+import { EventsContext } from '@/core/events/eventsContext';
 import { newId } from '@/core/ids';
 import { LinksContext } from '@/core/links/linksContext';
 import { createLinksRepository, type LinksRepository } from '@/core/links/linksRepository';
@@ -137,21 +138,23 @@ export function useAppDataBootstrap(): BootState {
 export function AppDataProvider({ data, children }: { data: AppData; children: ReactNode }) {
   return (
     <DataChangesContext.Provider value={data.changes}>
-      <SettingsContext.Provider value={data.settings}>
-        <TodoContext.Provider value={data.todo}>
-          <HabitsContext.Provider value={data.habits}>
-            <RoutinesContext.Provider value={data.routines}>
-              <ProfileContext.Provider value={data.profile}>
-                <LinksContext.Provider value={data.links}>
-                  <AccountProvider account={data.account} db={data.db} changes={data.changes}>
-                    {children}
-                  </AccountProvider>
-                </LinksContext.Provider>
-              </ProfileContext.Provider>
-            </RoutinesContext.Provider>
-          </HabitsContext.Provider>
-        </TodoContext.Provider>
-      </SettingsContext.Provider>
+      <EventsContext.Provider value={data.events}>
+        <SettingsContext.Provider value={data.settings}>
+          <TodoContext.Provider value={data.todo}>
+            <HabitsContext.Provider value={data.habits}>
+              <RoutinesContext.Provider value={data.routines}>
+                <ProfileContext.Provider value={data.profile}>
+                  <LinksContext.Provider value={data.links}>
+                    <AccountProvider account={data.account} db={data.db} changes={data.changes}>
+                      {children}
+                    </AccountProvider>
+                  </LinksContext.Provider>
+                </ProfileContext.Provider>
+              </RoutinesContext.Provider>
+            </HabitsContext.Provider>
+          </TodoContext.Provider>
+        </SettingsContext.Provider>
+      </EventsContext.Provider>
     </DataChangesContext.Provider>
   );
 }

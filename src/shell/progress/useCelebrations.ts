@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { ZONES } from '@/core/progress/rules';
+import { haptics, sound } from '@/design-system';
 import { SettingsContext } from '@/core/settings/useSetting';
 import { creatures } from '@/features/habits/domain/creatures';
 import { stageInfo, type Stage } from '@/features/habits/domain/stages';
@@ -37,6 +38,8 @@ export function useCelebrations() {
       if (seen !== null && now > before && active) {
         const zone = ZONES[now]!;
         setQueue((q) => [...q, `${zone.emoji} Você chegou: ${zone.name}!`]);
+        sound.play('zone');
+        haptics.dive();
       }
     })().catch((error: unknown) => console.warn('Could not check zone celebrations.', error));
     return () => {

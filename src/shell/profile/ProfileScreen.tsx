@@ -18,6 +18,7 @@ import {
 } from '@/design-system';
 import { useAccount } from '../Account';
 import { AccountSection } from '../AccountSection';
+import { FeedbackSection } from '../feedback/FeedbackSection';
 import { AMBIENT_SETTING, type AmbientSetting } from '../ambient';
 import { RemindersSection } from '../reminders/RemindersSection';
 import { ProfileHeader } from './ProfileHeader';
@@ -67,6 +68,10 @@ export function ProfileScreen() {
           value={preference}
           onChange={setPreference}
         />
+      </Section>
+
+      <Section title="Sons e toque">
+        <FeedbackSection />
       </Section>
 
       <Section title="Lembretes">
