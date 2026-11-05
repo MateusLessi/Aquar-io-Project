@@ -3,14 +3,7 @@ import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import {
-  ListItem,
-  Screen,
-  Surface,
-  Text,
-  spacing,
-  useTheme,
-} from '@/design-system';
+import { ListItem, Screen, Surface, Text, spacing, useTheme } from '@/design-system';
 import { ProfileHeader } from './ProfileHeader';
 
 /** The person: profile, statistics and the way into Ajustes. */
