@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('create a list and a task for today, complete it, and it survives a reload', async ({
   page,

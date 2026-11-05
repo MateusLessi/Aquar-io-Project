@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('create a habit, check today, and it survives a reload', async ({ page }) => {
   await page.goto('/aquarium?tab=habits');

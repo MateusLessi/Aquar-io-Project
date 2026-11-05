@@ -28,6 +28,8 @@ let data: AppData;
 
 beforeEach(async () => {
   data = await createAppData(createMemoryDatabase());
+  // These tests start inside the app; the welcome dive has its own tests below.
+  await data.settings.set('welcome.done', 'test');
 });
 
 function TestRoot() {
@@ -203,6 +205,7 @@ describe('Account and sync', () => {
     const cloud = createMemoryRemote();
     const { account } = createMemoryAccount(cloud.remote);
     data = await createAppData(createMemoryDatabase(), undefined, account);
+    await data.settings.set('welcome.done', 'test');
     await data.todo.createList({ name: 'Academia' });
 
     await renderRouter(routes, { initialUrl: '/profile/settings?section=account' });
@@ -381,5 +384,26 @@ describe('Início as a bento on large screens', () => {
     expect(screen.getAllByRole('button', { name: 'Criar' })).toHaveLength(2);
     expect(screen.getByText('0 dias de maré cheia')).toBeOnTheScreen();
     expect(screen.getByLabelText(/^Sua semana: 0 pontos/)).toBeOnTheScreen();
+  });
+});
+
+describe('Welcome dive', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('opens on a device with nothing in it, and Pular remembers it', async () => {
+    data = await createAppData(createMemoryDatabase());
+    await renderRouter(routes, { initialUrl: '/' });
+    expect(await screen.findByRole('button', { name: 'Começar o mergulho' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Começar o mergulho' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Pular' }));
+    expect(await data.settings.get('welcome.done')).toBe('skipped');
+  });
+
+  it('stays away for people who already use the app', async () => {
+    data = await createAppData(createMemoryDatabase());
+    await data.todo.createList({ name: 'Academia' });
+    await renderRouter(routes, { initialUrl: '/' });
+    await waitFor(async () => expect(await data.settings.get('welcome.done')).toBe('existing'));
+    expect(screen.queryByRole('button', { name: 'Começar o mergulho' })).toBeNull();
   });
 });

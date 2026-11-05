@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 // Regression: screens shown directly in a tab (Profile, Início) once grew past the window
 // and could not scroll.

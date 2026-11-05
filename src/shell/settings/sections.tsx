@@ -34,6 +34,7 @@ import { collectExport, tasksCsv, wipeLocalData } from '../data/localData';
 import { shareFiles } from '../data/shareFiles';
 import { useDatabase } from '../data/useDatabase';
 import { FeedbackSection } from '../feedback/FeedbackSection';
+import { useWelcome } from '../welcome/WelcomeHost';
 import { parseQuietHours } from '../reminders/plan';
 import { RemindersSection } from '../reminders/RemindersSection';
 import { QUIET_HOURS_SETTING } from '../reminders/useReminderScheduler';
@@ -580,8 +581,10 @@ function DeleteAccountSheet({
 }
 
 export function AboutSettings() {
+  const welcome = useWelcome();
   return (
     <>
+      <Button label="Ver as boas-vindas" variant="secondary" onPress={welcome.open} />
       <Group>
         <Surface>
           <ListItem
