@@ -65,5 +65,6 @@ export {
   type ThemePreference,
 } from './theme/ThemeProvider';
 export { useKeyboardFocus } from './theme/useKeyboardFocus';
+export { useSvgId } from './theme/useSvgId';
 export * from './tokens';
 export { withAlpha } from './utils/color';

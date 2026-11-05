@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ListItem, Screen, Surface, Text, spacing, useTheme } from '@/design-system';
 import { ProfileHeader } from './ProfileHeader';
+import { ProfileShowcase } from './Showcase';
 
 /** The person: profile, statistics and the way into Ajustes. */
 export function ProfileScreen() {
@@ -14,6 +15,7 @@ export function ProfileScreen() {
   return (
     <Screen title="Perfil">
       <ProfileHeader />
+      <ProfileShowcase />
 
       <Surface>
         <ListItem

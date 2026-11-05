@@ -1,0 +1,179 @@
+<!doctype html>
+<!-- PROPOSAL: Perfil personalizável for Checkpoint 052 (First Dive, etapa 8). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Perfil personalizável</title>
+<style>
+  @font-face { font-family: Outfit; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/outfit/700Bold/Outfit_700Bold.ttf); }
+  @font-face { font-family: Manrope; font-weight: 500; src: url(../../../node_modules/@expo-google-fonts/manrope/500Medium/Manrope_500Medium.ttf); }
+  @font-face { font-family: Manrope; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/manrope/700Bold/Manrope_700Bold.ttf); }
+  :root { --display: Outfit, system-ui, sans-serif; --text: Manrope, system-ui, sans-serif;
+    --top: #0b2129; --base: #07121a; --deep: #040b11; --raised: #0e1c26; --glass-border: rgba(140,200,210,.16);
+    --t1: #e6f0f4; --t2: #9db2be; --t3: #6a8291; --sep: rgba(157,178,190,.12); --accent: #5cc3bd;
+    --kelp: #86bf7f; --sand: #d7b477; --anemone: #b697de; --tide: #6fa9e0; --lagoon: #4cc0b9; --coral: #ee8a73; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #0a1218; color: var(--t1); padding: 36px; width: 1300px; }
+  h1 { font-family: var(--display); font-size: 30px; }
+  h2 { font-family: var(--display); font-size: 21px; margin: 36px 0 14px; }
+  .lead { color: var(--t2); font-size: 15px; margin-top: 6px; max-width: 1180px; line-height: 22px; }
+  .lead b { color: var(--t1); }
+  .row { display: flex; gap: 36px; align-items: flex-start; margin-top: 24px; }
+  .cap { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); margin-bottom: 10px; }
+  .phone { width: 360px; height: 780px; border-radius: 44px; overflow: hidden; background: linear-gradient(180deg, var(--top), var(--base) 35%, var(--deep));
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; padding: 50px 16px 16px; position: relative; }
+  .big { font-family: var(--display); font-size: 28px; margin-bottom: 12px; }
+  .hero { border-radius: 26px; overflow: hidden; background: var(--raised); }
+  .banner { height: 92px; background: linear-gradient(135deg, rgba(182,151,222,.85), rgba(111,169,224,.55) 60%, rgba(76,192,185,.35)); position: relative; }
+  .banner::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 26px; background: radial-gradient(60px 14px at 30px 26px, var(--raised) 98%, transparent) repeat-x; background-size: 60px 26px; }
+  .avatar { width: 84px; height: 84px; border-radius: 42px; background: radial-gradient(circle at 35% 30%, #2b4b5c, #0f2a35); border: 4px solid var(--raised); display: grid; place-items: center; font-size: 44px; margin: -50px 0 0 16px; position: relative; z-index: 1; }
+  .who { padding: 6px 16px 16px; }
+  .name { font-family: var(--display); font-size: 24px; }
+  .bio { color: var(--t2); font-size: 14px; margin-top: 3px; line-height: 19px; }
+  .zone { display: inline-block; margin-top: 8px; font-size: 12.5px; font-weight: 700; color: #cfe3f7; background: rgba(111,169,224,.18); padding: 4px 9px; border-radius: 8px; }
+  .edit { position: absolute; right: 26px; top: 152px; background: rgba(255,255,255,.12); border-radius: 12px; padding: 7px 12px; font-size: 13px; font-weight: 700; }
+  .sec { font-size: 12px; font-weight: 700; color: var(--t3); letter-spacing: .07em; text-transform: uppercase; margin: 16px 4px 8px; display: flex; justify-content: space-between; }
+  .sec a { color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 12.5px; }
+  .show { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tile { background: var(--raised); border-radius: 16px; padding: 10px; }
+  .tile b { display: block; font-family: var(--display); font-size: 20px; margin-top: 2px; }
+  .tile small { font-size: 11px; color: var(--t3); font-weight: 700; }
+  .tile span { font-size: 11.5px; color: var(--t2); }
+  .badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .badge { background: var(--raised); border-radius: 16px; padding: 10px 4px; text-align: center; font-size: 10.5px; color: var(--t2); font-weight: 700; line-height: 13px; }
+  .badge i { display: block; font-style: normal; font-size: 24px; line-height: 30px; margin-bottom: 4px; }
+  .badge.locked { opacity: .38; }
+  .card { background: var(--raised); border-radius: 18px; overflow: hidden; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--sep); font-size: 14.5px; }
+  .item:last-child { border-bottom: 0; }
+  .item small { display: block; color: var(--t3); font-size: 12px; }
+  .grow { flex: 1; min-width: 0; }
+  .lock { font-size: 11.5px; font-weight: 700; padding: 4px 8px; border-radius: 8px; background: rgba(157,178,190,.14); color: var(--t2); white-space: nowrap; }
+  .lock.pub { background: rgba(92,195,189,.16); color: var(--accent); }
+  .input { border: 1.5px solid rgba(157,178,190,.25); border-radius: 12px; padding: 10px 12px; font-size: 14px; color: var(--t1); margin: 4px 0 10px; }
+  .colors { display: flex; gap: 8px; margin: 6px 0 12px; }
+  .sw { width: 34px; height: 34px; border-radius: 17px; }
+  .sw.on { outline: 3px solid var(--t1); outline-offset: 2px; }
+  .label { font-size: 13px; color: var(--t2); font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .note { font-size: 12px; color: var(--t3); margin: 8px 4px 0; line-height: 17px; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 64px; background: #10202b; border-radius: 26px 26px 0 0; padding: 18px 16px; box-shadow: 0 -16px 40px rgba(0,0,0,.5); }
+  .grab { width: 40px; height: 5px; border-radius: 3px; background: rgba(157,178,190,.35); margin: 0 auto 12px; }
+  .scope { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .box { background: var(--raised); border: 1px solid var(--glass-border); border-radius: 18px; padding: 16px 18px; font-size: 13.5px; line-height: 20px; color: var(--t2); }
+  .box h3 { font-family: var(--display); color: var(--t1); font-size: 17px; margin-bottom: 8px; }
+  .box li { margin: 0 0 5px 16px; } .box b { color: var(--t1); }
+</style>
+</head>
+<body>
+  <h1>Etapa 8 · Perfil personalizável</h1>
+  <p class="lead">O Perfil vira um cartão seu: <b>faixa na sua cor</b>, a <b>criatura-avatar</b>, o nome, uma <b>frase</b> curta e a zona onde você está. Embaixo, uma <b>vitrine</b> com 3 destaques que você escolhe e os <b>selos</b> que você ganhou de verdade. Cada informação tem uma <b>privacidade</b> própria (só eu, amigos ou público), com padrão <b>só eu</b>. Hoje ninguém mais vê seu perfil: as escolhas ficam guardadas para quando a comunidade abrir.</p>
+
+  <div class="row">
+    <div>
+      <div class="cap">Celular · seu perfil</div>
+      <div class="phone">
+        <div class="big">Perfil</div>
+        <div class="hero">
+          <div class="banner"></div>
+          <div class="avatar">🐬</div>
+          <div class="who">
+            <div class="name">Mateus</div>
+            <div class="bio">Estudante de Física na UnB. Um mergulho por dia. 🌊</div>
+            <div class="zone">🪸 Recife de Coral · 312 m</div>
+          </div>
+        </div>
+        <div class="edit">✎ Editar</div>
+        <div class="sec">Vitrine <a>Escolher</a></div>
+        <div class="show">
+          <div class="tile"><small>SEQUÊNCIA</small><b>9 dias</b><span>🐢 Meditar</span></div>
+          <div class="tile"><small>MARÉS CHEIAS</small><b>14</b><span>desde out.</span></div>
+          <div class="tile"><small>FAVORITA</small><b>🐙</b><span>Polvo adulto</span></div>
+        </div>
+        <div class="sec">Selos · 6 de 14</div>
+        <div class="badges">
+          <div class="badge"><i>🌊</i>Primeira maré cheia</div>
+          <div class="badge"><i>🔥</i>7 dias seguidos</div>
+          <div class="badge"><i>🪸</i>Chegou ao Recife</div>
+          <div class="badge"><i>✅</i>100 tarefas</div>
+          <div class="badge"><i>🐣</i>Primeira criatura crescida</div>
+          <div class="badge"><i>🔗</i>Primeira conexão</div>
+          <div class="badge locked"><i>🌙</i>30 dias seguidos</div>
+          <div class="badge locked"><i>🌊</i>Mar Aberto</div>
+        </div>
+        <div class="sec">Estatísticas e Ajustes</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="cap">Editar perfil · com privacidade por campo</div>
+      <div class="phone">
+        <div class="big" style="opacity:.3">Perfil</div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="big" style="font-size:22px">Seu perfil</div>
+          <div class="label">Nome <span class="lock">🔒 Só eu</span></div>
+          <div class="input">Mateus</div>
+          <div class="label">Frase <span class="lock">🔒 Só eu</span></div>
+          <div class="input">Estudante de Física na UnB. Um mergulho por dia. 🌊</div>
+          <div class="label">Cor do perfil</div>
+          <div class="colors">
+            <div class="sw" style="background:var(--lagoon)"></div>
+            <div class="sw" style="background:var(--tide)"></div>
+            <div class="sw on" style="background:var(--anemone)"></div>
+            <div class="sw" style="background:var(--kelp)"></div>
+            <div class="sw" style="background:var(--sand)"></div>
+            <div class="sw" style="background:var(--coral)"></div>
+          </div>
+          <div class="label">Avatar · Golfinho</div>
+          <div style="font-size:28px;letter-spacing:6px;margin:6px 0 12px">🐬🐢🐙🦀🐠🐳🦈🐡</div>
+          <div class="label">Quem vê o quê</div>
+          <div class="card" style="margin-top:6px">
+            <div class="item"><div class="grow">Zona e Profundidade</div><span class="lock pub">🌐 Público</span></div>
+            <div class="item"><div class="grow">Vitrine e selos</div><span class="lock">👥 Amigos</span></div>
+            <div class="item"><div class="grow">Estatísticas</div><span class="lock">🔒 Só eu</span></div>
+          </div>
+          <p class="note">Tocar no cadeado alterna entre Só eu, Amigos e Público. Hoje ninguém mais vê seu perfil.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="cap">Vitrine · escolher 3 destaques</div>
+      <div class="phone">
+        <div class="big">Vitrine</div>
+        <div class="card">
+          <div class="item"><div class="grow">🔥 Maior sequência<small>9 dias · Meditar</small></div><span class="lock pub">✓ 1º</span></div>
+          <div class="item"><div class="grow">🌊 Marés cheias<small>14 dias</small></div><span class="lock pub">✓ 2º</span></div>
+          <div class="item"><div class="grow">🐙 Criatura favorita<small>escolha entre as dos seus hábitos</small></div><span class="lock pub">✓ 3º</span></div>
+          <div class="item"><div class="grow">✅ Tarefas concluídas<small>128 no total</small></div><span class="lock">—</span></div>
+          <div class="item"><div class="grow">📅 Dias no Aquar.io<small>desde 20 out.</small></div><span class="lock">—</span></div>
+          <div class="item"><div class="grow">🏅 Selo em destaque<small>escolha um dos seus</small></div><span class="lock">—</span></div>
+        </div>
+        <p class="note">Tudo calculado do que você fez de verdade. Os selos bloqueados mostram o que falta, sem pressa e sem punição.</p>
+        <div class="sec">Selos possíveis (14)</div>
+        <div class="card">
+          <div class="item"><div class="grow">Marés: 1ª maré cheia, 10 e 50 marés cheias</div></div>
+          <div class="item"><div class="grow">Sequências: 7, 30 e 100 dias seguidos</div></div>
+          <div class="item"><div class="grow">Zonas: Costeiras, Recife, Mar Aberto, Crepúsculo…</div></div>
+          <div class="item"><div class="grow">Feitos: 100 tarefas, 1ª criatura crescida, 1ª conexão</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Decisões</h2>
+  <div class="scope">
+    <div class="box"><h3>Cor de destaque (pendente da etapa 7)</h3>Proposta: a <b>cor do perfil</b> pinta só o seu cartão (a faixa, a borda do avatar e a vitrine). O <b>destaque do app</b> continua o turquesa da marca, para o Aquar.io ser reconhecível em qualquer tela. Assim você personaliza sem perder a identidade.</div>
+    <div class="box"><h3>Dados e privacidade</h3><ul>
+      <li>Perfil ganha <b>frase</b> (até 80 letras), <b>cor</b>, <b>vitrine</b> e <b>privacidade por campo</b>, sincronizados (migração 11 + SQL curto no Supabase).</li>
+      <li>Padrão de tudo: <b>Só eu</b>.</li>
+      <li>Selos e vitrine são <b>calculados</b> dos seus dados, não guardados à parte.</li>
+    </ul></div>
+    <div class="box"><h3>Fica para depois</h3><ul>
+      <li><b>@usuário:</b> precisa garantir nomes únicos no servidor. Entra junto com a comunidade.</li>
+      <li><b>Selo Founding Diver:</b> vem na etapa 10, com a data de corte.</li>
+      <li><b>Ver o perfil de outras pessoas:</b> quando a comunidade abrir.</li>
+    </ul></div>
+  </div>
+</body>
+</html>
