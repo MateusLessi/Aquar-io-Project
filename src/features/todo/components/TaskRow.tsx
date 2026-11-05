@@ -11,6 +11,7 @@ import {
   useTheme,
   type ListColorName,
 } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { dueLabel, dueStatus } from '../domain/dates';
 import type { Task } from '../domain/types';
@@ -39,6 +40,7 @@ export function TaskRow({
   listName,
   listEmoji,
 }: TaskRowProps) {
+  const { showTime } = useCalendarPrefs();
   const { colors, scheme } = useTheme();
   const done = Boolean(task.completedAt);
   const tone = listColor ? listColors[listColor][scheme] : colors.accent;
@@ -82,7 +84,7 @@ export function TaskRow({
       <View key="remind" style={styles.inline}>
         <Bell size={13} color={colors.textSecondary} />
         <Text variant="footnote" tone="secondary">
-          {task.remindAt}
+          {showTime(task.remindAt)}
         </Text>
       </View>
     ) : null,

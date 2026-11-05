@@ -2,6 +2,8 @@ import { Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design-system';
+import { weekdayOrder } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { durationLabel, toMinutes } from '../domain/schedule';
 import type { RoutineToday } from '../domain/types';
@@ -58,13 +60,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function RoutineCard({ routine, onPress }: { routine: RoutineToday; onPress: () => void }) {
   const { colors, scheme } = useTheme();
+  const { weekStart, showTime } = useCalendarPrefs();
   const tone = listColors[routine.color][scheme];
   const length = durationLabel(toMinutes(routine.end) - toMinutes(routine.start));
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${routine.name}, ${routine.start} às ${routine.end}, ${routine.items.length} itens`}
+      accessibilityLabel={`${routine.name}, ${showTime(routine.start)} às ${showTime(routine.end)}, ${routine.items.length} itens`}
       style={({ pressed }) => [
         styles.card,
         {
@@ -83,11 +86,12 @@ export function RoutineCard({ routine, onPress }: { routine: RoutineToday; onPre
           {routine.name}
         </Text>
         <Text variant="footnote" tone="secondary">
-          {routine.start}–{routine.end} · {length} · {routine.items.length}{' '}
+          {showTime(routine.start)}–{showTime(routine.end)} · {length} · {routine.items.length}{' '}
           {routine.items.length === 1 ? 'item' : 'itens'}
         </Text>
         <View style={styles.days}>
-          {WEEKDAYS.map((d, i) => {
+          {weekdayOrder(weekStart).map((i) => {
+            const d = WEEKDAYS[i]!;
             const on = (routine.days & (1 << i)) !== 0;
             return (
               <Text

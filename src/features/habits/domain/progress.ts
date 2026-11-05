@@ -1,4 +1,4 @@
-import { addDays, weekdayOf } from '@/core/dates';
+import { addDays, startOfWeek, weekdayOf, type WeekStart } from '@/core/dates';
 
 import type { DayState, HabitProgress, WeekdayMask } from './types';
 
@@ -21,8 +21,10 @@ export function habitProgress(input: {
   /** First day that counts: the day the habit was created. */
   startKey: string;
   todayKey: string;
+  /** The week shown starts on this day (0 = Sunday). */
+  weekStart?: WeekStart;
 }): HabitProgress {
-  const { days, done, startKey, todayKey } = input;
+  const { days, done, startKey, todayKey, weekStart = 0 } = input;
   const scheduled = (key: string) => isScheduled(days, key);
 
   // Current streak: walk back from today.
@@ -54,9 +56,9 @@ export function habitProgress(input: {
     if (done.has(key)) kept += 1;
   }
 
-  const sunday = addDays(todayKey, -weekdayOf(todayKey));
+  const first = startOfWeek(todayKey, weekStart);
   const week = Array.from({ length: 7 }, (_, i): DayState => {
-    const key = addDays(sunday, i);
+    const key = addDays(first, i);
     if (done.has(key)) return 'done';
     if (key > todayKey) return 'future';
     if (!scheduled(key) || key < startKey) return 'rest';

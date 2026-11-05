@@ -3,7 +3,8 @@ import { BarChart3, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { fromDateKey, toDateKey } from '@/core/dates';
+import { fromDateKey, leadingBlanks, toDateKey, weekdayOrder } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { useSetting } from '@/core/settings/useSetting';
 import {
   AreaLine,
@@ -28,6 +29,7 @@ import { creatures } from '@/features/habits/domain/creatures';
 import { useHabits } from '@/features/habits/hooks/queries';
 
 import { DAY_PARTS, periodOf, shiftPeriod, type Stats, type StatsMode } from './computeStats';
+import { useGamePrefs } from '../settings/prefs';
 import { useStats } from './useStats';
 
 const MONTHS = [
@@ -75,7 +77,8 @@ export function StatsScreen() {
   const [storedMode, setMode] = useSetting<StatsMode>(MODE_SETTING, 'week');
   const mode: StatsMode = storedMode === 'month' ? 'month' : 'week';
   const [anchor, setAnchor] = useState(() => toDateKey(new Date()));
-  const period = periodOf(mode, anchor);
+  const { weekStart } = useCalendarPrefs();
+  const period = periodOf(mode, anchor, weekStart);
   const { data } = useStats(period);
   const today = toDateKey(new Date());
   const current = period.from <= today && today <= period.to;
@@ -126,6 +129,7 @@ export function StatsScreen() {
 function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
   const wide = useBreakpoint() !== 'compact';
   const { data: habits = [] } = useHabits();
+  const { showDepth } = useGamePrefs();
   const nothing =
     stats.totals.all === 0 &&
     stats.planned.due === 0 &&
@@ -175,16 +179,18 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
           note={best ? `${creatures[best.creature].emoji} ${best.name}` : 'marque um hábito hoje'}
           wide={wide}
         />
-        <Kpi
-          label="Profundidade"
-          value={`+${gained} m`}
-          note={`agora ${stats.depth.end} m`}
-          wide={wide}
-        />
+        {showDepth ? (
+          <Kpi
+            label="Profundidade"
+            value={`+${gained} m`}
+            note={`agora ${stats.depth.end} m`}
+            wide={wide}
+          />
+        ) : null}
       </View>
       <View style={[styles.grid, wide && styles.gridWide]}>
         <ByDayCard stats={stats} wide={wide} />
-        <DepthCard stats={stats} wide={wide} />
+        {showDepth ? <DepthCard stats={stats} wide={wide} /> : null}
         {stats.period.mode === 'month' ? <CalendarCard stats={stats} /> : null}
         <WeekdayCard stats={stats} />
         <HoursCard stats={stats} />
@@ -400,7 +406,7 @@ function DepthCard({ stats, wide }: { stats: Stats; wide: boolean }) {
 function CalendarCard({ stats }: { stats: Stats }) {
   const { colors } = useTheme();
   const today = toDateKey(new Date());
-  const offset = fromDateKey(stats.period.from).getDay();
+  const offset = leadingBlanks(fromDateKey(stats.period.from).getDay(), stats.period.weekStart);
   const full = stats.byDay.filter((d) => d.fullTide).length;
   const cells: (Stats['byDay'][number] | null)[] = [
     ...Array<null>(offset).fill(null),
@@ -409,9 +415,9 @@ function CalendarCard({ stats }: { stats: Stats }) {
   return (
     <Card title={`Dias de maré cheia · ${full}`}>
       <View style={styles.calRow}>
-        {LETTERS.map((l, i) => (
-          <Text key={i} variant="caption" tone="tertiary" style={styles.calHead}>
-            {l}
+        {weekdayOrder(stats.period.weekStart).map((d) => (
+          <Text key={d} variant="caption" tone="tertiary" style={styles.calHead}>
+            {LETTERS[d]}
           </Text>
         ))}
       </View>
@@ -452,14 +458,17 @@ function CalendarCard({ stats }: { stats: Stats }) {
 function WeekdayCard({ stats }: { stats: Stats }) {
   const { colors } = useTheme();
   const [selected, setSelected] = useState<number | null>(null);
-  const rates = stats.weekdayRate;
+  // In the order the person's week runs (Sunday or Monday first).
+  const order = weekdayOrder(stats.period.weekStart);
+  const rates = order.map((d) => stats.weekdayRate[d]!);
+  const names = order.map((d) => DAY_NAMES[d]!);
   if (rates.every((r) => r === null)) return null;
   const pct = (r: number | null) => (r === null ? '—' : `${Math.round(r * 100)}%`);
   const best = rates.reduce<number>((b, r, i) => ((r ?? -1) > (rates[b] ?? -1) ? i : b), 0);
   return (
     <Card title="Do planejado, por dia da semana">
       <Columns
-        data={rates.map((r, i) => ({ label: DAY_SHORT[i]!, values: [r ?? 0] }))}
+        data={rates.map((r, i) => ({ label: DAY_SHORT[order[i]!]!, values: [r ?? 0] }))}
         colors={[colors.accent]}
         max={1}
         hideAxis
@@ -468,8 +477,8 @@ function WeekdayCard({ stats }: { stats: Stats }) {
         onSelect={setSelected}
         describe={(i) =>
           rates[i] === null
-            ? `${DAY_NAMES[i]}: nada planejado`
-            : `${DAY_NAMES[i]}: ${pct(rates[i]!)} do planejado`
+            ? `${names[i]}: nada planejado`
+            : `${names[i]}: ${pct(rates[i]!)} do planejado`
         }
         height={140}
       />
@@ -480,15 +489,17 @@ function WeekdayCard({ stats }: { stats: Stats }) {
 function HoursCard({ stats }: { stats: Stats }) {
   const { scheme } = useTheme();
   if (stats.totals.all === 0) return null;
+  const order = weekdayOrder(stats.period.weekStart);
+  const values = stats.hours.map((row) => order.map((d) => row[d]!));
   return (
     <Card title="Quando você mais conclui">
       <Heatmap
         rows={DAY_PARTS.map((p) => p.label)}
-        columns={LETTERS}
-        values={stats.hours}
+        columns={order.map((d) => LETTERS[d]!)}
+        values={values}
         color={listColors.lagoon[scheme]}
         describe={(r, c) =>
-          `${DAY_NAMES[c]}, ${DAY_PARTS[r]!.label.toLowerCase()}: ${plural(stats.hours[r]![c]!, 'coisa', 'coisas')}`
+          `${DAY_NAMES[order[c]!]}, ${DAY_PARTS[r]!.label.toLowerCase()}: ${plural(values[r]![c]!, 'coisa', 'coisas')}`
         }
       />
     </Card>

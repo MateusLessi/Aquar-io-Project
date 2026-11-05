@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { addDays, fromDateKey } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import {
   Button,
   IconButton,
@@ -78,7 +79,8 @@ const dayLabel = (key: string) => {
 export function WeekView(props: WeekViewProps) {
   const wide = useBreakpoint() !== 'compact';
   const { day, onDay, todayKey } = props;
-  const start = weekStartOf(day);
+  const { weekStart } = useCalendarPrefs();
+  const start = weekStartOf(day, weekStart);
   const days = weekDays(start);
   const first = fromDateKey(start);
   const last = fromDateKey(days[6]!);
@@ -100,7 +102,7 @@ export function WeekView(props: WeekViewProps) {
           label="Próxima semana"
           onPress={() => onDay(addDays(day, 7))}
         />
-        {weekStartOf(todayKey) !== start || (!wide && day !== todayKey) ? (
+        {weekStartOf(todayKey, weekStart) !== start || (!wide && day !== todayKey) ? (
           <Button label="Hoje" variant="ghost" onPress={() => onDay(todayKey)} />
         ) : null}
       </View>
@@ -295,6 +297,7 @@ function DayColumn({
   /** Narrow columns: smaller text, no extras on short blocks. */
   compact?: boolean;
 }) {
+  const { showTime } = useCalendarPrefs();
   const { colors, scheme } = useTheme();
   const today = dayKey === todayKey;
   const y = (minutes: number) => ((minutes - hours.from * 60) / 60) * hour;
@@ -342,7 +345,7 @@ function DayColumn({
               dropTarget?.armed ? dropTarget.onPick(routine) : onOpen(routine, dayKey)
             }
             accessibilityRole="button"
-            accessibilityLabel={`${routine.name}, ${dayLabel(dayKey)}, ${routine.start} às ${routine.end}${
+            accessibilityLabel={`${routine.name}, ${dayLabel(dayKey)}, ${showTime(routine.start)} às ${showTime(routine.end)}${
               routine.tag ? `, ${routine.tag}` : ''
             }${status ? `, ${status} feitos` : ''}`}
             style={({ pressed }) => [
@@ -363,7 +366,7 @@ function DayColumn({
             {short ? (
               <Text variant="caption" numberOfLines={1}>
                 {routine.emoji ? `${routine.emoji} ` : ''}
-                {routine.name} · {routine.start}
+                {routine.name} · {showTime(routine.start)}
               </Text>
             ) : compact ? (
               // A narrow column: one fact per line.
@@ -373,7 +376,7 @@ function DayColumn({
                   {routine.name}
                 </Text>
                 <Text variant="caption" tone="secondary" numberOfLines={1} style={styles.small}>
-                  {routine.start}–{routine.end}
+                  {showTime(routine.start)}–{showTime(routine.end)}
                 </Text>
                 {height >= 64 && (routine.tag || status) ? (
                   <View style={styles.tagRow}>
@@ -397,7 +400,7 @@ function DayColumn({
                   {routine.tag ? <Tag label={routine.tag} tone={tone} /> : null}
                 </View>
                 <Text variant="caption" tone="secondary" numberOfLines={1}>
-                  {routine.start}–{routine.end}
+                  {showTime(routine.start)}–{showTime(routine.end)}
                   {status ? ` · ${status}` : ''}
                 </Text>
                 {height >= 60 ? renderBlockExtra?.(routine, dayKey) : null}

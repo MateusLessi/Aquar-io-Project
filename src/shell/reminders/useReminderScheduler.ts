@@ -15,10 +15,12 @@ import { useHabitsRepository } from '@/features/habits/hooks/habitsContext';
 import { useRoutinesRepository } from '@/features/routines/hooks/routinesContext';
 import { useTodo } from '@/features/todo/hooks/todoContext';
 
-import { planReminders } from './plan';
+import { inQuietHours, parseQuietHours, planReminders } from './plan';
 
 /** Per device: each person picks which of their devices rings. Not synced. */
 export const REMINDERS_SETTING = 'reminders';
+/** "22:00-07:00", or empty for none. */
+export const QUIET_HOURS_SETTING = 'reminders.quiet';
 export type RemindersSetting = 'on' | 'off';
 
 /** Wait for a burst of edits to settle before rescheduling. */
@@ -35,6 +37,7 @@ export function useReminderScheduler() {
   const todo = useTodo();
   const routines = useRoutinesRepository();
   const [setting] = useSetting<RemindersSetting>(REMINDERS_SETTING, 'on');
+  const [quietSetting] = useSetting<string>(QUIET_HOURS_SETTING, '');
 
   useEffect(() => {
     if (!notificationsSupported) return;
@@ -58,7 +61,10 @@ export function useReminderScheduler() {
             now,
           })
         : [];
-      if (active) await replaceScheduledReminders(plan);
+      // Quiet hours: those reminders do not ring (the items still show in the app).
+      const quiet = parseQuietHours(quietSetting);
+      const audible = quiet ? plan.filter((r) => !inQuietHours(r.at, quiet)) : plan;
+      if (active) await replaceScheduledReminders(audible);
     };
     const soon = () => {
       clearTimeout(timer);
@@ -82,5 +88,5 @@ export function useReminderScheduler() {
       unsubscribe();
       appState.remove();
     };
-  }, [changes, habits, todo, routines, setting]);
+  }, [changes, habits, todo, routines, setting, quietSetting]);
 }

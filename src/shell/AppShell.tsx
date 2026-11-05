@@ -14,6 +14,7 @@ import { CreateContext } from './create/CreateContext';
 import { ConnectProvider } from './connections/ConnectProvider';
 import { CreateFlow } from './create/CreateFlow';
 import { destinations } from './destinations';
+import { useGamePrefs, useOpenStartTab } from './settings/prefs';
 import { useFeedbackMoments } from './feedback/useFeedbackMoments';
 import { useFeedbackSync } from './feedback/useFeedbackSettings';
 import { NavigationRail } from './NavigationRail';
@@ -50,7 +51,9 @@ function ShellLayout() {
   useReminderScheduler();
   useFeedbackSync();
   useFeedbackMoments();
+  useOpenStartTab();
   const celebration = useCelebrations();
+  const { celebrations } = useGamePrefs();
   const breakpoint = useBreakpoint();
   const insets = useSafeAreaInsets();
   const [creating, setCreating] = useState(false);
@@ -135,7 +138,7 @@ function ShellLayout() {
           defaultFolderId={currentFolderId}
           dueToday={activeName === 'index'}
         />
-        {celebration.message ? (
+        {celebration.message && celebrations ? (
           <CelebrationBanner
             key={celebration.message}
             message={celebration.message}

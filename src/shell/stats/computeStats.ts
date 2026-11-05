@@ -1,4 +1,11 @@
-import { addDays, fromDateKey, toDateKey, weekdayOf } from '@/core/dates';
+import {
+  addDays,
+  fromDateKey,
+  startOfWeek,
+  toDateKey,
+  weekdayOf,
+  type WeekStart,
+} from '@/core/dates';
 import type { CreatureId } from '@/features/habits/domain/creatures';
 import { isScheduled } from '@/features/habits/domain/progress';
 import { isRoutineDay } from '@/features/routines/domain/schedule';
@@ -6,14 +13,20 @@ import type { ListColorName } from '@/design-system';
 
 export type StatsMode = 'week' | 'month';
 
-export type Period = { mode: StatsMode; from: string; to: string; days: string[] };
+export type Period = {
+  mode: StatsMode;
+  from: string;
+  to: string;
+  days: string[];
+  weekStart: WeekStart;
+};
 
-/** The week (Sunday first) or the month that holds `anchor`. */
-export function periodOf(mode: StatsMode, anchor: string): Period {
+/** The week (from `weekStart`) or the month that holds `anchor`. */
+export function periodOf(mode: StatsMode, anchor: string, weekStart: WeekStart = 0): Period {
   let from: string;
   let to: string;
   if (mode === 'week') {
-    from = addDays(anchor, -weekdayOf(anchor));
+    from = startOfWeek(anchor, weekStart);
     to = addDays(from, 6);
   } else {
     const d = fromDateKey(anchor);
@@ -22,14 +35,19 @@ export function periodOf(mode: StatsMode, anchor: string): Period {
   }
   const days: string[] = [];
   for (let day = from; day <= to; day = addDays(day, 1)) days.push(day);
-  return { mode, from, to, days };
+  return { mode, from, to, days, weekStart };
 }
 
 /** The period just before (or, with `step` 1, after) this one. */
 export function shiftPeriod(period: Period, step: -1 | 1): Period {
-  if (period.mode === 'week') return periodOf('week', addDays(period.from, 7 * step));
+  if (period.mode === 'week')
+    return periodOf('week', addDays(period.from, 7 * step), period.weekStart);
   const d = fromDateKey(period.from);
-  return periodOf('month', toDateKey(new Date(d.getFullYear(), d.getMonth() + step, 1)));
+  return periodOf(
+    'month',
+    toDateKey(new Date(d.getFullYear(), d.getMonth() + step, 1)),
+    period.weekStart,
+  );
 }
 
 export type StatsFacts = {

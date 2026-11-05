@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { toDateKey } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import {
   Button,
   Legend,
@@ -23,7 +24,8 @@ import { useStats } from './useStats';
 export function WeekStatsCard() {
   const router = useRouter();
   const { colors, scheme } = useTheme();
-  const { data } = useStats(periodOf('week', toDateKey(new Date())));
+  const { weekStart } = useCalendarPrefs();
+  const { data } = useStats(periodOf('week', toDateKey(new Date()), weekStart));
   if (!data) return null;
   const { current, previous } = data;
   const delta = current.totals.all - previous.totals.all;

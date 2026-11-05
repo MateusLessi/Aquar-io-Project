@@ -1,4 +1,10 @@
-import { listColorNames, listColors, themeColors, type ColorScheme } from '../tokens';
+import {
+  highContrastColors,
+  listColorNames,
+  listColors,
+  themeColors,
+  type ColorScheme,
+} from '../tokens';
 import { contrastRatio } from '../utils/contrast';
 
 const AA_TEXT = 4.5;
@@ -51,4 +57,16 @@ describe.each(schemes)('%s theme contrast (WCAG AA)', (scheme) => {
       AA_GRAPHICS,
     );
   });
+});
+
+describe.each(schemes)('%s high contrast (WCAG AAA for text)', (scheme) => {
+  const c = { ...themeColors[scheme], ...highContrastColors[scheme] };
+  it.each(['textPrimary', 'textSecondary', 'textTertiary'] as const)(
+    '%s reaches 7:1 on surfaces',
+    (token) => {
+      for (const background of [c.surfaceRaised, c.surfaceBase]) {
+        expect(contrastRatio(c[token], background)).toBeGreaterThanOrEqual(7);
+      }
+    },
+  );
 });

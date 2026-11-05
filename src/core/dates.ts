@@ -50,3 +50,29 @@ export function atTime(dateKey: string, time: string): Date {
   date.setHours(h, m, 0, 0);
   return date;
 }
+
+/** The day a week starts on: 0 = Sunday, 1 = Monday. */
+export type WeekStart = 0 | 1;
+
+/** The first day of the week that holds `key`. */
+export function startOfWeek(key: string, weekStart: WeekStart = 0): string {
+  return addDays(key, -((weekdayOf(key) - weekStart + 7) % 7));
+}
+
+/** Weekday numbers (0 = Sunday) in display order. */
+export function weekdayOrder(weekStart: WeekStart = 0): number[] {
+  return Array.from({ length: 7 }, (_, i) => (i + weekStart) % 7);
+}
+
+/** Empty cells before day 1 in a month grid whose first column is `weekStart`. */
+export function leadingBlanks(firstWeekday: number, weekStart: WeekStart = 0): number {
+  return (firstWeekday - weekStart + 7) % 7;
+}
+
+/** "19:30" as the person reads time: unchanged in 24 h, "7:30 PM" in 12 h. */
+export function formatTime(time: string, clock24 = true): string {
+  if (clock24 || !isTimeOfDay(time)) return time;
+  const [h, m] = time.split(':').map(Number) as [number, number];
+  const suffix = h < 12 ? 'AM' : 'PM';
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, '0')} ${suffix}`;
+}

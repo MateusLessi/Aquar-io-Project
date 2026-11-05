@@ -13,6 +13,7 @@ import { ReduceMotion, ReducedMotionConfig } from 'react-native-reanimated';
 
 import {
   breakpointForWidth,
+  highContrastColors,
   themeColors,
   type Breakpoint,
   type ColorScheme,
@@ -30,6 +31,11 @@ export type Theme = {
   reduceTransparency: boolean;
   /** Effective "Reduce Motion": the person's choice, or the OS setting. Applies to all animations. */
   reduceMotion: boolean;
+  /** Effective "Alto contraste": text and edges read more strongly. */
+  highContrast: boolean;
+  /** Text size multiplier chosen in Ajustes (1 = default), on top of the OS text size. */
+  textScale: number;
+  setTextScale: (scale: number) => void;
   /** The person's own choices; null follows the OS. */
   accessibility: AccessibilityChoices;
   setAccessibility: (key: keyof AccessibilityChoices, value: boolean | null) => void;
@@ -40,6 +46,7 @@ export type Theme = {
 export type AccessibilityChoices = {
   reduceMotion: boolean | null;
   reduceTransparency: boolean | null;
+  highContrast: boolean | null;
 };
 
 const ThemeContext = createContext<Theme | null>(null);
@@ -79,6 +86,8 @@ type ThemeProviderProps = {
   initialAccessibility?: Partial<AccessibilityChoices>;
   /** Called when the user changes an accessibility choice, so the app can persist it. */
   onAccessibilityChange?: (key: keyof AccessibilityChoices, value: boolean | null) => void;
+  initialTextScale?: number;
+  onTextScaleChange?: (scale: number) => void;
 };
 
 export function ThemeProvider({
@@ -87,6 +96,8 @@ export function ThemeProvider({
   onPreferenceChange,
   initialAccessibility,
   onAccessibilityChange,
+  initialTextScale = 1,
+  onTextScaleChange,
 }: ThemeProviderProps) {
   const systemScheme = useColorScheme();
   const [preference, setPreferenceState] = useState<ThemePreference>(initialPreference);
@@ -101,7 +112,17 @@ export function ThemeProvider({
   const [accessibility, setAccessibilityState] = useState<AccessibilityChoices>({
     reduceMotion: initialAccessibility?.reduceMotion ?? null,
     reduceTransparency: initialAccessibility?.reduceTransparency ?? null,
+    highContrast: initialAccessibility?.highContrast ?? null,
   });
+  const [textScale, setTextScaleState] = useState(initialTextScale);
+  const onTextScaleRef = useRef(onTextScaleChange);
+  useEffect(() => {
+    onTextScaleRef.current = onTextScaleChange;
+  });
+  const setTextScale = useCallback((scale: number) => {
+    setTextScaleState(scale);
+    onTextScaleRef.current?.(scale);
+  }, []);
   const onAccessibilityRef = useRef(onAccessibilityChange);
   useEffect(() => {
     onAccessibilityRef.current = onAccessibilityChange;
@@ -122,6 +143,7 @@ export function ThemeProvider({
   );
   const reduceMotion = accessibility.reduceMotion ?? systemReduceMotion;
   const reduceTransparency = accessibility.reduceTransparency ?? systemReduceTransparency;
+  const highContrast = accessibility.highContrast ?? false;
 
   const scheme: ColorScheme =
     preference === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : preference;
@@ -129,11 +151,16 @@ export function ThemeProvider({
   const value = useMemo<Theme>(
     () => ({
       scheme,
-      colors: themeColors[scheme],
+      colors: highContrast
+        ? { ...themeColors[scheme], ...highContrastColors[scheme] }
+        : themeColors[scheme],
       preference,
       setPreference,
       reduceTransparency,
       reduceMotion,
+      highContrast,
+      textScale,
+      setTextScale,
       accessibility,
       setAccessibility,
       // Android blur needs a BlurTargetView behind each glass surface; not worth it yet.
@@ -145,6 +172,9 @@ export function ThemeProvider({
       setPreference,
       reduceTransparency,
       reduceMotion,
+      highContrast,
+      textScale,
+      setTextScale,
       accessibility,
       setAccessibility,
     ],

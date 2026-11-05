@@ -1,6 +1,6 @@
 # Sons e toque
 
-Oito efeitos curtos, sintetizados do zero para o Aquar.io (sem amostras de terceiros), sempre junto de uma vibração. Os ajustes ficam em **Perfil → Sons e toque** e valem por aparelho.
+Oito efeitos curtos, sintetizados do zero para o Aquar.io (sem amostras de terceiros), sempre junto de uma vibração. Os ajustes ficam em **Ajustes → Sons, toque e lembretes** e valem por aparelho.
 
 | Momento                                          | Som                     | Vibração            |
 | ------------------------------------------------ | ----------------------- | ------------------- |

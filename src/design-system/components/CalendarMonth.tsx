@@ -20,15 +20,17 @@ export type CalendarMonthProps = {
   /** Today, `YYYY-MM-DD`; highlighted. */
   today: string;
   onChange: (value: string) => void;
+  /** First column: 0 = Sunday (default), 1 = Monday. */
+  weekStart?: 0 | 1;
 };
 
 /** A month grid for picking a calendar day. */
-export function CalendarMonth({ value, today, onChange }: CalendarMonthProps) {
+export function CalendarMonth({ value, today, onChange, weekStart = 0 }: CalendarMonthProps) {
   const { colors } = useTheme();
   const start = (value ?? today).split('-').map(Number) as [number, number, number];
   const [cursor, setCursor] = useState({ year: start[0], month: start[1] - 1 });
 
-  const firstWeekday = new Date(cursor.year, cursor.month, 1).getDay();
+  const firstWeekday = (new Date(cursor.year, cursor.month, 1).getDay() - weekStart + 7) % 7;
   const daysInMonth = new Date(cursor.year, cursor.month + 1, 0).getDate();
   const cells: (number | null)[] = [
     ...Array.from({ length: firstWeekday }, () => null),
@@ -55,9 +57,9 @@ export function CalendarMonth({ value, today, onChange }: CalendarMonthProps) {
         <IconButton icon={ChevronRight} label="Próximo mês" onPress={() => move(1)} />
       </View>
       <View style={styles.row}>
-        {WEEKDAYS.map((day, i) => (
+        {WEEKDAYS.map((_, i) => (
           <Text key={i} variant="caption" tone="tertiary" style={styles.weekday}>
-            {day}
+            {WEEKDAYS[(i + weekStart) % 7]}
           </Text>
         ))}
       </View>
@@ -72,7 +74,7 @@ export function CalendarMonth({ value, today, onChange }: CalendarMonthProps) {
               key={i}
               onPress={() => onChange(dayKey)}
               accessibilityRole="button"
-              accessibilityLabel={`${WEEKDAY_NAMES[i % 7]}, ${day}${isToday ? ', hoje' : ''}`}
+              accessibilityLabel={`${WEEKDAY_NAMES[(i + weekStart) % 7]}, ${day}${isToday ? ', hoje' : ''}`}
               accessibilityState={{ selected }}
               aria-selected={selected}
               style={styles.cell}

@@ -1,4 +1,4 @@
-import { addDays, toDateKey, weekdayOf } from '@/core/dates';
+import { addDays, startOfWeek, toDateKey, weekdayOf, type WeekStart } from '@/core/dates';
 
 import type { Routine, RoutinePhase, WeekdayMask } from './types';
 
@@ -40,9 +40,9 @@ export function tagsOf(routines: readonly { tag: string | null }[] | undefined):
   return [...tags].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
 
-/** The Sunday that starts the week of `dateKey`. */
-export function weekStartOf(dateKey: string): string {
-  return addDays(dateKey, -weekdayOf(dateKey));
+/** The first day (Sunday by default) of the week of `dateKey`. */
+export function weekStartOf(dateKey: string, weekStart: WeekStart = 0): string {
+  return startOfWeek(dateKey, weekStart);
 }
 
 /** The seven days of the week that starts on `start`. */

@@ -42,7 +42,7 @@ export type HabitProgress = {
   bestStreak: number;
   /** Share of scheduled days done in the last 30 days, 0–1. Null before any scheduled day. */
   consistency: number | null;
-  /** This week, Sunday first. */
+  /** This week, from the chosen first day of the week. */
   week: DayState[];
   /** Every day done, ever: what makes the creature grow. */
   daysDone: number;
@@ -66,7 +66,7 @@ export type HabitWithProgress = Habit &
   HabitProgress & {
     stage: Stage;
     today: HabitToday;
-    /** How full each day of this week was, Sunday first, 0–1. */
+    /** How full each day of this week was (same order as `week`), 0–1. */
     weekRatios: number[];
   };
 

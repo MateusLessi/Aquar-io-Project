@@ -8,6 +8,7 @@ import {
   requestNotificationPermission,
 } from '@/core/notifications';
 import { Button, Chip, Text, TimePicker, radius, spacing, useTheme } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { formatRepeat, type Repeat } from '../domain/repeat';
 import type { Task } from '../domain/types';
@@ -44,6 +45,7 @@ export function RepeatField({ task, onChange }: Props) {
 
 /** A reminder at a time on the due date. */
 export function ReminderField({ task, onChange }: Props) {
+  const { showTime } = useCalendarPrefs();
   const { colors } = useTheme();
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('09:00');
@@ -54,12 +56,12 @@ export function ReminderField({ task, onChange }: Props) {
         <Pressable
           onPress={() => void onChange({ remindAt: null })}
           accessibilityRole="button"
-          accessibilityLabel={`Remover lembrete das ${task.remindAt}`}
+          accessibilityLabel={`Remover lembrete das ${showTime(task.remindAt)}`}
           style={[styles.time, { backgroundColor: colors.accentSoft }]}
         >
           <Bell size={16} color={colors.accent} />
           <Text variant="headline" tone="accent">
-            {task.remindAt}
+            {showTime(task.remindAt)}
           </Text>
           <X size={16} color={colors.accent} />
         </Pressable>

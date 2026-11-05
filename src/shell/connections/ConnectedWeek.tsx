@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { weekdayOf } from '@/core/dates';
 import {
   SegmentedControl,
   Text,
@@ -18,7 +17,8 @@ import {
   type Measurable,
   type WeekViewProps,
 } from '@/features/routines/components/WeekView';
-import { weekStartOf } from '@/features/routines/domain/schedule';
+import { weekDays, weekStartOf } from '@/features/routines/domain/schedule';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import type { RoutineToday } from '@/features/routines/domain/types';
 
 import { useConnect, type ConnectItem } from './ConnectProvider';
@@ -134,11 +134,14 @@ function BlockExtras({
   todayKey: string;
 }) {
   const { colors, scheme } = useTheme();
+  const { weekStart, showTime } = useCalendarPrefs();
   if (inside.length === 0) return null;
   const tone = listColors[routine.color][scheme];
   const shown = inside.slice(0, 2);
   // Only this week's days up to today have a real fill; other days show the plan.
-  const known = weekStartOf(day) === weekStartOf(todayKey) && day <= todayKey;
+  const thisWeek = weekStartOf(todayKey, weekStart);
+  const known = weekStartOf(day, weekStart) === thisWeek && day <= todayKey;
+  const index = weekDays(thisWeek).indexOf(day);
   return (
     <View style={styles.extras}>
       {shown.map((c) => {
@@ -148,8 +151,7 @@ function BlockExtras({
             : c.kind === 'list'
               ? `${c.list.emoji ?? '📋'} ${c.list.name}`
               : `${c.folder.emoji ?? '📁'} ${c.folder.name}`;
-        const ratio =
-          c.kind === 'habit' && known ? (c.habit.weekRatios[weekdayOf(day)] ?? 0) : null;
+        const ratio = c.kind === 'habit' && known ? (c.habit.weekRatios[index] ?? 0) : null;
         return (
           <View
             key={c.link.id}
@@ -174,7 +176,7 @@ function BlockExtras({
             </Text>
             {c.link.at && !narrow ? (
               <Text variant="caption" tone="tertiary">
-                {c.link.at}
+                {showTime(c.link.at)}
               </Text>
             ) : null}
           </View>

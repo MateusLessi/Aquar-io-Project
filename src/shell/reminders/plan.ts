@@ -95,3 +95,20 @@ export function planReminders({
     .sort((a, b) => a.at.getTime() - b.at.getTime())
     .slice(0, MAX_SCHEDULED);
 }
+
+/** "22:00-07:00": no reminder rings in this window (it may cross midnight). */
+export type QuietHours = { from: string; to: string };
+
+export function parseQuietHours(value: string | null | undefined): QuietHours | null {
+  const match = /^(\d{2}:\d{2})-(\d{2}:\d{2})$/.exec(value ?? '');
+  return match && match[1] !== match[2] ? { from: match[1]!, to: match[2]! } : null;
+}
+
+/** Whether a moment falls in the quiet hours (start included, end excluded). */
+export function inQuietHours(at: Date, quiet: QuietHours): boolean {
+  const minutes = at.getHours() * 60 + at.getMinutes();
+  const toMin = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
+  const from = toMin(quiet.from);
+  const to = toMin(quiet.to);
+  return from < to ? minutes >= from && minutes < to : minutes >= from || minutes < to;
+}

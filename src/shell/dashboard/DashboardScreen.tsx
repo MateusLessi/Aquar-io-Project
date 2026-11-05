@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react-native';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { toDateKey } from '@/core/dates';
@@ -17,6 +17,7 @@ import { RoutineExtras } from '../connections/RoutineExtras';
 import { useCreate } from '../create/CreateContext';
 import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
+import { useDashboardCards, useGamePrefs, type DashboardCardId } from '../settings/prefs';
 import { WeekStatsCard } from '../stats/WeekStatsCard';
 import { TideCalendar } from './TideCalendar';
 import { WeekChart } from './WeekChart';
@@ -52,6 +53,8 @@ export function DashboardScreen() {
   const habits = useTodayHabitProgress();
   const routines = useTodayRoutineProgress();
   const { data: progress } = useProgress();
+  const [cards] = useDashboardCards();
+  const { showDepth } = useGamePrefs();
   const byDay = progress?.byDay ?? {};
 
   const tasksDone = tasks.filter((t) => t.completedAt).length;
@@ -81,8 +84,27 @@ export function DashboardScreen() {
       details={details.length > 1 ? details : undefined}
     />
   );
-  const week = <WeekChart todayKey={todayKey} byDay={byDay} />;
-  const calendar = <TideCalendar todayKey={todayKey} byDay={byDay} />;
+  const cardNodes: Record<DashboardCardId, ReactNode> = {
+    depth: <DepthGauge />,
+    weekStats: <WeekStatsCard />,
+    routines: <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />,
+    habits: <TodayHabits />,
+    tasks: <TodayTasks />,
+    folders: <PinnedFolders />,
+    week: <WeekChart todayKey={todayKey} byDay={byDay} />,
+    calendar: <TideCalendar todayKey={todayKey} byDay={byDay} />,
+  };
+  // Ajustes → Início: each column keeps its cards, in the person's order, without the hidden
+  // ones (and without Profundidade when depth is turned off).
+  const rank = new Map(cards.map((c, i) => [c.id, i]));
+  const shown = new Set(
+    cards.filter((c) => c.visible && (c.id !== 'depth' || showDepth)).map((c) => c.id),
+  );
+  const arrange = (ids: DashboardCardId[]) =>
+    ids
+      .filter((id) => shown.has(id))
+      .sort((a, b) => (rank.get(a) ?? 0) - (rank.get(b) ?? 0))
+      .map((id) => <Fragment key={id}>{cardNodes[id]}</Fragment>);
 
   return (
     <Screen
@@ -93,48 +115,27 @@ export function DashboardScreen() {
       {breakpoint === 'compact' ? (
         <>
           {tide}
-          <DepthGauge />
-          <WeekStatsCard />
-          <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />
-          <TodayHabits />
-          <TodayTasks />
-          <PinnedFolders />
-          {week}
+          {arrange(['depth', 'weekStats', 'routines', 'habits', 'tasks', 'folders', 'week'])}
         </>
       ) : breakpoint === 'medium' ? (
         <Columns>
           <Column>
             {tide}
-            <DepthGauge />
-            <WeekStatsCard />
-            <TodayHabits />
-            {week}
+            {arrange(['depth', 'weekStats', 'habits', 'week'])}
           </Column>
-          <Column>
-            <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />
-            <TodayTasks />
-            <PinnedFolders />
-            {calendar}
-          </Column>
+          <Column>{arrange(['routines', 'tasks', 'folders', 'calendar'])}</Column>
         </Columns>
       ) : (
         <Columns>
           <Column flex={0.9}>
             <Button label="Criar" variant="energy" icon={Plus} block onPress={create} />
-            <WeekStatsCard />
-            {calendar}
-            {week}
+            {arrange(['weekStats', 'calendar', 'week'])}
           </Column>
           <Column flex={1.1}>
             {tide}
-            <DepthGauge />
-            <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />
+            {arrange(['depth', 'routines'])}
           </Column>
-          <Column flex={1.1}>
-            <TodayTasks />
-            <TodayHabits />
-            <PinnedFolders />
-          </Column>
+          <Column flex={1.1}>{arrange(['tasks', 'habits', 'folders'])}</Column>
         </Columns>
       )}
     </Screen>

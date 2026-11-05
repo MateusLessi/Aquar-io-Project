@@ -19,6 +19,8 @@ import {
   useTheme,
   type ListColorName,
 } from '@/design-system';
+import { weekdayOrder } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { toMinutes } from '../domain/schedule';
 import type { NewRoutine, Routine, RoutineItem } from '../domain/types';
@@ -62,6 +64,7 @@ function RoutineForm({
   tagSuggestions = [],
 }: Omit<RoutineEditorSheetProps, 'visible'>) {
   const { colors, scheme } = useTheme();
+  const { weekStart } = useCalendarPrefs();
   const [name, setName] = useState(routine?.name ?? '');
   const [emoji, setEmoji] = useState<string | null>(routine?.emoji ?? '🌅');
   const [color, setColor] = useState<ListColorName>(routine?.color ?? 'lagoon');
@@ -218,7 +221,8 @@ function RoutineForm({
           <Chip label="Dias úteis" selected={days === WEEKDAYS} onPress={() => setDays(WEEKDAYS)} />
         </View>
         <View style={styles.weekdays}>
-          {DAY_LETTERS.map((letter, i) => {
+          {weekdayOrder(weekStart).map((i) => {
+            const letter = DAY_LETTERS[i]!;
             const on = (days & (1 << i)) !== 0;
             return (
               <Pressable

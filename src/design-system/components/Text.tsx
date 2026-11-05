@@ -54,7 +54,8 @@ export function Text({
   style,
   ...rest
 }: TextProps) {
-  const { colors } = useTheme();
+  const { colors, textScale } = useTheme();
+  const base = typography[variant];
   const isHeading = variant === 'largeTitle' || variant === 'title1' || variant === 'title2';
 
   return (
@@ -62,7 +63,11 @@ export function Text({
       accessibilityRole={isHeading ? 'header' : undefined}
       maxFontSizeMultiplier={maxScale[variant]}
       style={[
-        typography[variant],
+        base,
+        textScale !== 1 && {
+          fontSize: (base.fontSize ?? 16) * textScale,
+          lineHeight: base.lineHeight ? base.lineHeight * textScale : undefined,
+        },
         { color: colors[struck ? 'textTertiary' : toneToColor[tone]] },
         struck && { textDecorationLine: 'line-through' },
         style,

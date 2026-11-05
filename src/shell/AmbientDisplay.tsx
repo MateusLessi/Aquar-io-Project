@@ -6,6 +6,7 @@ import { DeepSurface, Text, TideHero, spacing } from '@/design-system';
 import { CreatureBubble } from '@/features/habits/components/CreatureBubble';
 import { useHabits } from '@/features/habits/hooks/queries';
 import { useToday } from '@/features/todo/hooks/queries';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 type AmbientDisplayProps = {
   /** Degrees that make the content upright for how the phone is held. */
@@ -52,7 +53,10 @@ export function AmbientContent({ rotation, onExit }: AmbientDisplayProps) {
   // The UI is locked in portrait, so lay the landscape content out rotated.
   const box = sideways ? { width: height, height: width } : { width, height };
 
-  const time = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(now);
+  const { showTime } = useCalendarPrefs();
+  const time = showTime(
+    `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+  );
   const date = new Intl.DateTimeFormat('pt-BR', {
     weekday: 'long',
     day: 'numeric',

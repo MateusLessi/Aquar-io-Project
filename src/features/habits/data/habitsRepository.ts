@@ -1,6 +1,6 @@
 import type { DataChanges } from '@/core/database/changes';
 import type { Database } from '@/core/database/types';
-import { addDays, toDateKey, weekdayOf } from '@/core/dates';
+import { addDays, startOfWeek, toDateKey, type WeekStart } from '@/core/dates';
 import type { DomainEvent } from '@/core/events/events';
 import type { EventLog } from '@/core/events/eventLog';
 
@@ -176,11 +176,12 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
     todayKey: string,
     progress: Map<string, DayProgress> = new Map(),
     timer?: { date: string; startedAt: string },
+    weekStart: WeekStart = 0,
   ): HabitWithProgress {
     const created = toDateKey(new Date(habit.createdAt));
     // A check-in from before creation (synced from a clock that was off) still counts.
     const startKey = [created, ...done].sort()[0]!;
-    const base = habitProgress({ days: habit.days, done, startKey, todayKey });
+    const base = habitProgress({ days: habit.days, done, startKey, todayKey, weekStart });
     const amount = amountOf(habit, progress.get(todayKey));
     const today: HabitToday = {
       amount,
@@ -188,9 +189,9 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       ratio: fillRatio(habit, amount, base.doneToday),
       timerStartedAt: timer?.startedAt ?? null,
     };
-    const sunday = addDays(todayKey, -weekdayOf(todayKey));
+    const first = startOfWeek(todayKey, weekStart);
     const weekRatios = Array.from({ length: 7 }, (_, i) => {
-      const key = addDays(sunday, i);
+      const key = addDays(first, i);
       return fillRatio(habit, amountOf(habit, progress.get(key)), done.has(key));
     });
     return {
@@ -342,18 +343,21 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       };
     },
 
-    async listHabits(todayKey: string = toDateKey(now())): Promise<HabitWithProgress[]> {
+    async listHabits(
+      todayKey: string = toDateKey(now()),
+      weekStart: WeekStart = 0,
+    ): Promise<HabitWithProgress[]> {
       const rows = await db.all<HabitRow>(
         `SELECT ${HABIT_COLUMNS} FROM habits WHERE deleted_at IS NULL ORDER BY sort_order`,
       );
       const habits = rows.map(toHabit);
       const ids = habits.map((h) => h.id);
       const done = await doneDays(ids);
-      const sunday = addDays(todayKey, -weekdayOf(todayKey));
-      const progress = await progressBetween(ids, sunday, addDays(sunday, 6));
+      const first = startOfWeek(todayKey, weekStart);
+      const progress = await progressBetween(ids, first, addDays(first, 6));
       const timers = await runningTimers();
       return habits.map((h) =>
-        withProgress(h, done.get(h.id)!, todayKey, progress.get(h.id), timers.get(h.id)),
+        withProgress(h, done.get(h.id)!, todayKey, progress.get(h.id), timers.get(h.id), weekStart),
       );
     },
 
@@ -399,6 +403,7 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
     async getHabit(
       id: string,
       todayKey: string = toDateKey(now()),
+      weekStart: WeekStart = 0,
     ): Promise<{
       habit: HabitWithProgress;
       doneDays: string[];
@@ -413,7 +418,7 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       for (const day of done) dayRatios[day] = 1;
       const timer = (await runningTimers()).get(id);
       return {
-        habit: withProgress(habit, done, todayKey, progress, timer),
+        habit: withProgress(habit, done, todayKey, progress, timer, weekStart),
         doneDays: [...done].sort(),
         dayRatios,
       };

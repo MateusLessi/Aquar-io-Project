@@ -1,5 +1,6 @@
 import { useLiveQuery } from '@/core/database/useLiveQuery';
 import { toDateKey } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { useHabitsRepository } from './habitsContext';
 
@@ -7,19 +8,25 @@ import { useHabitsRepository } from './habitsContext';
 
 export function useHabits(now: Date = new Date()) {
   const habits = useHabitsRepository();
+  const { weekStart } = useCalendarPrefs();
   const todayKey = toDateKey(now);
   return {
     todayKey,
-    ...useLiveQuery(`habits:${todayKey}`, ['habits'], () => habits.listHabits(todayKey)),
+    ...useLiveQuery(`habits:${todayKey}:${weekStart}`, ['habits'], () =>
+      habits.listHabits(todayKey, weekStart),
+    ),
   };
 }
 
 export function useHabit(id: string, now: Date = new Date()) {
   const habits = useHabitsRepository();
+  const { weekStart } = useCalendarPrefs();
   const todayKey = toDateKey(now);
   return {
     todayKey,
-    ...useLiveQuery(`habit:${id}:${todayKey}`, ['habits'], () => habits.getHabit(id, todayKey)),
+    ...useLiveQuery(`habit:${id}:${todayKey}:${weekStart}`, ['habits'], () =>
+      habits.getHabit(id, todayKey, weekStart),
+    ),
   };
 }
 
