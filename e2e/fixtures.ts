@@ -7,7 +7,7 @@ export { expect, type Locator, type Page } from '@playwright/test';
  * mark the app leaves after it). e2e/welcome.spec.ts tests the dive itself.
  */
 export const test = base.extend({
-  page: async ({ page }, use) => {
+  page: async ({ page }, provide) => {
     await page.addInitScript(() => {
       try {
         localStorage.setItem('aquario.welcome', 'done');
@@ -15,6 +15,6 @@ export const test = base.extend({
         // No storage: the welcome would show; specs would notice.
       }
     });
-    await use(page);
+    await provide(page);
   },
 });
