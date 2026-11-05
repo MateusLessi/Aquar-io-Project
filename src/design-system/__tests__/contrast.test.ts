@@ -2,6 +2,8 @@ import {
   highContrastColors,
   listColorNames,
   listColors,
+  oceanDepths,
+  specular,
   themeColors,
   type ColorScheme,
 } from '../tokens';
@@ -69,4 +71,12 @@ describe.each(schemes)('%s high contrast (WCAG AAA for text)', (scheme) => {
       }
     },
   );
+});
+
+describe('welcome dive', () => {
+  it('keeps white text readable at the top of every depth', () => {
+    for (const depth of oceanDepths) {
+      expect(contrastRatio(specular, depth.top)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
 });

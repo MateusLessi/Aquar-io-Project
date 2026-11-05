@@ -22,7 +22,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ✓      |
 | 7   | **Ajustes completos**: personalização ampla do app                                               | ✓      |
 | 8   | **Perfil personalizável** com privacidade por informação                                         | ✓      |
-| 9   | **Boas-vindas imersivas** e quiz inicial                                                         | ☐      |
+| 9   | **Boas-vindas imersivas** e quiz inicial                                                         | ✓      |
 | 10  | **Pronto para testadores**: marca, comunidade, Founding Diver, apagar conta, privacidade, GitHub | ☐      |
 | 11  | **Lançamento**: tag `v1.0.0`, Release "First Dive", site fixo, APK, anúncio                      | ☐      |
 
@@ -98,6 +98,7 @@ Ver [recomendações](#recomendações-de-ajustes-e-perfil) abaixo.
 - Quiz curto e **opcional**: o que você quer organizar, rotina de estudo ou trabalho, hábitos que quer começar. Já **sugere hábitos e rotinas prontos** no final.
 - Idade em **faixa etária**, opcional, nunca a data de nascimento.
 - Respeita "Reduzir movimento".
+- **Feito:** 6 telas da superfície aos 1.000 m, quiz opcional e aquário inicial que a pessoa revisa antes de criar. Detalhes em [welcome.md](welcome.md).
 
 ### 10. Pronto para testadores
 

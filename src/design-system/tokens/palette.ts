@@ -61,3 +61,16 @@ export const chartColors = {
 
 export type ChartSeries = keyof typeof chartColors;
 export const listColorNames = Object.keys(listColors) as ListColorName[];
+
+/**
+ * The welcome dive: one gradient per screen, from sunlit water to the deep. Every step keeps
+ * white text readable (≥ 4.5:1 at the top of the gradient).
+ */
+export const oceanDepths: readonly { top: string; bottom: string; meters: number }[] = [
+  { top: '#17788A', bottom: '#0F5466', meters: 0 },
+  { top: '#136A7C', bottom: '#0D4556', meters: 10 },
+  { top: '#105A6B', bottom: '#0A3646', meters: 40 },
+  { top: '#0D4757', bottom: '#082A37', meters: 120 },
+  { top: '#0B3542', bottom: '#061D27', meters: 400 },
+  { top: '#0B2129', bottom: '#040B11', meters: 1000 },
+];

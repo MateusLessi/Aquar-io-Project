@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Locator } from './fixtures';
 
 const visible = (locator: Locator) => locator.locator('visible=true').first();
 
@@ -34,7 +34,9 @@ test('personalize the profile: line, color, privacy and showcase', async ({ page
   await page.getByRole('button', { name: 'Salvar' }).click();
   await expect(visible(page.getByLabel(/^Sequência: 1 dia/))).toBeVisible();
 
-  // Survives a reload (it is stored, and syncs like the rest).
+  // Survives a reload (it is stored, and syncs like the rest). The web database writes to disk
+  // a moment after each change: give it that moment, as closing a tab right after would not.
+  await page.waitForTimeout(1500);
   await page.reload();
   await expect(visible(page.getByText('Mateus', { exact: true }))).toBeVisible();
   await expect(visible(page.getByLabel(/^Sequência: 1 dia/))).toBeVisible();

@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Locator } from './fixtures';
 
 const visible = (locator: Locator) => locator.locator('visible=true').first();
 
