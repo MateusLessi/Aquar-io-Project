@@ -1,0 +1,154 @@
+<!doctype html>
+<!-- PROPOSAL: Boas-vindas imersivas e quiz for Checkpoint 054 (First Dive, etapa 9). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Boas-vindas e quiz</title>
+<style>
+  @font-face { font-family: Outfit; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/outfit/700Bold/Outfit_700Bold.ttf); }
+  @font-face { font-family: Manrope; font-weight: 500; src: url(../../../node_modules/@expo-google-fonts/manrope/500Medium/Manrope_500Medium.ttf); }
+  @font-face { font-family: Manrope; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/manrope/700Bold/Manrope_700Bold.ttf); }
+  :root { --display: Outfit, system-ui, sans-serif; --text: Manrope, system-ui, sans-serif; --t1: #e6f0f4; --t2: #b5c8d2; --accent: #5cc3bd; --coral: #ee8a73; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #0a1218; color: var(--t1); padding: 36px; width: 1500px; }
+  h1 { font-family: var(--display); font-size: 30px; }
+  .lead { color: #9db2be; font-size: 15px; margin-top: 6px; max-width: 1400px; line-height: 22px; }
+  .lead b { color: var(--t1); }
+  .row { display: flex; gap: 22px; margin-top: 24px; }
+  .col { width: 230px; }
+  .cap { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9db2be; margin-bottom: 8px; }
+  .phone { width: 230px; height: 480px; border-radius: 32px; overflow: hidden; position: relative; box-shadow: 0 18px 40px rgba(0,0,0,.5), 0 0 0 6px #02070b; padding: 34px 16px 16px; display: flex; flex-direction: column; }
+  .d0 { background: linear-gradient(180deg, #a9e4ec 0%, #5cc3d0 35%, #1d7f93 100%); color: #052530; }
+  .d1 { background: linear-gradient(180deg, #4fb7c6 0%, #1f7f92 45%, #0f4b5c 100%); }
+  .d2 { background: linear-gradient(180deg, #1f7f92 0%, #145a6c 45%, #0b3442 100%); }
+  .d3 { background: linear-gradient(180deg, #145a6c 0%, #0d3b4a 45%, #08222d 100%); }
+  .d4 { background: linear-gradient(180deg, #0d3b4a 0%, #0a2733 45%, #06141c 100%); }
+  .d5 { background: linear-gradient(180deg, #0b2129 0%, #07121a 45%, #040b11 100%); }
+  .rays { position: absolute; inset: 0; background: repeating-linear-gradient(100deg, rgba(255,255,255,.16) 0 18px, transparent 18px 60px); mask: linear-gradient(180deg, #000, transparent 55%); pointer-events: none; }
+  .depth { position: absolute; top: 12px; right: 16px; font-size: 10px; font-weight: 700; opacity: .7; }
+  .dots { display: flex; gap: 4px; justify-content: center; margin-top: auto; padding-top: 10px; }
+  .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.3); }
+  .dots i.on { width: 16px; background: #fff; }
+  .title { font-family: var(--display); font-size: 22px; line-height: 26px; margin-top: 8px; position: relative; }
+  .sub { font-size: 12.5px; line-height: 17px; margin-top: 6px; color: var(--t2); position: relative; }
+  .d0 .sub { color: #0b3b48; }
+  .btn { margin-top: 12px; text-align: center; padding: 10px; border-radius: 14px; background: var(--coral); color: #2b0d05; font-weight: 700; font-size: 13px; position: relative; }
+  .ghost { text-align: center; font-size: 12px; font-weight: 700; margin-top: 8px; opacity: .85; }
+  .skip { position: absolute; top: 12px; left: 16px; font-size: 11px; font-weight: 700; opacity: .8; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; position: relative; }
+  .chip { font-size: 11.5px; font-weight: 700; padding: 7px 9px; border-radius: 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); }
+  .chip.on { background: rgba(92,195,189,.3); border-color: var(--accent); }
+  .opt { font-size: 12px; font-weight: 700; padding: 9px 10px; border-radius: 12px; background: rgba(255,255,255,.08); margin-top: 6px; display: flex; justify-content: space-between; }
+  .opt.on { background: rgba(92,195,189,.28); outline: 1.5px solid var(--accent); }
+  .why { font-size: 10.5px; color: #8fa9b6; margin-top: 8px; line-height: 14px; position: relative; }
+  .logo { font-family: var(--display); font-size: 34px; text-align: center; margin-top: 70px; position: relative; }
+  .tag { text-align: center; font-size: 13px; font-weight: 700; color: #0b3b48; position: relative; }
+  .scene { position: absolute; left: 0; right: 0; bottom: 0; height: 160px; pointer-events: none; }
+  .fish { position: absolute; font-size: 22px; }
+  .kelp { position: absolute; bottom: -10px; width: 10px; border-radius: 10px 10px 0 0; background: linear-gradient(180deg, #86bf7f, #3f7a49); transform-origin: bottom; }
+  .bub { position: absolute; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.5); }
+  .sum { background: rgba(255,255,255,.07); border-radius: 14px; padding: 8px 10px; margin-top: 7px; font-size: 11.5px; display: flex; gap: 8px; align-items: center; position: relative; }
+  .sum b { display: block; font-size: 12.5px; }
+  .sum small { color: #8fa9b6; }
+  .ck { margin-left: auto; width: 18px; height: 18px; border-radius: 6px; background: var(--accent); color: #062421; font-size: 12px; display: grid; place-items: center; font-weight: 700; }
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
+  .box { background: #0e1c26; border: 1px solid rgba(140,200,210,.16); border-radius: 18px; padding: 16px 18px; font-size: 13.5px; line-height: 20px; color: #9db2be; }
+  .box h3 { font-family: var(--display); color: var(--t1); font-size: 17px; margin-bottom: 8px; }
+  .box b { color: var(--t1); } .box li { margin: 0 0 5px 16px; }
+  .creat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; position: relative; }
+  .creat span { font-size: 26px; text-align: center; padding: 6px 0; border-radius: 12px; background: rgba(255,255,255,.07); }
+  .creat span.on { background: rgba(92,195,189,.3); outline: 1.5px solid var(--accent); }
+  .input { margin-top: 10px; border: 1.5px solid rgba(255,255,255,.25); border-radius: 12px; padding: 8px 10px; font-size: 13px; position: relative; }
+</style>
+</head>
+<body>
+  <h1>Etapa 9 · Boas-vindas imersivas e quiz</h1>
+  <p class="lead">Na primeira vez que o app abre, você <b>desce pelo oceano</b>: cada tela fica um pouco mais funda (luz da superfície → recife → profundezas), com criaturas, algas e bolhas que se movem devagar. <b>Uma ideia por tela</b>, como o primeiro uso de um iPhone. O quiz é <b>curto e opcional</b> ("Pular" em todas as telas) e, no fim, monta um <b>aquário inicial</b> com hábitos, uma rotina e listas, que você pode desmarcar antes de criar. Com "Reduzir movimento", a descida vira um fade simples.</p>
+
+  <div class="row">
+    <div class="col"><div class="cap">1 · Superfície</div>
+      <div class="phone d0"><div class="rays"></div><div class="depth">0 m</div>
+        <div class="logo">Aquar.io</div><div class="tag">Tudo importa.</div>
+        <div class="sub" style="text-align:center;margin-top:14px">Organize tarefas, hábitos e rotinas como um ecossistema vivo.</div>
+        <div class="scene"><div class="fish" style="left:30px;bottom:60px">🐠</div><div class="fish" style="left:150px;bottom:95px">🐟</div>
+          <div class="bub" style="left:110px;bottom:40px;width:10px;height:10px"></div><div class="bub" style="left:120px;bottom:70px;width:6px;height:6px"></div></div>
+        <div class="btn" style="margin-top:auto">Começar o mergulho</div>
+        <div class="ghost">Já tenho conta</div>
+      </div></div>
+
+    <div class="col"><div class="cap">2 · Como funciona</div>
+      <div class="phone d1"><div class="skip">Pular</div><div class="depth">10 m</div>
+        <div class="title">Um oceano que cresce com você</div>
+        <div class="sum"><span style="font-size:22px">🐢</span><div><b>Hábitos viram criaturas</b><small>Elas crescem a cada dia feito.</small></div></div>
+        <div class="sum"><span style="font-size:22px">🌊</span><div><b>Rotinas são as marés do dia</b><small>Blocos com hora e passos.</small></div></div>
+        <div class="sum"><span style="font-size:22px">📋</span><div><b>Listas guardam o resto</b><small>Tarefas, pastas e prazos.</small></div></div>
+        <div class="sum"><span style="font-size:22px">🪸</span><div><b>Cada coisa feita é um mergulho</b><small>Você desce de zona em zona.</small></div></div>
+        <div class="dots"><i></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+        <div class="btn">Continuar</div>
+      </div></div>
+
+    <div class="col"><div class="cap">3 · Quiz: organizar</div>
+      <div class="phone d2"><div class="skip">Pular</div><div class="depth">40 m</div>
+        <div class="title">O que você quer organizar?</div>
+        <div class="sub">Escolha quantos quiser.</div>
+        <div class="chips"><span class="chip on">📚 Estudos</span><span class="chip">💼 Trabalho</span><span class="chip on">🏋️ Saúde e exercício</span><span class="chip">🏠 Casa</span><span class="chip">🎨 Projetos pessoais</span><span class="chip on">🧘 Bem-estar</span></div>
+        <div class="scene"><div class="kelp" style="left:20px;height:90px;transform:rotate(-6deg)"></div><div class="kelp" style="left:34px;height:120px;transform:rotate(4deg)"></div><div class="kelp" style="left:190px;height:100px;transform:rotate(-3deg)"></div></div>
+        <div class="dots"><i></i><i></i><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="btn">Continuar</div>
+      </div></div>
+
+    <div class="col"><div class="cap">4 · Quiz: dia e hábitos</div>
+      <div class="phone d3"><div class="skip">Pular</div><div class="depth">120 m</div>
+        <div class="title">Quando seu dia rende mais?</div>
+        <div class="opt">🌅 De manhã cedo</div><div class="opt on">☀️ Durante o dia <span>✓</span></div><div class="opt">🌙 À noite</div>
+        <div class="title" style="font-size:17px;margin-top:12px">Que hábitos quer começar?</div>
+        <div class="chips"><span class="chip on">💧 Beber água</span><span class="chip">🧘 Meditar</span><span class="chip on">📖 Ler</span><span class="chip">🏃 Exercício</span><span class="chip">😴 Dormir cedo</span><span class="chip">✍️ Estudar</span></div>
+        <div class="dots"><i></i><i></i><i></i><i class="on"></i><i></i><i></i></div>
+        <div class="btn">Continuar</div>
+      </div></div>
+
+    <div class="col"><div class="cap">5 · Você (opcional)</div>
+      <div class="phone d4"><div class="skip">Pular</div><div class="depth">400 m</div>
+        <div class="title">Escolha sua criatura</div>
+        <div class="creat"><span>🐢</span><span class="on">🐬</span><span>🐙</span><span>🦀</span><span>🐠</span><span>🐳</span><span>🦈</span><span>🦭</span></div>
+        <div class="input">Como quer ser chamado?</div>
+        <div class="title" style="font-size:15px;margin-top:12px">Faixa de idade <span style="font-size:11px;color:#8fa9b6">(opcional)</span></div>
+        <div class="chips"><span class="chip">até 17</span><span class="chip on">18–24</span><span class="chip">25–34</span><span class="chip">35–49</span><span class="chip">50+</span><span class="chip">Prefiro não dizer</span></div>
+        <div class="why">Só para ajustar as sugestões (ex.: rotina de estudos). Fica só neste aparelho, não vai para a nuvem.</div>
+        <div class="dots"><i></i><i></i><i></i><i></i><i class="on"></i><i></i></div>
+        <div class="btn">Continuar</div>
+      </div></div>
+
+    <div class="col"><div class="cap">6 · Seu aquário</div>
+      <div class="phone d5"><div class="depth">1.000 m</div>
+        <div class="title">Seu aquário está pronto</div>
+        <div class="sub">Desmarque o que não quiser. Dá para mudar tudo depois.</div>
+        <div class="sum"><span style="font-size:20px">💧</span><div><b>Beber água</b><small>8 copos por dia</small></div><span class="ck">✓</span></div>
+        <div class="sum"><span style="font-size:20px">📖</span><div><b>Ler</b><small>20 páginas por dia</small></div><span class="ck">✓</span></div>
+        <div class="sum"><span style="font-size:20px">📚</span><div><b>Rotina: Estudo</b><small>14:00–16:00 · seg a sex</small></div><span class="ck">✓</span></div>
+        <div class="sum"><span style="font-size:20px">🏋️</span><div><b>Lista: Treinos</b><small>para planejar a semana</small></div><span class="ck">✓</span></div>
+        <div class="dots"><i></i><i></i><i></i><i></i><i></i><i class="on"></i></div>
+        <div class="btn">Mergulhar</div>
+      </div></div>
+  </div>
+
+  <div class="notes">
+    <div class="box"><h3>Quando aparece</h3><ul>
+      <li>Só na <b>primeira vez</b> que o app abre num aparelho sem nada.</li>
+      <li>Quem já usa o app <b>não vê</b> (a atualização não interrompe ninguém).</li>
+      <li>"Já tenho conta" leva direto para entrar e sincronizar; nada é criado em dobro.</li>
+      <li>Dá para rever em <b>Ajustes → Sobre → Ver as boas-vindas</b>.</li>
+    </ul></div>
+    <div class="box"><h3>Honesto e leve</h3><ul>
+      <li>As sugestões são <b>criadas de verdade</b> só ao tocar em Mergulhar, e só as marcadas.</li>
+      <li>Hábitos com tipo certo (copos, páginas, minutos); rotina no horário que você indicou.</li>
+      <li>Criaturas, algas e bolhas são <b>desenhadas no app</b> (vetores e emojis), sem arte nova a licenciar.</li>
+    </ul></div>
+    <div class="box"><h3>Idade e LGPD</h3><ul>
+      <li>Pergunta <b>opcional</b>, em <b>faixa</b>, com "Prefiro não dizer".</li>
+      <li>Usada <b>agora</b> para algo visível: o tom das sugestões. Fica <b>só no aparelho</b>, não sincroniza.</li>
+      <li>"Até 17" mantém o perfil em Só eu e sem recursos sociais quando eles existirem.</li>
+    </ul></div>
+  </div>
+</body>
+</html>
