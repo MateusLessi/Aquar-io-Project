@@ -2,7 +2,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { addDays, toDateKey } from '@/core/dates';
+import { addDays, leadingBlanks, toDateKey, weekdayOrder } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { IconButton, Text, spacing, useTheme, withAlpha } from '@/design-system';
 
 import { isScheduled, weekdayInitial } from '../domain/progress';
@@ -28,11 +29,12 @@ export function HabitCalendar({
   onToggle,
 }: HabitCalendarProps) {
   const { colors } = useTheme();
+  const { weekStart } = useCalendarPrefs();
   const [today] = useState(() => todayKey.split('-').map(Number) as [number, number, number]);
   const [cursor, setCursor] = useState({ year: today[0], month: today[1] - 1 });
 
   const first = toDateKey(new Date(cursor.year, cursor.month, 1));
-  const leading = new Date(cursor.year, cursor.month, 1).getDay();
+  const leading = leadingBlanks(new Date(cursor.year, cursor.month, 1).getDay(), weekStart);
   const length = new Date(cursor.year, cursor.month + 1, 0).getDate();
   const cells = [
     ...Array.from({ length: leading }, () => null),
@@ -63,9 +65,9 @@ export function HabitCalendar({
         />
       </View>
       <View style={styles.row}>
-        {weekdayInitial.map((initial, i) => (
+        {weekdayOrder(weekStart).map((d, i) => (
           <Text key={i} variant="caption" tone="tertiary" style={styles.weekday}>
-            {initial}
+            {weekdayInitial[d]}
           </Text>
         ))}
       </View>

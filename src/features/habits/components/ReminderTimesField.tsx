@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { notificationsSupported, remindersUnavailableNote } from '@/core/notifications';
 import { Button, Chip, Text, TimePicker, radius, spacing, useTheme } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { MAX_REMINDERS } from '../domain/validation';
 
@@ -11,6 +12,7 @@ type ReminderTimesFieldProps = { value: string[]; onChange: (times: string[]) =>
 
 /** The habit's reminder times: chips to remove, and a picker to add one more. */
 export function ReminderTimesField({ value, onChange }: ReminderTimesFieldProps) {
+  const { showTime } = useCalendarPrefs();
   const { colors } = useTheme();
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('08:00');
@@ -23,12 +25,12 @@ export function ReminderTimesField({ value, onChange }: ReminderTimesFieldProps)
             key={time}
             onPress={() => onChange(value.filter((t) => t !== time))}
             accessibilityRole="button"
-            accessibilityLabel={`Remover lembrete das ${time}`}
+            accessibilityLabel={`Remover lembrete das ${showTime(time)}`}
             style={[styles.time, { backgroundColor: colors.accentSoft }]}
           >
             <Bell size={16} color={colors.accent} />
             <Text variant="headline" tone="accent">
-              {time}
+              {showTime(time)}
             </Text>
             <X size={16} color={colors.accent} />
           </Pressable>

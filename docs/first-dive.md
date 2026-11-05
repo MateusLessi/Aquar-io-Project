@@ -20,7 +20,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | 4   | **Visualizações de rotina**: escolher a visualização, semana em colunas, no painel e em Rotinas  | ✓      |
 | 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ✓      |
 | 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ✓      |
-| 7   | **Ajustes completos**: personalização ampla do app                                               | ☐      |
+| 7   | **Ajustes completos**: personalização ampla do app                                               | ✓      |
 | 8   | **Perfil personalizável** com privacidade por informação                                         | ☐      |
 | 9   | **Boas-vindas imersivas** e quiz inicial                                                         | ☐      |
 | 10  | **Pronto para testadores**: marca, comunidade, Founding Diver, apagar conta, privacidade, GitHub | ☐      |
@@ -83,6 +83,8 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 ### 7. Ajustes completos
 
 Ver [recomendações](#recomendações-de-ajustes-e-perfil) abaixo.
+
+- **Feito:** página **Ajustes** com 9 seções (duas colunas no tablet e no PC). Detalhes em [settings.md](settings.md). Ficaram para depois: horário em que o dia vira, densidade compacta e cor de destaque (decidir na etapa 8).
 
 ### 8. Perfil personalizável
 

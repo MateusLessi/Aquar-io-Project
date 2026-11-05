@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Link2 } from 'lucide-react-native';
 
 import { Button, Screen, SegmentedControl } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { creatures } from '@/features/habits/domain/creatures';
 import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
@@ -31,6 +32,7 @@ export function aquariumTab(value: string | undefined): AquariumTab {
  * future modules join it here. The tab lives in the URL (`?tab=`), so links can open any of them.
  */
 export function AquariumScreen() {
+  const { showTime } = useCalendarPrefs();
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const tab = aquariumTab(params.tab);
@@ -59,7 +61,7 @@ export function AquariumScreen() {
           describe={(routine) =>
             inside('routine', routine.id).map((c) =>
               c.kind === 'habit'
-                ? `${creatures[c.habit.creature].emoji} ${c.habit.name}${c.link.at ? ` ${c.link.at}` : ''}`
+                ? `${creatures[c.habit.creature].emoji} ${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`
                 : c.kind === 'list'
                   ? `${c.list.emoji ?? '📋'} ${c.list.name}`
                   : `${c.folder.emoji ?? '📁'} ${c.folder.name}`,

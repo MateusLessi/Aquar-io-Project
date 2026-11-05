@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { addDays, fromDateKey } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { Button, Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design-system';
 
 import {
@@ -44,8 +45,9 @@ function nextRoutine(routines: RoutineToday[], todayKey: string) {
  */
 export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: WeekRibbonProps) {
   const { colors, scheme } = useTheme();
+  const { weekStart, showTime } = useCalendarPrefs();
   if (routines.length === 0) return null;
-  const days = weekDays(weekStartOf(todayKey));
+  const days = weekDays(weekStartOf(todayKey, weekStart));
   const hours = hourRange(routines);
   const y = (minutes: number) =>
     ((minutes - hours.from * 60) / ((hours.to - hours.from) * 60)) * HEIGHT;
@@ -74,7 +76,7 @@ export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: 
               accessibilityLabel={`${DAY_NAMES[date.getDay()]} ${date.getDate()}: ${
                 on.length === 0
                   ? 'sem rotinas'
-                  : on.map((r) => `${r.name} às ${r.start}`).join(', ')
+                  : on.map((r) => `${r.name} às ${showTime(r.start)}`).join(', ')
               }`}
               style={styles.day}
             >
@@ -131,7 +133,7 @@ export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: 
               Próxima: {next.routine.name}
             </Text>
             <Text variant="footnote" tone="secondary">
-              {next.routine.start}–{next.routine.end} · {next.when}
+              {showTime(next.routine.start)}–{showTime(next.routine.end)} · {next.when}
             </Text>
           </View>
         </View>

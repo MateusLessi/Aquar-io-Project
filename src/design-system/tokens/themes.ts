@@ -136,3 +136,24 @@ export const themeColors: Record<ColorScheme, ThemeColors> = {
   light: lightColors,
   dark: darkColors,
 };
+
+/**
+ * "Alto contraste": secondary and tertiary text close to the primary, firmer separators and
+ * borders, and glass edges that read clearly. Laid over the normal theme.
+ */
+export const highContrastColors: Record<ColorScheme, Partial<ThemeColors>> = {
+  light: {
+    textSecondary: '#24343F',
+    textTertiary: '#33495A',
+    separator: 'rgba(12, 40, 52, 0.24)',
+    border: abyss[500],
+    glassBorder: 'rgba(12, 40, 52, 0.32)',
+  },
+  dark: {
+    textSecondary: '#D3E0E6',
+    textTertiary: '#BACBD4',
+    separator: 'rgba(190, 210, 220, 0.3)',
+    border: abyss[400],
+    glassBorder: 'rgba(200, 230, 235, 0.38)',
+  },
+};

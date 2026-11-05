@@ -30,8 +30,8 @@ test('a habit bubbles; with sounds off, it stays quiet', async ({ page }) => {
   await expect(check).toHaveAttribute('aria-checked', 'true');
   await expect.poll(() => played(page)).toMatch(/habit/);
 
-  // Turn sounds off in Perfil → Sons e toque.
-  await page.goto('/profile');
+  // Turn sounds off in Ajustes → Sons, toque e lembretes.
+  await page.goto('/profile/settings?section=sounds');
   const sounds = visible(page.getByRole('switch', { name: 'Sons' }));
   await sounds.click();
   await expect(sounds).toHaveAttribute('aria-checked', 'false');

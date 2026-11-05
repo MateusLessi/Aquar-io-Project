@@ -14,6 +14,7 @@ import type { DataChanges } from '@/core/database/changes';
 import type { Database } from '@/core/database/types';
 import type { AccountService } from '@/core/sync/account';
 import { createSyncEngine } from '@/core/sync/syncEngine';
+import { wipeLocalData } from './data/localData';
 
 /** Local edits wait this long before uploading, so a burst of changes goes up together. */
 const EDIT_DEBOUNCE_MS = 1500;
@@ -29,6 +30,8 @@ export type AccountState = {
   signIn(email: string, password: string): Promise<void>;
   signUp(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
+  /** Deletes the account in the cloud and everything on this device. */
+  deleteAccount(): Promise<void>;
   syncNow(): void;
 };
 
@@ -140,9 +143,13 @@ function AccountSync({
       signIn: (to, password) => account.signIn(to.trim().toLowerCase(), password),
       signUp: (to, password) => account.signUp(to.trim().toLowerCase(), password),
       signOut: () => account.signOut(),
+      deleteAccount: async () => {
+        await account.deleteAccount();
+        await wipeLocalData(db, changes);
+      },
       syncNow,
     }),
-    [account, email, status, lastSyncedAt, syncNow],
+    [account, email, status, lastSyncedAt, syncNow, db, changes],
   );
 
   return <AccountContext.Provider value={value}>{children}</AccountContext.Provider>;

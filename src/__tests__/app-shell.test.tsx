@@ -10,6 +10,7 @@ import ListRoute from '@/app/(tabs)/aquarium/lists/[id]';
 import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
 import ProfileScreen from '@/app/(tabs)/profile/index';
+import SettingsRoute from '@/app/(tabs)/profile/settings';
 import ProfileLayout from '@/app/(tabs)/profile/_layout';
 import ShopScreen from '@/app/(tabs)/shop';
 import { createMemoryDatabase } from '@/core/database/testing';
@@ -52,6 +53,7 @@ const routes = {
   '(tabs)/shop': ShopScreen,
   '(tabs)/profile/_layout': ProfileLayout,
   '(tabs)/profile/index': ProfileScreen,
+  '(tabs)/profile/settings': SettingsRoute,
 };
 
 function setWindowWidth(width: number, fontScale = 1) {
@@ -117,7 +119,7 @@ describe('App shell on phones', () => {
   });
 
   it('lets the person choose reduce motion and transparency, over the system', async () => {
-    await renderRouter(routes, { initialUrl: '/profile' });
+    await renderRouter(routes, { initialUrl: '/profile/settings?section=accessibility' });
     const motion = screen.getByRole('switch', { name: 'Reduzir movimento' });
     expect(motion).not.toBeChecked();
     await fireEvent.press(motion);
@@ -125,7 +127,7 @@ describe('App shell on phones', () => {
   });
 
   it('switches the theme from Settings', async () => {
-    await renderRouter(routes, { initialUrl: '/profile' });
+    await renderRouter(routes, { initialUrl: '/profile/settings?section=appearance' });
     const dark = screen.getByRole('radio', { name: 'Escuro' });
     expect(dark).not.toBeChecked();
     await fireEvent.press(dark);
@@ -133,7 +135,7 @@ describe('App shell on phones', () => {
   });
 
   it('turns Modo Maré off from Settings and remembers it', async () => {
-    await renderRouter(routes, { initialUrl: '/profile' });
+    await renderRouter(routes, { initialUrl: '/profile/settings?section=tide' });
     expect(await screen.findByRole('radio', { name: 'Ligado' })).toBeChecked();
     await fireEvent.press(screen.getByRole('radio', { name: 'Desligado' }));
     expect(await screen.findByRole('radio', { name: 'Desligado' })).toBeChecked();
@@ -203,7 +205,7 @@ describe('Account and sync', () => {
     data = await createAppData(createMemoryDatabase(), undefined, account);
     await data.todo.createList({ name: 'Academia' });
 
-    await renderRouter(routes, { initialUrl: '/profile' });
+    await renderRouter(routes, { initialUrl: '/profile/settings?section=account' });
     await fireEvent.press(await screen.findByText('Sincronizar aparelhos'));
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Criar conta' }));

@@ -10,6 +10,7 @@ import {
   useTheme,
   withAlpha,
 } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { durationLabel } from '../domain/schedule';
 import type { RoutineToday } from '../domain/types';
@@ -75,6 +76,7 @@ function TimelineRow({
   onOpen: () => void;
   extra?: React.ReactNode;
 }) {
+  const { showTime } = useCalendarPrefs();
   const { colors, scheme } = useTheme();
   const tone = listColors[routine.color][scheme];
   const now = routine.phase === 'now';
@@ -91,7 +93,7 @@ function TimelineRow({
       {/* The timeline: time, a dot, and the line down to the next routine. */}
       <View style={styles.rail}>
         <Text variant="caption" tone={now ? 'primary' : 'tertiary'} style={styles.time}>
-          {routine.start}
+          {showTime(routine.start)}
         </Text>
         <View
           style={[
@@ -106,7 +108,7 @@ function TimelineRow({
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
-        accessibilityLabel={`${routine.name}, ${routine.start} às ${routine.end}, ${status}`}
+        accessibilityLabel={`${routine.name}, ${showTime(routine.start)} às ${showTime(routine.end)}, ${status}`}
         style={({ pressed }) => [
           styles.card,
           {
@@ -124,7 +126,7 @@ function TimelineRow({
             {routine.name}
           </Text>
           <Text variant="footnote" tone="secondary">
-            {routine.start}–{routine.end}
+            {showTime(routine.start)}–{showTime(routine.end)}
           </Text>
         </View>
         <Text variant="footnote" style={{ color: now ? tone : colors.textSecondary }}>

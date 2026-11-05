@@ -13,6 +13,8 @@ export type AccountService = {
   /** Creates the account and signs in (the project has e-mail confirmation turned off). */
   signUp(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
+  /** Deletes the account and everything in the cloud, then signs out here. */
+  deleteAccount(): Promise<void>;
   /** Pause token refresh while the app is in the background (native). */
   setForeground(foreground: boolean): void;
 };
@@ -69,6 +71,17 @@ export function createSupabaseAccount(supabase: SupabaseClient): AccountService 
     async signOut() {
       const { error } = await supabase.auth.signOut();
       if (error) throw friendly(error);
+    },
+    async deleteAccount() {
+      const { error } = await supabase.rpc('delete_my_account');
+      if (error) {
+        if (error.code === 'PGRST202' || error.message.includes('delete_my_account')) {
+          throw new AccountError('O servidor ainda não sabe apagar contas. Tente mais tarde.');
+        }
+        throw friendly(error);
+      }
+      // The user no longer exists on the server: forget the session on this device only.
+      await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
     },
     setForeground(foreground) {
       if (foreground) void supabase.auth.startAutoRefresh();

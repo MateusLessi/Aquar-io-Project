@@ -25,3 +25,6 @@ export const creatureIds = Object.keys(creatures) as CreatureId[];
 export function isCreatureId(value: string): value is CreatureId {
   return value in creatures;
 }
+
+/** Ajustes → Hábitos e jogo: the creature new habits start with. */
+export const DEFAULT_CREATURE_SETTING = 'habits.creature';

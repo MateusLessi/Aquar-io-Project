@@ -14,6 +14,7 @@ import {
   useTheme,
   withAlpha,
 } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { creatures } from '@/features/habits/domain/creatures';
 
 import { useConnect } from './ConnectProvider';
@@ -41,6 +42,7 @@ export function ConnectedSection({
   id: string;
   name: string;
 }) {
+  const { showTime } = useCalendarPrefs();
   const router = useRouter();
   const links = useLinks();
   const { open } = useConnect();
@@ -56,7 +58,7 @@ export function ConnectedSection({
         linkId: place.link.id,
         icon: place.routine.emoji ?? '⏱️',
         title: `Rotina ${place.routine.name}`,
-        hint: `${place.routine.start}–${place.routine.end}${place.link.at ? ` · às ${place.link.at}` : ''}`,
+        hint: `${showTime(place.routine.start)}–${showTime(place.routine.end)}${place.link.at ? ` · às ${showTime(place.link.at)}` : ''}`,
         open: () => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } }),
       });
     } else {

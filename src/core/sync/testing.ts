@@ -72,6 +72,10 @@ export function createMemoryAccount(remote: SyncRemote, signedInAs: string | nul
     async signOut() {
       set(null);
     },
+    async deleteAccount() {
+      if (email) passwords.delete(email);
+      set(null);
+    },
     setForeground: () => {},
   };
   return { account, accounts: passwords };

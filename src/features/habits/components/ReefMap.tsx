@@ -1,7 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Text, useTheme, withAlpha } from '@/design-system';
-import { addDays, weekdayOf } from '@/core/dates';
+import { addDays, startOfWeek, weekdayOrder } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { weekdayInitial } from '../domain/progress';
 
@@ -22,9 +23,11 @@ type ReefMapProps = {
  */
 export function ReefMap({ dayRatios, todayKey, startKey, tone }: ReefMapProps) {
   const { colors } = useTheme();
-  const firstSunday = addDays(todayKey, -weekdayOf(todayKey) - (WEEKS - 1) * 7);
+  const { weekStart } = useCalendarPrefs();
+  const firstDay = addDays(startOfWeek(todayKey, weekStart), -(WEEKS - 1) * 7);
+  const order = weekdayOrder(weekStart);
   const filled = Object.entries(dayRatios).filter(
-    ([day, ratio]) => day >= firstSunday && ratio >= 1,
+    ([day, ratio]) => day >= firstDay && ratio >= 1,
   ).length;
 
   return (
@@ -34,9 +37,9 @@ export function ReefMap({ dayRatios, todayKey, startKey, tone }: ReefMapProps) {
       style={styles.root}
     >
       <View style={styles.letters}>
-        {weekdayInitial.map((letter, row) => (
+        {order.map((d, row) => (
           <Text key={row} variant="caption" tone="tertiary" style={styles.letter}>
-            {row % 2 === 1 ? letter : ' '}
+            {row % 2 === 1 ? weekdayInitial[d] : ' '}
           </Text>
         ))}
       </View>
@@ -44,7 +47,7 @@ export function ReefMap({ dayRatios, todayKey, startKey, tone }: ReefMapProps) {
         {Array.from({ length: WEEKS }, (_, week) => (
           <View key={week} style={styles.column}>
             {Array.from({ length: 7 }, (_, row) => {
-              const day = addDays(firstSunday, week * 7 + row);
+              const day = addDays(firstDay, week * 7 + row);
               const ratio = dayRatios[day] ?? 0;
               const future = day > todayKey;
               const before = day < startKey;

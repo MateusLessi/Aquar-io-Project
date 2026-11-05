@@ -15,6 +15,7 @@ import {
   useTheme,
   withAlpha,
 } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { creatures } from '@/features/habits/domain/creatures';
 
 import type { ConnectItem, ConnectTarget } from './ConnectProvider';
@@ -57,6 +58,7 @@ export function ConnectMode({
   /** The time question and the "Desfazer" toast, drawn above the mode. */
   overlays: React.ReactNode;
 }) {
+  const { showTime } = useCalendarPrefs();
   const insets = useSafeAreaInsets();
   const { colors, scheme } = useTheme();
   const { habits, lists, folders, routines } = useConnections();
@@ -75,7 +77,7 @@ export function ConnectMode({
         key: `routine:${r.id}`,
         target: { kind: 'routine', id: r.id, name: r.name },
         label: `${r.emoji ?? '⏱️'} ${r.name}`,
-        hint: `${r.start}–${r.end}`,
+        hint: `${showTime(r.start)}–${showTime(r.end)}`,
         tone: listColors[r.color][scheme],
       })),
     },

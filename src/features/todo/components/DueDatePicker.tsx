@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { CalendarMonth, Chip, spacing } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { dueLabel, quickDueDates } from '../domain/dates';
 
@@ -17,6 +18,7 @@ export function DueDatePicker({ value, todayKey, onChange }: DueDatePickerProps)
   const quick = quickDueDates(todayKey);
   const isQuick = quick.some((q) => q.value === value);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const { weekStart } = useCalendarPrefs();
 
   return (
     <View style={styles.root}>
@@ -51,6 +53,7 @@ export function DueDatePicker({ value, todayKey, onChange }: DueDatePickerProps)
       </View>
       {calendarOpen ? (
         <CalendarMonth
+          weekStart={weekStart}
           value={value}
           today={todayKey}
           onChange={(day) => {

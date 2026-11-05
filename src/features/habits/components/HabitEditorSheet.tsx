@@ -19,9 +19,18 @@ import {
 } from '@/design-system';
 
 import { requestNotificationPermission } from '@/core/notifications';
+import { weekdayOrder } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
+import { useSetting } from '@/core/settings/useSetting';
 
 import { kindInfo } from '../domain/amount';
-import { creatureIds, creatures, type CreatureId } from '../domain/creatures';
+import {
+  DEFAULT_CREATURE_SETTING,
+  creatureIds,
+  creatures,
+  isCreatureId,
+  type CreatureId,
+} from '../domain/creatures';
 import { weekdayInitial, weekdayShort } from '../domain/progress';
 import {
   EVERY_DAY,
@@ -69,7 +78,18 @@ export function HabitEditorSheet({ visible, onClose, habit, ...actions }: HabitE
 
 function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheetProps, 'visible'>) {
   const [name, setName] = useState(habit?.name ?? '');
-  const [creature, setCreature] = useState<CreatureId>(habit?.creature ?? 'turtle');
+  const [storedCreature] = useSetting<string>(DEFAULT_CREATURE_SETTING, 'turtle');
+  const [creature, setCreature] = useState<CreatureId>(
+    habit?.creature ?? (isCreatureId(storedCreature) ? storedCreature : 'turtle'),
+  );
+  // The stored default may arrive after the first render: a new habit follows it until the
+  // person picks a creature.
+  const [seenDefault, setSeenDefault] = useState(storedCreature);
+  if (storedCreature !== seenDefault) {
+    setSeenDefault(storedCreature);
+    if (!habit && creature === seenDefault && isCreatureId(storedCreature))
+      setCreature(storedCreature);
+  }
   const [days, setDays] = useState<WeekdayMask>(habit?.days ?? EVERY_DAY);
   const [reminderTimes, setReminderTimes] = useState<string[]>(habit?.reminderTimes ?? []);
   const [kind, setKind] = useState<HabitKind>(habit?.kind ?? 'check');
@@ -451,10 +471,12 @@ function WeekdayPicker({
   tone: { light: string; dark: string };
 }) {
   const { colors, scheme } = useTheme();
+  const { weekStart } = useCalendarPrefs();
   const color = tone[scheme];
   return (
     <View style={styles.weekdays}>
-      {weekdayInitial.map((initial, i) => {
+      {weekdayOrder(weekStart).map((i) => {
+        const initial = weekdayInitial[i]!;
         const on = (value & (1 << i)) !== 0;
         return (
           <Pressable

@@ -11,6 +11,7 @@ import { appFonts, EmptyState, OceanBackground, ThemeProvider, useTheme } from '
 import {
   AppDataProvider,
   saveAccessibility,
+  saveTextScale,
   saveThemePreference,
   useAppDataBootstrap,
 } from '@/shell/AppData';
@@ -47,6 +48,12 @@ export default function RootLayout() {
       onAccessibilityChange={(key, value) => {
         saveAccessibility(boot.data, key, value).catch((error: unknown) =>
           console.warn('Could not save the accessibility choice.', error),
+        );
+      }}
+      initialTextScale={boot.data.textScale}
+      onTextScaleChange={(scale) => {
+        saveTextScale(boot.data, scale).catch((error: unknown) =>
+          console.warn('Could not save the text size.', error),
         );
       }}
       onPreferenceChange={(preference) => {

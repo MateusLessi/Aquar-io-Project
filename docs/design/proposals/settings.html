@@ -1,0 +1,201 @@
+<!doctype html>
+<!-- PROPOSAL: Ajustes completos for Checkpoint 050 (First Dive, etapa 7). Not app code. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Ajustes completos</title>
+<style>
+  @font-face { font-family: Outfit; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/outfit/700Bold/Outfit_700Bold.ttf); }
+  @font-face { font-family: Manrope; font-weight: 500; src: url(../../../node_modules/@expo-google-fonts/manrope/500Medium/Manrope_500Medium.ttf); }
+  @font-face { font-family: Manrope; font-weight: 700; src: url(../../../node_modules/@expo-google-fonts/manrope/700Bold/Manrope_700Bold.ttf); }
+  :root { --display: Outfit, system-ui, sans-serif; --text: Manrope, system-ui, sans-serif;
+    --top: #0b2129; --base: #07121a; --deep: #040b11; --raised: #0e1c26; --glass-border: rgba(140,200,210,.16);
+    --t1: #e6f0f4; --t2: #9db2be; --t3: #6a8291; --sep: rgba(157,178,190,.12); --accent: #5cc3bd; --coral: #ee8a73; --danger: #f08a8a; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--text); background: #0a1218; color: var(--t1); padding: 36px; width: 1300px; }
+  h1 { font-family: var(--display); font-size: 30px; }
+  h2 { font-family: var(--display); font-size: 21px; margin: 36px 0 14px; }
+  .lead { color: var(--t2); font-size: 15px; margin-top: 6px; max-width: 1180px; line-height: 22px; }
+  .lead b { color: var(--t1); }
+  .row { display: flex; gap: 36px; align-items: flex-start; }
+  .cap { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); margin-bottom: 10px; }
+  .phone { width: 360px; height: 760px; border-radius: 44px; overflow: hidden; background: linear-gradient(180deg, var(--top), var(--base) 35%, var(--deep));
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; padding: 50px 16px 16px; position: relative; }
+  .back { color: var(--accent); font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .big { font-family: var(--display); font-size: 28px; margin-bottom: 12px; }
+  .sec { font-size: 12px; font-weight: 700; color: var(--t3); letter-spacing: .07em; text-transform: uppercase; margin: 14px 4px 7px; }
+  .card { background: var(--raised); border-radius: 18px; overflow: hidden; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--sep); font-size: 15px; }
+  .item:last-child { border-bottom: 0; }
+  .item small { display: block; color: var(--t3); font-size: 12px; margin-top: 1px; }
+  .ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 16px; flex: none; }
+  .grow { flex: 1; min-width: 0; }
+  .chev { color: var(--t3); font-size: 18px; }
+  .val { color: var(--t2); font-size: 13px; }
+  .sw { width: 44px; height: 26px; border-radius: 13px; background: var(--accent); position: relative; flex: none; }
+  .sw::after { content: ''; position: absolute; right: 3px; top: 3px; width: 20px; height: 20px; border-radius: 10px; background: #fff; }
+  .sw.off { background: rgba(157,178,190,.25); } .sw.off::after { right: auto; left: 3px; }
+  .seg { display: flex; background: rgba(255,255,255,.05); border-radius: 999px; padding: 3px; margin: 4px 14px 12px; }
+  .seg span { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--t2); padding: 7px 0; border-radius: 999px; }
+  .seg span.on { background: rgba(255,255,255,.1); color: var(--t1); }
+  .label { padding: 10px 14px 0; font-size: 15px; }
+  .label small { display: block; color: var(--t3); font-size: 12px; }
+  .hero { display: flex; gap: 12px; align-items: center; background: var(--raised); border-radius: 20px; padding: 14px; margin-bottom: 12px; }
+  .avatar { width: 54px; height: 54px; border-radius: 27px; background: rgba(92,195,189,.2); display: grid; place-items: center; font-size: 28px; }
+  .btn { margin: 10px 14px 12px; text-align: center; padding: 11px; border-radius: 14px; background: rgba(92,195,189,.14); color: var(--accent); font-weight: 700; font-size: 14px; }
+  .btn.danger { background: rgba(240,138,138,.12); color: var(--danger); }
+  .note { font-size: 12px; color: var(--t3); margin: 6px 6px 0; line-height: 17px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; background: rgba(92,195,189,.18); color: var(--accent); margin-left: 6px; }
+  .wide { width: 1228px; height: 640px; border-radius: 28px; overflow: hidden; background: linear-gradient(180deg, var(--top), var(--base) 40%, var(--deep));
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 8px #02070b; display: flex; }
+  .rail { width: 330px; border-right: 1px solid var(--sep); padding: 24px 16px; }
+  .detail { flex: 1; padding: 24px 32px; }
+  .rail .item.on { background: rgba(92,195,189,.12); border-radius: 12px; }
+  .scope { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .box { background: var(--raised); border: 1px solid var(--glass-border); border-radius: 18px; padding: 16px 18px; font-size: 13.5px; line-height: 20px; color: var(--t2); }
+  .box h3 { font-family: var(--display); color: var(--t1); font-size: 17px; margin-bottom: 8px; }
+  .box li { margin: 0 0 5px 16px; } .box b { color: var(--t1); }
+  .dlg { position: absolute; left: 16px; right: 16px; bottom: 16px; background: #13242f; border: 1px solid rgba(240,138,138,.35); border-radius: 22px; padding: 16px; box-shadow: 0 -10px 40px rgba(0,0,0,.6); }
+  .dlg h4 { font-family: var(--display); font-size: 18px; margin-bottom: 6px; }
+  .dlg p { font-size: 13px; color: var(--t2); line-height: 18px; }
+  .input { margin-top: 10px; border: 1.5px solid rgba(240,138,138,.5); border-radius: 12px; padding: 10px 12px; font-size: 14px; color: var(--t1); letter-spacing: .1em; }
+</style>
+</head>
+<body>
+  <h1>Etapa 7 · Ajustes completos</h1>
+  <p class="lead">Hoje o Perfil mistura identidade e todos os ajustes numa página longa. A proposta separa: o <b>Perfil</b> fica com você (cabeçalho, Estatísticas e, na etapa 8, a personalização) e uma página nova, <b>Ajustes</b>, organiza tudo em <b>9 seções</b>, cada uma numa tela própria. No tablet e no PC, a lista de seções fica à esquerda e a seção aberta à direita. Cada ajuste vale <b>por aparelho</b>, como os de som.</p>
+
+  <div class="row" style="margin-top:24px">
+    <div>
+      <div class="cap">Celular · Ajustes</div>
+      <div class="phone">
+        <div class="back">‹ Perfil</div>
+        <div class="big">Ajustes</div>
+        <div class="card">
+          <div class="item"><div class="ico" style="background:rgba(182,151,222,.2)">🎨</div><div class="grow">Aparência<small>Tema, tamanho do texto</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(92,195,189,.2)">🏠</div><div class="grow">Início<small>Aba que abre o app, cartões do painel</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(111,169,224,.2)">📅</div><div class="grow">Calendário<small>Semana começa no domingo · 24 h</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(238,138,115,.2)">🔔</div><div class="grow">Sons, toque e lembretes<small>Volume, vibração, horário silencioso</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(134,191,127,.2)">🐢</div><div class="grow">Hábitos e jogo<small>Criatura padrão, Profundidade, comemorações</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(215,180,119,.2)">🌊</div><div class="grow">Modo Maré<small>Tela de descanso carregando</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(92,195,189,.2)">♿</div><div class="grow">Acessibilidade<small>Movimento, transparência, alto contraste</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(111,169,224,.2)">☁️</div><div class="grow">Conta e dados<small>Sincronização, exportar, apagar</small></div><span class="chev">›</span></div>
+          <div class="item"><div class="ico" style="background:rgba(157,178,190,.18)">ℹ️</div><div class="grow">Sobre o Aquar.io<small>Versão 1.0.0 · créditos</small></div><span class="chev">›</span></div>
+        </div>
+        <p class="note">Cada linha diz o valor atual, para você não precisar abrir para conferir.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="cap">Calendário</div>
+      <div class="phone">
+        <div class="back">‹ Ajustes</div>
+        <div class="big">Calendário</div>
+        <div class="card">
+          <div class="label">A semana começa<small>Vale na Semana das rotinas, nas Estatísticas e nos calendários</small></div>
+          <div class="seg"><span class="on">Domingo</span><span>Segunda</span></div>
+          <div class="label">Formato de hora<small>Ex.: 19:30 ou 7:30 PM</small></div>
+          <div class="seg"><span class="on">24 horas</span><span>12 horas</span></div>
+        </div>
+        <div class="sec">Início · cartões do painel</div>
+        <div class="card">
+          <div class="item"><div class="grow">Maré do dia</div><span class="val">sempre</span></div>
+          <div class="item"><div class="grow">Profundidade</div><span class="val">↑ ↓</span><div class="sw"></div></div>
+          <div class="item"><div class="grow">Esta semana</div><span class="val">↑ ↓</span><div class="sw"></div></div>
+          <div class="item"><div class="grow">Rotinas e Sua semana</div><span class="val">↑ ↓</span><div class="sw"></div></div>
+          <div class="item"><div class="grow">Hábitos de hoje</div><span class="val">↑ ↓</span><div class="sw"></div></div>
+          <div class="item"><div class="grow">Tarefas de hoje</div><span class="val">↑ ↓</span><div class="sw"></div></div>
+          <div class="item"><div class="grow">Pastas fixadas</div><span class="val">↑ ↓</span><div class="sw off"></div></div>
+        </div>
+        <p class="note">Mostrado aqui junto só para a prévia: os cartões ficam na seção Início. As setas ↑ ↓ reordenam (funcionam com leitor de tela).</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="cap">Conta e dados · apagar</div>
+      <div class="phone">
+        <div class="back">‹ Ajustes</div>
+        <div class="big">Conta e dados</div>
+        <div class="card">
+          <div class="item"><div class="grow">Sincronização<small>mateus@… · sincronizado agora</small></div><span class="chev">›</span></div>
+        </div>
+        <div class="sec">Seus dados</div>
+        <div class="card">
+          <div class="item"><div class="grow">Exportar tudo<small>Um arquivo JSON com listas, tarefas, hábitos, rotinas e ligações, mais um CSV das tarefas</small></div></div>
+          <div class="btn">⤓ Exportar meus dados</div>
+        </div>
+        <div class="sec">Zona de perigo</div>
+        <div class="card">
+          <div class="btn danger">Apagar os dados deste aparelho</div>
+          <div class="btn danger">Apagar minha conta</div>
+        </div>
+        <div class="dlg">
+          <h4>Apagar sua conta?</h4>
+          <p>Seus dados somem da nuvem e de todos os aparelhos. Não dá para desfazer. Antes, você pode exportar uma cópia.</p>
+          <div class="input">Digite APAGAR para confirmar</div>
+          <div class="btn danger" style="margin:10px 0 0">Apagar para sempre</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Tablet e PC · duas colunas</h2>
+  <div class="wide">
+    <div class="rail">
+      <div class="big">Ajustes</div>
+      <div class="item"><div class="ico" style="background:rgba(182,151,222,.2)">🎨</div><div class="grow">Aparência</div></div>
+      <div class="item"><div class="ico" style="background:rgba(92,195,189,.2)">🏠</div><div class="grow">Início</div></div>
+      <div class="item"><div class="ico" style="background:rgba(111,169,224,.2)">📅</div><div class="grow">Calendário</div></div>
+      <div class="item on"><div class="ico" style="background:rgba(238,138,115,.2)">🔔</div><div class="grow">Sons, toque e lembretes</div></div>
+      <div class="item"><div class="ico" style="background:rgba(134,191,127,.2)">🐢</div><div class="grow">Hábitos e jogo</div></div>
+      <div class="item"><div class="ico" style="background:rgba(215,180,119,.2)">🌊</div><div class="grow">Modo Maré</div></div>
+      <div class="item"><div class="ico" style="background:rgba(92,195,189,.2)">♿</div><div class="grow">Acessibilidade</div></div>
+      <div class="item"><div class="ico" style="background:rgba(111,169,224,.2)">☁️</div><div class="grow">Conta e dados</div></div>
+      <div class="item"><div class="ico" style="background:rgba(157,178,190,.18)">ℹ️</div><div class="grow">Sobre o Aquar.io</div></div>
+    </div>
+    <div class="detail">
+      <div class="big">Sons, toque e lembretes</div>
+      <div class="row" style="gap:20px">
+        <div style="flex:1">
+          <div class="sec">Sons e toque</div>
+          <div class="card">
+            <div class="item"><div class="grow">Sons<small>Gotas, bolhas e sinos ao concluir</small></div><div class="sw"></div></div>
+            <div class="item"><div class="grow">Volume · 60%</div></div>
+            <div class="item"><div class="grow">Conclusões · Celebrações · Conectar</div><div class="sw"></div></div>
+            <div class="item"><div class="grow">Vibração</div><div class="sw"></div></div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="sec">Lembretes</div>
+          <div class="card">
+            <div class="item"><div class="grow">Lembretes<small>Hábitos, tarefas e rotinas</small></div><div class="sw"></div></div>
+            <div class="item"><div class="grow">Horário silencioso <span class="pill">novo</span><small>Nada toca das 22:00 às 07:00</small></div><div class="sw"></div></div>
+          </div>
+          <p class="note">Um lembrete marcado dentro do horário silencioso não toca; ele continua aparecendo no app.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>O que entra agora e o que fica para depois</h2>
+  <div class="scope">
+    <div class="box"><h3>Entra na etapa 7</h3><ul>
+      <li><b>Organização nova:</b> Perfil + página Ajustes com 9 seções (2 colunas no tablet/PC).</li>
+      <li><b>Aparência:</b> tema (já existe) e <b>tamanho do texto</b> (padrão, grande, maior).</li>
+      <li><b>Início:</b> qual aba abre o app; <b>cartões do painel</b>: mostrar/esconder e reordenar.</li>
+      <li><b>Calendário:</b> semana começa no <b>domingo ou segunda</b> em todo o app; hora <b>24 h ou 12 h</b>.</li>
+      <li><b>Lembretes:</b> <b>horário silencioso</b>.</li>
+      <li><b>Hábitos e jogo:</b> criatura padrão dos hábitos novos; mostrar ou esconder Profundidade e pontos; ligar ou desligar os banners de comemoração.</li>
+      <li><b>Acessibilidade:</b> os dois atuais + <b>alto contraste</b>.</li>
+      <li><b>Conta e dados:</b> <b>exportar</b> (JSON + CSV), apagar os dados do aparelho, <b>apagar a conta</b> (com um SQL novo no Supabase e confirmação digitando APAGAR).</li>
+      <li><b>Sobre:</b> versão, créditos (sons feitos aqui, fontes), links da comunidade quando existirem.</li>
+    </ul></div>
+    <div class="box"><h3>Fica para depois (com o motivo)</h3><ul>
+      <li><b>Horário em que o dia vira</b> (para quem dorme tarde): muda a definição de "hoje" em hábitos, rotinas, maré, estatísticas e sincronização. É ótimo, mas arriscado de mexer antes do lançamento. Vai para a primeira atualização.</li>
+      <li><b>Densidade compacta:</b> exige revisar o espaçamento de todas as telas. Também fica para depois.</li>
+      <li><b>Cor de destaque:</b> conversa com a identidade da marca e com a "cor do perfil" da etapa 8. Decidimos lá.</li>
+    </ul>
+    <p style="margin-top:10px">Nenhum ajuste aqui é de enfeite: cada um muda de verdade o app, e ganha teste automático.</p></div>
+  </div>
+</body>
+</html>

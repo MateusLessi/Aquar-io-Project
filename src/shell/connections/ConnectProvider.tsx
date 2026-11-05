@@ -20,6 +20,7 @@ import {
   type LinkTargetKind,
 } from '@/core/links/linksRepository';
 import { Sheet, Text, haptics, radius, sound, spacing, useTheme } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { creatures } from '@/features/habits/domain/creatures';
 import { MAX_FOLDER_DEPTH } from '@/features/todo/domain/validation';
 import { useTodo } from '@/features/todo/hooks/todoContext';
@@ -277,6 +278,7 @@ function ConnectSheet({
   request: ConnectRequest | null;
   onClose: () => void;
 }) {
+  const { showTime } = useCalendarPrefs();
   const { connect, accepts } = useConnect();
   const { colors } = useTheme();
   const { habits, lists, folders, routines, inside, placesOf } = useConnections();
@@ -295,7 +297,7 @@ function ConnectSheet({
       return {
         key: `routine:${r.id}`,
         label: `${r.emoji ?? '⏱️'} ${r.name}`,
-        hint: `${r.start}–${r.end}`,
+        hint: `${showTime(r.start)}–${showTime(r.end)}`,
         icon: null,
         done,
         onPress: done ? undefined : () => connect(item, target),

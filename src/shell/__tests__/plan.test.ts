@@ -1,7 +1,7 @@
 import { habitProgress } from '@/features/habits/domain/progress';
 import type { HabitWithProgress } from '@/features/habits/domain/types';
 
-import { MAX_SCHEDULED, planReminders } from '../reminders/plan';
+import { MAX_SCHEDULED, inQuietHours, parseQuietHours, planReminders } from '../reminders/plan';
 
 // Wednesday 2026-10-21, 12:30 local time.
 const now = new Date(2026, 9, 21, 12, 30);
@@ -136,5 +136,25 @@ describe('planReminders', () => {
     // Not while stopped.
     const stopped = habit({ kind: 'time', target: 20, reminderTimes: [] });
     expect(planReminders({ habits: [stopped], tasks: [], now }).length).toBe(0);
+  });
+});
+
+describe('quiet hours', () => {
+  it('reads the setting and keeps only valid windows', () => {
+    expect(parseQuietHours('22:00-07:00')).toEqual({ from: '22:00', to: '07:00' });
+    expect(parseQuietHours('')).toBeNull();
+    expect(parseQuietHours('08:00-08:00')).toBeNull();
+  });
+
+  it('covers windows across midnight and within a day', () => {
+    const at = (h: number, m = 0) => new Date(2026, 10, 5, h, m);
+    const night = { from: '22:00', to: '07:00' };
+    expect(inQuietHours(at(23), night)).toBe(true);
+    expect(inQuietHours(at(6, 59), night)).toBe(true);
+    expect(inQuietHours(at(7), night)).toBe(false);
+    expect(inQuietHours(at(12), night)).toBe(false);
+    const lunch = { from: '12:00', to: '13:30' };
+    expect(inQuietHours(at(12, 45), lunch)).toBe(true);
+    expect(inQuietHours(at(13, 30), lunch)).toBe(false);
   });
 });

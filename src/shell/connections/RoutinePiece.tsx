@@ -18,6 +18,7 @@ import {
   useTheme,
   withAlpha,
 } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { HabitCapsule } from '@/features/habits/components/HabitCapsule';
 import { HabitControl, useLiveAmount } from '@/features/habits/components/HabitCard';
 import { amountLabel } from '@/features/habits/domain/amount';
@@ -46,7 +47,11 @@ type RoutinePieceProps = {
 };
 
 /** "3 passos", "18:10 Beber água"…: what the closed piece promises inside. */
-function badges(routine: RoutineToday, inside: Connected[]): string[] {
+function badges(
+  routine: RoutineToday,
+  inside: Connected[],
+  showTime: (hhmm: string) => string,
+): string[] {
   const out: string[] = [];
   if (routine.items.length > 0) {
     const done = routine.items.filter((i) => i.done).length;
@@ -55,7 +60,7 @@ function badges(routine: RoutineToday, inside: Connected[]): string[] {
   for (const c of inside.filter((c) => c.kind === 'habit').slice(0, 2)) {
     if (c.kind === 'habit') {
       out.push(
-        `${creatures[c.habit.creature].emoji} ${c.habit.name}${c.link.at ? ` ${c.link.at}` : ''}`,
+        `${creatures[c.habit.creature].emoji} ${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`,
       );
     }
   }
@@ -81,6 +86,7 @@ export function RoutinePiece({
   onConnect,
   initiallyOpen = false,
 }: RoutinePieceProps) {
+  const { showTime } = useCalendarPrefs();
   const router = useRouter();
   const links = useLinks();
   const routines = useRoutinesRepository();
@@ -93,11 +99,11 @@ export function RoutinePiece({
   const now = routine.phase === 'now';
   const status =
     routine.phase === 'now'
-      ? `Agora · até ${routine.end}`
+      ? `Agora · até ${showTime(routine.end)}`
       : routine.phase === 'upcoming'
-        ? `${routine.start}–${routine.end} · em ${durationLabel(routine.minutesLeft)}`
-        : `${routine.start}–${routine.end}`;
-  const tags = badges(routine, inside);
+        ? `${showTime(routine.start)}–${showTime(routine.end)} · em ${durationLabel(routine.minutesLeft)}`
+        : `${showTime(routine.start)}–${showTime(routine.end)}`;
+  const tags = badges(routine, inside, showTime);
   const toggle = () => {
     haptics.selection();
     setOpen((v) => !v);
@@ -345,6 +351,7 @@ export function HabitInPiece({
   onTime: () => void;
   onUnlink: () => void;
 }) {
+  const { showTime } = useCalendarPrefs();
   const { scheme } = useTheme();
   const tone = listColors[creatures[habit.creature].color][scheme];
   const amount = useLiveAmount(habit);
@@ -354,12 +361,12 @@ export function HabitInPiece({
       <Pressable
         onPress={onTime}
         accessibilityRole="button"
-        accessibilityLabel={at ? `Horário ${at}. Mudar` : 'Sem horário. Escolher'}
+        accessibilityLabel={at ? `Horário ${showTime(at)}. Mudar` : 'Sem horário. Escolher'}
         hitSlop={6}
         style={styles.time}
       >
         <Text variant="caption" tone={at ? 'secondary' : 'tertiary'} style={styles.bold}>
-          {at ?? '––:––'}
+          {at ? showTime(at) : '––:––'}
         </Text>
       </Pressable>
       <HabitCapsule

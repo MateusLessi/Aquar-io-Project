@@ -7,6 +7,8 @@ import type { Database } from '@/core/database/types';
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { createEventLog, type EventLog } from '@/core/events/eventLog';
 import { EventsContext } from '@/core/events/eventsContext';
+import { DatabaseContext } from './data/useDatabase';
+import { CalendarPrefsProvider } from './settings/prefs';
 import { newId } from '@/core/ids';
 import { LinksContext } from '@/core/links/linksContext';
 import { createLinksRepository, type LinksRepository } from '@/core/links/linksRepository';
@@ -49,6 +51,8 @@ export type AppData = {
   themePreference: ThemePreference;
   /** The person's accessibility choices (null: follow the device). */
   accessibility: AccessibilityChoices;
+  /** Text size chosen in Ajustes → Aparência. */
+  textScale: number;
 };
 
 const THEME_KEY = 'theme';
@@ -82,7 +86,10 @@ export async function createAppData(
   const accessibility: AccessibilityChoices = {
     reduceMotion: choice(await settings.get('reduceMotion')),
     reduceTransparency: choice(await settings.get('reduceTransparency')),
+    highContrast: choice(await settings.get('highContrast')),
   };
+  const storedScale = Number(await settings.get(TEXT_SCALE_KEY));
+  const textScale = TEXT_SCALES.includes(storedScale) ? storedScale : 1;
   return {
     db,
     account,
@@ -96,6 +103,7 @@ export async function createAppData(
     links,
     themePreference,
     accessibility,
+    textScale,
   } satisfies AppData;
 }
 
@@ -139,21 +147,25 @@ export function AppDataProvider({ data, children }: { data: AppData; children: R
   return (
     <DataChangesContext.Provider value={data.changes}>
       <EventsContext.Provider value={data.events}>
-        <SettingsContext.Provider value={data.settings}>
-          <TodoContext.Provider value={data.todo}>
-            <HabitsContext.Provider value={data.habits}>
-              <RoutinesContext.Provider value={data.routines}>
-                <ProfileContext.Provider value={data.profile}>
-                  <LinksContext.Provider value={data.links}>
-                    <AccountProvider account={data.account} db={data.db} changes={data.changes}>
-                      {children}
-                    </AccountProvider>
-                  </LinksContext.Provider>
-                </ProfileContext.Provider>
-              </RoutinesContext.Provider>
-            </HabitsContext.Provider>
-          </TodoContext.Provider>
-        </SettingsContext.Provider>
+        <DatabaseContext.Provider value={data.db}>
+          <SettingsContext.Provider value={data.settings}>
+            <TodoContext.Provider value={data.todo}>
+              <HabitsContext.Provider value={data.habits}>
+                <RoutinesContext.Provider value={data.routines}>
+                  <ProfileContext.Provider value={data.profile}>
+                    <LinksContext.Provider value={data.links}>
+                      <CalendarPrefsProvider>
+                        <AccountProvider account={data.account} db={data.db} changes={data.changes}>
+                          {children}
+                        </AccountProvider>
+                      </CalendarPrefsProvider>
+                    </LinksContext.Provider>
+                  </ProfileContext.Provider>
+                </RoutinesContext.Provider>
+              </HabitsContext.Provider>
+            </TodoContext.Provider>
+          </SettingsContext.Provider>
+        </DatabaseContext.Provider>
       </EventsContext.Provider>
     </DataChangesContext.Provider>
   );
@@ -164,6 +176,13 @@ export const saveAccessibility = (
   key: keyof AccessibilityChoices,
   value: boolean | null,
 ) => data.settings.set(key, value === null ? '' : value ? 'on' : 'off');
+
+/** Text sizes offered in Ajustes: padrão, grande, maior. */
+export const TEXT_SCALES = [1, 1.15, 1.3];
+const TEXT_SCALE_KEY = 'textScale';
+
+export const saveTextScale = (data: AppData, scale: number) =>
+  data.settings.set(TEXT_SCALE_KEY, String(scale));
 
 export const saveThemePreference = (data: AppData, preference: ThemePreference) =>
   data.settings.set(THEME_KEY, preference);

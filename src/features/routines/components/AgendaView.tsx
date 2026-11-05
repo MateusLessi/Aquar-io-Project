@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { addDays, fromDateKey } from '@/core/dates';
 import { Text, listColors, radius, spacing, useTheme } from '@/design-system';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { durationLabel, routinesOn } from '../domain/schedule';
 import type { RoutineToday } from '../domain/types';
@@ -78,6 +79,7 @@ function AgendaRow({
   extras: string[];
   onPress: () => void;
 }) {
+  const { showTime } = useCalendarPrefs();
   const { colors, scheme } = useTheme();
   const tone = listColors[routine.color][scheme];
   const total = routine.items.length;
@@ -98,7 +100,7 @@ function AgendaRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${routine.name}, ${routine.start} às ${routine.end}${meta.length ? `, ${meta.join(', ')}` : ''}`}
+      accessibilityLabel={`${routine.name}, ${showTime(routine.start)} às ${showTime(routine.end)}${meta.length ? `, ${meta.join(', ')}` : ''}`}
       style={({ pressed }) => [
         styles.row,
         {
@@ -112,10 +114,10 @@ function AgendaRow({
       <View style={[styles.bar, { backgroundColor: tone }]} />
       <View style={styles.time}>
         <Text variant="caption" tone="secondary">
-          {routine.start}
+          {showTime(routine.start)}
         </Text>
         <Text variant="caption" tone="tertiary">
-          {routine.end}
+          {showTime(routine.end)}
         </Text>
       </View>
       <View style={styles.flex}>
