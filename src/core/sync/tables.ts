@@ -154,6 +154,17 @@ export const syncedTables: readonly SyncedTable[] = [
     name: 'profile',
     topic: 'profile',
     conflictKey: 'user_id,id',
-    columns: ['id', 'name', 'creature', 'created_at', 'updated_at', 'deleted_at'],
+    columns: [
+      'id',
+      'name',
+      'creature',
+      'bio',
+      'color',
+      'showcase',
+      'privacy',
+      'created_at',
+      'updated_at',
+      'deleted_at',
+    ],
   },
 ];

@@ -308,6 +308,18 @@ export const migrations: Migration[] = [
     // week view.
     sql: `ALTER TABLE routines ADD COLUMN tag TEXT;`,
   },
+  {
+    version: 11,
+    name: 'profile_card',
+    // The profile card: a short line, a color, the three showcase picks and who may see what
+    // (JSON, "me" by default). Showcase and badges are computed; only the picks are stored.
+    sql: `
+      ALTER TABLE profile ADD COLUMN bio TEXT;
+      ALTER TABLE profile ADD COLUMN color TEXT;
+      ALTER TABLE profile ADD COLUMN showcase TEXT;
+      ALTER TABLE profile ADD COLUMN privacy TEXT;
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

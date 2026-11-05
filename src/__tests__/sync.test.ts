@@ -177,13 +177,26 @@ describe('profile sync', () => {
     await phone.data.profile.set({ name: 'Mateus', creature: 'turtle' });
     await phone.sync.sync();
     await tablet.sync.sync();
-    expect(await tablet.data.profile.get()).toEqual({ name: 'Mateus', creature: 'turtle' });
+    expect(await tablet.data.profile.get()).toMatchObject({ name: 'Mateus', creature: 'turtle' });
+    clock.now = new Date('2026-10-23T10:30:00.000Z');
+    await phone.data.profile.set({
+      bio: 'Um mergulho por dia',
+      color: 'anemone',
+      showcase: ['tides'],
+    });
+    await phone.sync.sync();
+    await tablet.sync.sync();
+    expect(await tablet.data.profile.get()).toMatchObject({
+      bio: 'Um mergulho por dia',
+      color: 'anemone',
+      showcase: ['tides'],
+    });
 
     clock.now = new Date('2026-10-23T11:00:00.000Z');
     await tablet.data.profile.set({ name: 'Mateus L.', creature: 'whale' });
     await tablet.sync.sync();
     await phone.sync.sync();
-    expect(await phone.data.profile.get()).toEqual({ name: 'Mateus L.', creature: 'whale' });
+    expect(await phone.data.profile.get()).toMatchObject({ name: 'Mateus L.', creature: 'whale' });
   });
 
   it('carries over a profile saved in the device settings before sync existed', async () => {
@@ -192,7 +205,7 @@ describe('profile sync', () => {
     await first.settings.set('profileName', 'Mateus');
     await first.settings.set('profileCreature', 'octopus');
     const again = await createAppData(db);
-    expect(await again.profile.get()).toEqual({ name: 'Mateus', creature: 'octopus' });
+    expect(await again.profile.get()).toMatchObject({ name: 'Mateus', creature: 'octopus' });
   });
 });
 

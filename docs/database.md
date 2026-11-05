@@ -154,3 +154,7 @@ Detalhes em [connections.md](connections.md).
 - `habit_progress(habit_id, date)`: progresso parcial de um hábito.
 
 > **Índice:** uma estrutura auxiliar que o banco mantém para encontrar linhas rapidamente, como o índice remissivo de um livro. Acelera leituras e deixa as escritas um pouco mais lentas, por isso só criamos os que serão usados.
+
+## Cartão do perfil (migration 11)
+
+`profile` ganha `bio` (até 80 caracteres), `color` (nome de cor de lista ou nulo), `showcase` (JSON: até 3 escolhas) e `privacy` (JSON por campo: `me`, `friends`, `public`; o padrão e qualquer valor inválido viram `me`). Supabase: `supabase/migrations/20261106000000_profile_card.sql`.

@@ -21,7 +21,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | 5   | **Estatísticas**: semanal e mensal, gráficos e tabelas                                           | ✓      |
 | 6   | **Sons e toque**: recompensa sonora e vibração em cada conclusão                                 | ✓      |
 | 7   | **Ajustes completos**: personalização ampla do app                                               | ✓      |
-| 8   | **Perfil personalizável** com privacidade por informação                                         | ☐      |
+| 8   | **Perfil personalizável** com privacidade por informação                                         | ✓      |
 | 9   | **Boas-vindas imersivas** e quiz inicial                                                         | ☐      |
 | 10  | **Pronto para testadores**: marca, comunidade, Founding Diver, apagar conta, privacidade, GitHub | ☐      |
 | 11  | **Lançamento**: tag `v1.0.0`, Release "First Dive", site fixo, APK, anúncio                      | ☐      |
@@ -90,6 +90,7 @@ Ver [recomendações](#recomendações-de-ajustes-e-perfil) abaixo.
 
 - Avatar (criatura), cor/tema do perfil, frase, selos exibidos, destaques (zona de Profundidade, criatura favorita, sequência).
 - **Privacidade por informação:** público / só amigos / só eu, já preparado para quando os perfis forem visíveis. **Padrão: só eu.**
+- **Feito:** cartão com faixa na cor do perfil, frase, vitrine (3 destaques) e 14 selos calculados; privacidade por campo. A cor do perfil vale só no cartão; o app mantém o turquesa da marca. Detalhes em [profile.md](profile.md).
 
 ### 9. Boas-vindas imersivas e quiz
 
