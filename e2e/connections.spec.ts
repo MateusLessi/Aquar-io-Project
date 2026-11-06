@@ -43,7 +43,7 @@ test('connect a list and a habit to a routine, by menu and by dragging', async (
   await page.goto('/aquarium?tab=lists');
   await visible(page.getByRole('button', { name: 'Conectar', exact: true })).click();
   // The mode slides up: measure where things are only after it settles.
-  await expect(page.getByText(/Segure um item da bandeja/)).toBeVisible();
+  await expect(page.getByText(/Arraste um item até o destino/)).toBeVisible();
   await page.waitForTimeout(800);
   const chip = (await page
     .getByRole('button', { name: /^Treino A/ })
