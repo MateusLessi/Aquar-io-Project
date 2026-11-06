@@ -13,18 +13,30 @@ import { ReduceMotion, ReducedMotionConfig } from 'react-native-reanimated';
 
 import {
   breakpointForWidth,
+  colorsFor,
   highContrastColors,
-  themeColors,
+  schemeOfMode,
+  zoneWater,
   type Breakpoint,
   type ColorScheme,
   type ThemeColors,
+  type ThemeMode,
+  type ZoneId,
+  type ZoneWater,
 } from '../tokens';
 
-export type ThemePreference = 'system' | ColorScheme;
+export type ThemePreference = 'system' | ThemeMode;
 
 export type Theme = {
+  /** Text tone: 'dark' for Escuro and Crystal, 'light' for Claro. */
   scheme: ColorScheme;
+  /** Escuro, Claro or Crystal. */
+  mode: ThemeMode;
   colors: ThemeColors;
+  /** The depth zone the person is in: the whole app takes its water and light. */
+  zone: ZoneId;
+  water: ZoneWater;
+  setZone: (zone: ZoneId) => void;
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
   /** Effective "Reduce Transparency": the person's choice, or the OS setting. Glass becomes solid. */
@@ -88,6 +100,9 @@ type ThemeProviderProps = {
   onAccessibilityChange?: (key: keyof AccessibilityChoices, value: boolean | null) => void;
   initialTextScale?: number;
   onTextScaleChange?: (scale: number) => void;
+  initialZone?: ZoneId;
+  /** Called when the zone changes, so the app can open in the right colors next time. */
+  onZoneChange?: (zone: ZoneId) => void;
 };
 
 export function ThemeProvider({
@@ -98,6 +113,8 @@ export function ThemeProvider({
   onAccessibilityChange,
   initialTextScale = 1,
   onTextScaleChange,
+  initialZone = 'surface',
+  onZoneChange,
 }: ThemeProviderProps) {
   const systemScheme = useColorScheme();
   const [preference, setPreferenceState] = useState<ThemePreference>(initialPreference);
@@ -123,6 +140,17 @@ export function ThemeProvider({
     setTextScaleState(scale);
     onTextScaleRef.current?.(scale);
   }, []);
+  const [zone, setZoneState] = useState<ZoneId>(initialZone);
+  const onZoneRef = useRef(onZoneChange);
+  useEffect(() => {
+    onZoneRef.current = onZoneChange;
+  });
+  const setZone = useCallback((next: ZoneId) => {
+    setZoneState((current) => {
+      if (current !== next) onZoneRef.current?.(next);
+      return next;
+    });
+  }, []);
   const onAccessibilityRef = useRef(onAccessibilityChange);
   useEffect(() => {
     onAccessibilityRef.current = onAccessibilityChange;
@@ -145,15 +173,23 @@ export function ThemeProvider({
   const reduceTransparency = accessibility.reduceTransparency ?? systemReduceTransparency;
   const highContrast = accessibility.highContrast ?? false;
 
-  const scheme: ColorScheme =
+  const mode: ThemeMode =
     preference === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : preference;
+  const scheme = schemeOfMode(mode);
+
+  const colors = useMemo(() => {
+    const base = colorsFor(mode, zone);
+    return highContrast ? { ...base, ...highContrastColors[mode] } : base;
+  }, [mode, zone, highContrast]);
 
   const value = useMemo<Theme>(
     () => ({
       scheme,
-      colors: highContrast
-        ? { ...themeColors[scheme], ...highContrastColors[scheme] }
-        : themeColors[scheme],
+      mode,
+      colors,
+      zone,
+      water: zoneWater[zone],
+      setZone,
       preference,
       setPreference,
       reduceTransparency,
@@ -168,6 +204,10 @@ export function ThemeProvider({
     }),
     [
       scheme,
+      mode,
+      colors,
+      zone,
+      setZone,
       preference,
       setPreference,
       reduceTransparency,

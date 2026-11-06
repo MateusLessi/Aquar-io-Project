@@ -249,7 +249,7 @@ function Catalog() {
             <TextInput label="Desabilitado" value="Somente leitura" disabled />
           </Section>
 
-          <Section title="Tipografia (Outfit + Manrope)">
+          <Section title="Tipografia (Plus Jakarta Sans)">
             <Surface style={styles.padded}>
               {typeSamples.map(({ variant, sample }) => (
                 <View key={variant} style={styles.typeRow}>

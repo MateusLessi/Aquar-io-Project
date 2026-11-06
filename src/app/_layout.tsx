@@ -13,8 +13,10 @@ import {
   saveAccessibility,
   saveTextScale,
   saveThemePreference,
+  saveZone,
   useAppDataBootstrap,
 } from '@/shell/AppData';
+import { ZoneTheme } from '@/shell/theme/ZoneTheme';
 
 // Keep the splash screen until fonts and data are ready, so nothing flashes.
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -50,6 +52,12 @@ export default function RootLayout() {
           console.warn('Could not save the accessibility choice.', error),
         );
       }}
+      initialZone={boot.data.zone}
+      onZoneChange={(zone) => {
+        saveZone(boot.data, zone).catch((error: unknown) =>
+          console.warn('Could not save the zone.', error),
+        );
+      }}
       initialTextScale={boot.data.textScale}
       onTextScaleChange={(scale) => {
         saveTextScale(boot.data, scale).catch((error: unknown) =>
@@ -63,6 +71,7 @@ export default function RootLayout() {
       }}
     >
       <AppDataProvider data={boot.data}>
+        <ZoneTheme />
         <ThemedStack />
       </AppDataProvider>
     </ThemeProvider>

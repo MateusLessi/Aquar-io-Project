@@ -1,10 +1,13 @@
 import {
+  colorsFor,
+  crystalComposite,
   highContrastColors,
   listColorNames,
   listColors,
   oceanDepths,
   specular,
   themeColors,
+  zoneIds,
   type ColorScheme,
 } from '../tokens';
 import { contrastRatio } from '../utils/contrast';
@@ -78,5 +81,35 @@ describe('welcome dive', () => {
     for (const depth of oceanDepths) {
       expect(contrastRatio(specular, depth.top)).toBeGreaterThanOrEqual(4.5);
     }
+  });
+});
+
+describe.each(zoneIds)('zone %s', (zone) => {
+  const text = ['textPrimary', 'textSecondary', 'textTertiary', 'accent'] as const;
+
+  it.each(['dark', 'light'] as const)('%s: text and accents are readable on surfaces', (mode) => {
+    const c = colorsFor(mode, zone);
+    for (const background of [c.surfaceRaised, c.surfaceBase, c.surfaceTop]) {
+      for (const token of text) {
+        expect(contrastRatio(c[token], background)).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    }
+    expect(contrastRatio(c.onAccent, c.accent)).toBeGreaterThanOrEqual(AA_TEXT);
+    for (const background of [c.deepTop, c.deepBottom]) {
+      for (const token of ['onDeep', 'onDeepSecondary', 'deepAccent'] as const) {
+        expect(contrastRatio(c[token], background)).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    }
+  });
+
+  it('crystal: text is readable on glass over the water', () => {
+    const c = colorsFor('crystal', zone);
+    const backgrounds = [crystalComposite(zone), crystalComposite(zone, 0.2), c.surfaceTop];
+    for (const background of backgrounds) {
+      for (const token of text) {
+        expect(contrastRatio(c[token], background)).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    }
+    expect(contrastRatio(c.onAccent, c.accent)).toBeGreaterThanOrEqual(AA_TEXT);
   });
 });

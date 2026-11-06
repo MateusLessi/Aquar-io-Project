@@ -153,7 +153,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    borderWidth: 1,
     borderRadius: radius.lg,
     padding: spacing.md,
   },

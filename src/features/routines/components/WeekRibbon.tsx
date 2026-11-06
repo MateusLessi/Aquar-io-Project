@@ -143,7 +143,7 @@ export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: 
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: 1, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
+  card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   columns: { flexDirection: 'row', gap: spacing.xs },
   day: { flex: 1, alignItems: 'center', gap: spacing.xs },

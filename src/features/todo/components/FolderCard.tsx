@@ -209,7 +209,6 @@ const styles = StyleSheet.create({
   front: {
     height: CARD_HEIGHT,
     borderRadius: radius.xl,
-    borderWidth: 1,
     padding: spacing.lg,
     justifyContent: 'space-between',
     overflow: 'hidden',

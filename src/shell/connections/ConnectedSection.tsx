@@ -200,8 +200,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingVertical: spacing.md,
     borderRadius: radius.lg,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
     marginTop: spacing.xs,
   },
   secondary: { alignItems: 'center', paddingVertical: spacing.xs },

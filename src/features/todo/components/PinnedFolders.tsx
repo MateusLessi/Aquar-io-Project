@@ -86,7 +86,7 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
 
 const styles = StyleSheet.create({
   root: { gap: spacing.md },
-  card: { padding: spacing.lg, gap: spacing.md, borderWidth: 1 },
+  card: { padding: spacing.lg, gap: spacing.md },
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   badge: {
     width: 36,

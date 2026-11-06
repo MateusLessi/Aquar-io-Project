@@ -65,7 +65,7 @@ export function TodayTasks() {
             styles.empty,
             {
               borderColor: colors.border,
-              backgroundColor: pressed ? colors.surfacePressed : 'transparent',
+              backgroundColor: pressed ? colors.surfacePressed : colors.waterline,
             },
           ]}
         >
@@ -93,8 +93,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.xl,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
   },
   flex: { flex: 1 },
 });

@@ -14,7 +14,7 @@ export type DeepSurfaceProps = ViewProps & {
  * chrome that must stand out in both themes. Content on it uses the `onDeep*` tokens.
  */
 export function DeepSurface({ radius = 'xl', style, children, ...rest }: DeepSurfaceProps) {
-  const { colors } = useTheme();
+  const { colors, highContrast } = useTheme();
   const deepId = useSvgId('deep');
   const borderRadius = radii[radius];
 
@@ -32,7 +32,7 @@ export function DeepSurface({ radius = 'xl', style, children, ...rest }: DeepSur
         style={[
           StyleSheet.absoluteFill,
           styles.clip,
-          { borderRadius, borderColor: colors.deepBorder },
+          { borderRadius, borderColor: colors.deepBorder, borderWidth: highContrast ? 1 : 0 },
         ]}
       >
         <Svg width="100%" height="100%" preserveAspectRatio="none">
@@ -57,5 +57,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     elevation: 10,
   },
-  clip: { overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth },
+  clip: { overflow: 'hidden' },
 });

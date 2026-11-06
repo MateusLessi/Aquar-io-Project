@@ -355,7 +355,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     padding: spacing.lg,
     borderRadius: radius.xl,
-    borderWidth: 1,
   },
   actions: { gap: spacing.sm },
 });

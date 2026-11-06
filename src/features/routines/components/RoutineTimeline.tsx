@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
   line: { width: 2, flex: 1, marginTop: spacing.xs, borderRadius: 1 },
   card: {
     flex: 1,
-    borderWidth: 1,
     borderRadius: radius.xl,
     padding: spacing.lg,
     gap: spacing.xs,

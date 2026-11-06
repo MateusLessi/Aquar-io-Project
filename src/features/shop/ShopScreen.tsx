@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   hero: { padding: spacing.xl, gap: spacing.sm, overflow: 'hidden' },
   section: { gap: spacing.sm },
   sectionTitle: { marginLeft: spacing.xs },
-  plan: { padding: spacing.lg, gap: spacing.sm, borderWidth: 1, overflow: 'hidden' },
+  plan: { padding: spacing.lg, gap: spacing.sm, overflow: 'hidden' },
   planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   icon: {
     width: 48,
@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
   cosmetic: {
     padding: spacing.lg,
     gap: spacing.sm,
-    borderWidth: 1,
     overflow: 'hidden',
     alignItems: 'flex-start',
   },

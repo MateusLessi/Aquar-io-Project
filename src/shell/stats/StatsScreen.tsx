@@ -584,7 +584,6 @@ const styles = StyleSheet.create({
   kpi: {
     flexBasis: '48%',
     flexGrow: 1,
-    borderWidth: 1,
     borderRadius: radius.lg,
     padding: spacing.md,
     gap: 2,
@@ -593,7 +592,7 @@ const styles = StyleSheet.create({
   kpiValue: { fontVariant: ['tabular-nums'] },
   grid: { gap: spacing.md },
   gridWide: { flexDirection: 'row', flexWrap: 'wrap' },
-  card: { borderWidth: 1, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
+  card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
   cardHalf: { flexBasis: '48%', flexGrow: 1 },
   cardFull: { flexBasis: '100%', flexGrow: 1 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', minHeight: 32 },

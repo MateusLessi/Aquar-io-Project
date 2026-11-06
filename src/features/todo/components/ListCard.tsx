@@ -140,7 +140,7 @@ export function NewListCard({
         styles.newCard,
         {
           borderColor: colors.border,
-          backgroundColor: pressed ? colors.surfacePressed : 'transparent',
+          backgroundColor: pressed ? colors.surfacePressed : colors.waterline,
         },
       ]}
     >
@@ -158,12 +158,11 @@ const styles = StyleSheet.create({
   card: {
     height: CARD_HEIGHT,
     borderRadius: radius.xl,
-    borderWidth: 1,
     padding: spacing.lg,
     justifyContent: 'space-between',
     overflow: 'hidden',
   },
-  newCard: { borderStyle: 'dashed', borderWidth: 1.5 },
+  newCard: {},
   badge: {
     width: 48,
     height: 48,

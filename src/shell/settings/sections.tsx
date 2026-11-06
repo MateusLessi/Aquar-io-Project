@@ -91,6 +91,7 @@ const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Sistema' },
   { value: 'light', label: 'Claro' },
   { value: 'dark', label: 'Escuro' },
+  { value: 'crystal', label: 'Crystal' },
 ];
 const textSizeLabels = ['Padrão', 'Grande', 'Maior'];
 
@@ -608,8 +609,8 @@ export function AboutSettings() {
       </Group>
       <Group title="Créditos">
         <Text variant="footnote" tone="secondary" style={styles.note}>
-          Feito por Mateus Leodido de Siqueira. Sons sintetizados para o Aquar.io. Fontes Outfit e
-          Manrope (SIL Open Font License). Ícones Lucide (ISC).
+          Feito por Mateus Leodido de Siqueira. Sons sintetizados para o Aquar.io. Fonte Plus
+          Jakarta Sans (SIL Open Font License). Ícones Lucide (ISC).
         </Text>
       </Group>
     </>

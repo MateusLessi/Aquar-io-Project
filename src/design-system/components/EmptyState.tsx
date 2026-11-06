@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
   halo: {
     padding: 10,
     borderRadius: (ICON_SIZE + 20) / 2,
-    borderWidth: 1,
     marginBottom: spacing.xl,
   },
   icon: {

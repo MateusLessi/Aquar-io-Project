@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     minHeight: 36,
   },
   tiles: { flexDirection: 'row', gap: spacing.sm },
-  tile: { flex: 1, borderWidth: 1, borderRadius: radius.lg, padding: spacing.md, gap: 2 },
+  tile: { flex: 1, borderRadius: radius.lg, padding: spacing.md, gap: 2 },
   empty: { marginHorizontal: spacing.xs },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   badge: {

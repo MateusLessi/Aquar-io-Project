@@ -336,7 +336,7 @@ function ProfileForm({
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.xl, borderWidth: 1, overflow: 'hidden' },
+  card: { borderRadius: radius.xl, overflow: 'hidden' },
   band: { position: 'absolute', top: 0, left: 0, right: 0, height: 96 },
   top: {
     flexDirection: 'row',

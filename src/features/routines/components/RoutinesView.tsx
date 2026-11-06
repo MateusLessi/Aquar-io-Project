@@ -126,7 +126,7 @@ function NewRoutineCard({ onPress }: { onPress: () => void }) {
         styles.newCard,
         {
           borderColor: colors.border,
-          backgroundColor: pressed ? colors.surfacePressed : 'transparent',
+          backgroundColor: pressed ? colors.surfacePressed : colors.waterline,
         },
       ]}
     >
@@ -155,10 +155,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.xl,
-    borderWidth: 1,
     overflow: 'hidden',
   },
-  newCard: { borderStyle: 'dashed', borderWidth: 1.5 },
+  newCard: {},
   stripe: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 5 },
   badge: {
     width: 52,

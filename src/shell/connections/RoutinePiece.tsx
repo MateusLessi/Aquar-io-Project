@@ -459,7 +459,6 @@ export function ListInPiece({
 const styles = StyleSheet.create({
   piece: {
     borderRadius: radius.xl,
-    borderWidth: 1,
     padding: spacing.lg,
     paddingBottom: spacing.lg + 6,
     marginBottom: spacing.md,
@@ -496,8 +495,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingVertical: spacing.md,
     borderRadius: radius.lg,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
   },
   lip: {
     position: 'absolute',

@@ -329,7 +329,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
     padding: spacing.lg,
-    borderWidth: 1,
   },
   heroBody: { flex: 1, gap: 2 },
   amount: { fontVariant: ['tabular-nums'] },
