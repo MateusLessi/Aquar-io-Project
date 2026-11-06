@@ -1,3 +1,11 @@
+export {
+  AquariumTank,
+  TankChip,
+  TankTag,
+  tankWaterline,
+  type AquariumTankProps,
+  type TankScene,
+} from './components/AquariumTank';
 export { Button, type ButtonProps, type ButtonVariant } from './components/Button';
 export { CalendarMonth, type CalendarMonthProps } from './components/CalendarMonth';
 export {

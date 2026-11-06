@@ -21,8 +21,8 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  DeepSurface,
   FloatingActionButton,
+  GlassSurface,
   Text,
   chrome,
   haptics,
@@ -50,7 +50,7 @@ type TabBarProps = {
 };
 
 /**
- * Phones: the deep-water capsule with the destinations side by side. Icons sit bare; the
+ * Phones: the glass capsule with the destinations side by side. Icons sit bare; the
  * active one gets a rounded highlight with its name, and the highlight slides from tab to
  * tab. The round button beside the capsule creates.
  */
@@ -90,16 +90,12 @@ export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }:
       style={[styles.dock, { bottom: insets.bottom + chrome.tabBarOffset }]}
     >
       <Animated.View layout={layoutTransition} style={styles.barWrap}>
-        <DeepSurface radius="pill" style={styles.bar}>
+        <GlassSurface radius="pill" depth={2} style={styles.bar}>
           <View accessibilityRole="tablist" style={styles.tabs}>
             {active ? (
               <Animated.View
                 pointerEvents="none"
-                style={[
-                  styles.highlight,
-                  { backgroundColor: colors.deepAccentSoft, borderColor: colors.deepAccent },
-                  highlightStyle,
-                ]}
+                style={[styles.highlight, { backgroundColor: colors.textPrimary }, highlightStyle]}
               />
             ) : null}
             {destinations.map((destination) => (
@@ -121,7 +117,7 @@ export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }:
               </TabTrigger>
             ))}
           </View>
-        </DeepSurface>
+        </GlassSurface>
       </Animated.View>
       {showsCreate ? (
         <Animated.View entering={ZoomIn.springify()} exiting={ZoomOut.duration(150)}>
@@ -197,7 +193,7 @@ function TabBarButton({
             <Icon
               size={24}
               strokeWidth={isFocused ? 2.3 : 1.8}
-              color={isFocused ? colors.deepAccent : colors.onDeepSecondary}
+              color={isFocused ? colors.surfaceBase : colors.textSecondary}
             />
           </Upright>
         </Animated.View>
@@ -206,7 +202,7 @@ function TabBarButton({
             <Text
               variant="bodyStrong"
               numberOfLines={1}
-              style={{ color: isFocused ? colors.deepAccent : colors.onDeepSecondary }}
+              style={{ color: isFocused ? colors.surfaceBase : colors.textSecondary }}
             >
               {label}
             </Text>
@@ -248,8 +244,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     height: 52,
-    borderRadius: radius.lg,
-    borderWidth: 1,
+    borderRadius: radius.pill,
   },
   button: { height: 52, minWidth: 52, justifyContent: 'center', alignItems: 'center' },
   buttonWithLabel: { paddingHorizontal: spacing.md },
