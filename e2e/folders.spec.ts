@@ -12,9 +12,14 @@ test('organize lists in nested folders and see their tasks together', async ({ p
     const button = page
       .getByRole('button', { name: 'Nova lista ou pasta' })
       .locator('visible=true');
-    await expect(button).toHaveCount(1);
-    await button.click();
-    await page.getByRole('button', { name: new RegExp(`^${kind}:`) }).click();
+    const option = page.getByRole('button', { name: new RegExp(`^${kind}:`) });
+    // The tap can land mid-animation: retry until the menu really opens.
+    await expect(async () => {
+      await expect(button).toHaveCount(1);
+      await button.click({ timeout: 2000 });
+      await expect(option).toBeVisible({ timeout: 1000 });
+    }).toPass();
+    await option.click();
     await page.getByRole('textbox', { name: 'Nome' }).fill(name);
     await page
       .getByRole('button', { name: kind === 'Nova pasta' ? 'Criar pasta' : 'Criar lista' })
@@ -41,9 +46,11 @@ test('organize lists in nested folders and see their tasks together', async ({ p
   // Everything inside UnB, together.
   await visible(page.getByRole('link', { name: 'Ir para UnB' })).click();
   const together = page.getByRole('radio', { name: 'Tudo junto' }).locator('visible=true');
-  await expect(together).toHaveCount(1);
-  await together.click();
-  await expect(visible(page.getByText('Lista 4'))).toBeVisible();
+  await expect(async () => {
+    await expect(together).toHaveCount(1);
+    await together.click({ timeout: 2000 });
+    await expect(visible(page.getByText('Lista 4'))).toBeVisible({ timeout: 1000 });
+  }).toPass();
 
   // Survives a reload, folder trail included.
   await page.reload();
