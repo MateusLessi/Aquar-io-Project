@@ -39,7 +39,7 @@ export function WeekChart({ todayKey, byDay }: WeekChartProps) {
           return (
             <View key={key} style={styles.column}>
               <Text variant="caption" tone={isToday ? 'primary' : 'tertiary'}>
-                {day?.fullTide ? '🌊' : points > 0 ? points : ''}
+                {day?.fullTide ? 'cheia' : points > 0 ? points : ''}
               </Text>
               <View style={[styles.track, { backgroundColor: withAlpha(colors.accent, 0.08) }]}>
                 <View

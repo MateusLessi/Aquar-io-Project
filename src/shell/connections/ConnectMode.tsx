@@ -76,7 +76,7 @@ export function ConnectMode({
       entries: routines.map((r) => ({
         key: `routine:${r.id}`,
         target: { kind: 'routine', id: r.id, name: r.name },
-        label: `${r.emoji ?? '⏱️'} ${r.name}`,
+        label: r.name,
         hint: `${showTime(r.start)}–${showTime(r.end)}`,
         tone: listColors[r.color][scheme],
       })),
@@ -86,7 +86,7 @@ export function ConnectMode({
       entries: habits.map((h) => ({
         key: `habit:${h.id}`,
         target: { kind: 'habit', id: h.id, name: h.name },
-        label: `${creatures[h.creature].emoji} ${h.name}`,
+        label: h.name,
         hint: 'Hábito',
         tone: listColors[creatures[h.creature].color][scheme],
       })),
@@ -97,14 +97,14 @@ export function ConnectMode({
         {
           key: 'folder:top',
           target: { kind: 'folder', id: null, name: 'Listas (início)' },
-          label: '🏠 Listas (início)',
+          label: 'Listas (início)',
           hint: 'Sem pasta',
           tone: colors.accent,
         },
         ...folders.map((f) => ({
           key: `folder:${f.id}`,
           target: { kind: 'folder', id: f.id, name: f.name } as ConnectTarget,
-          label: `${f.emoji ?? '📁'} ${f.name}`,
+          label: f.name,
           hint: f.depth > 1 ? `Nível ${f.depth}` : 'Pasta',
           tone: f.color ? listColors[f.color][scheme] : colors.accent,
         })),
@@ -118,14 +118,7 @@ export function ConnectMode({
       : tray === 'folders'
         ? folders.map((f) => ({ kind: 'folder', id: f.id, name: f.name }))
         : habits.map((h) => ({ kind: 'habit', id: h.id, name: h.name }));
-  const itemLabel = (item: ConnectItem) => {
-    if (item.kind === 'list')
-      return `${lists.find((l) => l.id === item.id)?.emoji ?? '📋'} ${item.name}`;
-    if (item.kind === 'folder')
-      return `${folders.find((f) => f.id === item.id)?.emoji ?? '📁'} ${item.name}`;
-    const habit = habits.find((h) => h.id === item.id);
-    return `${habit ? creatures[habit.creature].emoji : '🐠'} ${item.name}`;
-  };
+  const itemLabel = (item: ConnectItem) => item.name;
 
   /** Where every target is on screen, measured when a drag starts. */
   const measure = () => {
@@ -155,7 +148,7 @@ export function ConnectMode({
             <Text variant="footnote" tone="secondary">
               {active
                 ? `Solte “${active.name}” onde ele deve ficar`
-                : 'Segure um item da bandeja e arraste, ou toque nele e depois no destino.'}
+                : 'Arraste um item até o destino, ou toque nos dois.'}
             </Text>
           </View>
           <IconButton icon={X} label="Fechar o modo Conectar" onPress={onClose} />

@@ -122,7 +122,6 @@ function TimelineRow({
       >
         <View style={styles.cardHeader}>
           <Text variant={now ? 'title2' : 'headline'} numberOfLines={1} style={styles.flex}>
-            {routine.emoji ? `${routine.emoji}  ` : ''}
             {routine.name}
           </Text>
           <Text variant="footnote" tone="secondary">

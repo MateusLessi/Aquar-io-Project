@@ -59,12 +59,12 @@ export function RemindersSection() {
       />
       <Text variant="footnote" tone="tertiary" style={styles.note}>
         {setting === 'off'
-          ? 'Este aparelho não toca lembretes. Os outros aparelhos continuam tocando.'
+          ? 'Lembretes não tocam neste aparelho; nos outros, sim.'
           : permission === 'denied'
-            ? 'As notificações do Aquar.io estão bloqueadas nos ajustes do sistema.'
+            ? 'Notificações bloqueadas nos ajustes do sistema.'
             : permission === 'granted'
-              ? 'Os lembretes dos seus hábitos e tarefas tocam neste aparelho.'
-              : 'O app pede permissão quando você criar o primeiro lembrete.'}
+              ? 'Lembretes tocam neste aparelho.'
+              : 'A permissão é pedida no primeiro lembrete.'}
       </Text>
       {setting === 'on' && permission === 'denied' ? (
         <Button

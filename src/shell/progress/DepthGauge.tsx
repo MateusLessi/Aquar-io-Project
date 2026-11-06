@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ZONES } from '@/core/progress/rules';
-import { DeepSurface, Text, radius, spacing, useTheme, withAlpha } from '@/design-system';
+import { DeepSurface, Glyph, Text, radius, spacing, useTheme, withAlpha } from '@/design-system';
 
 import { useProgress } from './useProgress';
 
@@ -20,7 +20,7 @@ export function DepthGauge() {
   const next = depth.next;
   const remaining = next ? next.from - depth.meters : 0;
   const summary = next
-    ? `Faltam ${meters(remaining)} para ${next.emoji} ${next.name}`
+    ? `Faltam ${meters(remaining)} para ${next.name}`
     : 'Você chegou ao ponto mais fundo do oceano!';
 
   return (
@@ -41,7 +41,9 @@ export function DepthGauge() {
         pointerEvents="none"
       />
       <View style={styles.row}>
-        <Text style={styles.emoji}>{depth.zone.emoji}</Text>
+        <View style={[styles.emoji, { backgroundColor: withAlpha(colors.onDeep, 0.12) }]}>
+          <Glyph name={depth.zone.icon} size={24} color={colors.onDeep} />
+        </View>
         <View style={styles.texts}>
           <Text variant="overline" tone="onDeepSecondary">
             Profundidade
@@ -77,7 +79,13 @@ export function DepthGauge() {
 const styles = StyleSheet.create({
   card: { padding: spacing.lg, gap: spacing.md, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  emoji: { fontSize: 36, lineHeight: 44 },
+  emoji: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   texts: { flex: 1 },
   points: {
     alignItems: 'center',

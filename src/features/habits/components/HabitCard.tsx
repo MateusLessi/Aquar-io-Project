@@ -126,7 +126,7 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
             </View>
             <Text variant="footnote" tone="secondary" numberOfLines={1}>
               {statusLabel(habit, amount)}
-              {habit.streak > 1 ? ` · 🌊 ${habit.streak}` : ''} · {stageInfo[habit.stage].emoji}
+              {habit.streak > 1 ? ` · ${habit.streak} dias seguidos` : ''}
             </Text>
             <WeekTide week={habit.week} ratios={habit.weekRatios} tone={tone} />
           </View>

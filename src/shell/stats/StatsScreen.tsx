@@ -25,7 +25,6 @@ import {
   useTheme,
   withAlpha,
 } from '@/design-system';
-import { creatures } from '@/features/habits/domain/creatures';
 import { useHabits } from '@/features/habits/hooks/queries';
 
 import { DAY_PARTS, periodOf, shiftPeriod, type Stats, type StatsMode } from './computeStats';
@@ -140,7 +139,7 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
       <EmptyState
         icon={BarChart3}
         title="Seus números aparecem aqui"
-        message="Conclua tarefas, marque hábitos e itens de rotina: a cada dia, este mar de gráficos se enche com o que você fez de verdade."
+        message="Conclua algo e os gráficos começam a encher."
       />
     );
   }
@@ -176,7 +175,7 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
         <Kpi
           label="Maior sequência"
           value={best ? plural(best.streak, 'dia', 'dias') : '—'}
-          note={best ? `${creatures[best.creature].emoji} ${best.name}` : 'marque um hábito hoje'}
+          note={best ? best.name : 'marque um hábito hoje'}
           wide={wide}
         />
         {showDepth ? (
@@ -443,7 +442,7 @@ function CalendarCard({ stats }: { stats: Stats }) {
                 style={{ color: d.points > 80 ? colors.onAccent : colors.textSecondary }}
               >
                 {fromDateKey(d.day).getDate()}
-                {d.fullTide ? ' 🌊' : ''}
+                {d.fullTide ? ' · maré cheia' : ''}
               </Text>
             </View>
           ) : (
@@ -532,7 +531,7 @@ function HabitsCard({ stats }: { stats: Stats }) {
           style={[styles.row, { borderBottomColor: colors.separator }]}
         >
           <Text variant="callout" numberOfLines={1} style={styles.flex}>
-            {creatures[h.creature].emoji} {h.name}
+            {h.name}
           </Text>
           <Text variant="footnote" tone="secondary" style={styles.num}>
             {h.done} de {h.due}
@@ -557,7 +556,6 @@ function RoutinesCard({ stats }: { stats: Stats }) {
         >
           <View style={styles.flex}>
             <Text variant="callout" numberOfLines={1}>
-              {r.emoji ? `${r.emoji} ` : ''}
               {r.name}
             </Text>
             <Text variant="caption" tone="tertiary" numberOfLines={1}>

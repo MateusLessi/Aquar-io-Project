@@ -1,7 +1,6 @@
 import { addDays, atTime, toDateKey } from '@/core/dates';
 import type { Reminder } from '@/core/notifications';
 import { goalOf } from '@/features/habits/domain/amount';
-import { creatures } from '@/features/habits/domain/creatures';
 import { isScheduled } from '@/features/habits/domain/progress';
 import type { HabitWithProgress } from '@/features/habits/domain/types';
 import { isRoutineDay } from '@/features/routines/domain/schedule';
@@ -38,12 +37,11 @@ export function planReminders({
     const day = addDays(todayKey, offset);
     for (const habit of habits) {
       if (!isScheduled(habit.days, day) || (offset === 0 && habit.doneToday)) continue;
-      const creature = creatures[habit.creature];
       for (const time of habit.reminderTimes) {
         plan.push({
           id: `habit:${habit.id}:${day}T${time}`,
           at: atTime(day, time),
-          title: `${creature.emoji} ${habit.name}`,
+          title: habit.name,
           body: 'Hora de cuidar deste hábito. Toque para abrir.',
           url: `/aquarium/habits/${habit.id}`,
         });
@@ -59,7 +57,7 @@ export function planReminders({
     plan.push({
       id: `timer:${habit.id}:${startedAt}`,
       at: new Date(new Date(startedAt).getTime() + left * 1000),
-      title: `${creatures[habit.creature].emoji} Meta de ${habit.name} alcançada!`,
+      title: `Meta de ${habit.name} alcançada!`,
       body: `${habit.target} min hoje. Toque para parar o cronômetro.`,
       url: `/aquarium/habits/${habit.id}?dive=1`,
     });
@@ -72,7 +70,7 @@ export function planReminders({
       plan.push({
         id: `routine:${routine.id}:${day}T${routine.start}`,
         at: atTime(day, routine.start),
-        title: `${routine.emoji ?? '⏱️'} ${routine.name}`,
+        title: routine.name,
         body: `Começa agora, até ${routine.end}.`,
         url: '/aquarium?tab=routines',
       });
@@ -84,7 +82,7 @@ export function planReminders({
     plan.push({
       id: `task:${task.id}:${task.dueDate}T${task.remindAt}`,
       at: atTime(task.dueDate, task.remindAt),
-      title: `⏰ ${task.title}`,
+      title: task.title,
       body: [task.listEmoji, task.listName].filter(Boolean).join(' '),
       url: `/aquarium/lists/${task.listId}`,
     });

@@ -93,7 +93,7 @@ export function WeekStatsCard() {
         </>
       ) : (
         <Text variant="footnote" tone="secondary">
-          Nada concluído ainda nesta semana. Cada tarefa, hábito e item de rotina entra aqui.
+          Nada concluído ainda esta semana.
         </Text>
       )}
     </View>

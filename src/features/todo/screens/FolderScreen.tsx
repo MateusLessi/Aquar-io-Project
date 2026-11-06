@@ -41,7 +41,7 @@ export function FolderScreen({
   const folder = data.folder;
   return (
     <Screen
-      title={`${folder.emoji ? `${folder.emoji} ` : ''}${folder.name}`}
+      title={folder.name}
       onBack={back}
       actions={<IconButton icon={Pencil} label="Editar pasta" onPress={() => setEditing(true)} />}
     >

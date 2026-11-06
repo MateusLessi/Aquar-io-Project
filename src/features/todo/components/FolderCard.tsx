@@ -2,7 +2,16 @@ import { ChevronRight, Folder } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { Text, listColors, radius, specular, spacing, useTheme, withAlpha } from '@/design-system';
+import {
+  Glyph,
+  Text,
+  listColors,
+  radius,
+  specular,
+  spacing,
+  useTheme,
+  withAlpha,
+} from '@/design-system';
 
 import type { FolderSummary } from '../domain/types';
 
@@ -92,7 +101,7 @@ export function FolderCard({ folder, onPress, onLongPress }: FolderCardProps) {
         <View style={styles.head}>
           <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.28) }]}>
             {folder.emoji ? (
-              <Text variant="title2">{folder.emoji}</Text>
+              <Glyph name={folder.emoji} size={24} color={tone} />
             ) : (
               <Folder size={22} color={tone} />
             )}
@@ -137,7 +146,7 @@ export function FolderRow({
     >
       <View style={[styles.rowIcon, { backgroundColor: withAlpha(tone, 0.24) }]}>
         {folder.emoji ? (
-          <Text variant="headline">{folder.emoji}</Text>
+          <Glyph name={folder.emoji} size={19} color={tone} />
         ) : (
           <Folder size={18} color={tone} />
         )}

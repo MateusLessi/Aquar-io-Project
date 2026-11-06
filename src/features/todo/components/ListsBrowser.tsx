@@ -142,7 +142,7 @@ export function ListsBrowser({
       ))}
       {folders.length + lists.length === 0 ? (
         <Text variant="footnote" tone="secondary" style={styles.emptyRows}>
-          Nada aqui ainda. Toque no + para criar uma lista ou uma pasta.
+          Nada aqui ainda. Toque no + para criar.
         </Text>
       ) : null}
     </Surface>

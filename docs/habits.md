@@ -55,7 +55,7 @@ Proposta aprovada no checkpoint 036: `docs/design/proposals/habits-2.png`.
 
 ## Criaturas
 
-12 espécies com emoji e cor própria (`domain/creatures.ts`): a criatura define a cor, então criar um hábito é uma escolha só. Uma criatura desconhecida (vinda de uma versão mais nova do app) aparece como tartaruga.
+12 espécies desenhadas em vetor (`CreatureArt`, arte provisória até o projeto de animação) e com cor própria (`domain/creatures.ts`): a criatura define a cor, então criar um hábito é uma escolha só. Uma criatura desconhecida (vinda de uma versão mais nova do app) aparece como tartaruga.
 
 ## Eventos
 

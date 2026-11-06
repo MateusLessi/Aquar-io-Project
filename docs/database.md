@@ -23,7 +23,7 @@ Estratégia: **local-first** ([ADR-002](decisions.md#adr-002)). SQLite no aparel
 task_lists
   id            TEXT PK
   name          TEXT NOT NULL
-  emoji         TEXT NULL
+  emoji         TEXT NULL   -- chave de ícone (glyphs); dados antigos podem ter um emoji, lido como ícone
   color         TEXT NULL          -- token do Design System, não hex livre
   sort_order    REAL NOT NULL      -- REAL permite inserir entre dois itens sem renumerar
   created_at    TEXT NOT NULL

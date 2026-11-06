@@ -1,3 +1,5 @@
+import type { GlyphKey } from '@/design-system';
+
 /**
  * Gamification rules (docs/gamification-rules.md). Every number lives here so balancing
  * is a one-file change. Pure functions: progress is computed from facts, never stored.
@@ -61,19 +63,20 @@ export function dayPoints(day: DayFacts): number {
   return Math.min(DAILY_CAP, rawPoints(day));
 }
 
-export type Zone = { id: string; name: string; emoji: string; from: number };
+/** `icon` is a glyph key from the design system. */
+export type Zone = { id: string; name: string; icon: GlyphKey; from: number };
 
 /** 1 point = 1 meter. Depth never goes back up: it is the sum of every day. */
 export const ZONES: readonly Zone[] = [
-  { id: 'surface', name: 'Superfície', emoji: '🌤️', from: 0 },
-  { id: 'coastal', name: 'Águas Costeiras', emoji: '🏝️', from: 100 },
-  { id: 'reef', name: 'Recife de Coral', emoji: '🪸', from: 300 },
-  { id: 'open', name: 'Mar Aberto', emoji: '🌊', from: 700 },
-  { id: 'twilight', name: 'Zona do Crepúsculo', emoji: '🌆', from: 1500 },
-  { id: 'midnight', name: 'Zona da Meia-Noite', emoji: '🌑', from: 3000 },
-  { id: 'abyss', name: 'Abismo', emoji: '🕳️', from: 6000 },
-  { id: 'hadal', name: 'Zona Hadal', emoji: '🔱', from: 8000 },
-  { id: 'mariana', name: 'Fossa das Marianas', emoji: '🏁', from: 10994 },
+  { id: 'surface', name: 'Superfície', icon: 'sun', from: 0 },
+  { id: 'coastal', name: 'Águas Costeiras', icon: 'palm', from: 100 },
+  { id: 'reef', name: 'Recife de Coral', icon: 'shell', from: 300 },
+  { id: 'open', name: 'Mar Aberto', icon: 'waves', from: 700 },
+  { id: 'twilight', name: 'Zona do Crepúsculo', icon: 'sunset', from: 1500 },
+  { id: 'midnight', name: 'Zona da Meia-Noite', icon: 'moon', from: 3000 },
+  { id: 'abyss', name: 'Abismo', icon: 'gem', from: 6000 },
+  { id: 'hadal', name: 'Zona Hadal', icon: 'anchor', from: 8000 },
+  { id: 'mariana', name: 'Fossa das Marianas', icon: 'flag', from: 10994 },
 ];
 
 export type Depth = {

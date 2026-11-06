@@ -40,7 +40,7 @@ describe('planReminders', () => {
     const plan = planReminders({ habits: [habit({})], tasks: [], now });
     // Today 10:00 has passed; 14:00 is next, then two per day for 6 more days.
     expect(plan[0]?.at).toEqual(new Date(2026, 9, 21, 14, 0));
-    expect(plan[0]?.title).toBe('🐠 Beber água');
+    expect(plan[0]?.title).toBe('Beber água');
     expect(plan[0]?.url).toBe('/aquarium/habits/h1');
     expect(plan).toHaveLength(1 + 6 * 2);
   });
@@ -76,7 +76,7 @@ describe('planReminders', () => {
     });
     expect(plan.map((r) => r.id)).toEqual(['task:t1:2026-10-22T09:00', 'task:t2:2026-10-23T09:00']);
     expect(plan[0]).toMatchObject({
-      title: '⏰ Pagar contas',
+      title: 'Pagar contas',
       body: '🏠 Casa',
       url: '/aquarium/lists/l1',
     });
@@ -107,7 +107,7 @@ describe('planReminders', () => {
     const plan = planReminders({ habits: [], tasks: [], routines: [routine], now });
     // Wed 21 (today, 19:00 still ahead), Fri 23, Mon 26.
     expect(plan.map((r) => r.at.getDate())).toEqual([21, 23, 26]);
-    expect(plan[0]).toMatchObject({ title: '🏋️ Academia', url: '/aquarium?tab=routines' });
+    expect(plan[0]).toMatchObject({ title: 'Academia', url: '/aquarium?tab=routines' });
     const silent = planReminders({
       habits: [],
       tasks: [],

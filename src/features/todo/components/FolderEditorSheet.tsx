@@ -15,13 +15,29 @@ import {
   spacing,
   useTheme,
   type ListColorName,
+  GlyphPicker,
+  glyphKey,
+  type GlyphKey,
 } from '@/design-system';
 
 import type { FolderSummary } from '../domain/types';
 import { ValidationError } from '../domain/validation';
 import { useTodo } from '../hooks/todoContext';
 
-const EMOJIS = ['🎓', '📘', '📗', '📙', '🏠', '💼', '🏋️', '✈️', '🎯', '💡', '❤️', '🌊'];
+const GLYPHS: GlyphKey[] = [
+  'graduation',
+  'book',
+  'library',
+  'house',
+  'briefcase',
+  'dumbbell',
+  'plane',
+  'target',
+  'lightbulb',
+  'heart',
+  'waves',
+  'folder',
+];
 
 type FolderEditorSheetProps = {
   visible: boolean;
@@ -61,7 +77,7 @@ function FolderForm({
   const todo = useTodo();
   const { colors, scheme } = useTheme();
   const [name, setName] = useState(folder?.name ?? '');
-  const [emoji, setEmoji] = useState<string | null>(folder?.emoji ?? '📘');
+  const [emoji, setEmoji] = useState<string | null>(glyphKey(folder?.emoji) ?? 'book');
   const [color, setColor] = useState<ListColorName | null>(folder?.color ?? 'tide');
   const [pinned, setPinned] = useState(folder?.pinned ?? false);
   const [error, setError] = useState<string | null>(null);
@@ -118,30 +134,9 @@ function FolderForm({
 
       <View style={styles.group}>
         <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
-          Emoji
+          Ícone
         </Text>
-        <View style={styles.wrap}>
-          {EMOJIS.map((option) => {
-            const selected = emoji === option;
-            return (
-              <Pressable
-                key={option}
-                onPress={() => setEmoji(selected ? null : option)}
-                accessibilityRole="radio"
-                accessibilityLabel={`Emoji ${option}`}
-                accessibilityState={{ checked: selected }}
-                aria-checked={selected}
-                style={[
-                  styles.emoji,
-                  { backgroundColor: selected ? colors.accentSoft : colors.surfacePressed },
-                  selected && { borderColor: colors.accent, borderWidth: 2 },
-                ]}
-              >
-                <Text variant="title2">{option}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <GlyphPicker options={GLYPHS} value={emoji} onChange={setEmoji} />
       </View>
 
       <View style={styles.group}>
@@ -176,7 +171,7 @@ function FolderForm({
         <View style={styles.flex}>
           <Text variant="body">Mostrar no Início</Text>
           <Text variant="footnote" tone="secondary">
-            A pasta aparece no painel com o progresso e as próximas tarefas.
+            Aparece no Início, com o progresso.
           </Text>
         </View>
         <Switch value={pinned} onChange={setPinned} label="Mostrar no Início" />
@@ -237,13 +232,6 @@ const styles = StyleSheet.create({
   group: { gap: spacing.sm },
   groupLabel: { marginLeft: spacing.xs },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  emoji: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   swatch: {
     width: 40,
     height: 40,

@@ -156,9 +156,7 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
           />
           <Text variant="footnote" tone="secondary" style={styles.flex}>
             {kindInfo[kind].hint}.{' '}
-            {kind === 'check'
-              ? 'A cápsula enche de uma vez.'
-              : 'A água sobe conforme você avança e a criatura sobe junto.'}
+            {kind === 'check' ? 'A cápsula enche de uma vez.' : 'A água sobe conforme você avança.'}
           </Text>
         </View>
       </View>

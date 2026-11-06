@@ -10,17 +10,36 @@ import {
   TextInput,
   listColorNames,
   listColors,
-  radius,
   spacing,
   useTheme,
   type ListColorName,
+  GlyphPicker,
+  glyphKey,
+  type GlyphKey,
 } from '@/design-system';
 
 import type { TaskList } from '../domain/types';
 import { ValidationError } from '../domain/validation';
 import { useTodo } from '../hooks/todoContext';
 
-const EMOJIS = ['🏋️', '📚', '💻', '🏠', '🛒', '🎯', '💡', '❤️', '🌊', '✈️', '🎵', '🐢'];
+const GLYPHS: GlyphKey[] = [
+  'dumbbell',
+  'library',
+  'laptop',
+  'house',
+  'cart',
+  'target',
+  'lightbulb',
+  'heart',
+  'waves',
+  'plane',
+  'music',
+  'shell',
+  'briefcase',
+  'palette',
+  'wallet',
+  'utensils',
+];
 
 const colorNames: Record<ListColorName, string> = {
   lagoon: 'Laguna',
@@ -76,7 +95,7 @@ function ListForm({
   const todo = useTodo();
   const { colors, scheme } = useTheme();
   const [name, setName] = useState(list?.name ?? '');
-  const [emoji, setEmoji] = useState<string | null>(list?.emoji ?? null);
+  const [emoji, setEmoji] = useState<string | null>(glyphKey(list?.emoji));
   const [color, setColor] = useState<ListColorName | null>(list?.color ?? 'lagoon');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -127,30 +146,9 @@ function ListForm({
 
       <View style={styles.group}>
         <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
-          Emoji
+          Ícone
         </Text>
-        <View style={styles.wrap}>
-          {EMOJIS.map((option) => {
-            const selected = emoji === option;
-            return (
-              <Pressable
-                key={option}
-                onPress={() => setEmoji(selected ? null : option)}
-                accessibilityRole="button"
-                accessibilityLabel={`Emoji ${option}`}
-                accessibilityState={{ selected }}
-                aria-selected={selected}
-                style={[
-                  styles.emoji,
-                  { backgroundColor: selected ? colors.accentSoft : colors.surfacePressed },
-                  selected && { borderColor: colors.accent, borderWidth: 2 },
-                ]}
-              >
-                <Text variant="title2">{option}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <GlyphPicker options={GLYPHS} value={emoji} onChange={setEmoji} />
       </View>
 
       <View style={styles.group}>
@@ -213,13 +211,6 @@ const styles = StyleSheet.create({
   group: { gap: spacing.sm },
   groupLabel: { marginLeft: spacing.xs },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  emoji: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   swatch: {
     width: 44,
     height: 44,

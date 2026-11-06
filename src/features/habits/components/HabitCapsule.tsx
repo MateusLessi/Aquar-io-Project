@@ -15,6 +15,7 @@ import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { Text, listColors, specular, springs, useTheme, withAlpha } from '@/design-system';
 
 import { creatures, type CreatureId } from '../domain/creatures';
+import { CreatureArt } from './CreatureArt';
 import { stageInfo, type Stage } from '../domain/stages';
 
 const WAVE = 8;
@@ -126,8 +127,7 @@ export function HabitCapsule({
           height,
           borderRadius: corner,
           backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.08 : 0.1),
-          borderColor: done ? tone : withAlpha(tone, 0.45),
-          borderWidth: done ? 2 : 1.5,
+          // No outline: a done habit glows instead.
           opacity: resting ? 0.5 : 1,
           shadowColor: tone,
           shadowOpacity: done ? 0.55 : 0,
@@ -163,9 +163,7 @@ export function HabitCapsule({
       />
 
       <Animated.View style={[styles.creature, creatureStyle]}>
-        <Text style={{ fontSize, lineHeight: fontSize * 1.2 }}>
-          {stage === 'egg' ? stageInfo.egg.emoji : creatures[creature].emoji}
-        </Text>
+        <CreatureArt creature={creature} stage={stage} size={fontSize * 1.7} />
       </Animated.View>
 
       {caption ? (

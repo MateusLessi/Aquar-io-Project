@@ -1,7 +1,7 @@
 import { ChevronRight, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design-system';
+import { Glyph, Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design-system';
 
 import type { TaskList } from '../domain/types';
 
@@ -49,7 +49,7 @@ export function ListCard({ list, onPress, onLongPress }: ListCardProps) {
       <View style={styles.top}>
         <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.28) }]}>
           {list.emoji ? (
-            <Text variant="title2">{list.emoji}</Text>
+            <Glyph name={list.emoji} size={24} color={tone} />
           ) : (
             <View style={[styles.dot, { backgroundColor: tone }]} />
           )}
@@ -103,7 +103,7 @@ export function ListRow({
     >
       <View style={[styles.rowIcon, { backgroundColor: withAlpha(tone, 0.24) }]}>
         {list.emoji ? (
-          <Text variant="headline">{list.emoji}</Text>
+          <Glyph name={list.emoji} size={19} color={tone} />
         ) : (
           <View style={[styles.dot, { backgroundColor: tone }]} />
         )}

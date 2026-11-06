@@ -17,6 +17,7 @@ import {
   spacing,
   useTheme,
   withAlpha,
+  Glyph,
 } from '@/design-system';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { HabitCapsule } from '@/features/habits/components/HabitCapsule';
@@ -59,17 +60,15 @@ function badges(
   }
   for (const c of inside.filter((c) => c.kind === 'habit').slice(0, 2)) {
     if (c.kind === 'habit') {
-      out.push(
-        `${creatures[c.habit.creature].emoji} ${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`,
-      );
+      out.push(`${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`);
     }
   }
   const moreHabits = inside.filter((c) => c.kind === 'habit').length - 2;
   if (moreHabits > 0) out.push(`+${moreHabits} hábitos`);
   const lists = inside.filter((c) => c.kind === 'list').length;
-  if (lists > 0) out.push(`📋 ${lists} ${lists === 1 ? 'lista' : 'listas'}`);
+  if (lists > 0) out.push(`${lists} ${lists === 1 ? 'lista' : 'listas'}`);
   const folders = inside.filter((c) => c.kind === 'folder').length;
-  if (folders > 0) out.push(`📁 ${folders} ${folders === 1 ? 'pasta' : 'pastas'}`);
+  if (folders > 0) out.push(`${folders} ${folders === 1 ? 'pasta' : 'pastas'}`);
   return out;
 }
 
@@ -152,7 +151,7 @@ export function RoutinePiece({
           style={styles.headMain}
         >
           <View style={[styles.emoji, { backgroundColor: withAlpha(tone, 0.28) }]}>
-            <Text variant="title2">{routine.emoji ?? '⏱️'}</Text>
+            <Glyph name={routine.emoji} fallback="timer" size={24} color={tone} />
           </View>
           <View style={styles.flex}>
             <Text variant="headline" numberOfLines={1}>
@@ -255,7 +254,6 @@ export function RoutinePiece({
               >
                 <Folder size={18} color={tone} />
                 <Text variant="body" style={styles.flex} numberOfLines={1}>
-                  {c.folder.emoji ? `${c.folder.emoji} ` : ''}
                   {c.folder.name}
                 </Text>
                 <Text variant="footnote" tone="secondary">
@@ -267,7 +265,7 @@ export function RoutinePiece({
 
           {routine.items.length === 0 && inside.length === 0 ? (
             <Text variant="footnote" tone="secondary">
-              Peça vazia. Coloque passos, hábitos ou listas nela.
+              Vazia. Coloque passos, hábitos ou listas.
             </Text>
           ) : null}
 
@@ -428,7 +426,6 @@ export function ListInPiece({
       >
         <ListTodo size={16} color={tone} />
         <Text variant="overline" style={{ color: tone }} numberOfLines={1}>
-          {list.emoji ? `${list.emoji} ` : ''}
           Lista · {list.name}
         </Text>
       </Pressable>

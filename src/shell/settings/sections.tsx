@@ -24,6 +24,7 @@ import {
   useTheme,
   type ThemePreference,
 } from '@/design-system';
+import { CreatureArt } from '@/features/habits/components/CreatureArt';
 import { creatureIds, creatures } from '@/features/habits/domain/creatures';
 
 import { useAccount } from '../Account';
@@ -143,10 +144,7 @@ export function HomeSettings() {
           onChange={(value) => void setStartTab(value)}
         />
       </Group>
-      <Group
-        title="Cartões do painel"
-        note="A maré do dia vem sempre primeiro. As setas mudam a ordem."
-      >
+      <Group title="Cartões do painel" note="As setas mudam a ordem.">
         <Surface>
           {cards.map((card, i) => {
             const label = DASHBOARD_CARDS.find((c) => c.id === card.id)!.label;
@@ -193,10 +191,7 @@ export function CalendarSettings() {
   return (
     <Group>
       <Surface>
-        <Choice
-          label="A semana começa"
-          hint="Vale na Semana das rotinas, nas Estatísticas, nos calendários e nos seletores de dias"
-        >
+        <Choice label="A semana começa" hint="Vale para semanas, estatísticas e calendários">
           <SegmentedControl
             accessibilityLabel="A semana começa"
             options={[
@@ -291,7 +286,7 @@ function QuietHours() {
             />
           ) : null}
           <Text variant="footnote" tone="tertiary">
-            Um lembrete marcado nesse horário não toca; ele continua aparecendo no app.
+            Nesse horário os lembretes ficam em silêncio.
           </Text>
         </View>
       ) : null}
@@ -324,7 +319,7 @@ export function GameSettings() {
                   },
                 ]}
               >
-                <Text variant="title2">{creatures[id].emoji}</Text>
+                <CreatureArt creature={id} size={40} />
                 <Text variant="caption" tone={selected ? 'accent' : 'secondary'}>
                   {creatures[id].name}
                 </Text>
@@ -367,7 +362,7 @@ export function GameSettings() {
 export function TideModeSettings() {
   const [ambient, setAmbient] = useSetting<AmbientSetting>(AMBIENT_SETTING, 'on');
   return (
-    <Group note="Com o celular deitado e carregando, o Aquar.io vira um painel com a hora, a maré do dia e o que vem a seguir. Toque na tela para sair.">
+    <Group note="Celular deitado e carregando vira um painel com a hora e a maré. Toque para sair.">
       <SegmentedControl
         accessibilityLabel="Modo Maré"
         options={[
@@ -404,7 +399,7 @@ export function AccessibilitySettings() {
     },
   ];
   return (
-    <Group note="Começam iguais às configurações do seu aparelho; o que você escolher aqui vale para o Aquar.io. O tamanho do texto fica em Aparência.">
+    <Group note="Seguem o seu aparelho até você mudar aqui.">
       <Surface>
         {rows.map((row, i) => (
           <ListItem
@@ -464,10 +459,7 @@ export function AccountDataSettings() {
           <AccountSection />
         </Group>
       ) : null}
-      <Group
-        title="Seus dados"
-        note="Um arquivo JSON com listas, pastas, tarefas, hábitos, rotinas e ligações, e um CSV das tarefas para abrir numa planilha."
-      >
+      <Group title="Seus dados" note="Tudo em JSON, e as tarefas em CSV para planilhas.">
         <Button
           label="Exportar meus dados"
           variant="secondary"
@@ -497,8 +489,8 @@ export function AccountDataSettings() {
         title="Apagar os dados deste aparelho?"
         message={
           signedIn
-            ? 'Suas listas, hábitos e rotinas saem deste aparelho e você sai da conta. A cópia na nuvem continua: entrando de novo, tudo volta.'
-            : 'Suas listas, hábitos e rotinas somem deste aparelho. Não dá para desfazer; exporte antes, se quiser uma cópia.'
+            ? 'Seus dados saem deste aparelho. A nuvem guarda tudo: ao entrar de novo, volta.'
+            : 'Tudo some deste aparelho, sem volta. Exporte antes, se quiser.'
         }
         confirmLabel="Apagar"
         destructive

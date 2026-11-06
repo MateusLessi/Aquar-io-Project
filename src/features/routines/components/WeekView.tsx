@@ -365,14 +365,12 @@ function DayColumn({
           >
             {short ? (
               <Text variant="caption" numberOfLines={1}>
-                {routine.emoji ? `${routine.emoji} ` : ''}
                 {routine.name} · {showTime(routine.start)}
               </Text>
             ) : compact ? (
               // A narrow column: one fact per line.
               <>
                 <Text variant="caption" numberOfLines={1}>
-                  {routine.emoji ? `${routine.emoji} ` : ''}
                   {routine.name}
                 </Text>
                 <Text variant="caption" tone="secondary" numberOfLines={1} style={styles.small}>
@@ -394,7 +392,6 @@ function DayColumn({
               <>
                 <View style={styles.tagRow}>
                   <Text variant="headline" numberOfLines={1} style={styles.flex}>
-                    {routine.emoji ? `${routine.emoji} ` : ''}
                     {routine.name}
                   </Text>
                   {routine.tag ? <Tag label={routine.tag} tone={tone} /> : null}
@@ -419,7 +416,7 @@ function DayColumn({
       ) : null}
       {on.length === 0 && !compact ? (
         <Text variant="footnote" tone="tertiary" style={styles.rest}>
-          Sem rotinas neste dia. Dia de descanso 🌊
+          Sem rotinas neste dia.
         </Text>
       ) : null}
     </View>

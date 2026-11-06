@@ -23,8 +23,11 @@ import {
   useSvgId,
   useTheme,
   withAlpha,
+  Glyph,
+  type GlyphKey,
 } from '@/design-system';
 import { CreatureBubble } from '@/features/habits/components/CreatureBubble';
+import { CreatureArt } from '@/features/habits/components/CreatureArt';
 import { creatureIds, creatures, type CreatureId } from '@/features/habits/domain/creatures';
 
 import {
@@ -156,17 +159,19 @@ export function WelcomeFlow({
             {step === 1 ? (
               <>
                 <Title text="Um oceano que cresce com você" />
-                {[
-                  ['🐢', 'Hábitos viram criaturas', 'Elas crescem a cada dia feito.'],
-                  ['🌊', 'Rotinas são as marés do dia', 'Blocos com hora e passos.'],
-                  ['📋', 'Listas guardam o resto', 'Tarefas, pastas e prazos.'],
-                  ['🪸', 'Cada coisa feita é um mergulho', 'Você desce de zona em zona.'],
-                ].map(([emoji, title, detail]) => (
+                {(
+                  [
+                    ['shell', 'Hábitos viram criaturas', 'Elas crescem a cada dia feito.'],
+                    ['waves', 'Rotinas são as marés do dia', 'Blocos com hora e passos.'],
+                    ['list', 'Listas guardam o resto', 'Tarefas, pastas e prazos.'],
+                    ['anchor', 'Cada coisa feita é um mergulho', 'Você desce de zona em zona.'],
+                  ] as const
+                ).map(([icon, title, detail]) => (
                   <View
                     key={title}
                     style={[styles.card, { backgroundColor: withAlpha(colors.onDeep, 0.08) }]}
                   >
-                    <Text variant="title2">{emoji}</Text>
+                    <Glyph name={icon} size={24} color={colors.deepAccent} />
                     <View style={styles.flex}>
                       <Text variant="headline" tone="onDeep">
                         {title}
@@ -187,7 +192,8 @@ export function WelcomeFlow({
                   {AREAS.map((a) => (
                     <Choice
                       key={a.id}
-                      label={`${a.emoji} ${a.label}`}
+                      icon={a.icon}
+                      label={a.label}
                       selected={areas.includes(a.id)}
                       onPress={() => setAreas(toggle(areas, a.id))}
                       multiple
@@ -204,7 +210,8 @@ export function WelcomeFlow({
                   {PEAKS.map((p) => (
                     <Choice
                       key={p.id}
-                      label={`${p.emoji} ${p.label}`}
+                      icon={p.icon}
+                      label={p.label}
                       selected={peak === p.id}
                       onPress={() => setPeak(peak === p.id ? null : p.id)}
                       wide
@@ -216,7 +223,8 @@ export function WelcomeFlow({
                   {(Object.keys(STARTER_HABITS) as StarterHabit[]).map((id) => (
                     <Choice
                       key={id}
-                      label={`${STARTER_HABITS[id].emoji} ${STARTER_HABITS[id].label}`}
+                      icon={STARTER_HABITS[id].icon}
+                      label={STARTER_HABITS[id].label}
                       selected={habits.includes(id)}
                       onPress={() => setHabits(toggle(habits, id))}
                       multiple
@@ -284,8 +292,8 @@ export function WelcomeFlow({
                   text="Seu aquário está pronto"
                   hint={
                     suggestions.length > 0
-                      ? 'Desmarque o que não quiser. Dá para mudar tudo depois.'
-                      : 'Você começa com o aquário vazio: crie o que quiser pelo botão Criar.'
+                      ? 'Desmarque o que não quiser.'
+                      : 'Seu aquário começa vazio. Crie pelo botão +.'
                   }
                 />
                 {suggestions.map((s) => {
@@ -303,9 +311,9 @@ export function WelcomeFlow({
                         { backgroundColor: withAlpha(colors.onDeep, on ? 0.1 : 0.04) },
                       ]}
                     >
-                      <Text variant="title2" style={!on && styles.off}>
-                        {s.emoji}
-                      </Text>
+                      <View style={!on && styles.off}>
+                        <Glyph name={s.icon} size={24} color={colors.deepAccent} />
+                      </View>
                       <View style={[styles.flex, !on && styles.off]}>
                         <Text variant="headline" tone="onDeep">
                           {s.title}
@@ -380,12 +388,14 @@ function Title({ text, hint, small }: { text: string; hint?: string; small?: boo
 }
 
 function Choice({
+  icon,
   label,
   selected,
   onPress,
   multiple,
   wide,
 }: {
+  icon?: GlyphKey;
   label: string;
   selected: boolean;
   onPress: () => void;
@@ -408,11 +418,13 @@ function Choice({
             selected ? colors.deepAccent : colors.onDeep,
             selected ? 0.25 : 0.08,
           ),
-          borderColor: selected ? colors.deepAccent : withAlpha(colors.onDeep, 0.18),
         },
       ]}
     >
-      <Text variant="callout" tone="onDeep">
+      {icon ? (
+        <Glyph name={icon} size={18} color={selected ? colors.deepAccent : colors.onDeep} />
+      ) : null}
+      <Text variant="callout" tone="onDeep" style={wide ? styles.flex : undefined}>
         {label}
       </Text>
       {wide && selected ? (
@@ -458,9 +470,18 @@ function Scene({ step, width, height }: { step: number; width: number; height: n
           ))}
         </Svg>
       ) : null}
-      <Drifter emoji={step < 2 ? '🐠' : step < 4 ? '🐢' : '🐋'} top={height * 0.62} width={width} />
+      <Drifter
+        creature={step < 2 ? 'fish' : step < 4 ? 'turtle' : 'whale'}
+        top={height * 0.62}
+        width={width}
+      />
       {step >= 1 ? (
-        <Drifter emoji={step < 3 ? '🐟' : '🦑'} top={height * 0.3} width={width} reverse />
+        <Drifter
+          creature={step < 3 ? 'blowfish' : 'squid'}
+          top={height * 0.3}
+          width={width}
+          reverse
+        />
       ) : null}
       <View style={[styles.bubbles, { height }]}>
         <RisingBubbles height={height} count={10} />
@@ -470,12 +491,12 @@ function Scene({ step, width, height }: { step: number; width: number; height: n
 }
 
 function Drifter({
-  emoji,
+  creature,
   top,
   width,
   reverse,
 }: {
-  emoji: string;
+  creature: CreatureId;
   top: number;
   width: number;
   reverse?: boolean;
@@ -496,9 +517,9 @@ function Drifter({
   }));
   return (
     <Animated.View style={[styles.drifter, { top, left: width * 0.15 }, style]}>
-      <Text variant="title1" style={styles.faint}>
-        {emoji}
-      </Text>
+      <View style={styles.faint}>
+        <CreatureArt creature={creature} size={56} />
+      </View>
     </Animated.View>
   );
 }
@@ -534,8 +555,8 @@ const styles = StyleSheet.create({
   options: { gap: spacing.sm },
   choice: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderWidth: 1.5,
+    alignItems: 'center',
+    gap: spacing.sm,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,

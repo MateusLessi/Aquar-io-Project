@@ -73,7 +73,7 @@ export function TodayTasks() {
           <View style={styles.flex}>
             <Text variant="headline">Nenhuma tarefa para hoje</Text>
             <Text variant="footnote" tone="secondary">
-              Toque em Criar ou dê um prazo às tarefas das suas listas.
+              Dê um prazo a uma tarefa ou crie uma.
             </Text>
           </View>
         </Pressable>

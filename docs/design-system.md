@@ -1,5 +1,10 @@
 # Design System: Aquatic Glass
 
+> **v3 "O aquário no centro" (Visual 3.4, aprovada em novembro de 2026):** o tanque vivo com as criaturas é o
+> coração do app. Três modos (**Escuro**, **Claro** e **Crystal**), todos com as cores da **zona** onde a pessoa está.
+> Sem bordas nos cartões (o volume vem de sombra suave e da luz da água), **nenhum emoji** (ícones e criaturas em vetor),
+> fonte **Plus Jakarta Sans** e textos curtos. Propostas: `docs/design/proposals/visual-3*.png`.
+
 > **v2 "Profundidade" (Checkpoint 007):** mais ousadia, inspirada nas referências do proprietário (Sunglow, Opal, apps de treino).
 > Princípios: um **herói** por tela, **números grandes e confiantes**, navegação em **águas profundas** que se destaca nos dois temas,
 > **coral** como cor de energia para a ação principal, e simplicidade para todas as idades (alvos grandes, rótulos claros).
@@ -20,21 +25,31 @@ Linguagem visual do Aquar.io: vidro, água, profundidade e luz, em um tom sofist
 
 ## Tokens
 
-| Grupo      | Arquivo                | Conteúdo                                                                                    |
-| ---------- | ---------------------- | ------------------------------------------------------------------------------------------- |
-| Paleta     | `tokens/palette.ts`    | Escalas `ocean` (acento) e `abyss` (neutros azulados), `specular` e `listColors`            |
-| Temas      | `tokens/themes.ts`     | Tokens semânticos (`surfaceBase`, `textPrimary`, `accent`...) para light e dark             |
-| Tipografia | `tokens/typography.ts` | **Outfit** (títulos e números) + **Manrope** (texto); variantes de `largeTitle` a `numeric` |
-| Layout     | `tokens/layout.ts`     | `spacing` (base 4), `radius`, `touchTarget`, `breakpoints`, níveis de `depth`               |
-| Movimento  | `tokens/motion.ts`     | Molas `gentle`, `responsive`, `buoyant`; `durations`; `pressedScale`                        |
+| Grupo      | Arquivo                | Conteúdo                                                                                     |
+| ---------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| Paleta     | `tokens/palette.ts`    | Escalas `ocean` (acento) e `abyss` (neutros azulados), `specular` e `listColors`             |
+| Temas      | `tokens/themes.ts`     | Tokens semânticos (`surfaceBase`, `textPrimary`, `accent`...); `colorsFor(modo, zona)`       |
+| Zonas      | `tokens/zones.ts`      | A água de cada uma das 9 zonas: tanque, areia, algas, raios, luz (`lamp`) e sala do Escuro   |
+| Tipografia | `tokens/typography.ts` | **Plus Jakarta Sans** em tudo (600–800 nos títulos e números); `largeTitle` a `numeric`      |
+| Ícones     | `glyphs.tsx`           | Ícones guardáveis de listas, pastas e rotinas (chave + nome falado); emoji antigo vira ícone |
+| Layout     | `tokens/layout.ts`     | `spacing` (base 4), `radius`, `touchTarget`, `breakpoints`, níveis de `depth`                |
+| Movimento  | `tokens/motion.ts`     | Molas `gentle`, `responsive`, `buoyant`; `durations`; `pressedScale`                         |
 
 ### Cores das listas
 
 `lagoon`, `tide`, `coral`, `kelp`, `sand`, `anemone`. Cada uma tem um tom para o light e outro para o dark. A lista guarda o **nome** da cor, nunca o hex.
 
+### Modos e zonas
+
+- **Escuro:** uma sala escura iluminada pelo tanque. O fundo toma o tom da zona (`room`) e o acento é a luz dela (`lamp`). Em volta do tanque há um halo e partículas de luz (desligados no Alto contraste; parados com Reduzir movimento).
+- **Claro:** água clara e areia. A zona tinge o topo da tela; o acento continua o petróleo da marca.
+- **Crystal:** o aquário ocupa a tela inteira (`OceanBackground`) e os cartões são vidro fosco por cima. A água é escurecida o bastante para o texto branco.
+- A zona vem do progresso (`shell/theme/ZoneTheme`) e fica salva (`theme.zone`), para o app abrir já na cor certa.
+- **Sem bordas:** `Surface`, chips, vidro e superfícies fundas não desenham contorno. Só o **Alto contraste** desenha bordas.
+
 ### Contraste
 
-`src/design-system/__tests__/contrast.test.ts` verifica automaticamente o padrão **WCAG AA** em ambos os temas:
+`src/design-system/__tests__/contrast.test.ts` verifica automaticamente o padrão **WCAG AA** nos temas base e em **todas as 9 zonas × 3 modos** (no Crystal, sobre o vidro composto na água):
 
 - texto (primário, secundário, terciário, acento, prioridade e semânticas) sobre as superfícies: ≥ 4.5:1;
 - `onAccent` sobre `accent`: ≥ 4.5:1;
@@ -62,26 +77,29 @@ Se alguém mudar uma cor e quebrar a legibilidade, a CI falha.
 
 ## Componentes
 
-| Componente             | Para quê                                                                                                             | Estados                                         |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `Text`                 | Todo texto. Títulos viram `header` para leitores de tela.                                                            | tons; `struck` (concluído)                      |
-| `Surface`              | Superfície sólida para conteúdo                                                                                      | —                                               |
-| `GlassSurface`         | Vidro para o cromo; fallback sólido automático                                                                       | blur / fallback                                 |
-| `OceanBackground`      | Fundo de tela em duas faixas (superfície e profundidade) que se encontram onde as cáusticas somem, sem borda visível | movimento / estático                            |
-| `Button`               | Ações (`primary`, `secondary`, `ghost`)                                                                              | pressed, focused, disabled, loading             |
-| `IconButton`           | Ações só com ícone (rótulo obrigatório)                                                                              | pressed, focused, selected, disabled            |
-| `FloatingActionButton` | Criação principal, em forma de gota                                                                                  | pressed, focused, disabled                      |
-| `Checkbox`             | Circular; mola, ondulação e háptico ao marcar                                                                        | checked, pressed, focused, disabled             |
-| `TextInput`            | Campo com rótulo e erro anunciado                                                                                    | focused, error, disabled                        |
-| `ListItem`             | Linha de lista; o controle à esquerda age de forma independente                                                      | pressed, selected, completed, disabled          |
-| `WaterLevel`           | Progresso como água enchendo uma cápsula                                                                             | 0–100% (anunciado como `progressbar`)           |
-| `Waterline`            | Onda sutil entre a superfície (cabeçalho) e o conteúdo                                                               | decorativo                                      |
-| `Sheet`                | Painel de vidro que sobe de baixo; fecha arrastando ou tocando fora                                                  | aberto, arrastando, fechado                     |
-| `TideHero`             | Maré do dia: a água sobe com o progresso; detalhes à direita (ex.: tarefas/hábitos)                                  | vazio, enchendo, cheia (bolhas de comemoração)  |
-| `RisingBubbles`        | Bolhas subindo em água funda (recife, maré cheia)                                                                    | calmo, festivo; ausente com "Reduzir movimento" |
-| `TimePicker`           | Escolher horário em dois toques: hora e quarto de hora                                                               | —                                               |
-| `Switch`               | Interruptor liga/desliga com mola e háptico                                                                          | ligado, desligado, disabled                     |
-| `Grid`                 | Grade em linhas de células iguais (sem largura em pixels, imune a zoom)                                              | —                                               |
+| Componente              | Para quê                                                                                                             | Estados                                             |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `Text`                  | Todo texto. Títulos viram `header` para leitores de tela.                                                            | tons; `struck` (concluído)                          |
+| `Surface`               | Superfície sólida para conteúdo                                                                                      | —                                                   |
+| `GlassSurface`          | Vidro para o cromo; fallback sólido automático                                                                       | blur / fallback                                     |
+| `OceanBackground`       | Fundo de tela em duas faixas (superfície e profundidade) que se encontram onde as cáusticas somem, sem borda visível | movimento / estático                                |
+| `Button`                | Ações (`primary`, `secondary`, `ghost`)                                                                              | pressed, focused, disabled, loading                 |
+| `IconButton`            | Ações só com ícone (rótulo obrigatório)                                                                              | pressed, focused, selected, disabled                |
+| `FloatingActionButton`  | Criação principal, em forma de gota                                                                                  | pressed, focused, disabled                          |
+| `Checkbox`              | Circular; mola, ondulação e háptico ao marcar                                                                        | checked, pressed, focused, disabled                 |
+| `TextInput`             | Campo com rótulo e erro anunciado                                                                                    | focused, error, disabled                            |
+| `ListItem`              | Linha de lista; o controle à esquerda age de forma independente                                                      | pressed, selected, completed, disabled              |
+| `WaterLevel`            | Progresso como água enchendo uma cápsula                                                                             | 0–100% (anunciado como `progressbar`)               |
+| `Waterline`             | Onda sutil entre a superfície (cabeçalho) e o conteúdo                                                               | decorativo                                          |
+| `Sheet`                 | Painel de vidro que sobe de baixo; fecha arrastando ou tocando fora                                                  | aberto, arrastando, fechado                         |
+| `AquariumTank`          | O aquário vivo: a água sobe com a maré do dia, raios, algas, areia, bolhas, régua; recebe as criaturas               | Escuro com halo; Crystal como janela; `progressbar` |
+| `TankTag` / `TankChip`  | Etiqueta escura e número em vidro por cima da água                                                                   | —                                                   |
+| `Glyph` / `GlyphPicker` | Ícone guardado (ou emoji antigo convertido) e o seletor de ícones                                                    | escolhido                                           |
+| `TideHero`              | Maré do dia antiga (substituída pelo tanque no Início)                                                               | vazio, enchendo, cheia                              |
+| `RisingBubbles`         | Bolhas subindo em água funda (recife, maré cheia)                                                                    | calmo, festivo; ausente com "Reduzir movimento"     |
+| `TimePicker`            | Escolher horário em dois toques: hora e quarto de hora                                                               | —                                                   |
+| `Switch`                | Interruptor liga/desliga com mola e háptico                                                                          | ligado, desligado, disabled                         |
+| `Grid`                  | Grade em linhas de células iguais (sem largura em pixels, imune a zoom)                                              | —                                                   |
 
 Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` / `.selection()` (ignorados na web).
 

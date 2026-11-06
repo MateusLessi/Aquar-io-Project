@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { CreatureArt } from '../components/CreatureArt';
 import { Minus, Pencil, SearchX, Waves } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -134,7 +135,7 @@ export function HabitDetailScreen({
       <Surface style={styles.card}>
         <Text variant="headline">Recife</Text>
         <Text variant="footnote" tone="secondary">
-          Cada quadradinho é um dia: mais forte quanto mais você fez.
+          Cada quadrado é um dia.
         </Text>
         <ReefMap dayRatios={dayRatios} todayKey={todayKey} startKey={startKey} tone={tone} />
       </Surface>
@@ -150,7 +151,7 @@ export function HabitDetailScreen({
         />
       </Surface>
       <Text variant="footnote" tone="tertiary" style={styles.note}>
-        Esqueceu de marcar? Toque num dia que já passou para corrigir.
+        Toque num dia passado para corrigir.
       </Text>
 
       <HabitEditorSheet
@@ -294,9 +295,9 @@ function Growth({ habit, tone }: { habit: HabitWithProgress; tone: string }) {
             : 0;
           return (
             <View key={stage} style={[styles.pathStep, following ? styles.flex : null]}>
-              <Text style={{ opacity: STAGE_FROM[stage] <= habit.daysDone ? 1 : 0.4 }}>
-                {stageInfo[stage].emoji}
-              </Text>
+              <View style={{ opacity: STAGE_FROM[stage] <= habit.daysDone ? 1 : 0.4 }}>
+                <CreatureArt creature={habit.creature} stage={stage} size={30} />
+              </View>
               {following ? (
                 <View style={[styles.bar, { backgroundColor: withAlpha(tone, 0.15) }]}>
                   <View

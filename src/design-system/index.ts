@@ -76,3 +76,5 @@ export { useKeyboardFocus } from './theme/useKeyboardFocus';
 export { useSvgId } from './theme/useSvgId';
 export * from './tokens';
 export { withAlpha } from './utils/color';
+export { Glyph, glyphKey, glyphKeys, glyphNames, glyphs, type GlyphKey } from './glyphs';
+export { GlyphPicker, type GlyphPickerProps } from './components/GlyphPicker';

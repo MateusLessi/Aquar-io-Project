@@ -61,7 +61,7 @@ describe('showcase', () => {
   const badges = badgesFor(f);
 
   it('turns picks into tiles and drops the ones that no longer apply', () => {
-    expect(showcaseItem('streak', f, badges)).toMatchObject({ value: '4 dias', detail: '🐠 Ler' });
+    expect(showcaseItem('streak', f, badges)).toMatchObject({ value: '4 dias', detail: 'Ler' });
     expect(showcaseItem('days', f, badges)?.value).toBe('6 dias');
     expect(showcaseItem('favorite:h1', f, badges)?.value).toBe('Peixe');
     expect(showcaseItem('favorite:gone', f, badges)).toBeNull();

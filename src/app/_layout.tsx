@@ -119,8 +119,8 @@ function StartupError({ onRetry }: { onRetry?: () => void }) {
           title="Não foi possível abrir seus dados"
           message={
             notIsolated
-              ? 'Este navegador não liberou o banco de dados nesta página. Abra o Aquar.io numa aba própria (não dentro de uma pré-visualização ou de outro site).'
-              : 'Algo impediu o Aquar.io de abrir o banco de dados neste aparelho. Seus dados não foram apagados.'
+              ? 'Abra o Aquar.io numa aba própria, fora de pré-visualizações e de outros sites.'
+              : 'Não deu para abrir o banco de dados. Seus dados continuam salvos.'
           }
           action={onRetry ? { label: 'Tentar de novo', onPress: onRetry } : undefined}
         />
