@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react-native';
+import { Globe, Lock, Pencil, Users, type LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
@@ -46,10 +46,10 @@ const COLOR_NAMES: Record<ListColorName, string> = {
   anemone: 'Anêmona',
 };
 
-export const VISIBILITY: Record<Visibility, { emoji: string; label: string }> = {
-  me: { emoji: '🔒', label: 'Só eu' },
-  friends: { emoji: '👥', label: 'Amigos' },
-  public: { emoji: '🌐', label: 'Público' },
+export const VISIBILITY: Record<Visibility, { icon: LucideIcon; label: string }> = {
+  me: { icon: Lock, label: 'Só eu' },
+  friends: { icon: Users, label: 'Amigos' },
+  public: { icon: Globe, label: 'Público' },
 };
 const NEXT: Record<Visibility, Visibility> = { me: 'friends', friends: 'public', public: 'me' };
 const FIELD_LABELS: Record<PrivacyField, string> = {
@@ -140,8 +140,7 @@ export function ProfileHeader() {
           {depth && showDepth ? (
             <View style={[styles.zone, { backgroundColor: withAlpha(tone, 0.18) }]}>
               <Text variant="footnote" style={styles.bold}>
-                {depth.zone.emoji} {depth.zone.name} ·{' '}
-                {new Intl.NumberFormat('pt-BR').format(depth.meters)} m
+                {depth.zone.name} · {new Intl.NumberFormat('pt-BR').format(depth.meters)} m
               </Text>
             </View>
           ) : null}
@@ -185,8 +184,13 @@ function VisibilityChip({
         { backgroundColor: value === 'me' ? colors.surfacePressed : colors.accentSoft },
       ]}
     >
+      <v.icon
+        size={13}
+        strokeWidth={2.2}
+        color={value === 'me' ? colors.textSecondary : colors.accent}
+      />
       <Text variant="caption" tone={value === 'me' ? 'secondary' : 'accent'}>
-        {v.emoji} {v.label}
+        {v.label}
       </Text>
     </Pressable>
   );
@@ -336,7 +340,7 @@ function ProfileForm({
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.xl, borderWidth: 1, overflow: 'hidden' },
+  card: { borderRadius: radius.xl, overflow: 'hidden' },
   band: { position: 'absolute', top: 0, left: 0, right: 0, height: 96 },
   top: {
     flexDirection: 'row',
@@ -368,7 +372,14 @@ const styles = StyleSheet.create({
   group: { gap: spacing.sm },
   // The visibility chip sits above the field, on the right; the field carries its own label.
   labelRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: -spacing.xl },
-  chip: { borderRadius: radius.sm, paddingHorizontal: spacing.sm, paddingVertical: 4 },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   swatch: { width: 40, height: 40, borderRadius: 20 },
   option: { padding: 4, borderRadius: radius.lg, borderWidth: 2, borderColor: 'transparent' },

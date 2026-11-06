@@ -65,7 +65,6 @@ export function ListScreen({
       title={list.name}
       eyebrow={[
         place?.path.length ? place.path.map((c) => c.name).join(' › ') : null,
-        list.emoji,
         open.length === 0 ? 'Tudo em dia' : `${open.length} pendentes`,
       ]
         .filter(Boolean)
@@ -79,7 +78,7 @@ export function ListScreen({
         <EmptyState
           icon={ListTodo}
           title="Nenhuma tarefa ainda"
-          message="Escreva acima e aperte Enter. Dá para adicionar várias seguidas."
+          message="Escreva acima e aperte Enter."
         />
       ) : null}
 

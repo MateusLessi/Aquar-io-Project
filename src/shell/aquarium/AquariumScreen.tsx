@@ -5,7 +5,6 @@ import { Link2 } from 'lucide-react-native';
 
 import { Button, Screen, SegmentedControl } from '@/design-system';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
-import { creatures } from '@/features/habits/domain/creatures';
 import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
 import { ListsPanel } from '@/features/todo/screens/ListsPanel';
@@ -61,10 +60,10 @@ export function AquariumScreen() {
           describe={(routine) =>
             inside('routine', routine.id).map((c) =>
               c.kind === 'habit'
-                ? `${creatures[c.habit.creature].emoji} ${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`
+                ? `${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`
                 : c.kind === 'list'
-                  ? `${c.list.emoji ?? '📋'} ${c.list.name}`
-                  : `${c.folder.emoji ?? '📁'} ${c.folder.name}`,
+                  ? c.list.name
+                  : c.folder.name,
             )
           }
           renderRoutine={(routine, onEdit) => (

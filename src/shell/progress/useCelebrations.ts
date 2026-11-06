@@ -3,7 +3,6 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { ZONES } from '@/core/progress/rules';
 import { haptics, sound } from '@/design-system';
 import { SettingsContext } from '@/core/settings/useSetting';
-import { creatures } from '@/features/habits/domain/creatures';
 import { stageInfo, type Stage } from '@/features/habits/domain/stages';
 import { useHabits } from '@/features/habits/hooks/queries';
 
@@ -37,7 +36,7 @@ export function useCelebrations() {
       const now = ZONES.findIndex((z) => z.id === zoneId);
       if (seen !== null && now > before && active) {
         const zone = ZONES[now]!;
-        setQueue((q) => [...q, `${zone.emoji} Você chegou: ${zone.name}!`]);
+        setQueue((q) => [...q, `Você chegou: ${zone.name}!`]);
         sound.play('zone');
         haptics.dive();
       }
@@ -59,9 +58,7 @@ export function useCelebrations() {
         const previous = seen?.[habit.id];
         if (previous && STAGE_ORDER.indexOf(habit.stage) > STAGE_ORDER.indexOf(previous)) {
           const info = stageInfo[habit.stage];
-          messages.push(
-            `${creatures[habit.creature].emoji} ${habit.name} evoluiu: ${info.label} ${info.emoji}`,
-          );
+          messages.push(`${habit.name} evoluiu: ${info.label}`);
         }
         next[habit.id] = habit.stage;
       }

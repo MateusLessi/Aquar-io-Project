@@ -126,7 +126,7 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
             </View>
             <Text variant="footnote" tone="secondary" numberOfLines={1}>
               {statusLabel(habit, amount)}
-              {habit.streak > 1 ? ` · 🌊 ${habit.streak}` : ''} · {stageInfo[habit.stage].emoji}
+              {habit.streak > 1 ? ` · ${habit.streak} dias seguidos` : ''}
             </Text>
             <WeekTide week={habit.week} ratios={habit.weekRatios} tone={tone} />
           </View>
@@ -319,7 +319,7 @@ export function WeekTide({
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.xl, borderWidth: 1, overflow: 'hidden' },
+  card: { borderRadius: radius.xl, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, gap: spacing.md },
   main: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   body: { flex: 1, gap: 2, minWidth: 0 },

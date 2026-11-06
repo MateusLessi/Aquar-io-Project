@@ -28,7 +28,7 @@ export function AccountSection() {
         <Surface>
           <ListItem
             title="Sincronizar aparelhos"
-            subtitle="Entre com seu e-mail para ver suas listas no celular, no tablet e no computador."
+            subtitle="Entre para ver tudo em todos os seus aparelhos."
             leading={<CloudOff size={22} color={colors.textSecondary} />}
             onPress={() => setSigningIn(true)}
           />
@@ -73,7 +73,7 @@ export function AccountSection() {
 
 function statusLabel({ status, lastSyncedAt }: AccountState): string {
   if (status === 'syncing') return 'Sincronizando…';
-  if (status === 'error') return 'Sem conexão. Suas mudanças ficam guardadas e sobem depois.';
+  if (status === 'error') return 'Sem conexão. Tudo sobe depois.';
   if (!lastSyncedAt) return 'Conectado';
   return `Sincronizado ${relativeTime(lastSyncedAt)}`;
 }
@@ -131,7 +131,7 @@ function SignInForm({ account, onDone }: { account: AccountState; onDone: () => 
   return (
     <View style={styles.form}>
       <Text variant="body" tone="secondary">
-        Use o mesmo e-mail e senha em todos os seus aparelhos.
+        Mesmo e-mail e senha em todos os aparelhos.
       </Text>
       <TextInput
         label="E-mail"

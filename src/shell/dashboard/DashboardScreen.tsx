@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { toDateKey } from '@/core/dates';
 import { useProfile } from '@/core/profile/useProfile';
-import { Button, Screen, TideHero, spacing, useBreakpoint } from '@/design-system';
+import { Button, Screen, spacing, useBreakpoint } from '@/design-system';
 import { TodayHabits } from '@/features/habits/components/TodayHabits';
 import { useTodayHabitProgress } from '@/features/habits/hooks/queries';
 import { TodayRoutines } from '@/features/routines/components/TodayRoutines';
@@ -19,6 +19,7 @@ import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
 import { useDashboardCards, useGamePrefs, type DashboardCardId } from '../settings/prefs';
 import { WeekStatsCard } from '../stats/WeekStatsCard';
+import { HomeTank } from './HomeTank';
 import { TideCalendar } from './TideCalendar';
 import { WeekChart } from './WeekChart';
 
@@ -60,30 +61,7 @@ export function DashboardScreen() {
   const tasksDone = tasks.filter((t) => t.completedAt).length;
   const done = tasksDone + habits.completed + routines.completed;
   const total = tasks.length + habits.total + routines.total;
-  const details = [
-    { label: 'Tarefas', value: `${tasksDone}/${tasks.length}` },
-    ...(routines.total > 0
-      ? [{ label: 'Rotinas', value: `${routines.completed}/${routines.total}` }]
-      : []),
-    ...(habits.total > 0
-      ? [{ label: 'Hábitos', value: `${habits.completed}/${habits.total}` }]
-      : []),
-  ];
-
-  const tide = (
-    <TideHero
-      label="Maré do dia"
-      completed={done}
-      total={total}
-      caption={
-        done === total && total > 0
-          ? 'Maré cheia! Tudo feito hoje 🎉'
-          : `Faltam ${total - done} para a maré cheia`
-      }
-      emptyMessage="Mar calmo. Nada planejado para hoje."
-      details={details.length > 1 ? details : undefined}
-    />
-  );
+  const tide = <HomeTank done={done} total={total} />;
   const cardNodes: Record<DashboardCardId, ReactNode> = {
     depth: <DepthGauge />,
     weekStats: <WeekStatsCard />,
@@ -107,11 +85,7 @@ export function DashboardScreen() {
       .map((id) => <Fragment key={id}>{cardNodes[id]}</Fragment>);
 
   return (
-    <Screen
-      title={breakpoint === 'compact' ? greeting(now, name) : `${greeting(now, name)} 👋`}
-      eyebrow={dateLabel(now)}
-      wide={breakpoint === 'expanded'}
-    >
+    <Screen title={greeting(now, name)} eyebrow={dateLabel(now)} wide={breakpoint === 'expanded'}>
       {breakpoint === 'compact' ? (
         <>
           {tide}

@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import {
+  Glyph,
   ListItem,
   Screen,
   Surface,
@@ -32,15 +33,15 @@ import {
 } from './sections';
 
 const SECTIONS = {
-  appearance: { title: 'Aparência', emoji: '🎨', render: AppearanceSettings },
-  home: { title: 'Início', emoji: '🏠', render: HomeSettings },
-  calendar: { title: 'Calendário', emoji: '📅', render: CalendarSettings },
-  sounds: { title: 'Sons, toque e lembretes', emoji: '🔔', render: SoundRemindersSettings },
-  game: { title: 'Hábitos e jogo', emoji: '🐢', render: GameSettings },
-  tide: { title: 'Modo Maré', emoji: '🌊', render: TideModeSettings },
-  accessibility: { title: 'Acessibilidade', emoji: '♿', render: AccessibilitySettings },
-  account: { title: 'Conta e dados', emoji: '☁️', render: AccountDataSettings },
-  about: { title: 'Sobre o Aquar.io', emoji: 'ℹ️', render: AboutSettings },
+  appearance: { title: 'Aparência', icon: 'palette', render: AppearanceSettings },
+  home: { title: 'Início', icon: 'house', render: HomeSettings },
+  calendar: { title: 'Calendário', icon: 'calendar', render: CalendarSettings },
+  sounds: { title: 'Sons, toque e lembretes', icon: 'bell', render: SoundRemindersSettings },
+  game: { title: 'Hábitos e jogo', icon: 'shell', render: GameSettings },
+  tide: { title: 'Modo Maré', icon: 'waves', render: TideModeSettings },
+  accessibility: { title: 'Acessibilidade', icon: 'accessibility', render: AccessibilitySettings },
+  account: { title: 'Conta e dados', icon: 'cloud', render: AccountDataSettings },
+  about: { title: 'Sobre o Aquar.io', icon: 'info', render: AboutSettings },
 } as const;
 export type SettingsSection = keyof typeof SECTIONS;
 const ORDER = Object.keys(SECTIONS) as SettingsSection[];
@@ -61,7 +62,7 @@ function useSummaries(): Record<SettingsSection, string> {
     highContrast && 'alto contraste',
   ].filter(Boolean);
   return {
-    appearance: `Tema ${{ system: 'do sistema', light: 'claro', dark: 'escuro' }[preference]} · texto ${
+    appearance: `Tema ${{ system: 'do sistema', light: 'claro', dark: 'escuro', crystal: 'crystal' }[preference]} · texto ${
       textScale > 1.2 ? 'maior' : textScale > 1 ? 'grande' : 'padrão'
     }`,
     home: `Abre em ${startTabs.find((t) => t.value === startTab)?.label ?? 'Início'}`,
@@ -152,7 +153,7 @@ function SectionList({
           selected={active === id}
           leading={
             <View style={[styles.icon, { backgroundColor: withAlpha(colors.accent, 0.14) }]}>
-              <Text variant="headline">{SECTIONS[id].emoji}</Text>
+              <Glyph name={SECTIONS[id].icon} size={20} color={colors.accent} />
             </View>
           }
           trailing={<ChevronRight size={20} color={colors.textTertiary} />}

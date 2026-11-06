@@ -20,7 +20,12 @@ import {
   type SettingsRepository,
 } from '@/core/settings/settingsRepository';
 import { SettingsContext } from '@/core/settings/useSetting';
-import type { AccessibilityChoices, ThemePreference } from '@/design-system';
+import {
+  isZoneId,
+  type AccessibilityChoices,
+  type ThemePreference,
+  type ZoneId,
+} from '@/design-system';
 import {
   createHabitsRepository,
   type HabitsRepository,
@@ -53,10 +58,13 @@ export type AppData = {
   accessibility: AccessibilityChoices;
   /** Text size chosen in Ajustes → Aparência. */
   textScale: number;
+  /** The last depth zone seen, so the app opens in its colors before progress loads. */
+  zone: ZoneId;
 };
 
 const THEME_KEY = 'theme';
-const themePreferences: ThemePreference[] = ['system', 'light', 'dark'];
+const themePreferences: ThemePreference[] = ['system', 'light', 'dark', 'crystal'];
+const ZONE_KEY = 'theme.zone';
 
 /** Wires every module to the same database: the app's composition root. */
 export async function createAppData(
@@ -90,6 +98,8 @@ export async function createAppData(
   };
   const storedScale = Number(await settings.get(TEXT_SCALE_KEY));
   const textScale = TEXT_SCALES.includes(storedScale) ? storedScale : 1;
+  const storedZone = await settings.get(ZONE_KEY);
+  const zone: ZoneId = isZoneId(storedZone) ? storedZone : 'surface';
   return {
     db,
     account,
@@ -104,6 +114,7 @@ export async function createAppData(
     themePreference,
     accessibility,
     textScale,
+    zone,
   } satisfies AppData;
 }
 
@@ -183,6 +194,8 @@ const TEXT_SCALE_KEY = 'textScale';
 
 export const saveTextScale = (data: AppData, scale: number) =>
   data.settings.set(TEXT_SCALE_KEY, String(scale));
+
+export const saveZone = (data: AppData, zone: ZoneId) => data.settings.set(ZONE_KEY, zone);
 
 export const saveThemePreference = (data: AppData, preference: ThemePreference) =>
   data.settings.set(THEME_KEY, preference);

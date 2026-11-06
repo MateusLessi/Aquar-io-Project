@@ -321,7 +321,7 @@ describe('Depth and celebrations', () => {
     expect(
       await screen.findByRole('progressbar', { name: /Profundidade: 100 m, Águas Costeiras/ }),
     ).toBeOnTheScreen();
-    expect(await screen.findByText('🏝️ Você chegou: Águas Costeiras!')).toBeOnTheScreen();
+    expect(await screen.findByText('Você chegou: Águas Costeiras!')).toBeOnTheScreen();
     expect(await data.settings.get('celebratedZone')).toBe('coastal');
   });
 

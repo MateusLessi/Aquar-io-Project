@@ -49,7 +49,7 @@ export function FolderTasksView({ folderId }: { folderId: string | null }) {
       <EmptyState
         icon={ListTodo}
         title="Nenhuma tarefa aqui"
-        message="As tarefas das listas desta pasta aparecem juntas aqui, pelo prazo."
+        message="As tarefas desta pasta, pelo prazo."
       />
     );
   }

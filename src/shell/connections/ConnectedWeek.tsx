@@ -11,7 +11,6 @@ import {
   useTheme,
   withAlpha,
 } from '@/design-system';
-import { creatures } from '@/features/habits/domain/creatures';
 import {
   WeekView,
   type Measurable,
@@ -146,11 +145,7 @@ function BlockExtras({
     <View style={styles.extras}>
       {shown.map((c) => {
         const label =
-          c.kind === 'habit'
-            ? `${creatures[c.habit.creature].emoji} ${c.habit.name}`
-            : c.kind === 'list'
-              ? `${c.list.emoji ?? '📋'} ${c.list.name}`
-              : `${c.folder.emoji ?? '📁'} ${c.folder.name}`;
+          c.kind === 'habit' ? c.habit.name : c.kind === 'list' ? c.list.name : c.folder.name;
         const ratio = c.kind === 'habit' && known ? (c.habit.weekRatios[index] ?? 0) : null;
         return (
           <View
@@ -212,16 +207,16 @@ function WeekTray({
     tray === 'habits'
       ? habits.map((h) => ({
           item: { kind: 'habit', id: h.id, name: h.name },
-          label: `${creatures[h.creature].emoji} ${h.name}`,
+          label: h.name,
         }))
       : tray === 'lists'
         ? lists.map((l) => ({
             item: { kind: 'list', id: l.id, name: l.name },
-            label: `${l.emoji ?? '📋'} ${l.name}`,
+            label: l.name,
           }))
         : folders.map((f) => ({
             item: { kind: 'folder', id: f.id, name: f.name },
-            label: `${f.emoji ?? '📁'} ${f.name}`,
+            label: f.name,
           }));
   const active = held ?? selected;
   return (
@@ -230,7 +225,7 @@ function WeekTray({
         <Text variant="footnote" tone="secondary" style={styles.flex}>
           {active
             ? `Solte “${active.name}” num bloco, ou toque no bloco.`
-            : 'Arraste para um bloco, ou toque no item e depois no bloco:'}
+            : 'Arraste até um bloco, ou toque nos dois:'}
         </Text>
         <View style={styles.traySwitch}>
           <SegmentedControl

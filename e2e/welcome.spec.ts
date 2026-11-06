@@ -7,12 +7,12 @@ test('the first dive builds a starter aquarium from the quiz', async ({ page }) 
   await page.getByRole('button', { name: 'Começar o mergulho' }).click();
   await page.getByRole('button', { name: 'Continuar' }).click();
 
-  await page.getByRole('checkbox', { name: '📚 Estudos' }).click();
-  await page.getByRole('checkbox', { name: '🏋️ Saúde e exercício' }).click();
+  await page.getByRole('checkbox', { name: 'Estudos' }).click();
+  await page.getByRole('checkbox', { name: 'Saúde e exercício' }).click();
   await page.getByRole('button', { name: 'Continuar' }).click();
 
-  await page.getByRole('radio', { name: '🌙 À noite' }).click();
-  await page.getByRole('checkbox', { name: '💧 Beber água' }).click();
+  await page.getByRole('radio', { name: 'À noite' }).click();
+  await page.getByRole('checkbox', { name: 'Beber água' }).click();
   await page.getByRole('button', { name: 'Continuar' }).click();
 
   await page.getByRole('radio', { name: 'Polvo' }).click();

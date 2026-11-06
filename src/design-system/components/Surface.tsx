@@ -1,3 +1,4 @@
+import { BlurView } from 'expo-blur';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
 import { useTheme } from '../theme/ThemeProvider';
@@ -5,23 +6,65 @@ import { radius as radii } from '../tokens';
 
 export type SurfaceProps = ViewProps & {
   radius?: keyof typeof radii;
+  /** Lifts the card off the background with a soft shadow (no borders anywhere). */
+  elevated?: boolean;
 };
 
-/** Solid surface for content. Lists and cards live here, never on glass. */
-export function Surface({ radius = 'lg', style, ...rest }: SurfaceProps) {
-  const { colors } = useTheme();
+/**
+ * Solid surface for content: lists and cards. It has no border: what sets it apart is a soft
+ * shadow and the light of the water. In Crystal it is frosted glass over the aquarium.
+ */
+export function Surface({
+  radius = 'lg',
+  elevated = true,
+  style,
+  children,
+  ...rest
+}: SurfaceProps) {
+  const { colors, mode, supportsBlur, reduceTransparency, highContrast } = useTheme();
+  const borderRadius = radii[radius];
+  const glass = mode === 'crystal';
+  const blur = glass && supportsBlur && !reduceTransparency;
+  const background = glass && !blur ? colors.glassFallback : colors.surfaceRaised;
+
   return (
     <View
       style={[
         styles.base,
-        { backgroundColor: colors.surfaceRaised, borderRadius: radii[radius] },
+        { borderRadius },
+        elevated ? shadowStyle(colors.cardShadow, colors.cardShadowOpacity) : null,
+        highContrast ? { borderWidth: 1, borderColor: colors.border } : null,
         style,
       ]}
       {...rest}
-    />
+    >
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.clip,
+          { borderRadius, backgroundColor: background },
+        ]}
+        pointerEvents="none"
+      >
+        {blur ? <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} /> : null}
+        {blur ? (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.surfaceRaised }]} />
+        ) : null}
+      </View>
+      {children}
+    </View>
   );
+}
+
+/** A wide, soft shadow. `boxShadow` is not clipped by `overflow: hidden` on any platform. */
+export function shadowStyle(color: string, opacity: number) {
+  const hex = /^#([0-9a-f]{6})$/i.exec(color)?.[1] ?? '000000';
+  const n = parseInt(hex, 16);
+  const rgba = `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${opacity})`;
+  return { boxShadow: `0px 10px 28px 0px ${rgba}` };
 }
 
 const styles = StyleSheet.create({
   base: { overflow: 'hidden' },
+  clip: { overflow: 'hidden' },
 });

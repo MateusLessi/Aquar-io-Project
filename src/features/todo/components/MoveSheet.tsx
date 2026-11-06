@@ -1,7 +1,7 @@
-import { Folder, Home } from 'lucide-react-native';
+import { Home } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Sheet, Text, listColors, spacing, useTheme } from '@/design-system';
+import { Glyph, Sheet, Text, listColors, spacing, useTheme } from '@/design-system';
 
 import type { FolderSummary } from '../domain/types';
 import { MAX_FOLDER_DEPTH, ValidationError } from '../domain/validation';
@@ -120,14 +120,12 @@ export function MoveSheet({ target, onClose }: MoveSheetProps) {
           option(
             folder.id,
             folder.name,
-            folder.emoji ? (
-              <Text variant="headline">{folder.emoji}</Text>
-            ) : (
-              <Folder
-                size={18}
-                color={folder.color ? listColors[folder.color][scheme] : colors.accent}
-              />
-            ),
+            <Glyph
+              name={folder.emoji}
+              fallback="folder"
+              size={18}
+              color={folder.color ? listColors[folder.color][scheme] : colors.accent}
+            />,
             folder.depth,
             folder.id,
             allowed(folder),

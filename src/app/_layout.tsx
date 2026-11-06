@@ -13,8 +13,10 @@ import {
   saveAccessibility,
   saveTextScale,
   saveThemePreference,
+  saveZone,
   useAppDataBootstrap,
 } from '@/shell/AppData';
+import { ZoneTheme } from '@/shell/theme/ZoneTheme';
 
 // Keep the splash screen until fonts and data are ready, so nothing flashes.
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -50,6 +52,12 @@ export default function RootLayout() {
           console.warn('Could not save the accessibility choice.', error),
         );
       }}
+      initialZone={boot.data.zone}
+      onZoneChange={(zone) => {
+        saveZone(boot.data, zone).catch((error: unknown) =>
+          console.warn('Could not save the zone.', error),
+        );
+      }}
       initialTextScale={boot.data.textScale}
       onTextScaleChange={(scale) => {
         saveTextScale(boot.data, scale).catch((error: unknown) =>
@@ -63,6 +71,7 @@ export default function RootLayout() {
       }}
     >
       <AppDataProvider data={boot.data}>
+        <ZoneTheme />
         <ThemedStack />
       </AppDataProvider>
     </ThemeProvider>
@@ -110,8 +119,8 @@ function StartupError({ onRetry }: { onRetry?: () => void }) {
           title="Não foi possível abrir seus dados"
           message={
             notIsolated
-              ? 'Este navegador não liberou o banco de dados nesta página. Abra o Aquar.io numa aba própria (não dentro de uma pré-visualização ou de outro site).'
-              : 'Algo impediu o Aquar.io de abrir o banco de dados neste aparelho. Seus dados não foram apagados.'
+              ? 'Abra o Aquar.io numa aba própria, fora de pré-visualizações e de outros sites.'
+              : 'Não deu para abrir o banco de dados. Seus dados continuam salvos.'
           }
           action={onRetry ? { label: 'Tentar de novo', onPress: onRetry } : undefined}
         />

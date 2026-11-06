@@ -65,7 +65,7 @@ export function TodayTasks() {
             styles.empty,
             {
               borderColor: colors.border,
-              backgroundColor: pressed ? colors.surfacePressed : 'transparent',
+              backgroundColor: pressed ? colors.surfacePressed : colors.waterline,
             },
           ]}
         >
@@ -73,7 +73,7 @@ export function TodayTasks() {
           <View style={styles.flex}>
             <Text variant="headline">Nenhuma tarefa para hoje</Text>
             <Text variant="footnote" tone="secondary">
-              Toque em Criar ou dê um prazo às tarefas das suas listas.
+              Dê um prazo a uma tarefa ou crie uma.
             </Text>
           </View>
         </Pressable>
@@ -93,8 +93,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.xl,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
   },
   flex: { flex: 1 },
 });

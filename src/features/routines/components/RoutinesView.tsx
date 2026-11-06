@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design-system';
+import { Text, listColors, radius, spacing, useTheme, withAlpha, Glyph } from '@/design-system';
 import { weekdayOrder } from '@/core/dates';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
@@ -79,7 +79,7 @@ export function RoutineCard({ routine, onPress }: { routine: RoutineToday; onPre
     >
       <View style={[styles.stripe, { backgroundColor: tone }]} />
       <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.2) }]}>
-        <Text variant="title2">{routine.emoji ?? '⏱️'}</Text>
+        <Glyph name={routine.emoji} fallback="timer" size={24} color={tone} />
       </View>
       <View style={styles.texts}>
         <Text variant="headline" numberOfLines={1}>
@@ -126,7 +126,7 @@ function NewRoutineCard({ onPress }: { onPress: () => void }) {
         styles.newCard,
         {
           borderColor: colors.border,
-          backgroundColor: pressed ? colors.surfacePressed : 'transparent',
+          backgroundColor: pressed ? colors.surfacePressed : colors.waterline,
         },
       ]}
     >
@@ -138,7 +138,7 @@ function NewRoutineCard({ onPress }: { onPress: () => void }) {
           Nova rotina
         </Text>
         <Text variant="footnote" tone="secondary">
-          Um bloco do seu dia, como manhã, trabalho ou academia
+          Manhã, trabalho, academia…
         </Text>
       </View>
     </Pressable>
@@ -155,10 +155,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.xl,
-    borderWidth: 1,
     overflow: 'hidden',
   },
-  newCard: { borderStyle: 'dashed', borderWidth: 1.5 },
+  newCard: {},
   stripe: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 5 },
   badge: {
     width: 52,

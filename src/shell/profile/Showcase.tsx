@@ -12,7 +12,9 @@ import {
   useBreakpoint,
   useTheme,
   withAlpha,
+  Glyph,
 } from '@/design-system';
+import { CreatureArt } from '@/features/habits/components/CreatureArt';
 
 import { showcaseItem, type ShowcaseItem } from './achievements';
 import { profileTone } from './ProfileHeader';
@@ -55,9 +57,12 @@ export function ProfileShowcase() {
               <Text variant="caption" tone="tertiary" numberOfLines={1}>
                 {item.label}
               </Text>
-              <Text variant="title2" numberOfLines={1}>
-                {item.emoji} {item.value}
-              </Text>
+              <View style={styles.valueRow}>
+                <PickIcon item={item} color={tone} />
+                <Text variant="title2" numberOfLines={1} style={styles.flex}>
+                  {item.value}
+                </Text>
+              </View>
               {item.detail ? (
                 <Text variant="caption" tone="secondary" numberOfLines={1}>
                   {item.detail}
@@ -68,7 +73,7 @@ export function ProfileShowcase() {
         </View>
       ) : (
         <Text variant="footnote" tone="secondary" style={styles.empty}>
-          Escolha até 3 destaques: sua maior sequência, as marés cheias, uma criatura favorita…
+          Escolha até 3 destaques.
         </Text>
       )}
 
@@ -92,9 +97,12 @@ export function ProfileShowcase() {
               },
             ]}
           >
-            <Text variant="title2" style={!badge.earned && styles.locked}>
-              {badge.emoji}
-            </Text>
+            <Glyph
+              name={badge.icon}
+              size={26}
+              color={badge.earned ? tone : colors.textTertiary}
+              strokeWidth={2}
+            />
             <Text variant="caption" style={styles.center} numberOfLines={2}>
               {badge.title}
             </Text>
@@ -146,7 +154,7 @@ function ShowcasePicker({
   return (
     <View style={styles.picker}>
       <Text variant="footnote" tone="secondary">
-        Escolha até 3, na ordem em que devem aparecer. Tudo vem do que você fez de verdade.
+        Até 3, na ordem que quiser.
       </Text>
       <View style={[styles.list, { backgroundColor: colors.surfaceRaised }]}>
         {options.map((option, i) => {
@@ -170,7 +178,7 @@ function ShowcasePicker({
                 !on && full && styles.dim,
               ]}
             >
-              <Text variant="title2">{option.emoji}</Text>
+              <PickIcon item={option} color={colors.accent} />
               <View style={styles.flex}>
                 <Text variant="body">{option.label}</Text>
                 <Text variant="footnote" tone="secondary" numberOfLines={1}>
@@ -199,7 +207,17 @@ function ShowcasePicker({
   );
 }
 
+/** A showcase pick's picture: the habit's creature, or the pick's icon. */
+function PickIcon({ item, color }: { item: ShowcaseItem; color: string }) {
+  return item.creature ? (
+    <CreatureArt creature={item.creature} size={34} />
+  ) : (
+    <Glyph name={item.icon} size={22} color={color} />
+  );
+}
+
 const styles = StyleSheet.create({
+  valueRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   root: { gap: spacing.sm },
   header: {
     flexDirection: 'row',
@@ -209,7 +227,7 @@ const styles = StyleSheet.create({
     minHeight: 36,
   },
   tiles: { flexDirection: 'row', gap: spacing.sm },
-  tile: { flex: 1, borderWidth: 1, borderRadius: radius.lg, padding: spacing.md, gap: 2 },
+  tile: { flex: 1, borderRadius: radius.lg, padding: spacing.md, gap: 2 },
   empty: { marginHorizontal: spacing.xs },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   badge: {
@@ -222,7 +240,6 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   badgeWide: { width: '13%' },
-  locked: { opacity: 0.5 },
   center: { textAlign: 'center' },
   picker: { gap: spacing.lg },
   list: { borderRadius: radius.lg },

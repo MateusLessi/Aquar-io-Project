@@ -1,3 +1,11 @@
+export {
+  AquariumTank,
+  TankChip,
+  TankTag,
+  tankWaterline,
+  type AquariumTankProps,
+  type TankScene,
+} from './components/AquariumTank';
 export { Button, type ButtonProps, type ButtonVariant } from './components/Button';
 export { CalendarMonth, type CalendarMonthProps } from './components/CalendarMonth';
 export {
@@ -68,3 +76,5 @@ export { useKeyboardFocus } from './theme/useKeyboardFocus';
 export { useSvgId } from './theme/useSvgId';
 export * from './tokens';
 export { withAlpha } from './utils/color';
+export { Glyph, glyphKey, glyphKeys, glyphNames, glyphs, type GlyphKey } from './glyphs';
+export { GlyphPicker, type GlyphPickerProps } from './components/GlyphPicker';

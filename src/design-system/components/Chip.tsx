@@ -30,7 +30,7 @@ export function Chip({
   accessibilityHint,
   testID,
 }: ChipProps) {
-  const { colors } = useTheme();
+  const { colors, highContrast } = useTheme();
   const content = selected ? colors.onAccent : colors.textPrimary;
 
   return (
@@ -49,7 +49,10 @@ export function Chip({
           styles.chip,
           selected
             ? { backgroundColor: colors.accent, borderColor: colors.accent }
-            : { backgroundColor: colors.surfaceRaised, borderColor: colors.border },
+            : {
+                backgroundColor: colors.surfacePressed,
+                borderColor: highContrast ? colors.border : 'transparent',
+              },
         ]}
       >
         {Icon ? <Icon size={16} strokeWidth={2} color={content} /> : null}

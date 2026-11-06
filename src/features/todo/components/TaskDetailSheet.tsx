@@ -142,7 +142,7 @@ function TaskDetail({
         </>
       ) : (
         <Text variant="footnote" tone="tertiary" style={styles.hint}>
-          Com um prazo, a tarefa pode se repetir e ter lembrete.
+          Com prazo, dá para repetir e lembrar.
         </Text>
       )}
 

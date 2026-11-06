@@ -113,7 +113,7 @@ export function HabitDive({ habit, actions, visible, onClose }: HabitDiveProps) 
             {habit.name} · meta de {habit.target} min
           </Text>
           <Text variant="title1" tone="onDeep" style={styles.title}>
-            {reached ? 'Meta alcançada! 🎉' : running ? 'Mergulhando…' : 'Pronto para mergulhar'}
+            {reached ? 'Meta alcançada!' : running ? 'Mergulhando…' : 'Pronto para mergulhar'}
           </Text>
 
           <View style={{ width: ring, height: ring }}>

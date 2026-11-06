@@ -22,7 +22,7 @@ export function GlassSurface({
   children,
   ...rest
 }: GlassSurfaceProps) {
-  const { colors, scheme, supportsBlur, reduceTransparency } = useTheme();
+  const { colors, scheme, supportsBlur, reduceTransparency, highContrast } = useTheme();
   const level = depthLevels[depth];
   const useBlur = supportsBlur && !reduceTransparency;
   const borderRadius = radii[radius];
@@ -56,7 +56,8 @@ export function GlassSurface({
             {
               backgroundColor: useBlur ? colors.glass : colors.glassFallback,
               borderRadius,
-              borderWidth: StyleSheet.hairlineWidth,
+              // No outline: only "Alto contraste" draws the edge.
+              borderWidth: highContrast ? StyleSheet.hairlineWidth : 0,
               borderColor: colors.glassBorder,
             },
           ]}

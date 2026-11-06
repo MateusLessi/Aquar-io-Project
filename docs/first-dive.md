@@ -43,7 +43,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 - Na aba Listas, o **Criar** oferece **Nova lista** ou **Nova pasta**.
 - **Pastas dentro de pastas**, por exemplo `UnB › Semestre 3 › Cálculo 3`, com no máximo 4 níveis para ninguém se perder no celular.
 - **Navegação por trilha** (breadcrumb) no topo: tocar em "UnB" volta direto para a pasta.
-- **Visual:** a pasta é um bloco de vidro elevado, com as listas "aparecendo" atrás como cartas empilhadas; tem cor e emoji próprios e um anel com o progresso de tudo o que está dentro.
+- **Visual:** a pasta é um bloco de vidro elevado, com as listas "aparecendo" atrás como cartas empilhadas; tem cor e ícone próprios e um anel com o progresso de tudo o que está dentro.
 - **Visualizações da pasta:**
   - **Grade:** cartões de pastas e listas;
   - **Lista compacta;**

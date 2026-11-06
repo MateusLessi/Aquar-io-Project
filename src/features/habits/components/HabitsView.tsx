@@ -67,7 +67,7 @@ function NewHabitCard({ onPress }: { onPress: () => void }) {
         styles.newCard,
         {
           borderColor: colors.border,
-          backgroundColor: pressed ? colors.surfacePressed : 'transparent',
+          backgroundColor: pressed ? colors.surfacePressed : colors.waterline,
         },
       ]}
     >
@@ -93,8 +93,6 @@ const styles = StyleSheet.create({
   newCard: {
     minHeight: 104,
     borderRadius: radius.xl,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
     padding: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',

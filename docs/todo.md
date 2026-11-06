@@ -6,7 +6,7 @@ Primeiro módulo funcional do Aquar.io. **Status: V1 REAL** (Etapa 4).
 
 | Recurso                                           | Onde                                                                                             |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Criar, editar (nome, emoji, cor) e excluir listas | Listas → "Nova lista"; dentro da lista → lápis                                                   |
+| Criar, editar (nome, ícone, cor) e excluir listas | Listas → "Nova lista"; dentro da lista → lápis                                                   |
 | Criar tarefas                                     | Campo "Adicionar tarefa" na lista (Enter adiciona e mantém o foco), ou o botão coral "+"         |
 | Concluir e desmarcar                              | Checkbox (mola, ondulação e vibração)                                                            |
 | Editar tarefa                                     | Toque na tarefa: título, prazo, prioridade, subtarefas e notas, salvos ao editar                 |

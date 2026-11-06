@@ -122,7 +122,6 @@ function TimelineRow({
       >
         <View style={styles.cardHeader}>
           <Text variant={now ? 'title2' : 'headline'} numberOfLines={1} style={styles.flex}>
-            {routine.emoji ? `${routine.emoji}  ` : ''}
             {routine.name}
           </Text>
           <Text variant="footnote" tone="secondary">
@@ -180,7 +179,6 @@ const styles = StyleSheet.create({
   line: { width: 2, flex: 1, marginTop: spacing.xs, borderRadius: 1 },
   card: {
     flex: 1,
-    borderWidth: 1,
     borderRadius: radius.xl,
     padding: spacing.lg,
     gap: spacing.xs,

@@ -7,10 +7,11 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-import { Text, listColors, specular, springs, useTheme, withAlpha } from '@/design-system';
+import { listColors, specular, springs, useTheme, withAlpha } from '@/design-system';
 
 import { creatures, type CreatureId } from '../domain/creatures';
 import { stageInfo, type Stage } from '../domain/stages';
+import { CreatureArt } from './CreatureArt';
 
 type CreatureBubbleProps = {
   creature: CreatureId;
@@ -79,14 +80,7 @@ export function CreatureBubble({
           },
         ]}
       />
-      <Text
-        style={{
-          fontSize: size * 0.5 * stageInfo[stage].scale,
-          lineHeight: size * 0.62 * stageInfo[stage].scale,
-        }}
-      >
-        {stage === 'egg' ? stageInfo.egg.emoji : creatures[creature].emoji}
-      </Text>
+      <CreatureArt creature={creature} stage={stage} size={size * 0.74 * stageInfo[stage].scale} />
     </Animated.View>
   );
 }

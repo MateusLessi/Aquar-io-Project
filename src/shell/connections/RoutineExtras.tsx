@@ -4,7 +4,6 @@ import { StyleSheet, View } from 'react-native';
 
 import { useLinks } from '@/core/links/linksContext';
 import { ConfirmDialog, Text, spacing, useTheme, withAlpha } from '@/design-system';
-import { creatures } from '@/features/habits/domain/creatures';
 import { useHabitActions } from '@/features/habits/hooks/useHabitActions';
 import type { RoutineToday } from '@/features/routines/domain/types';
 
@@ -27,11 +26,7 @@ export function RoutineExtras({ routine }: { routine: RoutineToday }) {
 
   if (routine.phase !== 'now') {
     const names = items.map((c) =>
-      c.kind === 'habit'
-        ? `${creatures[c.habit.creature].emoji} ${c.habit.name}`
-        : c.kind === 'list'
-          ? `📋 ${c.list.name}`
-          : `📁 ${c.folder.name}`,
+      c.kind === 'habit' ? c.habit.name : c.kind === 'list' ? c.list.name : c.folder.name,
     );
     return (
       <Text variant="caption" tone="secondary" numberOfLines={1}>

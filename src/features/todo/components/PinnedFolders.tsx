@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { ChevronRight, Folder } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Surface, Text, listColors, spacing, useTheme, withAlpha } from '@/design-system';
+import { Glyph, Surface, Text, listColors, spacing, useTheme, withAlpha } from '@/design-system';
 
 import { dueLabel, toDateKey } from '../domain/dates';
 import type { FolderSummary } from '../domain/types';
@@ -45,7 +45,7 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
       >
         <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.24) }]}>
           {folder.emoji ? (
-            <Text variant="headline">{folder.emoji}</Text>
+            <Glyph name={folder.emoji} size={19} color={tone} />
           ) : (
             <Folder size={18} color={tone} />
           )}
@@ -86,7 +86,7 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
 
 const styles = StyleSheet.create({
   root: { gap: spacing.md },
-  card: { padding: spacing.lg, gap: spacing.md, borderWidth: 1 },
+  card: { padding: spacing.lg, gap: spacing.md },
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   badge: {
     width: 36,

@@ -15,11 +15,11 @@ const THRESHOLDS: { stage: Stage; from: number }[] = [
   { stage: 'adult', from: 30 },
 ];
 
-export const stageInfo: Record<Stage, { label: string; emoji: string; scale: number }> = {
-  egg: { label: 'Ovo', emoji: '🥚', scale: 0.7 },
-  baby: { label: 'Filhote', emoji: '🍼', scale: 0.85 },
-  young: { label: 'Jovem', emoji: '🌱', scale: 1 },
-  adult: { label: 'Adulto', emoji: '⭐', scale: 1.15 },
+export const stageInfo: Record<Stage, { label: string; scale: number }> = {
+  egg: { label: 'Ovo', scale: 0.7 },
+  baby: { label: 'Filhote', scale: 0.85 },
+  young: { label: 'Jovem', scale: 1 },
+  adult: { label: 'Adulto', scale: 1.15 },
 };
 
 export function creatureStage(creature: CreatureId, daysDone: number): Stage {

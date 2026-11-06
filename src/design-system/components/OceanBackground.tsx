@@ -8,11 +8,13 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import Svg, { Defs, Ellipse, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import { useTheme } from '../theme/ThemeProvider';
 import { useSvgId } from '../theme/useSvgId';
-import { durations } from '../tokens';
+import { durations, type ColorScheme, type ThemeColors } from '../tokens';
+import { withAlpha } from '../utils/color';
+import { RisingBubbles } from './RisingBubbles';
 
 const causticsTexture = require('../assets/caustics.png');
 
@@ -31,7 +33,21 @@ type OceanBackgroundProps = {
  * Caustics drift very slowly and stay still when "Reduce Motion" is on.
  */
 export function OceanBackground({ children, caustics = true }: OceanBackgroundProps) {
-  const { colors, scheme } = useTheme();
+  const { colors, scheme, mode } = useTheme();
+  if (mode === 'crystal') return <CrystalWater>{children}</CrystalWater>;
+  return (
+    <PlainBackground caustics={caustics} colors={colors} scheme={scheme}>
+      {children}
+    </PlainBackground>
+  );
+}
+
+function PlainBackground({
+  children,
+  caustics,
+  colors,
+  scheme,
+}: OceanBackgroundProps & { caustics: boolean; colors: ThemeColors; scheme: ColorScheme }) {
   const surfaceId = useSvgId('surface');
   const depthId = useSvgId('depth');
 
@@ -114,3 +130,71 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   caustics: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
 });
+
+/**
+ * Crystal: the aquarium is the whole screen. Water from the zone, light from above, kelp and
+ * sand at the bottom; cards float over it as frosted glass. Darkened enough for white text.
+ */
+function CrystalWater({ children }: { children?: ReactNode }) {
+  const { colors, water } = useTheme();
+  const { width, height } = useWindowDimensions();
+  const id = useSvgId('crystal');
+  const rays = [0.12, 0.38, 0.64, 0.88];
+  const kelp: [number, number][] = [
+    [0.05, 0.26],
+    [0.1, 0.34],
+    [0.9, 0.3],
+    [0.95, 0.22],
+  ];
+  return (
+    <View style={styles.root}>
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Svg width={width} height={height}>
+          <Defs>
+            <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={colors.surfaceTop} />
+              <Stop offset="0.6" stopColor={colors.surfaceBase} />
+              <Stop offset="1" stopColor={colors.surfaceDeep} />
+            </LinearGradient>
+          </Defs>
+          <Rect x={0} y={0} width={width} height={height} fill={`url(#${id})`} />
+          {rays.map((x) => (
+            <Path
+              key={x}
+              d={`M${width * x - 24} 0 L${width * x + 28} 0 L${width * x - 90} ${height} L${width * x - 170} ${height}Z`}
+              fill={colors.caustic}
+              opacity={water.rays * 0.55}
+            />
+          ))}
+          {kelp.map(([x, h], k) => {
+            const X = width * x;
+            return (
+              <Path
+                key={x}
+                d={`M${X} ${height} C${X - 22} ${height - height * h * 0.4} ${X + 22} ${height - height * h * 0.7} ${X - 6} ${height - height * h}`}
+                stroke={water.kelp}
+                strokeWidth={10 - (k % 2) * 2}
+                strokeLinecap="round"
+                fill="none"
+                opacity={0.55}
+              />
+            );
+          })}
+          <Path
+            d={`M0 ${height - 40} Q${width * 0.3} ${height - 62} ${width * 0.55} ${height - 44} T${width} ${height - 50} V${height} H0Z`}
+            fill={withAlpha(water.sand, 0.4)}
+          />
+          <Ellipse
+            cx={width * 0.72}
+            cy={height - 44}
+            rx={34}
+            ry={14}
+            fill={withAlpha(water.bottom, 0.5)}
+          />
+        </Svg>
+        <RisingBubbles height={height} count={10} />
+      </View>
+      {children}
+    </View>
+  );
+}

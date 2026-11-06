@@ -1,4 +1,5 @@
 import { ZONES } from '@/core/progress/rules';
+import type { GlyphKey } from '@/design-system';
 import { creatures, type CreatureId } from '@/features/habits/domain/creatures';
 import { stageInfo, type Stage } from '@/features/habits/domain/stages';
 
@@ -18,7 +19,7 @@ export type AchievementFacts = {
 
 export type Badge = {
   id: string;
-  emoji: string;
+  icon: GlyphKey;
   title: string;
   earned: boolean;
   /** What is left, for locked badges ("faltam 3 marés cheias"). */
@@ -35,14 +36,14 @@ export function badgesFor(f: AchievementFacts): Badge[] {
   const grown = f.habits.some((h) => h.stage === 'adult');
   const tide = (id: string, n: number, title: string): Badge => ({
     id,
-    emoji: '🌊',
+    icon: 'waves',
     title,
     earned: f.fullTides >= n,
     hint: `Faltam ${Math.max(0, n - f.fullTides)}`,
   });
-  const run = (id: string, n: number, emoji: string): Badge => ({
+  const run = (id: string, n: number, icon: GlyphKey): Badge => ({
     id,
-    emoji,
+    icon,
     title: `${n} dias seguidos`,
     earned: streak >= n,
     hint: `Faltam ${Math.max(0, n - streak)}`,
@@ -51,7 +52,7 @@ export function badgesFor(f: AchievementFacts): Badge[] {
     const z = ZONES.find((x) => x.id === zoneId)!;
     return {
       id: `zone-${zoneId}`,
-      emoji: z.emoji,
+      icon: z.icon,
       title: z.name,
       earned: f.meters >= z.from,
       hint: `Faltam ${new Intl.NumberFormat('pt-BR').format(Math.max(0, z.from - f.meters))} m`,
@@ -61,9 +62,9 @@ export function badgesFor(f: AchievementFacts): Badge[] {
     tide('tide-1', 1, 'Primeira maré cheia'),
     tide('tide-10', 10, '10 marés cheias'),
     tide('tide-50', 50, '50 marés cheias'),
-    run('streak-7', 7, '🔥'),
-    run('streak-30', 30, '🌙'),
-    run('streak-100', 100, '💎'),
+    run('streak-7', 7, 'flame'),
+    run('streak-30', 30, 'moon'),
+    run('streak-100', 100, 'gem'),
     zone('coastal'),
     zone('reef'),
     zone('open'),
@@ -71,21 +72,21 @@ export function badgesFor(f: AchievementFacts): Badge[] {
     zone('midnight'),
     {
       id: 'tasks-100',
-      emoji: '✅',
+      icon: 'check',
       title: '100 tarefas',
       earned: f.tasksDone >= 100,
       hint: left(100, f.tasksDone, 'tarefa', 'tarefas'),
     },
     {
       id: 'grown',
-      emoji: stageInfo.adult.emoji,
+      icon: 'star',
       title: 'Primeira criatura adulta',
       earned: grown,
       hint: 'Um hábito feito 30 dias',
     },
     {
       id: 'link',
-      emoji: '🔗',
+      icon: 'link',
       title: 'Primeira conexão',
       earned: f.links > 0,
       hint: 'Coloque um hábito ou lista numa rotina',
@@ -95,7 +96,9 @@ export function badgesFor(f: AchievementFacts): Badge[] {
 
 export type ShowcaseItem = {
   pick: string;
-  emoji: string;
+  icon: GlyphKey;
+  /** A habit's creature, drawn instead of the icon. */
+  creature?: CreatureId;
   label: string;
   value: string;
   detail: string;
@@ -125,18 +128,24 @@ export function showcaseItem(
     return f.bestStreak
       ? {
           pick,
-          emoji: '🔥',
+          icon: 'flame',
           label: 'Sequência',
           value: plural(f.bestStreak.days, 'dia', 'dias'),
-          detail: `${creatures[f.bestStreak.creature].emoji} ${f.bestStreak.habitName}`,
+          detail: f.bestStreak.habitName,
         }
       : null;
   if (pick === 'tides')
-    return { pick, emoji: '🌊', label: 'Marés cheias', value: String(f.fullTides), detail: 'dias' };
+    return {
+      pick,
+      icon: 'waves',
+      label: 'Marés cheias',
+      value: String(f.fullTides),
+      detail: 'dias',
+    };
   if (pick === 'tasks')
     return {
       pick,
-      emoji: '✅',
+      icon: 'check',
       label: 'Tarefas',
       value: String(f.tasksDone),
       detail: 'concluídas',
@@ -151,7 +160,7 @@ export function showcaseItem(
       ) + 1;
     return {
       pick,
-      emoji: '📅',
+      icon: 'calendar',
       label: 'No Aquar.io',
       value: plural(days, 'dia', 'dias'),
       detail: '',
@@ -162,7 +171,8 @@ export function showcaseItem(
     return habit
       ? {
           pick,
-          emoji: creatures[habit.creature].emoji,
+          icon: 'star',
+          creature: habit.creature,
           label: 'Favorita',
           value: creatures[habit.creature].name,
           detail: `${stageInfo[habit.stage].label} · ${habit.name}`,
@@ -171,9 +181,7 @@ export function showcaseItem(
   }
   if (pick.startsWith('badge:')) {
     const badge = badges.find((b) => b.id === pick.slice(6) && b.earned);
-    return badge
-      ? { pick, emoji: badge.emoji, label: 'Selo', value: badge.title, detail: '' }
-      : null;
+    return badge ? { pick, icon: badge.icon, label: 'Selo', value: badge.title, detail: '' } : null;
   }
   return null;
 }

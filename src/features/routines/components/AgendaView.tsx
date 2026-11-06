@@ -16,7 +16,7 @@ type AgendaViewProps = {
   routines: RoutineToday[];
   todayKey: string;
   onOpen: (routine: RoutineToday, day: string) => void;
-  /** Short names of what is placed in a routine ("💧 Água", "📋 Cálculo 3"). */
+  /** Short names of what is placed in a routine ("Água", "Cálculo 3"). */
   describe?: (routine: RoutineToday) => string[];
 };
 
@@ -122,7 +122,6 @@ function AgendaRow({
       </View>
       <View style={styles.flex}>
         <Text variant="headline" numberOfLines={1}>
-          {routine.emoji ? `${routine.emoji}  ` : ''}
           {routine.name}
         </Text>
         {meta.length > 0 ? (
@@ -153,7 +152,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    borderWidth: 1,
     borderRadius: radius.lg,
     padding: spacing.md,
   },

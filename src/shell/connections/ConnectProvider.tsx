@@ -21,7 +21,6 @@ import {
 } from '@/core/links/linksRepository';
 import { Sheet, Text, haptics, radius, sound, spacing, useTheme } from '@/design-system';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
-import { creatures } from '@/features/habits/domain/creatures';
 import { MAX_FOLDER_DEPTH } from '@/features/todo/domain/validation';
 import { useTodo } from '@/features/todo/hooks/todoContext';
 
@@ -296,7 +295,7 @@ function ConnectSheet({
       const done = already.has(`routine:${r.id}`);
       return {
         key: `routine:${r.id}`,
-        label: `${r.emoji ?? '⏱️'} ${r.name}`,
+        label: r.name,
         hint: `${showTime(r.start)}–${showTime(r.end)}`,
         icon: null,
         done,
@@ -311,7 +310,7 @@ function ConnectSheet({
           const done = already.has(`habit:${h.id}`);
           return {
             key: `habit:${h.id}`,
-            label: `${creatures[h.creature].emoji} ${h.name}`,
+            label: h.name,
             hint: 'Hábito',
             icon: null,
             done,
@@ -344,7 +343,7 @@ function ConnectSheet({
             const here = currentFolder === f.id;
             return {
               key: `folder:${f.id}`,
-              label: `${'  '.repeat(f.depth - 1)}${f.emoji ?? '📁'} ${f.name}`,
+              label: `${'  '.repeat(f.depth - 1)}${f.name}`,
               hint: 'Pasta',
               icon: null,
               done: here,
@@ -375,32 +374,20 @@ function ConnectSheet({
       sections.push({
         title: 'Hábitos',
         options: habits.map((h) =>
-          option(
-            { kind: 'habit', id: h.id, name: h.name },
-            `${creatures[h.creature].emoji} ${h.name}`,
-            'Entra com horário',
-          ),
+          option({ kind: 'habit', id: h.id, name: h.name }, h.name, 'Entra com horário'),
         ),
       });
     }
     sections.push({
       title: 'Listas',
       options: lists.map((l) =>
-        option(
-          { kind: 'list', id: l.id, name: l.name },
-          `${l.emoji ?? '📋'} ${l.name}`,
-          `${l.pendingCount} pendentes`,
-        ),
+        option({ kind: 'list', id: l.id, name: l.name }, l.name, `${l.pendingCount} pendentes`),
       ),
     });
     sections.push({
       title: 'Pastas',
       options: folders.map((f) =>
-        option(
-          { kind: 'folder', id: f.id, name: f.name },
-          `${f.emoji ?? '📁'} ${f.name}`,
-          `${f.openCount} pendentes`,
-        ),
+        option({ kind: 'folder', id: f.id, name: f.name }, f.name, `${f.openCount} pendentes`),
       ),
     });
   }

@@ -12,6 +12,8 @@ import {
   listColors,
   spacing,
   useTheme,
+  glyphKey,
+  glyphs,
 } from '@/design-system';
 
 import { toDateKey } from '../domain/dates';
@@ -76,7 +78,7 @@ function QuickAddForm({
         <EmptyState
           icon={CalendarDays}
           title="Crie sua primeira lista"
-          message="Tarefas moram em listas, como Academia, Faculdade ou Casa."
+          message="Tarefas moram em listas."
           action={{ label: 'Criar lista', onPress: () => setCreatingList(true) }}
         />
         <ListEditorSheet
@@ -117,7 +119,7 @@ function QuickAddForm({
             <Chip
               key={list.id}
               label={list.name}
-              leadingText={list.emoji ?? undefined}
+              icon={list.emoji ? glyphs[glyphKey(list.emoji) ?? 'list'] : undefined}
               dotColor={!list.emoji && list.color ? listColors[list.color][scheme] : undefined}
               selected={list.id === listId}
               onPress={() => setListId(list.id)}

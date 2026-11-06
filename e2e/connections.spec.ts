@@ -35,7 +35,7 @@ test('connect a list and a habit to a routine, by menu and by dragging', async (
 
   // The routine's piece shows it, and opens to the list's tasks.
   await page.goto('/aquarium?tab=routines');
-  await expect(visible(page.getByText('📋 1 lista'))).toBeVisible();
+  await expect(visible(page.getByText('1 lista'))).toBeVisible();
   await page.getByRole('button', { name: 'Abrir Academia' }).click();
   await expect(visible(page.getByText('Supino'))).toBeVisible();
 
@@ -46,7 +46,7 @@ test('connect a list and a habit to a routine, by menu and by dragging', async (
   await expect(page.getByText(/Segure um item da bandeja/)).toBeVisible();
   await page.waitForTimeout(800);
   const chip = (await page
-    .getByRole('button', { name: /^📋 Treino A/ })
+    .getByRole('button', { name: /^Treino A/ })
     .last()
     .boundingBox())!;
   const habit = (await page

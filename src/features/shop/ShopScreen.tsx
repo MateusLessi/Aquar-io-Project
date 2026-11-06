@@ -1,8 +1,10 @@
-import { Crown, Palette, Trophy, type LucideIcon } from 'lucide-react-native';
+import { Crown, Gem, Palette, Shell, Sparkles, Trophy, type LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import {
   DeepSurface,
+  Glyph,
+  type GlyphKey,
   Grid,
   RisingBubbles,
   Screen,
@@ -49,24 +51,27 @@ const plans: {
   },
 ];
 
-const cosmetics: { name: string; emoji: string; color: ListColorName }[] = [
-  { name: 'Recife de corais', emoji: '🪸', color: 'coral' },
-  { name: 'Bolhas douradas', emoji: '✨', color: 'sand' },
-  { name: 'Água-viva neon', emoji: '🪼', color: 'anemone' },
-  { name: 'Fundo abissal', emoji: '🌌', color: 'tide' },
-  { name: 'Floresta de algas', emoji: '🌿', color: 'kelp' },
-  { name: 'Lagoa tropical', emoji: '🏝️', color: 'lagoon' },
+const cosmetics: { name: string; icon: GlyphKey; color: ListColorName }[] = [
+  { name: 'Recife de corais', icon: 'shell', color: 'coral' },
+  { name: 'Bolhas douradas', icon: 'sparkles', color: 'sand' },
+  { name: 'Água-viva neon', icon: 'gem', color: 'anemone' },
+  { name: 'Fundo abissal', icon: 'moon', color: 'tide' },
+  { name: 'Floresta de algas', icon: 'leaf', color: 'kelp' },
+  { name: 'Lagoa tropical', icon: 'palm', color: 'lagoon' },
 ];
 
 export function ShopScreen() {
   const breakpoint = useBreakpoint();
+  const { colors } = useTheme();
   return (
     <Screen title="Loja" eyebrow="Em breve">
       <DeepSurface radius="xl" style={styles.hero}>
         <RisingBubbles height={160} count={10} />
-        <Text style={styles.treasure} accessibilityElementsHidden>
-          🐚💎🪸
-        </Text>
+        <View style={styles.treasure} accessibilityElementsHidden>
+          <Shell size={30} color={colors.deepAccent} />
+          <Gem size={30} color={colors.deepAccent} />
+          <Sparkles size={30} color={colors.deepAccent} />
+        </View>
         <Text variant="title1" tone="onDeep">
           Tesouros do oceano
         </Text>
@@ -154,7 +159,7 @@ function PlanCard({ name, description, perks, color, icon: Icon }: (typeof plans
   );
 }
 
-function CosmeticCard({ name, emoji, color }: (typeof cosmetics)[number]) {
+function CosmeticCard({ name, icon, color }: (typeof cosmetics)[number]) {
   const { scheme } = useTheme();
   const tone = listColors[color][scheme];
   return (
@@ -165,7 +170,9 @@ function CosmeticCard({ name, emoji, color }: (typeof cosmetics)[number]) {
     >
       <View style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(tone, 0.16) }]} />
       <Palette size={16} color={tone} style={styles.palette} />
-      <Text style={styles.emoji}>{emoji}</Text>
+      <View style={styles.emoji}>
+        <Glyph name={icon} size={34} color={tone} strokeWidth={1.8} />
+      </View>
       <Text variant="headline" numberOfLines={1}>
         {name}
       </Text>
@@ -178,7 +185,7 @@ const styles = StyleSheet.create({
   hero: { padding: spacing.xl, gap: spacing.sm, overflow: 'hidden' },
   section: { gap: spacing.sm },
   sectionTitle: { marginLeft: spacing.xs },
-  plan: { padding: spacing.lg, gap: spacing.sm, borderWidth: 1, overflow: 'hidden' },
+  plan: { padding: spacing.lg, gap: spacing.sm, overflow: 'hidden' },
   planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   icon: {
     width: 48,
@@ -197,11 +204,10 @@ const styles = StyleSheet.create({
   cosmetic: {
     padding: spacing.lg,
     gap: spacing.sm,
-    borderWidth: 1,
     overflow: 'hidden',
     alignItems: 'flex-start',
   },
   palette: { position: 'absolute', top: spacing.md, right: spacing.md },
-  emoji: { fontSize: 40, lineHeight: 48 },
-  treasure: { fontSize: 40, lineHeight: 48 },
+  emoji: { paddingVertical: spacing.xs },
+  treasure: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xs },
 });

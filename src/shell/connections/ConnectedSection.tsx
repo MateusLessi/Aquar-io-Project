@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ChevronRight, Link2 } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useLinks } from '@/core/links/linksContext';
@@ -13,9 +13,10 @@ import {
   spacing,
   useTheme,
   withAlpha,
+  Glyph,
 } from '@/design-system';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
-import { creatures } from '@/features/habits/domain/creatures';
+import { CreatureArt } from '@/features/habits/components/CreatureArt';
 
 import { useConnect } from './ConnectProvider';
 import { useConnections } from './useConnected';
@@ -23,7 +24,7 @@ import { useConnections } from './useConnected';
 type Row = {
   key: string;
   linkId: string;
-  icon: string;
+  icon: ReactNode;
   title: string;
   hint: string;
   open: () => void;
@@ -56,7 +57,7 @@ export function ConnectedSection({
       rows.push({
         key: place.link.id,
         linkId: place.link.id,
-        icon: place.routine.emoji ?? '⏱️',
+        icon: <Glyph name={place.routine.emoji} fallback="timer" size={22} color={colors.accent} />,
         title: `Rotina ${place.routine.name}`,
         hint: `${showTime(place.routine.start)}–${showTime(place.routine.end)}${place.link.at ? ` · às ${showTime(place.link.at)}` : ''}`,
         open: () => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } }),
@@ -65,7 +66,7 @@ export function ConnectedSection({
       rows.push({
         key: place.link.id,
         linkId: place.link.id,
-        icon: creatures[place.habit.creature].emoji,
+        icon: <CreatureArt creature={place.habit.creature} size={34} />,
         title: place.habit.name,
         hint: 'Hábito',
         open: () =>
@@ -79,7 +80,7 @@ export function ConnectedSection({
         rows.push({
           key: c.link.id,
           linkId: c.link.id,
-          icon: c.list.emoji ?? '📋',
+          icon: <Glyph name={c.list.emoji} fallback="list" size={22} color={colors.accent} />,
           title: c.list.name,
           hint: `Lista · ${c.list.pendingCount} pendentes`,
           open: () => router.push({ pathname: '/aquarium/lists/[id]', params: { id: c.list.id } }),
@@ -88,7 +89,7 @@ export function ConnectedSection({
         rows.push({
           key: c.link.id,
           linkId: c.link.id,
-          icon: c.folder.emoji ?? '📁',
+          icon: <Glyph name={c.folder.emoji} fallback="folder" size={22} color={colors.accent} />,
           title: c.folder.name,
           hint: `Pasta · ${c.folder.openCount} pendentes`,
           open: () =>
@@ -126,7 +127,7 @@ export function ConnectedSection({
               pressed && { backgroundColor: colors.surfacePressed },
             ]}
           >
-            <Text variant="title2">{row.icon}</Text>
+            <View style={styles.rowIcon}>{row.icon}</View>
             <View style={styles.flex}>
               <Text variant="body" numberOfLines={1}>
                 {row.title}
@@ -182,6 +183,7 @@ export function ConnectedSection({
 }
 
 const styles = StyleSheet.create({
+  rowIcon: { width: 36, alignItems: 'center' },
   card: { padding: spacing.md, gap: spacing.xs },
   flex: { flex: 1 },
   bold: { fontWeight: '700' },
@@ -200,8 +202,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingVertical: spacing.md,
     borderRadius: radius.lg,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
     marginTop: spacing.xs,
   },
   secondary: { alignItems: 'center', paddingVertical: spacing.xs },

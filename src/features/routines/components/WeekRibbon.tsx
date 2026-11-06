@@ -2,7 +2,16 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { addDays, fromDateKey } from '@/core/dates';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
-import { Button, Text, listColors, radius, spacing, useTheme, withAlpha } from '@/design-system';
+import {
+  Button,
+  Text,
+  listColors,
+  radius,
+  spacing,
+  useTheme,
+  withAlpha,
+  Glyph,
+} from '@/design-system';
 
 import {
   durationLabel,
@@ -126,7 +135,12 @@ export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: 
               { backgroundColor: withAlpha(listColors[next.routine.color][scheme], 0.22) },
             ]}
           >
-            <Text variant="headline">{next.routine.emoji ?? '⏱️'}</Text>
+            <Glyph
+              name={next.routine.emoji}
+              fallback="timer"
+              size={19}
+              color={listColors[next.routine.color][scheme]}
+            />
           </View>
           <View style={styles.flex}>
             <Text variant="headline" numberOfLines={1}>
@@ -143,7 +157,7 @@ export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: 
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: 1, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
+  card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   columns: { flexDirection: 'row', gap: spacing.xs },
   day: { flex: 1, alignItems: 'center', gap: spacing.xs },

@@ -18,6 +18,9 @@ import {
   spacing,
   useTheme,
   type ListColorName,
+  GlyphPicker,
+  glyphKey,
+  type GlyphKey,
 } from '@/design-system';
 import { weekdayOrder } from '@/core/dates';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
@@ -25,7 +28,20 @@ import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { toMinutes } from '../domain/schedule';
 import type { NewRoutine, Routine, RoutineItem } from '../domain/types';
 
-const EMOJIS = ['🌅', '☕', '💼', '🏋️', '📚', '🧘', '🍽️', '🛏️', '🚗', '🧹', '🎮', '🌙'];
+const GLYPHS: GlyphKey[] = [
+  'sunrise',
+  'coffee',
+  'briefcase',
+  'dumbbell',
+  'library',
+  'leaf',
+  'utensils',
+  'bed',
+  'car',
+  'brush',
+  'gamepad',
+  'moon',
+];
 const EVERY_DAY = 0b1111111;
 const WEEKDAYS = 0b0111110;
 const DAY_LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
@@ -66,7 +82,7 @@ function RoutineForm({
   const { colors, scheme } = useTheme();
   const { weekStart } = useCalendarPrefs();
   const [name, setName] = useState(routine?.name ?? '');
-  const [emoji, setEmoji] = useState<string | null>(routine?.emoji ?? '🌅');
+  const [emoji, setEmoji] = useState<string | null>(glyphKey(routine?.emoji) ?? 'sunrise');
   const [color, setColor] = useState<ListColorName>(routine?.color ?? 'lagoon');
   const [start, setStart] = useState(routine?.start ?? '07:00');
   const [end, setEnd] = useState(routine?.end ?? '08:00');
@@ -118,27 +134,7 @@ function RoutineForm({
       />
 
       <Group label="Ícone e cor">
-        <View style={styles.wrap}>
-          {EMOJIS.map((option) => {
-            const selected = emoji === option;
-            return (
-              <Pressable
-                key={option}
-                onPress={() => setEmoji(option)}
-                accessibilityRole="radio"
-                accessibilityLabel={`Ícone ${option}`}
-                accessibilityState={{ checked: selected }}
-                style={[
-                  styles.emoji,
-                  { backgroundColor: selected ? colors.accentSoft : colors.surfacePressed },
-                  selected && { borderColor: colors.accent, borderWidth: 2 },
-                ]}
-              >
-                <Text variant="title2">{option}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <GlyphPicker options={GLYPHS} value={emoji} onChange={setEmoji} allowNone={false} />
         <View style={styles.wrap}>
           {listColorNames.map((name) => (
             <Pressable
@@ -342,13 +338,6 @@ const styles = StyleSheet.create({
   group: { gap: spacing.sm },
   groupLabel: { marginLeft: spacing.xs },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  emoji: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   swatch: { width: 40, height: 40, borderRadius: 20 },
   times: { flexDirection: 'row', gap: spacing.md },
   timeButton: { flex: 1, borderWidth: 2, borderRadius: radius.lg, padding: spacing.md },
