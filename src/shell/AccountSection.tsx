@@ -71,9 +71,46 @@ export function AccountSection() {
   );
 }
 
-function statusLabel({ status, lastSyncedAt }: AccountState): string {
+const TABLE_LABELS: Record<string, string> = {
+  task_lists: 'listas',
+  task_folders: 'pastas',
+  tasks: 'tarefas',
+  habits: 'hábitos',
+  habit_checks: 'hábitos',
+  habit_progress: 'hábitos',
+  routines: 'rotinas',
+  routine_items: 'rotinas',
+  routine_checks: 'rotinas',
+  links: 'conexões',
+  profile: 'perfil',
+};
+
+/** Which parts failed, in words: "perfil", "hábitos e rotinas". */
+function partsLabel(tables: string[]): string {
+  const parts = [...new Set(tables.map((t) => TABLE_LABELS[t] ?? t))];
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} e ${parts.at(-1)}` : (parts[0] ?? '');
+}
+
+/** What the sync status means, and what to do about it. */
+export function statusLabel({
+  status,
+  problem,
+  lastSyncedAt,
+}: Pick<AccountState, 'status' | 'problem' | 'lastSyncedAt'>): string {
   if (status === 'syncing') return 'Sincronizando…';
-  if (status === 'error') return 'Sem conexão. Tudo sobe depois.';
+  if (status === 'error') {
+    const parts = problem ? partsLabel(problem.tables) : '';
+    switch (problem?.kind) {
+      case 'outdated':
+        return `A nuvem precisa de uma atualização${parts ? ` (${parts})` : ''}. Tudo continua salvo aqui.`;
+      case 'denied':
+        return 'A sessão expirou. Saia e entre de novo.';
+      case 'offline':
+        return 'Sem conexão. Tudo sobe depois.';
+      default:
+        return `Não deu para sincronizar${parts ? ` ${parts}` : ''}. Tenta de novo sozinho.`;
+    }
+  }
   if (!lastSyncedAt) return 'Conectado';
   return `Sincronizado ${relativeTime(lastSyncedAt)}`;
 }

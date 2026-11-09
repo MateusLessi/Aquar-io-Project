@@ -26,6 +26,8 @@ type HabitTankProps = {
   /** The day's tide, 0–1: how full the tank is. */
   level: number;
   ruler?: boolean;
+  /** Sand height: taller when chips sit on it (see AquariumTank). */
+  floor?: number;
   overlay?: ReactNode;
   accessibilityLabel: string;
   progress?: { now: number; max: number };
@@ -40,6 +42,7 @@ export function HabitTank({
   height,
   level,
   ruler,
+  floor,
   overlay,
   accessibilityLabel,
   progress,
@@ -51,6 +54,7 @@ export function HabitTank({
       height={height}
       level={level}
       ruler={ruler}
+      floor={floor}
       transparent={mode === 'crystal'}
       overlay={overlay}
       accessibilityLabel={accessibilityLabel}
@@ -90,12 +94,12 @@ function Swimmer({
   // Each creature keeps its own lane, so they never all line up.
   const home = ((index + 0.5) / count) * scene.width;
   const range = Math.min(scene.width * 0.28, 90);
-  const floor = scene.height - 22 - size * 0.6;
+  const floor = scene.sand - 4 - size * 0.6;
   const surface = scene.waterline + 24 + size * 0.2;
   const ratio = habit.doneToday ? 1 : habit.today.ratio;
   const lane = seeded(index, 7) * 0.18;
   const targetY = egg
-    ? scene.height - 18 - size * 0.55
+    ? scene.sand + 2 - size * 0.55
     : floor - (floor - surface) * Math.min(1, ratio + lane);
 
   const y = useSharedValue(targetY);

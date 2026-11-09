@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { AppState } from 'react-native';
+import { describeSyncError, type SyncProblem } from '@/core/sync/syncError';
 
 import type { DataChanges } from '@/core/database/changes';
 import type { Database } from '@/core/database/types';
@@ -26,6 +27,8 @@ export type SyncStatus = 'idle' | 'syncing' | 'error';
 export type AccountState = {
   email: string | null;
   status: SyncStatus;
+  /** Why the last sync failed, when it did. */
+  problem: SyncProblem | null;
   lastSyncedAt: string | null;
   signIn(email: string, password: string): Promise<void>;
   signUp(email: string, password: string): Promise<void>;
@@ -69,6 +72,7 @@ function AccountSync({
 }) {
   const [email, setEmail] = useState<string | null>(null);
   const [status, setStatus] = useState<SyncStatus>('idle');
+  const [problem, setProblem] = useState<SyncProblem | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const engine = useMemo(
     () => createSyncEngine({ db, remote: account.remote, changes }),
@@ -100,11 +104,13 @@ function AccountSync({
     run()
       .then(async () => {
         setStatus('idle');
+        setProblem(null);
         setLastSyncedAt(await engine.lastSyncedAt());
       })
       .catch((error: unknown) => {
         // Offline or server trouble: changes stay queued and the next attempt sends them.
         console.warn('Sync failed.', error);
+        setProblem(describeSyncError(error));
         setStatus('error');
       })
       .finally(() => {
@@ -139,6 +145,7 @@ function AccountSync({
     () => ({
       email,
       status,
+      problem,
       lastSyncedAt,
       signIn: (to, password) => account.signIn(to.trim().toLowerCase(), password),
       signUp: (to, password) => account.signUp(to.trim().toLowerCase(), password),
@@ -149,7 +156,7 @@ function AccountSync({
       },
       syncNow,
     }),
-    [account, email, status, lastSyncedAt, syncNow, db, changes],
+    [account, email, status, problem, lastSyncedAt, syncNow, db, changes],
   );
 
   return <AccountContext.Provider value={value}>{children}</AccountContext.Provider>;
