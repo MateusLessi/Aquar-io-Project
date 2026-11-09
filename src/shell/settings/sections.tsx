@@ -24,6 +24,7 @@ import {
   useTheme,
   type ThemePreference,
 } from '@/design-system';
+import { BrandHeader } from './community';
 import { CreatureArt } from '@/features/habits/components/CreatureArt';
 import { creatureIds, creatures } from '@/features/habits/domain/creatures';
 
@@ -577,6 +578,7 @@ export function AboutSettings() {
   const welcome = useWelcome();
   return (
     <>
+      <BrandHeader version={Constants.expoConfig?.version ?? '—'} />
       <Button label="Ver as boas-vindas" variant="secondary" onPress={welcome.open} />
       <Group>
         <Surface>

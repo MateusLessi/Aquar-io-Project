@@ -19,6 +19,7 @@ import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
 import { useDashboardCards, useGamePrefs, type DashboardCardId } from '../settings/prefs';
 import { WeekStatsCard } from '../stats/WeekStatsCard';
+import { InstallHint } from '../install/InstallHint';
 import { HomeTank } from './HomeTank';
 import { TideCalendar } from './TideCalendar';
 import { WeekChart } from './WeekChart';
@@ -86,6 +87,7 @@ export function DashboardScreen() {
 
   return (
     <Screen title={greeting(now, name)} eyebrow={dateLabel(now)} wide={breakpoint === 'expanded'}>
+      <InstallHint />
       {breakpoint === 'compact' ? (
         <>
           {tide}

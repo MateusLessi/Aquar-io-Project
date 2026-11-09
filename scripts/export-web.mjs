@@ -37,3 +37,23 @@ for (const file of files(out)) {
   }
 }
 console.log(`Moved assets/node_modules to assets/vendor (${rewritten} files rewritten).`);
+
+// Home screen install (iPhone "Adicionar à Tela de Início", Android "Instalar app"): the
+// icon, the manifest and the language, which the default page template does not have.
+const index = join(out, 'index.html');
+const head = [
+  '<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>',
+  '<link rel="manifest" href="/manifest.webmanifest"/>',
+  '<meta name="theme-color" content="#06202A"/>',
+  '<meta name="apple-mobile-web-app-capable" content="yes"/>',
+  '<meta name="apple-mobile-web-app-title" content="Aquar.io"/>',
+  '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>',
+].join('');
+const page = readFileSync(index, 'utf8');
+if (!page.includes('rel="manifest"')) {
+  writeFileSync(
+    index,
+    page.replace('<html lang="en">', '<html lang="pt-BR">').replace('</head>', `${head}</head>`),
+  );
+  console.log('Added the home screen icon and manifest to index.html.');
+}

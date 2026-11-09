@@ -20,7 +20,7 @@ const facts = (over: Partial<AchievementFacts> = {}): AchievementFacts => ({
 describe('badges', () => {
   it('starts with none and says what is left', () => {
     const badges = badgesFor(facts());
-    expect(badges).toHaveLength(14);
+    expect(badges).toHaveLength(15);
     expect(badges.every((b) => !b.earned)).toBe(true);
     expect(badges.find((b) => b.id === 'tide-10')?.hint).toBe('Faltam 10');
     expect(badges.find((b) => b.id === 'zone-reef')?.hint).toBe('Faltam 300 m');
@@ -73,5 +73,20 @@ describe('showcase', () => {
     expect(picks).toContain('favorite:h1');
     expect(picks).toContain('badge:tide-1');
     expect(picks).not.toContain('badge:tide-10');
+  });
+});
+
+describe('Founding Diver', () => {
+  const founding = (firstDay: string | null, todayKey: string) =>
+    badgesFor(facts({ firstDay, todayKey })).find((b) => b.id === 'founding');
+
+  it('goes to whoever started on or before the end of 2026, and stays', () => {
+    expect(founding('2026-11-09', '2026-11-09')?.earned).toBe(true);
+    expect(founding('2026-12-31', '2027-06-01')?.earned).toBe(true);
+  });
+
+  it('is still within reach before the cutoff, then disappears for newcomers', () => {
+    expect(founding(null, '2026-11-09')).toMatchObject({ earned: false });
+    expect(founding('2027-01-02', '2027-01-02')).toBeUndefined();
   });
 });

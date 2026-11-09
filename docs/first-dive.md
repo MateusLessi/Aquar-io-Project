@@ -23,7 +23,7 @@ Ordem pensada por dependência: primeiro o que muda os dados (hábitos, pastas),
 | 7   | **Ajustes completos**: personalização ampla do app                                               | ✓      |
 | 8   | **Perfil personalizável** com privacidade por informação                                         | ✓      |
 | 9   | **Boas-vindas imersivas** e quiz inicial                                                         | ✓      |
-| 10  | **Pronto para testadores**: marca, comunidade, Founding Diver, apagar conta, privacidade, GitHub | ☐      |
+| 10  | **Pronto para testadores**: marca, comunidade, Founding Diver, apagar conta, privacidade, GitHub | ✓      |
 | 11  | **Lançamento**: tag `v1.0.0`, Release "First Dive", site fixo, APK, anúncio                      | ☐      |
 
 ## Detalhes por etapa
@@ -103,6 +103,9 @@ Ver [recomendações](#recomendações-de-ajustes-e-perfil) abaixo.
 ### 10. Pronto para testadores
 
 Ver [community.md](community.md): marca dentro do app, Comunidade e feedback, Founding Diver, apagar conta, aviso de privacidade, "Adicionar à Tela de Início" no iPhone, estados vazios com o mascote, e o "Sobre" do GitHub, modelos de issue e etiquetas.
+
+- **Feito:** marca em Ajustes → Sobre; **Comunidade e feedback** (Discord e formulários do GitHub já com versão e aparelho, links em `src/shell/community/links.ts`); selo **Founding Diver** para quem começou até 31/12/2026; **Privacidade** no app e em [privacy.md](privacy.md); dica de instalação no iPhone e ícone/manifesto da Tela de Início na versão web; mascote nos estados vazios; modelos de issue (`.github/ISSUE_TEMPLATE`). "Apagar conta" veio na etapa 7.
+- **Falta (depende do dono do repositório):** criar as etiquetas `bug` e `ideia` e preencher o "Sobre" do repositório no GitHub.
 
 ## Recomendações de ajustes e perfil
 

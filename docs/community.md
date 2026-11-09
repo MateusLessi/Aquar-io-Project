@@ -1,6 +1,6 @@
 # Comunidade — visão e estratégia
 
-**Status:** visão em discussão (outubro de 2026). Nada aqui está implementado no app. Cada item vira decisão no checkpoint em que for executado.
+**Status:** visão em discussão (outubro de 2026). Já no app (etapa 10, novembro de 2026): botão do **Discord** (https://discord.gg/JMGgPhTtr), relatar problema e sugerir ideia pelo GitHub, e o selo **Founding Diver** (até 31/12/2026). O resto vira decisão no checkpoint em que for executado.
 
 Este documento guarda a perspectiva de uma conversa do Mateus com outra IA sobre a comunidade do Aquar.io, junto com os conselhos de engenharia e produto que ela recebeu aqui.
 

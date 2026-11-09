@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ListTodo, Plus } from 'lucide-react-native';
+import { ChevronDown, ChevronRight, Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -45,13 +45,7 @@ export function FolderTasksView({ folderId }: { folderId: string | null }) {
     todo.setCompleted(id, completed).catch((e: unknown) => console.error(e));
 
   if (!loading && tasks.length === 0) {
-    return (
-      <EmptyState
-        icon={ListTodo}
-        title="Nenhuma tarefa aqui"
-        message="As tarefas desta pasta, pelo prazo."
-      />
-    );
+    return <EmptyState title="Nenhuma tarefa aqui" message="As tarefas desta pasta, pelo prazo." />;
   }
 
   return (

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BarChart3, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -137,7 +137,6 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
   if (nothing) {
     return (
       <EmptyState
-        icon={BarChart3}
         title="Seus números aparecem aqui"
         message="Conclua algo e os gráficos começam a encher."
       />

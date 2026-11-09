@@ -1,0 +1,33 @@
+name: Sugerir uma ideia
+description: Algo que faria o Aquar.io melhor para você.
+title: '[Ideia] '
+labels: ['ideia']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Conte o **problema** que você quer resolver, não só a solução: assim dá para pensar
+        na melhor forma de fazer. O roadmap segue a direção da comunidade, sem datas prometidas.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Que problema você quer resolver?
+      placeholder: 'Ex.: tenho muitas aulas que se repetem e cadastro uma por uma.'
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Como você imagina?
+  - type: dropdown
+    id: area
+    attributes:
+      label: Parte do app
+      options:
+        - Hábitos e criaturas
+        - Rotinas
+        - Listas e pastas
+        - Início e aquário
+        - Estatísticas e perfil
+        - Visual e acessibilidade
+        - Outra

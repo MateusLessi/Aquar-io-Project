@@ -1,0 +1,45 @@
+name: Relatar um problema
+description: Algo não funcionou como devia no Aquar.io.
+title: '[Problema] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por ajudar! Quanto mais detalhes, mais rápido dá para consertar.
+        Não coloque senhas nem dados pessoais aqui: este repositório é público.
+  - type: textarea
+    id: what
+    attributes:
+      label: O que aconteceu?
+      placeholder: 'Ex.: marquei um hábito e ele voltou a ficar desmarcado.'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que você esperava?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como repetir
+      placeholder: |
+        1. Abra…
+        2. Toque em…
+  - type: input
+    id: version
+    attributes:
+      label: Versão do app
+      description: Em Ajustes → Sobre o Aquar.io (o app preenche sozinho pelo botão de feedback).
+  - type: input
+    id: device
+    attributes:
+      label: Aparelho
+      placeholder: 'Ex.: iPhone 13 (iOS 18), Galaxy Tab S8+, navegador no PC'
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Capturas de tela
+      description: Arraste as imagens para cá, se tiver.
