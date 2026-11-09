@@ -31,6 +31,7 @@ import {
   SoundRemindersSettings,
   TideModeSettings,
 } from './sections';
+import { CommunitySettings, PrivacySettings } from './community';
 
 const SECTIONS = {
   appearance: { title: 'Aparência', icon: 'palette', render: AppearanceSettings },
@@ -41,6 +42,8 @@ const SECTIONS = {
   tide: { title: 'Modo Maré', icon: 'waves', render: TideModeSettings },
   accessibility: { title: 'Acessibilidade', icon: 'accessibility', render: AccessibilitySettings },
   account: { title: 'Conta e dados', icon: 'cloud', render: AccountDataSettings },
+  community: { title: 'Comunidade e feedback', icon: 'users', render: CommunitySettings },
+  privacy: { title: 'Privacidade', icon: 'lock', render: PrivacySettings },
   about: { title: 'Sobre o Aquar.io', icon: 'info', render: AboutSettings },
 } as const;
 export type SettingsSection = keyof typeof SECTIONS;
@@ -76,6 +79,8 @@ function useSummaries(): Record<SettingsSection, string> {
       ? a11y.join(', ').replace(/^./, (c) => c.toUpperCase())
       : 'Como no aparelho',
     account: account?.email ?? 'Exportar e apagar dados',
+    community: 'Discord, problemas e ideias',
+    privacy: 'O que fica onde',
     about: `Versão ${Constants.expoConfig?.version ?? '—'}`,
   };
 }

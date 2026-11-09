@@ -22,7 +22,11 @@
       "package": "com.mateuslessi.aquario"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "Aquar.io",
+      "shortName": "Aquar.io",
+      "themeColor": "#06202A",
+      "backgroundColor": "#06202A"
     },
     "plugins": [
       "expo-router",

@@ -76,7 +76,6 @@ function QuickAddForm({
     return (
       <View>
         <EmptyState
-          icon={CalendarDays}
           title="Crie sua primeira lista"
           message="Tarefas moram em listas."
           action={{ label: 'Criar lista', onPress: () => setCreatingList(true) }}

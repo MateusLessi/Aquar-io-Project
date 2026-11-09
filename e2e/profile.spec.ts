@@ -14,7 +14,7 @@ test('personalize the profile: line, color, privacy and showcase', async ({ page
   await expect(check).toHaveAttribute('aria-checked', 'true');
 
   await page.goto('/profile');
-  await expect(visible(page.getByText(/^Selos · \d+ de 14$/))).toBeVisible();
+  await expect(visible(page.getByText(/^Selos · \d+ de \d+$/))).toBeVisible();
   await visible(page.getByRole('button', { name: 'Editar perfil' })).click();
   await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Mateus');
   await page.getByRole('textbox', { name: 'Frase', exact: true }).fill('Um mergulho por dia');

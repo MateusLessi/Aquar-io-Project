@@ -26,6 +26,9 @@ export type Badge = {
   hint: string;
 };
 
+/** The first season of testers: anyone whose first day in the app is on or before this. */
+export const FOUNDING_UNTIL = '2026-12-31';
+
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const left = (target: number, have: number, one: string, many: string) =>
   `Faltam ${plural(Math.max(0, target - have), one, many)}`;
@@ -58,7 +61,17 @@ export function badgesFor(f: AchievementFacts): Badge[] {
       hint: `Faltam ${new Intl.NumberFormat('pt-BR').format(Math.max(0, z.from - f.meters))} m`,
     };
   };
+  const founding: Badge = {
+    id: 'founding',
+    icon: 'anchor',
+    title: 'Founding Diver',
+    earned: f.firstDay !== null && f.firstDay <= FOUNDING_UNTIL,
+    hint: 'Até 31/12/2026',
+  };
+  // Once the first season is over, it only shows for those who have it.
+  const foundingShown = founding.earned || f.todayKey <= FOUNDING_UNTIL;
   return [
+    ...(foundingShown ? [founding] : []),
     tide('tide-1', 1, 'Primeira maré cheia'),
     tide('tide-10', 10, '10 marés cheias'),
     tide('tide-50', 50, '50 marés cheias'),

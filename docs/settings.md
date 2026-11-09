@@ -4,7 +4,7 @@
 
 | Seção                   | O que muda                                                                        | Chave                                                |
 | ----------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Aparência               | Tema; tamanho do texto (padrão, grande 1,15×, maior 1,3×, somado ao do sistema)   | `theme`, `textScale`                                 |
+| Aparência               | Tema (Sistema, Claro, Escuro, Crystal); tamanho do texto (1×, 1,15×, 1,3×)        | `theme`, `textScale`, `theme.zone` (zona atual)      |
 | Início                  | Aba em que o app abre; cartões do painel (mostrar, esconder, ordem com ↑ ↓)       | `start.tab`, `dashboard.cards`                       |
 | Calendário              | Semana começa no domingo ou na segunda; hora 24 h ou 12 h                         | `calendar.weekStart`, `calendar.clock`               |
 | Sons, toque e lembretes | Sons e vibração (etapa 6); lembretes; horário silencioso                          | `feedback.*`, `reminders`, `reminders.quiet`         |
@@ -12,7 +12,9 @@
 | Modo Maré               | Ligado ou desligado                                                               | `ambientMode`                                        |
 | Acessibilidade          | Reduzir movimento, reduzir transparência, **alto contraste**                      | `reduceMotion`, `reduceTransparency`, `highContrast` |
 | Conta e dados           | Sincronização; exportar (JSON + CSV); apagar os dados do aparelho; apagar a conta | —                                                    |
-| Sobre                   | Versão, aparelho, créditos                                                        | —                                                    |
+| Comunidade e feedback   | Discord; relatar problema e sugerir ideia (GitHub, com versão e aparelho)         | `shell/community/links.ts`                           |
+| Privacidade             | O que fica no aparelho e o que sincroniza, em palavras simples                    | —                                                    |
+| Sobre                   | Marca, versão, aparelho, créditos                                                 | —                                                    |
 
 ## Como cada ajuste chega às telas
 

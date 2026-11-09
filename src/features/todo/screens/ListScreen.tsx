@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ChevronDown, ChevronRight, ListTodo, Pencil, SearchX } from 'lucide-react-native';
+import { ChevronDown, ChevronRight, Pencil, SearchX } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -75,11 +75,7 @@ export function ListScreen({
       <AddTaskField onAdd={(title) => todo.createTask({ listId, title }).then(() => undefined)} />
 
       {tasks.length === 0 ? (
-        <EmptyState
-          icon={ListTodo}
-          title="Nenhuma tarefa ainda"
-          message="Escreva acima e aperte Enter."
-        />
+        <EmptyState title="Nenhuma tarefa ainda" message="Escreva acima e aperte Enter." />
       ) : null}
 
       {open.length > 0 ? (
