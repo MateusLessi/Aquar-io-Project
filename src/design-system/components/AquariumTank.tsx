@@ -43,6 +43,8 @@ export type TankScene = {
   height: number;
   /** Y of the water surface, in points from the top of the tank. */
   waterline: number;
+  /** Y of the sand, where eggs rest and creatures stop. */
+  sand: number;
 };
 
 export type AquariumTankProps = {
@@ -54,6 +56,8 @@ export type AquariumTankProps = {
   /** Crystal: the aquarium is the whole screen behind, so the tank is only a window. */
   transparent?: boolean;
   radius?: keyof typeof radii;
+  /** How tall the sand is, from the bottom. Taller when chips sit on it, so nothing hides. */
+  floor?: number;
   /** The creatures: drawn inside the water, given the size of the scene. */
   children?: (scene: TankScene) => ReactNode;
   /** Labels and glass chips on top of the water. */
@@ -84,6 +88,7 @@ export function AquariumTank({
   ruler = false,
   transparent = false,
   radius = 'xl',
+  floor = 18,
   children,
   overlay,
   accessibilityLabel,
@@ -144,9 +149,15 @@ export function AquariumTank({
                 <WaterBody width={width} height={height} water={water} />
               </Animated.View>
             )}
-            <Floor width={width} height={height} water={water} transparent={transparent} />
+            <Floor
+              width={width}
+              height={height}
+              sand={height - floor}
+              water={water}
+              transparent={transparent}
+            />
             <View style={StyleSheet.absoluteFill} pointerEvents="none">
-              {children?.({ width, height, waterline })}
+              {children?.({ width, height, waterline, sand: height - floor })}
             </View>
             {transparent ? null : <RisingBubbles height={height - waterline} count={7} />}
             {ruler ? <Ruler height={height} /> : null}
@@ -202,11 +213,14 @@ function WaterBody({ width, height, water }: { width: number; height: number; wa
 function Floor({
   width,
   height,
+  sand,
   water,
   transparent,
 }: {
   width: number;
   height: number;
+  /** Y of the top of the sand. */
+  sand: number;
   water: ZoneWater;
   transparent: boolean;
 }) {
@@ -235,12 +249,12 @@ function Floor({
       {transparent ? null : (
         <>
           <Path
-            d={`M0 ${height - 16} Q${width * 0.3} ${height - 28} ${width * 0.55} ${height - 18} T${width} ${height - 22} V${height} H0Z`}
+            d={`M0 ${sand + 2} Q${width * 0.3} ${sand - 10} ${width * 0.55} ${sand} T${width} ${sand - 4} V${height} H0Z`}
             fill={water.sand}
           />
           <Ellipse
             cx={width * 0.7}
-            cy={height - 20}
+            cy={sand - 2}
             rx={22}
             ry={10}
             fill={water.bottom}
@@ -248,7 +262,7 @@ function Floor({
           />
           <Ellipse
             cx={width * 0.26}
-            cy={height - 16}
+            cy={sand + 2}
             rx={14}
             ry={7}
             fill={water.bottom}

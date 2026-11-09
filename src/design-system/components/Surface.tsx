@@ -32,25 +32,25 @@ export function Surface({
       style={[
         styles.base,
         { borderRadius },
+        // Without blur the color goes on the card itself. A layer is only needed for real
+        // frosted glass, and it sits behind the content: on the web, an absolutely positioned
+        // layer would otherwise cover text fields.
+        blur ? styles.stack : { backgroundColor: background },
         elevated ? shadowStyle(colors.cardShadow, colors.cardShadowOpacity) : null,
         highContrast ? { borderWidth: 1, borderColor: colors.border } : null,
         style,
       ]}
       {...rest}
     >
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.clip,
-          { borderRadius, backgroundColor: background },
-        ]}
-        pointerEvents="none"
-      >
-        {blur ? <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} /> : null}
-        {blur ? (
+      {blur ? (
+        <View
+          style={[StyleSheet.absoluteFill, styles.behind, { borderRadius }]}
+          pointerEvents="none"
+        >
+          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
           <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.surfaceRaised }]} />
-        ) : null}
-      </View>
+        </View>
+      ) : null}
       {children}
     </View>
   );
@@ -66,5 +66,7 @@ export function shadowStyle(color: string, opacity: number) {
 
 const styles = StyleSheet.create({
   base: { overflow: 'hidden' },
-  clip: { overflow: 'hidden' },
+  /** Its own stacking context, so the glass layer can sit behind the content. */
+  stack: { zIndex: 0 },
+  behind: { zIndex: -1, overflow: 'hidden' },
 });

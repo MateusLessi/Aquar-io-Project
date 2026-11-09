@@ -41,6 +41,34 @@ test('open a list, add tasks inline and see them counted on the list tile', asyn
   await expect(page.getByRole('button', { name: 'Criar lista' })).toHaveCount(0);
   // Type key by key, like a person, and add the next task as soon as the previous shows up.
   const add = page.getByRole('textbox', { name: 'Adicionar tarefa' });
+  // Nothing may be drawn over the field: a card's background layer once covered it on the
+  // web. Layers ignore touches, so look for positioned siblings painted on top of it.
+  await expect
+    .poll(() =>
+      add.evaluate((input) => {
+        const box = input.getBoundingClientRect();
+        let node: Element | null = input;
+        for (let level = 0; node && level < 6; level += 1, node = node.parentElement) {
+          const parent: Element | null = node.parentElement;
+          if (!parent) break;
+          for (const sibling of Array.from(parent.children)) {
+            if (sibling === node) continue;
+            const style = getComputedStyle(sibling);
+            if (style.position !== 'absolute' || Number(style.zIndex) < 0) continue;
+            if (style.backgroundColor === 'rgba(0, 0, 0, 0)' && !sibling.children.length) continue;
+            const r = sibling.getBoundingClientRect();
+            const covers =
+              r.left <= box.left &&
+              r.right >= box.right &&
+              r.top <= box.top &&
+              r.bottom >= box.bottom;
+            if (covers) return false;
+          }
+        }
+        return true;
+      }),
+    )
+    .toBe(true);
   for (const title of ['Lavar louça', 'Regar plantas']) {
     await add.click();
     await expect(add).toBeFocused();

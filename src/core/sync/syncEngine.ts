@@ -1,6 +1,7 @@
 import type { DataChanges, DataTopic } from '../database/changes';
 import type { Database, SqlValue } from '../database/types';
 import type { RemoteRow, SyncRemote, SyncRow } from './remote';
+import { SyncError, type SyncFailure } from './syncError';
 import { syncedTables, type SyncedTable } from './tables';
 
 const PUSH_BATCH = 200;
@@ -128,14 +129,14 @@ export function createSyncEngine({
    * hold back the others. Its changes stay queued and the error is reported at the end.
    */
   async function run(): Promise<SyncResult> {
-    const errors: unknown[] = [];
+    const errors: SyncFailure[] = [];
     let pushed = 0;
     let pulled = 0;
     for (const table of tables) {
       try {
         pushed += await push(table);
       } catch (error) {
-        errors.push(error);
+        errors.push({ table: table.name, cause: error });
       }
     }
     const touched = new Set<DataTopic>();
@@ -143,11 +144,11 @@ export function createSyncEngine({
       try {
         pulled += await pull(table, touched);
       } catch (error) {
-        errors.push(error);
+        errors.push({ table: table.name, cause: error });
       }
     }
     touched.forEach((topic) => changes.notify(topic));
-    if (errors.length > 0) throw errors[0];
+    if (errors.length > 0) throw new SyncError(errors);
     await setState('lastSyncedAt', now().toISOString());
     return { pushed, pulled };
   }

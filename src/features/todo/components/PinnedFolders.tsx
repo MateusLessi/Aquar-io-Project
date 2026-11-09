@@ -30,7 +30,11 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
   const { colors, scheme } = useTheme();
   const { data: tasks = [] } = useFolderTasks(folder.id);
   const tone = folder.color ? listColors[folder.color][scheme] : colors.accent;
-  const next = tasks.filter((t) => !t.completedAt).slice(0, NEXT);
+  // Only what has a date: the dashboard is about the days ahead, not the backlog.
+  const next = tasks
+    .filter((t) => !t.completedAt && t.dueDate)
+    .sort((a, b) => a.dueDate!.localeCompare(b.dueDate!))
+    .slice(0, NEXT);
   const total = folder.openCount + folder.doneCount;
 
   return (
@@ -70,14 +74,14 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
                 {task.title}
               </Text>
               <Text variant="caption" tone="tertiary" numberOfLines={1}>
-                {task.dueDate ? dueLabel(task.dueDate, toDateKey(new Date())) : task.listName}
+                {dueLabel(task.dueDate!, toDateKey(new Date()))}
               </Text>
             </View>
           ))}
         </View>
       ) : (
         <Text variant="footnote" tone="tertiary">
-          Tudo em dia nesta pasta.
+          {folder.openCount > 0 ? 'Nada com prazo nesta pasta.' : 'Tudo em dia nesta pasta.'}
         </Text>
       )}
     </Surface>

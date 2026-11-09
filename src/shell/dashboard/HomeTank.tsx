@@ -54,6 +54,8 @@ export function HomeTank({ done, total, height = 318 }: HomeTankProps) {
       height={height}
       level={level}
       ruler={showDepth}
+      // The glass chips sit on the sand, above the eggs and the creatures.
+      floor={74}
       accessibilityLabel={summary}
       progress={{ now: done, max: total }}
       overlay={

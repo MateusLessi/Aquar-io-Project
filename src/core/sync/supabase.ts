@@ -32,14 +32,19 @@ export function createSupabaseRemote(supabase: SupabaseClient): SyncRemote {
   return {
     async push(table, rows, conflictKey = 'id') {
       const { error } = await supabase.from(table).upsert(rows, { onConflict: conflictKey });
-      if (error) throw new Error(`Upload to ${table} failed: ${error.message}`);
+      if (error) throw withCode(`Upload to ${table} failed: ${error.message}`, error.code);
     },
     async pull(table, since, limit) {
       let query = supabase.from(table).select('*').order('server_updated_at').limit(limit);
       if (since) query = query.gt('server_updated_at', since);
       const { data, error } = await query;
-      if (error) throw new Error(`Download from ${table} failed: ${error.message}`);
+      if (error) throw withCode(`Download from ${table} failed: ${error.message}`, error.code);
       return (data as (SyncRow & { server_updated_at: string })[]) ?? [];
     },
   };
+}
+
+/** Keeps the database's error code, so the app can tell "cloud out of date" from "offline". */
+function withCode(message: string, code: string | undefined): Error {
+  return Object.assign(new Error(message), { code });
 }
