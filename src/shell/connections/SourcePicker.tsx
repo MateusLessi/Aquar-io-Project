@@ -79,7 +79,7 @@ export function SourcePicker({
     <View style={styles.naming}>
       <View style={styles.flex}>
         <TextInput
-          label="Nome"
+          label={naming === 'folder' ? 'Nome da pasta' : 'Nome da lista'}
           value={name}
           onChangeText={setName}
           placeholder={placeholder}
@@ -88,7 +88,11 @@ export function SourcePicker({
           onSubmitEditing={() => void create().catch(report)}
         />
       </View>
-      <Button label="Criar" onPress={() => void create().catch(report)} disabled={!name.trim()} />
+      <Button
+        label={naming === 'folder' ? 'Criar pasta' : 'Criar lista'}
+        onPress={() => void create().catch(report)}
+        disabled={!name.trim()}
+      />
     </View>
   );
 
