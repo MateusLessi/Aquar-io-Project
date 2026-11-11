@@ -320,6 +320,42 @@ export const migrations: Migration[] = [
       ALTER TABLE profile ADD COLUMN privacy TEXT;
     `,
   },
+  {
+    version: 12,
+    name: 'connections_and_counters',
+    // Lapidação, Fase 1a. Items with their own counter or timer (kind, target, unit, amount);
+    // lists that start over every day (a workout, a checklist), whose items are marked per day
+    // in task_checks; a rule on a link (how a habit is done from a list, folder or routine).
+    sql: `
+      ALTER TABLE tasks ADD COLUMN kind TEXT NOT NULL DEFAULT 'check';
+      ALTER TABLE tasks ADD COLUMN target INTEGER;
+      ALTER TABLE tasks ADD COLUMN unit TEXT;
+      ALTER TABLE tasks ADD COLUMN amount INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE task_lists ADD COLUMN resets INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE links ADD COLUMN rule TEXT;
+
+      CREATE TABLE task_checks (
+        id          TEXT PRIMARY KEY NOT NULL,
+        task_id     TEXT NOT NULL REFERENCES tasks(id),
+        list_id     TEXT NOT NULL,
+        date        TEXT NOT NULL,
+        amount      INTEGER NOT NULL DEFAULT 0,
+        done        INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+      CREATE INDEX idx_task_checks_date ON task_checks(date, list_id);
+      ${outboxTriggers('task_checks')}
+
+      -- This device only: a running timer on a time item.
+      CREATE TABLE task_timers (
+        task_id     TEXT PRIMARY KEY NOT NULL,
+        date        TEXT NOT NULL,
+        started_at  TEXT NOT NULL
+      );
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

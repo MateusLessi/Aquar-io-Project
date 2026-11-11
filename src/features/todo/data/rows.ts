@@ -10,6 +10,7 @@ export type TaskListRow = {
   emoji: string | null;
   color: string | null;
   folder_id: string | null;
+  resets: number;
   sort_order: number;
   pending_count: number;
   created_at: string;
@@ -25,6 +26,11 @@ export type TaskRow = {
   priority: number;
   due_date: string | null;
   completed_at: string | null;
+  kind: string | null;
+  target: number | null;
+  unit: string | null;
+  amount: number | null;
+  timer_started_at: string | null;
   repeat: string | null;
   remind_at: string | null;
   sort_order: number;
@@ -48,6 +54,7 @@ export function toTaskList(row: TaskListRow): TaskList {
     emoji: row.emoji,
     color: row.color as ListColorName | null,
     folderId: row.folder_id,
+    resets: row.resets === 1,
     sortOrder: row.sort_order,
     pendingCount: row.pending_count,
     createdAt: row.created_at,
@@ -65,6 +72,11 @@ export function toTask(row: TaskRow): Task {
     priority: row.priority as Priority,
     dueDate: row.due_date,
     completedAt: row.completed_at,
+    kind: row.kind === 'count' || row.kind === 'time' ? row.kind : 'check',
+    target: row.target,
+    unit: row.unit,
+    amount: row.amount ?? 0,
+    timerStartedAt: row.timer_started_at ?? null,
     repeat: parseRepeat(row.repeat),
     remindAt: row.remind_at,
     sortOrder: row.sort_order,
