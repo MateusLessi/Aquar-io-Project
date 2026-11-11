@@ -1,4 +1,22 @@
-# Tudo conectado (First Dive, etapa 3)
+# Tudo conectado (First Dive, etapa 3 · Lapidação, Fase 1a)
+
+> **Fase 1a (novembro de 2026):** a conexão deixou de ser só "mostrar dentro". Uma lista, pasta ou rotina **dentro de um hábito** é **de onde o hábito vem**: os itens do dia decidem se ele está feito. Proposta aprovada no checkpoint 070: `docs/design/proposals/fase-1-conexoes-agenda.png`.
+
+## O hábito conectado
+
+- **Como ele é concluído?** No editor do hábito: **Sozinho** (como antes), **Uma lista**, **Uma pasta** ou **Uma rotina**. Dá para escolher ou criar a lista/pasta ali mesmo.
+- **Lista:** se ela **zera todo dia**, todos os itens contam todo dia (treino, checklist). Se não zera, contam as tarefas com prazo naquele dia (um backlog não vira meta diária).
+- **Pasta:** **uma lista por dia da semana** (Seg = Legday, Ter = Push; sem lista = descanso, e os dias do hábito passam a ser os dias com lista; essas listas passam a zerar todo dia) **ou o que vence no dia** (Semestre 4: as tarefas com prazo naquele dia, em qualquer lista e subpasta).
+- **Rotina:** os passos da rotina, nos dias dela.
+- **Feito quando:** todos os itens, ou **pelo menos N**. Itens com contador ou tempo contam em parte (2 de 4 séries = meio item).
+- **Uma coisa, um lugar:** o item mora na lista (ou na rotina). O hábito, o Início e a rotina mostram o **mesmo** item: marcar em qualquer lugar é a mesma marca. "Marcar tudo" no hábito marca os itens do dia; "Desmarcar tudo" desmarca.
+- **Pontos uma vez:** as conclusões das listas que alimentam um hábito contam como passos do hábito, não de novo como tarefas (`habitSourceLists` em `useProgress`).
+- **Histórico:** o dia é **calculado** dos itens (`shell/connections/habitDay.ts`, função pura com testes). O `HabitSourcesProvider` grava em `habit_checks`/`habit_progress` o resultado do dia, para que sequência, consistência e crescimento da criatura sigam funcionando.
+- **Encaixe entre módulos:** o módulo de hábitos define o contrato (`features/habits/hooks/habitSources.tsx`: `dayOf`, `setDone`, `DayView`, `SourcePicker`, `sourceOf`, `saveSource`); o app shell o implementa, porque junta três módulos.
+
+## Regra na ligação
+
+`links.rule` (JSON, `core/links/sourceRule.ts`): `{ doneWhen: 'all' | { atLeast }, folder?: { mode: 'weekday', lists } | { mode: 'due' } }`. Sem regra = "todos os itens". Rotina → hábito passou a ser uma ligação aceita.
 
 Proposta aprovada no checkpoint 042: `docs/design/proposals/connected.png`.
 

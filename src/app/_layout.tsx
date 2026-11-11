@@ -16,6 +16,7 @@ import {
   saveZone,
   useAppDataBootstrap,
 } from '@/shell/AppData';
+import { HabitSourcesProvider } from '@/shell/connections/HabitSourcesProvider';
 import { ZoneTheme } from '@/shell/theme/ZoneTheme';
 
 // Keep the splash screen until fonts and data are ready, so nothing flashes.
@@ -72,7 +73,9 @@ export default function RootLayout() {
     >
       <AppDataProvider data={boot.data}>
         <ZoneTheme />
-        <ThemedStack />
+        <HabitSourcesProvider>
+          <ThemedStack />
+        </HabitSourcesProvider>
       </AppDataProvider>
     </ThemeProvider>
   );

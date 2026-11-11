@@ -1,4 +1,6 @@
+import { toDateKey } from '@/core/dates';
 import type { ListColorName } from '@/design-system';
+import { doneOn } from './daySql';
 
 import type { Folder, FolderCrumb, FolderPatch, FolderSummary, NewFolder } from '../domain/types';
 import {
@@ -102,13 +104,15 @@ export function createFolderMethods({ db, changes, newId, now }: TodoDeps) {
       return crumbs;
     };
 
-    // Lists and their task counts, to sum per folder.
+    // Lists and their task counts, to sum per folder. A list that starts over counts today's.
+    const isDone = `CASE WHEN l.resets = 1 THEN ${doneOn('t', toDateKey(now()))} IS NOT NULL
+                         ELSE t.completed_at IS NOT NULL END`;
     const lists = await db.all<{ folder_id: string | null; open: number; done: number }>(
       `SELECT l.folder_id,
          (SELECT COUNT(*) FROM tasks t WHERE t.list_id = l.id AND t.parent_task_id IS NULL
-            AND t.deleted_at IS NULL AND t.completed_at IS NULL) AS open,
+            AND t.deleted_at IS NULL AND NOT (${isDone})) AS open,
          (SELECT COUNT(*) FROM tasks t WHERE t.list_id = l.id AND t.parent_task_id IS NULL
-            AND t.deleted_at IS NULL AND t.completed_at IS NOT NULL) AS done
+            AND t.deleted_at IS NULL AND ${isDone}) AS done
        FROM task_lists l WHERE l.deleted_at IS NULL`,
     );
     const folderOfList = (folderId: string | null) =>

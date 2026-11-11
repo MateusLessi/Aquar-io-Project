@@ -2,9 +2,10 @@ import type { DataChanges } from '../database/changes';
 import type { Database } from '../database/types';
 import { isTimeOfDay } from '../dates';
 import { idFrom } from '../ids';
+import { formatRule, parseRule, type SourceRule } from './sourceRule';
 
 /** What can be placed somewhere else ("Tudo conectado", docs/connections.md). */
-export type LinkItemKind = 'list' | 'folder' | 'habit';
+export type LinkItemKind = 'list' | 'folder' | 'habit' | 'routine';
 /** Where it can be placed. Lists and folders going into folders are a move, not a link. */
 export type LinkTargetKind = 'habit' | 'routine';
 
@@ -16,13 +17,18 @@ export type Link = {
   targetId: string;
   /** For a habit inside a routine: when, `HH:MM`, within the routine's time. */
   at: string | null;
+  /** Into a habit: how the habit is done from this list, folder or routine. */
+  rule: SourceRule;
   sortOrder: number;
   createdAt: string;
 };
 
-/** Which item kinds each target accepts. A habit cannot hold another habit. */
+/**
+ * Which item kinds each target accepts. A habit cannot hold another habit. A list, folder or
+ * routine in a habit is where the habit is done from (docs/connections.md).
+ */
 const ACCEPTS: Record<LinkTargetKind, readonly LinkItemKind[]> = {
-  habit: ['list', 'folder'],
+  habit: ['list', 'folder', 'routine'],
   routine: ['list', 'folder', 'habit'],
 };
 
@@ -49,6 +55,7 @@ type LinkRow = {
   target_kind: string;
   target_id: string;
   at_time: string | null;
+  rule: string | null;
   sort_order: number;
   created_at: string;
 };
@@ -61,12 +68,14 @@ function toLink(row: LinkRow): Link {
     targetKind: row.target_kind as LinkTargetKind,
     targetId: row.target_id,
     at: row.at_time,
+    rule: parseRule(row.rule),
     sortOrder: row.sort_order,
     createdAt: row.created_at,
   };
 }
 
-const COLUMNS = 'id, item_kind, item_id, target_kind, target_id, at_time, sort_order, created_at';
+const COLUMNS =
+  'id, item_kind, item_id, target_kind, target_id, at_time, rule, sort_order, created_at';
 
 /**
  * Links between lists, folders, habits and routines. Linking never copies or moves the item:
@@ -126,6 +135,7 @@ export function createLinksRepository({
       targetKind: LinkTargetKind;
       targetId: string;
       at?: string | null;
+      rule?: SourceRule | null;
     }): Promise<string> {
       const { itemKind, itemId, targetKind, targetId } = input;
       if (!canLink(itemKind, targetKind)) {
@@ -147,12 +157,24 @@ export function createLinksRepository({
       );
       await db.run(
         `INSERT INTO links
-           (id, item_kind, item_id, target_kind, target_id, at_time, sort_order,
+           (id, item_kind, item_id, target_kind, target_id, at_time, rule, sort_order,
             created_at, updated_at, deleted_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
          ON CONFLICT(id) DO UPDATE SET at_time = excluded.at_time,
+           rule = COALESCE(excluded.rule, links.rule),
            updated_at = excluded.updated_at, deleted_at = NULL`,
-        [id, itemKind, itemId, targetKind, targetId, at, (max?.max ?? 0) + 1, stamp, stamp],
+        [
+          id,
+          itemKind,
+          itemId,
+          targetKind,
+          targetId,
+          at,
+          targetKind === 'habit' ? formatRule(input.rule) : null,
+          (max?.max ?? 0) + 1,
+          stamp,
+          stamp,
+        ],
       );
       changes.notify('links');
       return id;
@@ -163,6 +185,15 @@ export function createLinksRepository({
       await db.run(
         'UPDATE links SET at_time = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL',
         [at, timestamp(), id],
+      );
+      changes.notify('links');
+    },
+
+    /** How a habit is done from this link's list, folder or routine. */
+    async setRule(id: string, rule: SourceRule): Promise<void> {
+      await db.run(
+        'UPDATE links SET rule = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL',
+        [formatRule(rule), timestamp(), id],
       );
       changes.notify('links');
     },

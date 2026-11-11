@@ -1,4 +1,5 @@
 import type { CreatureId } from './creatures';
+import type { ConnectedHabitDay } from '../hooks/habitSources';
 import type { Stage } from './stages';
 
 /** Days of the week as a bitmask: bit 0 = Sunday … bit 6 = Saturday. */
@@ -68,6 +69,8 @@ export type HabitWithProgress = Habit &
     today: HabitToday;
     /** How full each day of this week was (same order as `week`), 0–1. */
     weekRatios: number[];
+    /** Done from a list, folder or routine: today's items decide (see hooks/habitSources). */
+    connected?: ConnectedHabitDay;
   };
 
 export type NewHabit = {

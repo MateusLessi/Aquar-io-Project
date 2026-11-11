@@ -3,7 +3,7 @@ import { listColorNames, type ListColorName } from '@/design-system';
 import { isTimeOfDay } from '@/core/dates';
 
 import { isDateKey } from './dates';
-import type { Priority } from './types';
+import type { Priority, TaskKind } from './types';
 
 export const LIMITS = { listName: 60, taskTitle: 300, notes: 5000 } as const;
 /** Folders nest at most this deep: UnB › Semestre 3 › Cálculo is three. */
@@ -73,3 +73,40 @@ export const priorityLabels: Record<Priority, string> = {
   2: 'Média',
   3: 'Alta',
 };
+
+/** Goals an item can have: up to 999 units, or up to 10 hours. */
+export const TASK_GOAL_LIMITS = { count: 999, time: 600, unit: 20 } as const;
+
+/**
+ * An item's kind and goal, consistent: `check` has no goal; `count` and `time` need one
+ * (units, or minutes).
+ */
+export function validateTaskGoal(
+  kind: TaskKind,
+  target: number | null | undefined,
+  unit: string | null | undefined,
+): { kind: TaskKind; target: number | null; unit: string | null } {
+  if (kind === 'check') return { kind, target: null, unit: null };
+  const max = TASK_GOAL_LIMITS[kind];
+  const goal = Math.round(Number(target));
+  if (!Number.isFinite(goal) || goal < 1 || goal > max) {
+    throw new ValidationError(
+      kind === 'count' ? `Escolha uma meta de 1 a ${max}.` : `Escolha de 1 a ${max} minutos.`,
+    );
+  }
+  const text = kind === 'count' ? (unit ?? '').trim().slice(0, TASK_GOAL_LIMITS.unit) : '';
+  return { kind, target: goal, unit: text || null };
+}
+
+/** Where an item stands toward its goal: 0–1. A `check` item is 0 or 1. */
+export function taskRatio(task: {
+  kind: TaskKind;
+  target: number | null;
+  amount: number;
+  completedAt: string | null;
+}): number {
+  if (task.completedAt) return 1;
+  if (task.kind === 'check' || !task.target) return 0;
+  const goal = task.kind === 'time' ? task.target * 60 : task.target;
+  return Math.min(1, task.amount / goal);
+}

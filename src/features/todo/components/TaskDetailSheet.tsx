@@ -23,6 +23,7 @@ import { useTodo } from '../hooks/todoContext';
 import { AddTaskField } from './AddTaskField';
 import { DueDatePicker } from './DueDatePicker';
 import { ReminderField, RepeatField } from './RepeatAndReminder';
+import { TaskKindField } from './TaskKindField';
 
 const priorityOptions = ([0, 1, 2, 3] as Priority[]).map((value) => ({
   value: String(value) as `${Priority}`,
@@ -114,6 +115,15 @@ function TaskDetail({
           {error}
         </Text>
       ) : null}
+
+      {task.parentTaskId ? null : (
+        <Section title="Tipo">
+          <TaskKindField
+            task={task}
+            onChange={(patch) => attempt(() => todo.updateTask(task.id, patch))}
+          />
+        </Section>
+      )}
 
       <Section title="Prazo">
         <DueDatePicker

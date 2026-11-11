@@ -36,6 +36,18 @@ describe('habit kinds', () => {
     expect((await find(id)).today.ratio).toBe(1);
   });
 
+  it('counts every quick tap, even when they overlap', async () => {
+    const { habits, find } = await setup();
+    const id = await habits.createHabit({
+      name: 'Água',
+      creature: 'dolphin',
+      kind: 'count',
+      target: 8,
+    });
+    await Promise.all([1, 2, 3, 4].map(() => habits.addAmount(id, today, 1)));
+    expect((await find(id)).today.amount).toBe(4);
+  });
+
   it('counts toward the goal and is done once it is reached', async () => {
     const { habits, events, find } = await setup();
     const id = await habits.createHabit({

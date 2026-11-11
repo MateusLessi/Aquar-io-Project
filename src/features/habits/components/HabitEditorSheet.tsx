@@ -1,4 +1,4 @@
-import { Check, ListChecks, Minus, Plus, Timer, X } from 'lucide-react-native';
+import { Check, Folder, ListChecks, Minus, Plus, Repeat, Timer, X } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -31,7 +31,8 @@ import {
   isCreatureId,
   type CreatureId,
 } from '../domain/creatures';
-import { weekdayInitial, weekdayShort } from '../domain/progress';
+import { daysLabel, weekdayInitial, weekdayShort } from '../domain/progress';
+import { emptySourceDraft, useHabitSources, type SourceDraft } from '../hooks/habitSources';
 import {
   EVERY_DAY,
   habitKinds,
@@ -63,7 +64,8 @@ type HabitEditorSheetProps = {
   onClose: () => void;
   /** Edit this habit; create a new one when omitted. */
   habit?: Habit | null;
-  onSubmit: (input: NewHabit) => Promise<void>;
+  /** Saves the habit; returns the new habit's id when creating one. */
+  onSubmit: (input: NewHabit) => Promise<string | void>;
   onDelete?: () => Promise<void>;
 };
 
@@ -100,20 +102,34 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Where it is done from: on its own (null), or a list, folder or routine.
+  const sources = useHabitSources();
+  const [initialSource] = useState(() => (habit && sources ? sources.sourceOf(habit.id) : null));
+  const [source, setSource] = useState<SourceDraft | null>(initialSource);
+  const effectiveDays = source?.days ?? days;
 
   const save = async () => {
     setSaving(true);
     try {
-      await onSubmit({
+      const created = await onSubmit({
         name,
         creature,
-        days,
+        days: effectiveDays,
         reminderTimes,
-        kind,
-        target: kind === 'count' ? count : kind === 'time' ? minutes : undefined,
-        unit: kind === 'count' ? unit : null,
-        steps: kind === 'checklist' ? steps : [],
+        // A connected habit is done by its items: its own kind is a simple check.
+        kind: source ? 'check' : kind,
+        target: source
+          ? undefined
+          : kind === 'count'
+            ? count
+            : kind === 'time'
+              ? minutes
+              : undefined,
+        unit: !source && kind === 'count' ? unit : null,
+        steps: !source && kind === 'checklist' ? steps : [],
       });
+      const id = habit?.id ?? (typeof created === 'string' ? created : null);
+      if (sources && id && (source || initialSource)) await sources.saveSource(id, source);
       // Ask in context: only when the person has just set a reminder.
       if (reminderTimes.length > 0) await requestNotificationPermission();
       onClose();
@@ -140,91 +156,107 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
         maxLength={60}
       />
 
-      <View style={styles.group}>
-        <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
-          Tipo
-        </Text>
-        <KindPicker value={kind} onChange={setKind} />
-        <View style={styles.preview}>
-          <HabitCapsule
-            creature={creature}
-            stage="young"
-            ratio={PREVIEW_RATIO[kind]}
-            done={kind === 'check'}
-            width={44}
-            height={58}
-          />
-          <Text variant="footnote" tone="secondary" style={styles.flex}>
-            {kindInfo[kind].hint}.{' '}
-            {kind === 'check' ? 'A cápsula enche de uma vez.' : 'A água sobe conforme você avança.'}
-          </Text>
-        </View>
-      </View>
-
-      {kind === 'count' ? (
+      {sources ? (
         <View style={styles.group}>
           <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
-            Meta por dia
+            Como ele é concluído?
           </Text>
-          <Stepper value={count} onChange={setCount} min={1} max={TARGET_MAX.count} />
-          <TextInput
-            label="Unidade (opcional)"
-            value={unit}
-            onChangeText={setUnit}
-            placeholder="copos, páginas…"
-            maxLength={20}
-          />
-          <View style={styles.presets}>
-            {UNITS.map((option) => (
-              <Chip
-                key={option}
-                label={option}
-                selected={unit === option}
-                onPress={() => setUnit(unit === option ? '' : option)}
+          <SourceTiles value={source} onChange={setSource} />
+          {source ? <sources.SourcePicker value={source} onChange={setSource} /> : null}
+        </View>
+      ) : null}
+
+      {source ? null : (
+        <>
+          <View style={styles.group}>
+            <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
+              Tipo
+            </Text>
+            <KindPicker value={kind} onChange={setKind} />
+            <View style={styles.preview}>
+              <HabitCapsule
+                creature={creature}
+                stage="young"
+                ratio={PREVIEW_RATIO[kind]}
+                done={kind === 'check'}
+                width={44}
+                height={58}
               />
-            ))}
+              <Text variant="footnote" tone="secondary" style={styles.flex}>
+                {kindInfo[kind].hint}.{' '}
+                {kind === 'check'
+                  ? 'A cápsula enche de uma vez.'
+                  : 'A água sobe conforme você avança.'}
+              </Text>
+            </View>
           </View>
-        </View>
-      ) : null}
 
-      {kind === 'time' ? (
-        <View style={styles.group}>
-          <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
-            Meta por dia
-          </Text>
-          <Text variant="title1" style={styles.center}>
-            {minutes} min
-          </Text>
-          <Slider
-            label="Meta em minutos"
-            value={minutes}
-            onChange={setMinutes}
-            min={5}
-            max={180}
-            step={5}
-            valueText={(v) => `${v} minutos`}
-          />
-          <View style={styles.presets}>
-            {MINUTE_PRESETS.map((option) => (
-              <Chip
-                key={option}
-                label={`${option}`}
-                selected={minutes === option}
-                onPress={() => setMinutes(option)}
+          {kind === 'count' ? (
+            <View style={styles.group}>
+              <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
+                Meta por dia
+              </Text>
+              <Stepper value={count} onChange={setCount} min={1} max={TARGET_MAX.count} />
+              <TextInput
+                label="Unidade (opcional)"
+                value={unit}
+                onChangeText={setUnit}
+                placeholder="copos, páginas…"
+                maxLength={20}
               />
-            ))}
-          </View>
-        </View>
-      ) : null}
+              <View style={styles.presets}>
+                {UNITS.map((option) => (
+                  <Chip
+                    key={option}
+                    label={option}
+                    selected={unit === option}
+                    onPress={() => setUnit(unit === option ? '' : option)}
+                  />
+                ))}
+              </View>
+            </View>
+          ) : null}
 
-      {kind === 'checklist' ? (
-        <View style={styles.group}>
-          <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
-            Passos · recomeçam todo dia
-          </Text>
-          <StepsField value={steps} onChange={setSteps} />
-        </View>
-      ) : null}
+          {kind === 'time' ? (
+            <View style={styles.group}>
+              <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
+                Meta por dia
+              </Text>
+              <Text variant="title1" style={styles.center}>
+                {minutes} min
+              </Text>
+              <Slider
+                label="Meta em minutos"
+                value={minutes}
+                onChange={setMinutes}
+                min={5}
+                max={180}
+                step={5}
+                valueText={(v) => `${v} minutos`}
+              />
+              <View style={styles.presets}>
+                {MINUTE_PRESETS.map((option) => (
+                  <Chip
+                    key={option}
+                    label={`${option}`}
+                    selected={minutes === option}
+                    onPress={() => setMinutes(option)}
+                  />
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {kind === 'checklist' ? (
+            <View style={styles.group}>
+              <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
+                Passos · recomeçam todo dia
+              </Text>
+              <StepsField value={steps} onChange={setSteps} />
+            </View>
+          ) : null}
+        </>
+      )}
 
       <View style={styles.group}>
         <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
@@ -237,15 +269,32 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
         <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
           Quando
         </Text>
-        <View style={styles.presets}>
-          <Chip label="Todo dia" selected={days === EVERY_DAY} onPress={() => setDays(EVERY_DAY)} />
-          <Chip label="Dias úteis" selected={days === WEEKDAYS} onPress={() => setDays(WEEKDAYS)} />
-        </View>
-        <WeekdayPicker
-          value={days}
-          onChange={setDays}
-          tone={listColors[creatures[creature].color]}
-        />
+        {source?.days != null ? (
+          <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
+            Nos dias {source.kind === 'routine' ? 'da rotina' : 'que têm lista'}:{' '}
+            {daysLabel(source.days)}.
+          </Text>
+        ) : (
+          <>
+            <View style={styles.presets}>
+              <Chip
+                label="Todo dia"
+                selected={days === EVERY_DAY}
+                onPress={() => setDays(EVERY_DAY)}
+              />
+              <Chip
+                label="Dias úteis"
+                selected={days === WEEKDAYS}
+                onPress={() => setDays(WEEKDAYS)}
+              />
+            </View>
+            <WeekdayPicker
+              value={days}
+              onChange={setDays}
+              tone={listColors[creatures[creature].color]}
+            />
+          </>
+        )}
       </View>
 
       <View style={styles.group}>
@@ -261,8 +310,8 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
         loading={saving}
         disabled={
           name.trim().length === 0 ||
-          days === 0 ||
-          (kind === 'checklist' && !steps.some((s) => s.title.trim()))
+          effectiveDays === 0 ||
+          (source ? !source.id : kind === 'checklist' && !steps.some((s) => s.title.trim()))
         }
         onPress={save}
       />
@@ -288,6 +337,71 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
           />
         </>
       ) : null}
+    </View>
+  );
+}
+
+const SOURCE_TILES: {
+  kind: SourceDraft['kind'] | null;
+  title: string;
+  hint: string;
+  icon: typeof Check;
+}[] = [
+  { kind: null, title: 'Sozinho', hint: 'Um toque, contador ou tempo', icon: Check },
+  { kind: 'list', title: 'Uma lista', hint: 'Os itens dela', icon: ListChecks },
+  { kind: 'folder', title: 'Uma pasta', hint: 'Uma lista por dia', icon: Folder },
+  { kind: 'routine', title: 'Uma rotina', hint: 'Os passos dela', icon: Repeat },
+];
+
+/** On its own, or done from a list, folder or routine. */
+function SourceTiles({
+  value,
+  onChange,
+}: {
+  value: SourceDraft | null;
+  onChange: (draft: SourceDraft | null) => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.tiles} accessibilityRole="radiogroup">
+      {SOURCE_TILES.map((tile) => {
+        const selected = (value?.kind ?? null) === tile.kind;
+        const Icon = tile.icon;
+        return (
+          <Pressable
+            key={tile.title}
+            onPress={() => onChange(tile.kind ? emptySourceDraft(tile.kind) : null)}
+            accessibilityRole="radio"
+            accessibilityLabel={`${tile.title}: ${tile.hint}`}
+            accessibilityState={{ checked: selected }}
+            aria-checked={selected}
+            style={({ pressed }) => [
+              styles.tile,
+              {
+                backgroundColor: selected
+                  ? colors.accent
+                  : pressed
+                    ? colors.surfacePressed
+                    : colors.waterline,
+              },
+            ]}
+          >
+            <Icon size={20} color={selected ? colors.onAccent : colors.textSecondary} />
+            <Text
+              variant="bodyStrong"
+              style={{ color: selected ? colors.onAccent : colors.textPrimary }}
+            >
+              {tile.title}
+            </Text>
+            <Text
+              variant="footnote"
+              style={{ color: selected ? colors.onAccent : colors.textTertiary }}
+            >
+              {tile.hint}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -503,6 +617,8 @@ function WeekdayPicker({
 }
 
 const styles = StyleSheet.create({
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  tile: { flexBasis: '47%', flexGrow: 1, padding: spacing.md, borderRadius: radius.lg, gap: 2 },
   form: { gap: spacing.xl },
   group: { gap: spacing.sm },
   groupLabel: { marginLeft: spacing.xs },

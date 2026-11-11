@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react-native';
+import { Check, RotateCcw } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -6,6 +6,8 @@ import {
   Button,
   ConfirmDialog,
   Sheet,
+  Switch,
+  radius,
   Text,
   TextInput,
   listColorNames,
@@ -97,6 +99,7 @@ function ListForm({
   const [name, setName] = useState(list?.name ?? '');
   const [emoji, setEmoji] = useState<string | null>(glyphKey(list?.emoji));
   const [color, setColor] = useState<ListColorName | null>(list?.color ?? 'lagoon');
+  const [resets, setResets] = useState(list?.resets ?? false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -105,9 +108,9 @@ function ListForm({
     setSaving(true);
     try {
       if (list) {
-        await todo.updateList(list.id, { name, emoji, color });
+        await todo.updateList(list.id, { name, emoji, color, resets });
       } else {
-        const id = await todo.createList({ name, emoji, color, folderId });
+        const id = await todo.createList({ name, emoji, color, folderId, resets });
         onCreated?.(id);
       }
       onClose();
@@ -179,6 +182,17 @@ function ListForm({
         </View>
       </View>
 
+      <View style={[styles.resets, { backgroundColor: colors.waterline }]}>
+        <RotateCcw size={20} color={colors.accent} />
+        <View style={styles.flex}>
+          <Text variant="bodyStrong">Zera todo dia</Text>
+          <Text variant="footnote" tone="secondary">
+            Para treinos e checklists: os itens voltam desmarcados no dia seguinte.
+          </Text>
+        </View>
+        <Switch value={resets} onChange={setResets} label="Zera todo dia" />
+      </View>
+
       <Button label={list ? 'Salvar' : 'Criar lista'} block loading={saving} onPress={save} />
       {list ? (
         <Button
@@ -207,6 +221,14 @@ function ListForm({
 }
 
 const styles = StyleSheet.create({
+  resets: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+  },
+  flex: { flex: 1, gap: 2 },
   form: { gap: spacing.xl, paddingBottom: spacing.sm },
   group: { gap: spacing.sm },
   groupLabel: { marginLeft: spacing.xs },

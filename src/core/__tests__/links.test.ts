@@ -3,6 +3,7 @@ import { migrate } from '@/core/database/migrations';
 import { createMemoryDatabase } from '@/core/database/testing';
 
 import { canLink, createLinksRepository, linkId } from '../links/linksRepository';
+import { formatRule, parseRule } from '../links/sourceRule';
 
 const clock = { now: new Date(2026, 9, 25, 9, 0) };
 
@@ -114,5 +115,51 @@ describe('links', () => {
         at: '25:00',
       }),
     ).rejects.toThrow('Horário');
+  });
+});
+
+describe('how a habit is done from a link (rule)', () => {
+  it('reads, cleans and writes rules, falling back to "all items"', () => {
+    expect(parseRule(null)).toEqual({ doneWhen: 'all' });
+    expect(parseRule('not json')).toEqual({ doneWhen: 'all' });
+    expect(
+      parseRule(
+        JSON.stringify({
+          doneWhen: { atLeast: 4 },
+          folder: { mode: 'weekday', lists: { 1: 'legday', 2: 'push', 9: 'x' } },
+        }),
+      ),
+    ).toEqual({
+      doneWhen: { atLeast: 4 },
+      folder: { mode: 'weekday', lists: { 1: 'legday', 2: 'push' } },
+    });
+    expect(formatRule({ doneWhen: 'all' })).toBeNull();
+    expect(formatRule({ doneWhen: 'all', folder: { mode: 'due' } })).toBe(
+      '{"doneWhen":"all","folder":{"mode":"due"}}',
+    );
+  });
+
+  it('a routine can be where a habit is done from, and the rule is stored on the link', async () => {
+    const db = createMemoryDatabase();
+    await migrate(db);
+    const links = createLinksRepository({
+      db,
+      changes: createDataChanges(),
+      now: () => new Date('2026-11-17T10:00:00'),
+    });
+    expect(canLink('routine', 'habit')).toBe(true);
+    const id = await links.link({
+      itemKind: 'folder',
+      itemId: 'academia',
+      targetKind: 'habit',
+      targetId: 'gym',
+      rule: { doneWhen: 'all', folder: { mode: 'weekday', lists: { 2: 'push' } } },
+    });
+    expect((await links.linksTo('habit', 'gym'))[0]!.rule.folder).toEqual({
+      mode: 'weekday',
+      lists: { 2: 'push' },
+    });
+    await links.setRule(id, { doneWhen: { atLeast: 3 } });
+    expect((await links.linksTo('habit', 'gym'))[0]!.rule).toEqual({ doneWhen: { atLeast: 3 } });
   });
 });

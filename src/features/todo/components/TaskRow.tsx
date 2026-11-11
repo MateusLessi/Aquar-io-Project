@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import {
   Checkbox,
+  Glyph,
   ListItem,
   Text,
   fontFamily,
@@ -16,6 +17,7 @@ import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { dueLabel, dueStatus } from '../domain/dates';
 import type { Task } from '../domain/types';
 import { priorityLabels } from '../domain/validation';
+import { TaskAmountControl, amountLabel } from './TaskAmountControl';
 
 type TaskRowProps = {
   task: Task;
@@ -46,7 +48,13 @@ export function TaskRow({
   const tone = listColor ? listColors[listColor][scheme] : colors.accent;
   const overdue = !done && task.dueDate !== null && dueStatus(task.dueDate, todayKey) === 'overdue';
 
+  const amount = amountLabel(task);
   const details = [
+    amount && !done ? (
+      <Text key="amount" variant="footnote" tone="secondary">
+        {amount}
+      </Text>
+    ) : null,
     task.priority > 0 && !done ? (
       <Text
         key="priority"
@@ -60,7 +68,7 @@ export function TaskRow({
     listName ? (
       <View key="list" style={styles.inline}>
         {listEmoji ? (
-          <Text variant="footnote">{listEmoji}</Text>
+          <Glyph name={listEmoji} size={13} color={tone} />
         ) : (
           <View style={[styles.dot, { backgroundColor: tone }]} />
         )}
@@ -115,6 +123,7 @@ export function TaskRow({
       onPress={onPress}
       accessibilityHint="Abre os detalhes da tarefa"
       leading={<Checkbox checked={done} label={task.title} onChange={onToggle} />}
+      trailing={done ? undefined : <TaskAmountControl task={task} tone={tone} />}
       subtitle={details.length > 0 ? <View style={styles.details}>{details}</View> : undefined}
     />
   );

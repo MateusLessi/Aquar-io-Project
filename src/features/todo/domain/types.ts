@@ -2,6 +2,13 @@ import type { ListColorName } from '@/design-system';
 
 import type { Repeat } from './repeat';
 
+/**
+ * How an item is done: `check` with one tap; `count` toward a number ("4 séries", "8 copos");
+ * `time` toward minutes, with a timer.
+ */
+export type TaskKind = 'check' | 'count' | 'time';
+export const taskKinds: readonly TaskKind[] = ['check', 'count', 'time'];
+
 /** 0 none · 1 low · 2 medium · 3 high */
 export type Priority = 0 | 1 | 2 | 3;
 
@@ -12,8 +19,13 @@ export type TaskList = {
   color: ListColorName | null;
   /** The folder it lives in, or null at the top level (see docs/todo.md). */
   folderId: string | null;
+  /**
+   * Starts over every day: a workout, a checklist. Its items are marked per day, so each day
+   * they come back unchecked (see docs/todo.md).
+   */
+  resets: boolean;
   sortOrder: number;
-  /** Top-level tasks not yet completed. */
+  /** Top-level tasks not yet completed (today, for lists that start over). */
   pendingCount: number;
   createdAt: string;
   updatedAt: string;
@@ -28,8 +40,17 @@ export type Task = {
   priority: Priority;
   /** Calendar date `YYYY-MM-DD`, independent of time zone. */
   dueDate: string | null;
-  /** When it was completed (ISO instant); null while open. */
+  /** When it was completed (ISO instant); null while open. Today's, in a list that starts over. */
   completedAt: string | null;
+  kind: TaskKind;
+  /** The goal: units for `count`, minutes for `time`; null for `check`. */
+  target: number | null;
+  /** What a `count` item counts ("séries", "copos"). */
+  unit: string | null;
+  /** Units, or seconds for `time`, done so far (today, in a list that starts over). */
+  amount: number;
+  /** A running timer on a time item (ISO), on this device. */
+  timerStartedAt: string | null;
   /** Repeating tasks need a due date; completing one creates the next. */
   repeat: Repeat | null;
   /** Reminder time on the due date, `HH:MM`. */
@@ -95,6 +116,7 @@ export type NewList = {
   emoji?: string | null;
   color?: ListColorName | null;
   folderId?: string | null;
+  resets?: boolean;
 };
 export type ListPatch = Partial<NewList>;
 
@@ -104,8 +126,14 @@ export type NewTask = {
   parentTaskId?: string | null;
   dueDate?: string | null;
   priority?: Priority;
+  kind?: TaskKind;
+  target?: number | null;
+  unit?: string | null;
 };
 export type TaskPatch = {
+  kind?: TaskKind;
+  target?: number | null;
+  unit?: string | null;
   title?: string;
   notes?: string | null;
   dueDate?: string | null;

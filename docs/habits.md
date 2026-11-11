@@ -46,6 +46,10 @@ Proposta aprovada no checkpoint 036: `docs/design/proposals/habits-2.png`.
 - **Recife** (`ReefHero.tsx`): cada criatura nada na altura do seu progresso.
 - **Detalhe**: cápsula grande com controles, passos, números, crescimento, mapa do recife (`ReefMap.tsx`) e calendário.
 
+## Hábito conectado (Lapidação, Fase 1a)
+
+Um hábito pode ser concluído por **uma lista, uma pasta ou uma rotina** (editor → "Como ele é concluído?"). O dia dele vem dos itens; o cartão mostra "Push · 1 de 2" e abre os itens ali mesmo, e o detalhe tem "Hoje · Push" com "Marcar tudo". Detalhes em [connections.md](connections.md).
+
 ## Regras de progresso (`domain/progress.ts`)
 
 - **Hoje nunca é falha:** até a meia-noite ainda dá tempo.

@@ -20,6 +20,7 @@ import { creatures } from '../domain/creatures';
 import { weekdayInitial } from '../domain/progress';
 import { stageInfo } from '../domain/stages';
 import type { DayState, HabitWithProgress } from '../domain/types';
+import { useHabitSources } from '../hooks/habitSources';
 import type { HabitActions } from '../hooks/useHabitActions';
 import { useElapsed } from '../hooks/useElapsed';
 import { HabitCapsule } from './HabitCapsule';
@@ -42,6 +43,12 @@ export function useLiveAmount(habit: HabitWithProgress): number {
 
 /** "Faltam 5", "Rodando · 12:04", "Feito"…: the line under the name. */
 function statusLabel(habit: HabitWithProgress, amount: number): string {
+  const day = habit.connected;
+  if (day) {
+    if (day.done) return `${day.label} · feito`;
+    if (day.required === 0) return `${day.label} · descanso hoje`;
+    return `${day.label} · ${day.doneCount} de ${day.required}`;
+  }
   if (habit.doneToday) return 'Feito';
   if (!habit.scheduledToday) return 'Descansando hoje';
   if (habit.today.timerStartedAt) return `Rodando · ${clockLabel(amount)}`;
@@ -73,7 +80,10 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
   const ratio = habit.today.timerStartedAt
     ? fillRatio(habit, amount, habit.doneToday)
     : habit.today.ratio;
-  const badge = amountLabel(habit, amount);
+  const sources = useHabitSources();
+  const day = habit.connected;
+  // A connected habit says it in the line below ("Push · 1 de 2"): no badge too.
+  const badge = day ? null : amountLabel(habit, amount);
 
   return (
     <Animated.View
@@ -140,7 +150,13 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
         />
       </View>
 
-      {habit.kind === 'checklist' && expanded ? (
+      {day && expanded && sources ? (
+        <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.steps}>
+          <sources.DayView habitId={habit.id} />
+        </Animated.View>
+      ) : null}
+
+      {!day && habit.kind === 'checklist' && expanded ? (
         <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.steps}>
           {habit.steps.map((step) => {
             const done = habit.today.stepsDone.includes(step.id);
@@ -198,7 +214,20 @@ export function HabitControl({
   let label: string;
   let onPress: () => void;
   let checked: boolean | undefined;
-  switch (habit.kind) {
+  // Done from a list, folder or routine: the card opens today's items.
+  const kind = habit.connected ? 'connected' : habit.kind;
+  switch (kind) {
+    case 'connected':
+      content = expanded ? (
+        <ChevronUp size={24} color={iconColor} />
+      ) : (
+        <ChevronDown size={24} color={iconColor} />
+      );
+      label = expanded
+        ? `${habit.name}: esconder itens de hoje`
+        : `${habit.name}: mostrar itens de hoje`;
+      onPress = () => (onExpand ? onExpand() : actions.open(habit));
+      break;
     case 'count':
       content = (
         <Text variant="headline" style={{ color: iconColor }}>

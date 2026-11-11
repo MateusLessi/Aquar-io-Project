@@ -31,9 +31,7 @@ export function HabitsPanel() {
       <HabitEditorSheet
         visible={creating}
         onClose={() => setCreating(false)}
-        onSubmit={async (input) => {
-          await repository.createHabit(input);
-        }}
+        onSubmit={(input) => repository.createHabit(input)}
       />
     </>
   );

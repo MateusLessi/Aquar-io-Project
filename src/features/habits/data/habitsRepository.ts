@@ -283,6 +283,14 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
     );
   }
 
+  // Read-then-write changes run one at a time.
+  let queue: Promise<unknown> = Promise.resolve();
+  function serially<T>(work: () => Promise<T>): Promise<T> {
+    const run = queue.then(work, work);
+    queue = run.catch(() => undefined);
+    return run;
+  }
+
   /** Marks a day done or not in habit_checks. Setting the state it already has does nothing. */
   async function markDone(habitId: string, date: string, done: boolean): Promise<void> {
     const id = checkId(habitId, date);
@@ -540,6 +548,29 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       changes.notify('habits');
     },
 
+    /**
+     * A connected habit's day, computed by the app from its list, folder or routine: keeps the
+     * history (streak, consistency, growth) in step. Writes only what changed.
+     */
+    async setConnectedDay(habitId: string, date: string, ratio: number, done: boolean) {
+      const amount = Math.round(Math.min(1, Math.max(0, ratio)) * 100);
+      const current = await readProgress(habitId, date);
+      let changed = false;
+      if ((current?.amount ?? 0) !== amount) {
+        await writeProgress(habitId, date, { amount, stepsDone: [] });
+        changed = true;
+      }
+      const before = await db.get<{ deleted_at: string | null }>(
+        'SELECT deleted_at FROM habit_checks WHERE id = ?',
+        [checkId(habitId, date)],
+      );
+      if ((before !== null && before.deleted_at === null) !== done) {
+        await markDone(habitId, date, done);
+        changed = true;
+      }
+      if (changed) changes.notify('habits');
+    },
+
     /** Sets a count (units) or time (seconds) habit's progress for a day. */
     async setAmount(habitId: string, date: string, amount: number): Promise<void> {
       const habit = await requireHabit(habitId);
@@ -550,9 +581,12 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
     },
 
     /** Adds to (or, with a negative delta, takes from) a day's progress. Never below zero. */
-    async addAmount(habitId: string, date: string, delta: number): Promise<void> {
-      const current = await readProgress(habitId, date);
-      await this.setAmount(habitId, date, (current?.amount ?? 0) + delta);
+    // Taps are queued, so quick taps all count (each reads what the previous one wrote).
+    addAmount(habitId: string, date: string, delta: number): Promise<void> {
+      return serially(async () => {
+        const current = await readProgress(habitId, date);
+        await this.setAmount(habitId, date, (current?.amount ?? 0) + delta);
+      });
     },
 
     async setStep(habitId: string, date: string, stepId: string, done: boolean): Promise<void> {
