@@ -134,6 +134,14 @@ export function createTodoRepository(deps: TodoDeps) {
     await db.run('UPDATE tasks SET repeat = NULL WHERE id = ?', [task.id]);
   }
 
+  // Read-then-write changes run one at a time.
+  let queue: Promise<unknown> = Promise.resolve();
+  function serially<T>(work: () => Promise<T>): Promise<T> {
+    const run = queue.then(work, work);
+    queue = run.catch(() => undefined);
+    return run;
+  }
+
   /** Units to reach, or seconds for a time item; 1 for a check item. */
   function goalOf(task: Task): number {
     if (task.kind === 'check' || !task.target) return 1;
@@ -642,10 +650,15 @@ export function createTodoRepository(deps: TodoDeps) {
       changes.notify('tasks');
     },
 
-    /** Adds to (or takes from) an item's amount. Never below zero. */
-    async addAmount(id: string, delta: number): Promise<void> {
-      const task = await requireTask(id);
-      await this.setAmount(id, task.amount + delta);
+    /**
+     * Adds to (or takes from) an item's amount. Never below zero. Taps are queued, so quick
+     * taps all count (each one reads the amount the previous one wrote).
+     */
+    addAmount(id: string, delta: number): Promise<void> {
+      return serially(async () => {
+        const task = await requireTask(id);
+        await this.setAmount(id, task.amount + delta);
+      });
     },
 
     /** Starts a time item's timer. Only the start is stored, so it counts with the app closed. */

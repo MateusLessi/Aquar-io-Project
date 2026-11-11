@@ -121,9 +121,7 @@ export function CreateFlow({
       <HabitEditorSheet
         visible={visible && kind === 'habit'}
         onClose={close}
-        onSubmit={async (input) => {
-          await habits.createHabit(input);
-        }}
+        onSubmit={(input) => habits.createHabit(input)}
       />
       <RoutineEditorSheet
         visible={visible && kind === 'routine'}

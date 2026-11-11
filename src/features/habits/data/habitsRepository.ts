@@ -283,6 +283,14 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
     );
   }
 
+  // Read-then-write changes run one at a time.
+  let queue: Promise<unknown> = Promise.resolve();
+  function serially<T>(work: () => Promise<T>): Promise<T> {
+    const run = queue.then(work, work);
+    queue = run.catch(() => undefined);
+    return run;
+  }
+
   /** Marks a day done or not in habit_checks. Setting the state it already has does nothing. */
   async function markDone(habitId: string, date: string, done: boolean): Promise<void> {
     const id = checkId(habitId, date);
@@ -573,9 +581,12 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
     },
 
     /** Adds to (or, with a negative delta, takes from) a day's progress. Never below zero. */
-    async addAmount(habitId: string, date: string, delta: number): Promise<void> {
-      const current = await readProgress(habitId, date);
-      await this.setAmount(habitId, date, (current?.amount ?? 0) + delta);
+    // Taps are queued, so quick taps all count (each reads what the previous one wrote).
+    addAmount(habitId: string, date: string, delta: number): Promise<void> {
+      return serially(async () => {
+        const current = await readProgress(habitId, date);
+        await this.setAmount(habitId, date, (current?.amount ?? 0) + delta);
+      });
     },
 
     async setStep(habitId: string, date: string, stepId: string, done: boolean): Promise<void> {

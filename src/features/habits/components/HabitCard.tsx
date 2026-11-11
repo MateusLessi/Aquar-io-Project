@@ -82,12 +82,8 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
     : habit.today.ratio;
   const sources = useHabitSources();
   const day = habit.connected;
-  const badge =
-    day && day.required > 0
-      ? `${day.doneCount}/${day.required}`
-      : day
-        ? null
-        : amountLabel(habit, amount);
+  // A connected habit says it in the line below ("Push · 1 de 2"): no badge too.
+  const badge = day ? null : amountLabel(habit, amount);
 
   return (
     <Animated.View

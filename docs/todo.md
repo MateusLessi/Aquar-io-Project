@@ -68,3 +68,9 @@ Proposta aprovada no checkpoint 038: `docs/design/proposals/folders.png`.
 - **Criar**: o card "Nova lista ou pasta" e o botão Criar do app sabem em que pasta você está.
 - **Painel Início**: tarefas de hoje mostram de onde vêm (`listPath`) e pastas **fixadas** (`pinned`) aparecem com anel e próximas tarefas (`PinnedFolders.tsx`).
 - **Arrastar**: no modo Conectar (etapa 3), soltar uma lista ou pasta numa pasta guarda ela lá, em qualquer aparelho. Segurar → "Mover para…" continua valendo.
+
+## Itens com contador ou tempo, e listas que zeram (Lapidação, Fase 1a)
+
+- **Tipo do item** (detalhe da tarefa → Tipo): **Marcar**, **Contador** (meta e o que conta: "3 séries") ou **Tempo** (meta em minutos, com cronômetro que conta com o app fechado, como nos hábitos). Na linha, o contador tem "+1" (segure para tirar 1) e o tempo tem play/pausa. Chegar à meta conclui o item; voltar abaixo reabre. Toques rápidos são enfileirados e todos contam.
+- **Zera todo dia** (editor da lista): para treinos e checklists. A marca de cada item vale só para o dia (`task_checks`, um registro por item e dia); no dia seguinte tudo volta desmarcado. As consultas já devolvem o estado de hoje, então as telas não precisam saber a diferença.
+- Dados: migração 12 (`tasks.kind/target/unit/amount`, `task_lists.resets`, `task_checks`, `task_timers` local) e `supabase/migrations/20261111000000_connections_counters.sql`.

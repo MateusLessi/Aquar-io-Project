@@ -119,3 +119,13 @@ describe('lists that start over every day', () => {
     expect(completions).toHaveLength(3);
   });
 });
+
+describe('quick taps', () => {
+  it('every tap on a counter counts, even when they overlap', async () => {
+    const { repo } = await setup();
+    const list = await repo.createList({ name: 'Água' });
+    const id = await repo.createTask({ listId: list, title: 'Copos', kind: 'count', target: 8 });
+    await Promise.all([repo.addAmount(id, 1), repo.addAmount(id, 1), repo.addAmount(id, 1)]);
+    expect((await repo.listTasks(list))[0]!.amount).toBe(3);
+  });
+});
