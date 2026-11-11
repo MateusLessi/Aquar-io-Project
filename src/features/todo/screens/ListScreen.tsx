@@ -65,7 +65,12 @@ export function ListScreen({
       title={list.name}
       eyebrow={[
         place?.path.length ? place.path.map((c) => c.name).join(' › ') : null,
-        open.length === 0 ? 'Tudo em dia' : `${open.length} pendentes`,
+        list.resets ? 'Zera todo dia' : null,
+        open.length === 0
+          ? list.resets
+            ? 'Feito hoje'
+            : 'Tudo em dia'
+          : `${open.length} pendentes`,
       ]
         .filter(Boolean)
         .join('  ·  ')}
