@@ -1,6 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { CreatureArt } from '../components/CreatureArt';
-import { Minus, Pencil, SearchX, Waves } from 'lucide-react-native';
+import { Check, Minus, Pencil, SearchX, Waves } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -20,6 +19,7 @@ import {
   withAlpha,
 } from '@/design-system';
 
+import { CreatureArt } from '../components/CreatureArt';
 import { HabitCapsule } from '../components/HabitCapsule';
 import { HabitControl, streakLabel, useLiveAmount } from '../components/HabitCard';
 import { HabitCalendar } from '../components/HabitCalendar';
@@ -31,6 +31,7 @@ import { creatures } from '../domain/creatures';
 import { daysLabel } from '../domain/progress';
 import { creatureStage, nextStage, stageInfo, type Stage } from '../domain/stages';
 import type { HabitWithProgress } from '../domain/types';
+import { useHabitSources } from '../hooks/habitSources';
 import { useHabitsRepository } from '../hooks/habitsContext';
 import { useHabit } from '../hooks/queries';
 import { useHabitActions, type HabitActions } from '../hooks/useHabitActions';
@@ -50,6 +51,7 @@ export function HabitDetailScreen({
   const router = useRouter();
   const { dive } = useLocalSearchParams<{ dive?: string }>();
   const repository = useHabitsRepository();
+  const sources = useHabitSources();
   const { scheme } = useTheme();
   const { data, loading, todayKey } = useHabit(habitId);
   const actions = useHabitActions(todayKey);
@@ -96,7 +98,17 @@ export function HabitDetailScreen({
     >
       <Hero habit={habit} tone={tone} actions={actions} onDive={openDive} />
 
-      {habit.kind === 'checklist' ? (
+      {habit.connected && sources ? (
+        <Surface style={styles.steps}>
+          <Text variant="headline">Hoje · {habit.connected.label}</Text>
+          <sources.DayView habitId={habit.id} />
+          <Text variant="footnote" tone="tertiary">
+            Marcar aqui marca no lugar de origem, e marcar lá também conta aqui.
+          </Text>
+        </Surface>
+      ) : null}
+
+      {!habit.connected && habit.kind === 'checklist' ? (
         <Surface style={styles.steps}>
           {habit.steps.map((step) => {
             const done = habit.today.stepsDone.includes(step.id);
@@ -186,8 +198,14 @@ function Hero({
   const amount = useLiveAmount(habit);
   const running = habit.today.timerStartedAt !== null;
   const ratio = running ? fillRatio(habit, amount, habit.doneToday) : habit.today.ratio;
-  const headline =
-    habit.kind === 'time'
+  const day = habit.connected;
+  const headline = day
+    ? day.required === 0
+      ? 'Dia de descanso'
+      : day.done
+        ? 'Feito hoje!'
+        : `${day.doneCount} de ${day.required}`
+    : habit.kind === 'time'
       ? clockLabel(amount)
       : habit.kind === 'check'
         ? habit.doneToday
@@ -196,8 +214,9 @@ function Hero({
             ? 'Ainda dá tempo'
             : 'Dia de descanso'
         : amountLabel({ ...habit, unit: null }, amount);
-  const sub =
-    habit.kind === 'count'
+  const sub = day
+    ? `${day.label} · hoje`
+    : habit.kind === 'count'
       ? `${habit.unit ?? 'hoje'}${habit.doneToday ? ' · meta batida!' : ''}`
       : habit.kind === 'time'
         ? `de ${habit.target} min${running ? ' · rodando' : ''}`
@@ -224,7 +243,16 @@ function Hero({
           {sub}
         </Text>
         <View style={styles.controls}>
-          {habit.kind === 'count' ? (
+          {day ? (
+            day.required > 0 ? (
+              <Button
+                label={day.done ? 'Desmarcar tudo' : 'Marcar tudo'}
+                variant={day.done ? 'secondary' : 'primary'}
+                icon={day.done ? undefined : Check}
+                onPress={() => actions.toggle(habit, !day.done)}
+              />
+            ) : null
+          ) : habit.kind === 'count' ? (
             <>
               <IconButton
                 icon={Minus}

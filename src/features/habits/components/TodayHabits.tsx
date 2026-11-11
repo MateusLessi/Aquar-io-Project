@@ -62,12 +62,22 @@ function TodayCapsule({ habit, actions }: { habit: HabitWithProgress; actions: H
   const amount = useLiveAmount(habit);
   const running = habit.today.timerStartedAt !== null;
   const ratio = running ? fillRatio(habit, amount, habit.doneToday) : habit.today.ratio;
-  const caption = amountLabel({ ...habit, unit: null }, amount);
+  const day = habit.connected;
+  const caption =
+    day && day.required > 0
+      ? `${day.doneCount}/${day.required}`
+      : amountLabel({ ...habit, unit: null }, amount);
 
   let Icon = Check;
   let action: string;
   let onPress: () => void;
-  switch (habit.kind) {
+  switch (day ? 'connected' : habit.kind) {
+    case 'connected':
+      // Today's items live in the habit: open it to do them.
+      Icon = ListChecks;
+      action = 'abrir os itens de hoje';
+      onPress = () => actions.open(habit);
+      break;
     case 'count':
       Icon = Plus;
       action = 'somar 1';
@@ -87,7 +97,11 @@ function TodayCapsule({ habit, actions }: { habit: HabitWithProgress; actions: H
       action = habit.doneToday ? 'desmarcar' : 'marcar como feito';
       onPress = () => actions.toggle(habit, !habit.doneToday);
   }
-  const label = [habit.name, amountLabel(habit, amount), habit.doneToday ? 'feito hoje' : null]
+  const label = [
+    habit.name,
+    day ? `${day.label}, ${day.doneCount} de ${day.required}` : amountLabel(habit, amount),
+    habit.doneToday ? 'feito hoje' : null,
+  ]
     .filter(Boolean)
     .join(', ');
 

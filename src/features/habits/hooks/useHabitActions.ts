@@ -5,6 +5,7 @@ import { haptics } from '@/design-system';
 
 import { goalOf } from '../domain/amount';
 import type { HabitWithProgress } from '../domain/types';
+import { useHabitSources } from './habitSources';
 import { useHabitsRepository } from './habitsContext';
 
 /** What a person can do to a habit from a card, the dashboard or the detail screen. */
@@ -30,6 +31,7 @@ function feel(completes: boolean) {
 export function useHabitActions(todayKey: string): HabitActions {
   const router = useRouter();
   const repository = useHabitsRepository();
+  const sources = useHabitSources();
 
   return useMemo(() => {
     const report = (e: unknown) => console.error(e);
@@ -41,7 +43,9 @@ export function useHabitActions(todayKey: string): HabitActions {
     return {
       toggle: (habit, done) => {
         feel(done);
-        repository.setChecked(habit.id, todayKey, done).catch(report);
+        // Connected: marking the habit marks today's items, the same marks as in the list.
+        if (habit.connected && sources) sources.setDone(habit.id, done);
+        else repository.setChecked(habit.id, todayKey, done).catch(report);
       },
       add: (habit, delta) => {
         const goal = goalOf(habit);
@@ -67,5 +71,5 @@ export function useHabitActions(todayKey: string): HabitActions {
       },
       open,
     };
-  }, [repository, router, todayKey]);
+  }, [repository, router, todayKey, sources]);
 }
