@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { CloudAlert, FolderPlus, ListPlus } from 'lucide-react-native';
+import { CloudAlert, FolderPlus, Layers, LayoutGrid, List, ListPlus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -9,6 +9,7 @@ import {
   EmptyState,
   Grid,
   SegmentedControl,
+  StickySlot,
   Sheet,
   Surface,
   Text,
@@ -150,16 +151,19 @@ export function ListsBrowser({
 
   return (
     <View style={styles.root}>
-      <SegmentedControl
-        accessibilityLabel="Visualização"
-        options={[
-          { value: 'grid', label: 'Grade' },
-          { value: 'rows', label: 'Lista' },
-          { value: 'all', label: 'Tudo junto' },
-        ]}
-        value={view}
-        onChange={(value) => void setView(value as ListsView)}
-      />
+      <StickySlot>
+        <SegmentedControl
+          compact
+          accessibilityLabel="Visualização"
+          options={[
+            { value: 'grid', label: 'Grade', icon: LayoutGrid },
+            { value: 'rows', label: 'Lista', icon: List },
+            { value: 'all', label: 'Tudo junto', icon: Layers },
+          ]}
+          value={view}
+          onChange={(value) => void setView(value as ListsView)}
+        />
+      </StickySlot>
 
       {view === 'all' ? <FolderTasksView folderId={folderId} /> : view === 'rows' ? rows : grid}
 

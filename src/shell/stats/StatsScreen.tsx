@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -81,12 +80,10 @@ export function StatsScreen() {
   const { data } = useStats(period);
   const today = toDateKey(new Date());
   const current = period.from <= today && today <= period.to;
-  const back = () => (router.canGoBack() ? router.back() : router.replace('/profile'));
 
   return (
     <Screen
       title="Estatísticas"
-      onBack={back}
       wide
       accessory={
         <View style={styles.accessory}>

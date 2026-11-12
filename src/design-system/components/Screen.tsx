@@ -1,5 +1,5 @@
 import { ChevronLeft } from 'lucide-react-native';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
@@ -35,6 +35,11 @@ export type ScreenProps = {
   actions?: ReactNode;
   /** Use the full width on large screens (dashboards); text-heavy screens keep a reading width. */
   wide?: boolean;
+  /**
+   * A bar under the title that stays at hand: when the content scrolls, it stops under the
+   * compact header instead of leaving the screen (the Aquarium's sections).
+   */
+  stickyBar?: ReactNode;
   testID?: string;
 };
 
@@ -50,11 +55,19 @@ export function Screen({
   onBack,
   actions,
   wide = false,
+  stickyBar,
   testID,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
   const chromeInsets = useChromeInsets();
   const scrollY = useSharedValue(0);
+  // Where the sticky bar starts in the content, and where it stops on screen.
+  const [barY, setBarY] = useState(0);
+  const contentTop = insets.top + spacing.xxl;
+  const stopAt = insets.top + chrome.compactHeaderHeight;
+  const stickyStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: Math.max(0, scrollY.get() - (contentTop + barY - stopAt)) }],
+  }));
 
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.set(event.contentOffset.y);
@@ -81,7 +94,7 @@ export function Screen({
         onScroll={onScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{
-          paddingTop: insets.top + spacing.xxl,
+          paddingTop: contentTop,
           paddingBottom: chromeInsets.bottom + spacing.xxxl,
         }}
       >
@@ -105,6 +118,14 @@ export function Screen({
             <Text variant="largeTitle">{title}</Text>
             {accessory ? <View style={styles.accessory}>{accessory}</View> : null}
           </Animated.View>
+          {stickyBar ? (
+            <Animated.View
+              onLayout={(e) => setBarY(e.nativeEvent.layout.y)}
+              style={[styles.sticky, stickyStyle]}
+            >
+              {stickyBar}
+            </Animated.View>
+          ) : null}
           <Waterline />
           <View style={styles.body}>{children}</View>
         </View>
@@ -152,6 +173,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.xs, transformOrigin: 'left' },
   eyebrow: { marginBottom: spacing.xxs },
   accessory: { marginTop: spacing.md, flexDirection: 'row' },
+  sticky: { marginTop: spacing.md, zIndex: 10, elevation: 10 },
   body: { marginTop: spacing.md, gap: spacing.lg },
   compactHeader: { position: 'absolute', top: 0, left: 0, right: 0 },
   compactGlass: { alignItems: 'center', justifyContent: 'center' },

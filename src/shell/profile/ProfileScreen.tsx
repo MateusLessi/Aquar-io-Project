@@ -1,36 +1,68 @@
 import { useRouter } from 'expo-router';
-import { ChevronRight } from 'lucide-react-native';
+import {
+  ChartColumn,
+  ChevronRight,
+  Settings,
+  ShoppingBag,
+  type LucideIcon,
+} from 'lucide-react-native';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { ListItem, Screen, Surface, Text, spacing, useTheme } from '@/design-system';
+import {
+  IconButton,
+  ListItem,
+  Screen,
+  Surface,
+  Text,
+  listColors,
+  radius,
+  spacing,
+  useTheme,
+  withAlpha,
+  type ListColorName,
+} from '@/design-system';
 import { ProfileHeader } from './ProfileHeader';
 import { ProfileShowcase } from './Showcase';
 
-/** The person: profile, statistics and the way into Ajustes. */
+/** The person: profile, the way to statistics and the shop, and Ajustes (also the gear on top). */
 export function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const settings = () => router.push('/profile/settings');
 
   return (
-    <Screen title="Perfil">
+    <Screen
+      title="Perfil"
+      actions={<IconButton icon={Settings} label="Ajustes" onPress={settings} />}
+    >
       <ProfileHeader />
+
+      <View style={styles.tiles}>
+        <Tile
+          icon={ChartColumn}
+          color="tide"
+          title="Estatísticas"
+          subtitle="Sua semana e seu mês"
+          onPress={() => router.push('/stats')}
+        />
+        <Tile
+          icon={ShoppingBag}
+          color="sand"
+          title="Loja"
+          subtitle="Cenários e planos"
+          onPress={() => router.push('/shop')}
+        />
+      </View>
+
       <ProfileShowcase />
 
       <Surface>
         <ListItem
-          title="Estatísticas"
-          subtitle="Sua semana e seu mês em gráficos e tabelas"
-          onPress={() => router.push('/profile/stats')}
-          trailing={<ChevronRight size={20} color={colors.textTertiary} />}
-        />
-      </Surface>
-
-      <Surface>
-        <ListItem
+          leading={<Settings size={22} color={colors.accent} />}
           title="Ajustes"
           subtitle="Aparência, calendário, sons, lembretes, conta e dados"
-          onPress={() => router.push('/profile/settings')}
+          onPress={settings}
           trailing={<ChevronRight size={20} color={colors.textTertiary} />}
         />
       </Surface>
@@ -68,6 +100,47 @@ export function ProfileScreen() {
   );
 }
 
+/** A big shortcut with an icon on a tinted card. */
+function Tile({
+  icon: Icon,
+  color,
+  title,
+  subtitle,
+  onPress,
+}: {
+  icon: LucideIcon;
+  color: ListColorName;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+}) {
+  const { colors, scheme } = useTheme();
+  const tone = listColors[color][scheme];
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}: ${subtitle}`}
+      style={({ pressed }) => [
+        styles.tile,
+        {
+          backgroundColor: colors.surfaceRaised,
+          transform: [{ scale: pressed ? 0.97 : 1 }],
+        },
+      ]}
+    >
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(tone, 0.16) }]} />
+      <Icon size={26} color={tone} />
+      <View>
+        <Text variant="headline">{title}</Text>
+        <Text variant="footnote" tone="secondary">
+          {subtitle}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View style={styles.section}>
@@ -80,6 +153,15 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
+  tiles: { flexDirection: 'row', gap: spacing.md },
+  tile: {
+    flex: 1,
+    minHeight: 112,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    justifyContent: 'space-between',
+    overflow: 'hidden',
+  },
   section: { gap: spacing.sm },
   sectionTitle: { marginLeft: spacing.xs },
   note: { marginLeft: spacing.xs },

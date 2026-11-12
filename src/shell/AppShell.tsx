@@ -13,7 +13,7 @@ import { aquariumTab } from './aquarium/AquariumScreen';
 import { CreateContext } from './create/CreateContext';
 import { ConnectProvider } from './connections/ConnectProvider';
 import { CreateFlow } from './create/CreateFlow';
-import { destinations } from './destinations';
+import { destinations, phoneDestinations } from './destinations';
 import { useGamePrefs, useOpenStartTab } from './settings/prefs';
 import { useFeedbackMoments } from './feedback/useFeedbackMoments';
 import { useFeedbackSync } from './feedback/useFeedbackSettings';
@@ -126,7 +126,7 @@ function ShellLayout() {
           </View>
           {breakpoint === 'compact' ? (
             <TabBar
-              destinations={destinations}
+              destinations={phoneDestinations}
               activeName={activeName}
               onCreate={create}
               iconRotation={uprightRotation(tilt)}
