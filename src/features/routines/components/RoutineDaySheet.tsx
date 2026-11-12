@@ -126,7 +126,12 @@ function DayForm({
           <Text variant="footnote" tone="secondary" style={styles.label}>
             Só neste dia
           </Text>
-          <Button label="Mudar o horário" variant="secondary" block onPress={() => setMoving(true)} />
+          <Button
+            label="Mudar o horário"
+            variant="secondary"
+            block
+            onPress={() => setMoving(true)}
+          />
           <Button
             label="Pular este dia"
             variant="secondary"

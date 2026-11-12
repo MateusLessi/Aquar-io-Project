@@ -66,7 +66,8 @@ export function AquariumScreen() {
           extraEntries={dated}
           onOpenEntry={(entry) => {
             const task = tasks?.find((t) => t.id === entry.refId);
-            if (task) router.push({ pathname: '/aquarium/lists/[id]', params: { id: task.listId } });
+            if (task)
+              router.push({ pathname: '/aquarium/lists/[id]', params: { id: task.listId } });
           }}
           onNewTask={setNewTaskDay}
           renderWeek={(week) => <ConnectedWeek {...week} />}

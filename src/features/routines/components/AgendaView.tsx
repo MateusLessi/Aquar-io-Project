@@ -93,8 +93,7 @@ export function AgendaRow({
   // A whole-day thing has no "now" or "in 2 h": it is simply today.
   const past = today && routine.phase === 'past';
   const now = today && routine.phase === 'now' && !routine.allDay;
-  const kind =
-    routine.source === 'event' ? 'Evento' : routine.source === 'task' ? 'Tarefa' : null;
+  const kind = routine.source === 'event' ? 'Evento' : routine.source === 'task' ? 'Tarefa' : null;
   const when = routine.allDay
     ? 'o dia todo'
     : `${showTime(routine.start)} às ${showTime(routine.end)}`;
@@ -102,7 +101,9 @@ export function AgendaRow({
     kind,
     past && total > 0 ? `${done} de ${total} feitos` : null,
     now ? `Agora · faltam ${durationLabel(routine.minutesLeft)}` : null,
-    today && routine.phase === 'upcoming' && !routine.allDay ? `Em ${durationLabel(routine.minutesLeft)}` : null,
+    today && routine.phase === 'upcoming' && !routine.allDay
+      ? `Em ${durationLabel(routine.minutesLeft)}`
+      : null,
     routine.tag,
     ...extras,
     !today && total > 0 && extras.length === 0
