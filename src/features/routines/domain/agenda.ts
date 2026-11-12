@@ -1,4 +1,4 @@
-import { isDateKey, isTimeOfDay, weekdayOf } from '@/core/dates';
+import { addDays, isDateKey, isTimeOfDay, weekdayOf } from '@/core/dates';
 
 import { happensOn, toMinutes } from './schedule';
 import type { AgendaEvent, EventRepeat, NewEvent, RoutineToday } from './types';
@@ -113,4 +113,17 @@ export function withPhase(entry: RoutineToday, todayKey: string, nowMinutes: num
   if (nowMinutes < start) return { ...entry, phase: 'upcoming', minutesLeft: start - nowMinutes };
   if (nowMinutes < end) return { ...entry, phase: 'now', minutesLeft: end - nowMinutes };
   return { ...entry, phase: 'past', minutesLeft: 0 };
+}
+
+/** The first day, from `from` on, the event happens (within a year), or null when it is over. */
+export function nextOccurrence(
+  event: Pick<AgendaEvent, 'date' | 'repeat'>,
+  from: string,
+): string | null {
+  if (event.repeat === 'none') return event.date >= from ? event.date : null;
+  let day = event.date > from ? event.date : from;
+  for (let i = 0; i < 400; i++, day = addDays(day, 1)) {
+    if (eventOccurs(event, day)) return day;
+  }
+  return null;
 }

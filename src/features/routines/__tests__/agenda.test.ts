@@ -4,7 +4,7 @@ import { createMemoryDatabase } from '@/core/database/testing';
 import { createEventLog } from '@/core/events/eventLog';
 
 import { createRoutinesRepository } from '../data/routinesRepository';
-import { eventEntry, eventOccurs, validateEvent } from '../domain/agenda';
+import { eventEntry, eventOccurs, nextOccurrence, validateEvent } from '../domain/agenda';
 import { routinePhase, routinesOn } from '../domain/schedule';
 import { RoutineValidationError } from '../domain/validation';
 
@@ -30,6 +30,17 @@ describe('when an event happens', () => {
     expect(eventOccurs({ ...exam, repeat: 'monthly' }, '2026-12-17')).toBe(true);
     expect(eventOccurs({ ...exam, repeat: 'yearly' }, '2027-11-17')).toBe(true);
     expect(eventOccurs({ ...exam, repeat: 'yearly' }, '2027-12-17')).toBe(false);
+  });
+
+  it('knows when it comes next', () => {
+    expect(nextOccurrence({ date: '2026-11-20', repeat: 'none' }, '2026-11-17')).toBe('2026-11-20');
+    expect(nextOccurrence({ date: '2026-11-10', repeat: 'none' }, '2026-11-17')).toBeNull();
+    expect(nextOccurrence({ date: '2026-11-10', repeat: 'weekly' }, '2026-11-17')).toBe(
+      '2026-11-17',
+    );
+    expect(nextOccurrence({ date: '2026-03-05', repeat: 'yearly' }, '2026-11-17')).toBe(
+      '2027-03-05',
+    );
   });
 
   it('never skips a month for lack of a day', () => {

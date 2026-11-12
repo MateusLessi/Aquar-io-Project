@@ -59,6 +59,7 @@ export function RoutinesPanel({
   extraEntries = NO_ENTRIES,
   onOpenEntry,
   onNewTask,
+  lists,
 }: {
   renderRoutine?: (routine: RoutineToday, onEdit: () => void) => React.ReactNode;
   /** Draws the week richer than the plain WeekView (the shell adds what is linked, and dragging). */
@@ -71,6 +72,8 @@ export function RoutinesPanel({
   onOpenEntry?: (entry: RoutineToday, day: string) => void;
   /** "Novo na agenda → Tarefa": the shell's task sheet, due on `day`. */
   onNewTask?: (day: string) => void;
+  /** Lists an event can belong to, from the app shell. */
+  lists?: { id: string; name: string }[];
 } = {}) {
   const repository = useRoutinesRepository();
   const params = useLocalSearchParams<{
@@ -253,6 +256,7 @@ export function RoutinesPanel({
         visible={newEvent}
         date={newDay}
         todayKey={todayKey}
+        lists={lists}
         onClose={() => setNewEvent(false)}
         onSubmit={(input) => repository.createEvent(input)}
       />
@@ -261,6 +265,7 @@ export function RoutinesPanel({
         event={event}
         date={event?.date ?? todayKey}
         todayKey={todayKey}
+        lists={lists}
         onClose={() => setEventId(null)}
         onSubmit={(input) => repository.updateEvent(eventId!, input)}
         onDelete={() => repository.deleteEvent(eventId!)}

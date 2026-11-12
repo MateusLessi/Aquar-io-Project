@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 
 import { ListScreen } from '@/features/todo/screens/ListScreen';
+import { ListEvents } from '@/shell/aquarium/ListEvents';
 import { ConnectedSection } from '@/shell/connections/ConnectedSection';
 
 export default function ListRoute() {
@@ -8,7 +9,12 @@ export default function ListRoute() {
   return (
     <ListScreen
       listId={id}
-      footer={(list) => <ConnectedSection kind="list" id={list.id} name={list.name} />}
+      footer={(list) => (
+        <>
+          <ListEvents listId={list.id} />
+          <ConnectedSection kind="list" id={list.id} name={list.name} />
+        </>
+      )}
     />
   );
 }

@@ -123,3 +123,7 @@ Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` 
 | Desempenho em aparelho (FPS do blur e das cáusticas) | **Não medido ainda**: precisa de iPhone 11 / Tab S8+ |
 | Persistência da preferência de tema                  | TODO (hoje fica só em memória)                       |
 | Demais componentes (DatePicker, Tabs, Toast...)      | Criados quando uma etapa precisar deles              |
+
+## Blur e o motor do Firefox
+
+O vidro (`Surface` com `glass`, `GlassSurface`, a tampa do `AquariumTank`) usa blur de fundo no iOS e na web. No motor do Firefox (Firefox, Floorp, LibreWolf), o blur deixava o app inteiro lento. Lá (`isGecko` em `theme/ThemeProvider.tsx`), o vidro vira uma cor sólida, como em "Reduzir transparência".
