@@ -19,7 +19,7 @@ test('see routines as a week and as an agenda, and open the week from the dashbo
   ).toBeVisible();
 
   // The agenda lists today first.
-  await page.getByRole('radio', { name: 'Agenda', exact: true }).click();
+  await page.getByRole('radio', { name: 'Lista', exact: true }).click();
   await expect(
     visible(page.getByRole('button', { name: /^Estudo, 07:00 às 08:00/ })),
   ).toBeVisible();
@@ -30,7 +30,7 @@ test('see routines as a week and as an agenda, and open the week from the dashbo
     visible(page.getByRole('button', { name: /^Estudo, 07:00 às 08:00/ })),
   ).toBeVisible();
 
-  // The dashboard shows the week; a day opens it in Rotinas.
+  // The dashboard shows the week; a day opens it in Agenda.
   await page.goto('/');
   await expect(visible(page.getByText('Sua semana'))).toBeVisible();
   await expect(visible(page.getByText('Próxima: Estudo'))).toBeVisible();

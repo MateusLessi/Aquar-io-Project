@@ -356,6 +356,46 @@ export const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 13,
+    name: 'agenda',
+    // Lapidação, Fase 1b. Events with a date (an exam, an appointment), which may repeat; and
+    // one-day changes to a routine (skipped, or at another time that day only).
+    sql: `
+      CREATE TABLE events (
+        id            TEXT PRIMARY KEY NOT NULL,
+        title         TEXT NOT NULL,
+        emoji         TEXT,
+        color         TEXT NOT NULL,
+        date          TEXT NOT NULL,
+        start_time    TEXT,
+        end_time      TEXT,
+        repeat        TEXT NOT NULL DEFAULT 'none',
+        remind_before INTEGER,
+        notes         TEXT,
+        list_id       TEXT,
+        created_at    TEXT NOT NULL,
+        updated_at    TEXT NOT NULL,
+        deleted_at    TEXT
+      );
+      CREATE INDEX idx_events_date ON events(date, deleted_at);
+      ${outboxTriggers('events')}
+
+      CREATE TABLE routine_overrides (
+        id          TEXT PRIMARY KEY NOT NULL,
+        routine_id  TEXT NOT NULL REFERENCES routines(id),
+        date        TEXT NOT NULL,
+        skip        INTEGER NOT NULL DEFAULT 0,
+        start_time  TEXT,
+        end_time    TEXT,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL,
+        deleted_at  TEXT
+      );
+      CREATE INDEX idx_routine_overrides_date ON routine_overrides(date);
+      ${outboxTriggers('routine_overrides')}
+    `,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

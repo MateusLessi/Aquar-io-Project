@@ -32,6 +32,64 @@ export type RoutineToday = Routine & {
   phase: RoutinePhase;
   /** Minutes to the start (upcoming) or to the end (now). */
   minutesLeft: number;
+  /** One-day changes, by date: skipped, or at another time that day only. */
+  overrides?: Record<string, RoutineOverride>;
+  /**
+   * The agenda shows events and tasks with a date among routines, as entries of this same
+   * shape: `source` tells them apart, `occurs` says on which days they happen.
+   */
+  source?: 'routine' | 'event' | 'task';
+  /** The event's or task's own id (the entry's id is prefixed to stay unique). */
+  refId?: string;
+  /** No time: the whole day. */
+  allDay?: boolean;
+  occurs?: (dateKey: string) => boolean;
+};
+
+/** A routine changed for one day only. */
+export type RoutineOverride = {
+  routineId: string;
+  date: string;
+  skip: boolean;
+  start: string | null;
+  end: string | null;
+};
+
+/** How an event repeats. */
+export type EventRepeat = 'none' | 'weekly' | 'monthly' | 'yearly';
+
+/** Something with a date: an exam, an appointment, a birthday. */
+export type AgendaEvent = {
+  id: string;
+  title: string;
+  emoji: string | null;
+  color: ListColorName;
+  /** `YYYY-MM-DD`: the day, or the first one when it repeats. */
+  date: string;
+  /** `HH:MM`; both null for the whole day. */
+  start: string | null;
+  end: string | null;
+  repeat: EventRepeat;
+  /** Ring this many minutes before (0 = at the start, 1440 = the day before); null = no. */
+  remindBefore: number | null;
+  notes: string | null;
+  /** A list it belongs to ("Prova" in Cálculo 3): it shows there and counts for its habits. */
+  listId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type NewEvent = {
+  title: string;
+  emoji?: string | null;
+  color?: ListColorName;
+  date: string;
+  start?: string | null;
+  end?: string | null;
+  repeat?: EventRepeat;
+  remindBefore?: number | null;
+  notes?: string | null;
+  listId?: string | null;
 };
 
 export type NewRoutine = {

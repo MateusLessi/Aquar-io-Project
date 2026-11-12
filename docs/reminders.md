@@ -30,3 +30,9 @@
 ## Expo Go no Android
 
 No SDK 58, o `expo-notifications` pede, ao ser importado, um módulo de push (`ExpoTopicSubscriptionModule`) que o Expo Go do Android não tem, e isso derrubava o app inteiro. Por isso `src/core/notifications.ts` carrega a biblioteca com um `require` protegido: se não carregar, o app segue sem lembretes e as telas explicam que eles funcionam no app instalado (build de desenvolvimento ou APK). iOS e builds reais não mudam.
+
+## Eventos e mudanças de um dia (Fase 1b)
+
+- Um evento com lembrete toca **antes** dele: na hora, 15 min, 1 h ou 1 dia antes. Um evento de **dia todo** toca às 09:00 do dia ou às **20:00 da véspera**.
+- Eventos que repetem tocam em cada repetição dentro do horizonte (7 dias, mais um para os avisos da véspera).
+- Uma rotina **pulada** num dia não toca nesse dia; uma rotina **mudada só neste dia** toca no novo horário.

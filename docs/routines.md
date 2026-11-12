@@ -4,21 +4,27 @@ Uma rotina é um **bloco de tempo do dia** com uma lista curta de itens que **re
 
 ## O que existe
 
-| Parte                                                                     | Onde                                                               | Estado |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------ |
-| Aba Rotinas (lista "Hoje" / "Outros dias")                                | `src/features/routines/screens/RoutinesScreen.tsx`                 | REAL   |
-| Linha do tempo na tela Hoje: a rotina de agora abre com o checklist       | `components/RoutineTimeline.tsx`, `TodayRoutines.tsx`              | REAL   |
-| Criar, editar e apagar (nome, ícone, cor, horário, dias, itens, lembrete) | `components/RoutineEditorSheet.tsx`                                | REAL   |
-| Itens contam na maré do dia (5 pontos cada, no limite diário)             | `src/core/progress/rules.ts`                                       | REAL   |
-| Lembrete no início da rotina                                              | `src/shell/reminders/plan.ts`                                      | REAL   |
-| Sincronização (`routines`, `routine_items`, `routine_checks`)             | ADR-004, `supabase/migrations/20261023000000_routines_sync.sql`    | REAL   |
-| Seletor **Hoje / Semana / Agenda** em Rotinas, salvo em `routines.view`   | `screens/RoutinesPanel.tsx`                                        | REAL   |
-| Semana: carrossel de dias no celular, 7 colunas no tablet e no PC         | `components/WeekView.tsx`                                          | REAL   |
-| Hábitos e listas conectados dentro dos blocos; bandeja de arrastar        | `src/shell/connections/ConnectedWeek.tsx`                          | REAL   |
-| Agenda dos próximos 7 dias                                                | `components/AgendaView.tsx`                                        | REAL   |
-| "Sua semana" no painel (toque num dia abre a Semana nele)                 | `components/WeekRibbon.tsx`                                        | REAL   |
-| Etiqueta opcional (ex.: Faculdade, Saúde), com sugestões                  | migração 10, `supabase/migrations/20261028000000_routine_tags.sql` | REAL   |
-| Conflitos de horário, rotinas que passam da meia-noite                    | Etapa 7                                                            | TODO   |
+| Parte                                                                                           | Onde                                                                                                                | Estado |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------ |
+| Aba Rotinas (lista "Hoje" / "Outros dias")                                                      | `src/features/routines/screens/RoutinesScreen.tsx`                                                                  | REAL   |
+| Linha do tempo na tela Hoje: a rotina de agora abre com o checklist                             | `components/RoutineTimeline.tsx`, `TodayRoutines.tsx`                                                               | REAL   |
+| Criar, editar e apagar (nome, ícone, cor, horário, dias, itens, lembrete)                       | `components/RoutineEditorSheet.tsx`                                                                                 | REAL   |
+| Itens contam na maré do dia (5 pontos cada, no limite diário)                                   | `src/core/progress/rules.ts`                                                                                        | REAL   |
+| Lembrete no início da rotina                                                                    | `src/shell/reminders/plan.ts`                                                                                       | REAL   |
+| Sincronização (`routines`, `routine_items`, `routine_checks`)                                   | ADR-004, `supabase/migrations/20261023000000_routines_sync.sql`                                                     | REAL   |
+| Seletor **Hoje / Semana / Agenda** em Rotinas, salvo em `routines.view`                         | `screens/RoutinesPanel.tsx`                                                                                         | REAL   |
+| Semana: carrossel de dias no celular, 7 colunas no tablet e no PC                               | `components/WeekView.tsx`                                                                                           | REAL   |
+| Hábitos e listas conectados dentro dos blocos; bandeja de arrastar                              | `src/shell/connections/ConnectedWeek.tsx`                                                                           | REAL   |
+| Agenda dos próximos 7 dias                                                                      | `components/AgendaView.tsx`                                                                                         | REAL   |
+| "Sua semana" no painel (toque num dia abre a Semana nele)                                       | `components/WeekRibbon.tsx`                                                                                         | REAL   |
+| Etiqueta opcional (ex.: Faculdade, Saúde), com sugestões                                        | migração 10, `supabase/migrations/20261028000000_routine_tags.sql`                                                  | REAL   |
+| **Agenda** (Fase 1b): a aba Rotinas virou Agenda, com **Dia / Semana / Mês / Lista**            | `screens/RoutinesPanel.tsx`, `components/MonthView.tsx`                                                             | REAL   |
+| Eventos (prova, consulta, aniversário): dia todo ou com horário, repetem por semana, mês ou ano | migração 13, `domain/agenda.ts`, `components/EventEditorSheet.tsx`, `supabase/migrations/20261112000000_agenda.sql` | REAL   |
+| Tarefas com data aparecem na agenda (no horário do lembrete, ou o dia todo)                     | `src/shell/aquarium/taskEntries.ts`                                                                                 | REAL   |
+| **Só neste dia**: pular a rotina ou mudar o horário num dia, sem mexer no resto                 | `routine_overrides`, `components/RoutineDaySheet.tsx`                                                               | REAL   |
+| "Novo na agenda" (+ ao lado das visões): Evento, Rotina ou Tarefa no dia escolhido              | `screens/RoutinesPanel.tsx`                                                                                         | REAL   |
+| Notificação dos lembretes de evento                                                             | Fase 1c                                                                                                             | TODO   |
+| Conflitos de horário, rotinas que passam da meia-noite                                          | Etapa 7                                                                                                             | TODO   |
 
 ## Regras
 
@@ -28,7 +34,11 @@ Uma rotina é um **bloco de tempo do dia** com uma lista curta de itens que **re
 - Um check por item e por dia, com id `"<item>:<dia>"`: marcar o mesmo item em dois aparelhos não duplica.
 - Para os dias passados, a maré cheia usa a lista de itens atual (aproximação da V1).
 - **Semana:** um dia mostra só as rotinas daquele dia da semana, e só a partir do dia em que a rotina foi criada. Dias passados mostram quantos itens foram feitos de verdade (`doneBetween`); dias futuros mostram só o plano. O anel dos hábitos nos blocos só aparece preenchido para os dias desta semana até hoje.
-- Tocar num bloco de hoje abre a peça da rotina; de outro dia, abre o editor.
+- Tocar num bloco de hoje abre a peça da rotina (o lápis abre "só neste dia"); de outro dia, abre direto "só neste dia", que também leva ao editor da rotina.
+- **Entradas da agenda:** eventos e tarefas viram entradas do mesmo formato das rotinas (`RoutineToday` com `source`, `refId`, `allDay` e `occurs`). Todas as visões usam `routinesOn`, que respeita o dia de cada entrada e as mudanças de um dia.
+- **Mudança de um dia:** uma linha por rotina e dia (id `"<rotina>:<dia>"`), com `skip` ou outro horário. Dia pulado não conta como devido no progresso. "Voltar ao normal" apaga a mudança.
+- **Repetição de evento:** mensal no dia 31 cai no último dia dos meses curtos; anual em 29/02 cai em 28/02 nos outros anos.
+- **Dia todo:** fica no topo do dia (chips acima das horas na Semana) e não mostra "agora" nem "em 2 h".
 - Link direto: `/aquarium?tab=routines&view=week&day=AAAA-MM-DD`.
 
 ## Navegação

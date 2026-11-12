@@ -10,7 +10,7 @@ import type { RoutineToday } from '../domain/types';
 const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 const DAY_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-const DAYS_AHEAD = 7;
+const DAYS_AHEAD = 14;
 
 type AgendaViewProps = {
   routines: RoutineToday[];
@@ -20,7 +20,10 @@ type AgendaViewProps = {
   describe?: (routine: RoutineToday) => string[];
 };
 
-/** The next seven days as a list: what comes when. Today's past routines fade with how much got done. */
+/**
+ * The next two weeks as a list: what comes when, routines, events and tasks due together.
+ * Today's past routines fade with how much got done.
+ */
 export function AgendaView({ routines, todayKey, onOpen, describe }: AgendaViewProps) {
   const days = Array.from({ length: DAYS_AHEAD }, (_, i) => addDays(todayKey, i))
     .map((key) => ({ key, routines: routinesOn(routines, key) }))
@@ -29,7 +32,7 @@ export function AgendaView({ routines, todayKey, onOpen, describe }: AgendaViewP
   if (days.length === 0) {
     return (
       <Text variant="body" tone="secondary" style={styles.empty}>
-        Nenhuma rotina nos próximos dias.
+        Nada marcado nas próximas duas semanas.
       </Text>
     );
   }
@@ -57,7 +60,9 @@ export function AgendaView({ routines, todayKey, onOpen, describe }: AgendaViewP
                 key={routine.id}
                 routine={routine}
                 today={key === todayKey}
-                extras={describe?.(routine) ?? []}
+                extras={
+                  !routine.source || routine.source === 'routine' ? (describe?.(routine) ?? []) : []
+                }
                 onPress={() => onOpen(routine, key)}
               />
             ))}
@@ -68,7 +73,8 @@ export function AgendaView({ routines, todayKey, onOpen, describe }: AgendaViewP
   );
 }
 
-function AgendaRow({
+/** One thing on the agenda: its time (or "Dia todo"), name and what stands out about it. */
+export function AgendaRow({
   routine,
   today,
   extras,
@@ -84,12 +90,19 @@ function AgendaRow({
   const tone = listColors[routine.color][scheme];
   const total = routine.items.length;
   const done = routine.items.filter((i) => i.done).length;
+  // A whole-day thing has no "now" or "in 2 h": it is simply today.
   const past = today && routine.phase === 'past';
-  const now = today && routine.phase === 'now';
+  const now = today && routine.phase === 'now' && !routine.allDay;
+  const kind =
+    routine.source === 'event' ? 'Evento' : routine.source === 'task' ? 'Tarefa' : null;
+  const when = routine.allDay
+    ? 'o dia todo'
+    : `${showTime(routine.start)} às ${showTime(routine.end)}`;
   const meta = [
+    kind,
     past && total > 0 ? `${done} de ${total} feitos` : null,
     now ? `Agora · faltam ${durationLabel(routine.minutesLeft)}` : null,
-    today && routine.phase === 'upcoming' ? `Em ${durationLabel(routine.minutesLeft)}` : null,
+    today && routine.phase === 'upcoming' && !routine.allDay ? `Em ${durationLabel(routine.minutesLeft)}` : null,
     routine.tag,
     ...extras,
     !today && total > 0 && extras.length === 0
@@ -100,7 +113,7 @@ function AgendaRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${routine.name}, ${showTime(routine.start)} às ${showTime(routine.end)}${meta.length ? `, ${meta.join(', ')}` : ''}`}
+      accessibilityLabel={`${routine.name}, ${when}${meta.length ? `, ${meta.join(', ')}` : ''}`}
       style={({ pressed }) => [
         styles.row,
         {
@@ -113,12 +126,20 @@ function AgendaRow({
     >
       <View style={[styles.bar, { backgroundColor: tone }]} />
       <View style={styles.time}>
-        <Text variant="caption" tone="secondary">
-          {showTime(routine.start)}
-        </Text>
-        <Text variant="caption" tone="tertiary">
-          {showTime(routine.end)}
-        </Text>
+        {routine.allDay ? (
+          <Text variant="caption" tone="secondary">
+            Dia todo
+          </Text>
+        ) : (
+          <>
+            <Text variant="caption" tone="secondary">
+              {showTime(routine.start)}
+            </Text>
+            <Text variant="caption" tone="tertiary">
+              {showTime(routine.end)}
+            </Text>
+          </>
+        )}
       </View>
       <View style={styles.flex}>
         <Text variant="headline" numberOfLines={1}>
@@ -156,6 +177,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   bar: { width: 4, alignSelf: 'stretch', borderRadius: 2 },
-  time: { width: 44 },
+  time: { width: 60 },
   flex: { flex: 1, gap: 2 },
 });

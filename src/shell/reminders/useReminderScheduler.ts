@@ -58,6 +58,7 @@ export function useReminderScheduler() {
             habits: await habits.listHabits(),
             tasks: await todo.listReminders(),
             routines: await routines.listReminders(),
+            events: (await routines.listEvents()).filter((e) => e.remindBefore !== null),
             now,
           })
         : [];

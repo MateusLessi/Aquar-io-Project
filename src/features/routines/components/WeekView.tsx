@@ -66,6 +66,50 @@ export type WeekViewProps = {
   footer?: React.ReactNode;
 };
 
+const isRoutine = (entry: RoutineToday) => !entry.source || entry.source === 'routine';
+
+/** The whole-day things of a day (a birthday, a task due), as chips above its hours. */
+function AllDayChips({
+  routines,
+  dayKey,
+  onOpen,
+  compact,
+}: {
+  routines: RoutineToday[];
+  dayKey: string;
+  onOpen: (routine: RoutineToday, day: string) => void;
+  compact?: boolean;
+}) {
+  const { scheme } = useTheme();
+  const allDay = routinesOn(routines, dayKey).filter((r) => r.allDay);
+  return (
+    <View style={styles.allDay}>
+      {allDay.map((entry) => {
+        const tone = listColors[entry.color][scheme];
+        return (
+          <Pressable
+            key={entry.id}
+            onPress={() => onOpen(entry, dayKey)}
+            accessibilityRole="button"
+            accessibilityLabel={`${entry.name}, ${dayLabel(dayKey)}, o dia todo`}
+            style={({ pressed }) => [
+              styles.allDayChip,
+              {
+                backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.28 : 0.2),
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <Text variant="caption" numberOfLines={1} style={compact && styles.small}>
+              {entry.name}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 const dayLabel = (key: string) => {
   const d = fromDateKey(key);
   return `${DAY_NAMES[d.getDay()]}, ${d.getDate()} de ${MONTHS[d.getMonth()]}`;
@@ -142,6 +186,18 @@ function WideWeek({ days, ...props }: WeekViewProps & { days: string[] }) {
           );
         })}
       </View>
+      {days.some((key) => routinesOn(props.routines, key).some((r) => r.allDay)) ? (
+        <View style={styles.headRow}>
+          <Text variant="caption" tone="tertiary" style={{ width: RAIL }}>
+            Dia todo
+          </Text>
+          {days.map((key) => (
+            <View key={key} style={styles.flex}>
+              <AllDayChips routines={props.routines} dayKey={key} onOpen={props.onOpen} compact />
+            </View>
+          ))}
+        </View>
+      ) : null}
       <View style={styles.gridRow}>
         <HourRail from={hours.from} to={hours.to} hour={hour} />
         {days.map((key) => (
@@ -199,7 +255,7 @@ function DayCarousel({ days, ...props }: WeekViewProps & { days: string[] }) {
               key={key}
               onPress={() => props.onDay(key)}
               accessibilityRole="tab"
-              accessibilityLabel={`${dayLabel(key)}, ${on.length} ${on.length === 1 ? 'rotina' : 'rotinas'}`}
+              accessibilityLabel={`${dayLabel(key)}, ${on.length} ${on.length === 1 ? 'compromisso' : 'compromissos'}`}
               accessibilityState={{ selected }}
               style={[
                 styles.stripDay,
@@ -246,9 +302,12 @@ function DayCarousel({ days, ...props }: WeekViewProps & { days: string[] }) {
             onScrollEndDrag={onSettle}
           >
             {days.map((key) => (
-              <View key={key} style={[styles.page, { width }]}>
-                <HourRail from={hours.from} to={hours.to} hour={hour} />
-                <DayColumn {...props} dayKey={key} hours={hours} hour={hour} done={done} />
+              <View key={key} style={{ width }}>
+                <AllDayChips routines={props.routines} dayKey={key} onOpen={props.onOpen} />
+                <View style={styles.page}>
+                  <HourRail from={hours.from} to={hours.to} hour={hour} />
+                  <DayColumn {...props} dayKey={key} hours={hours} hour={hour} done={done} />
+                </View>
               </View>
             ))}
           </ScrollView>
@@ -303,7 +362,7 @@ function DayColumn({
   const y = (minutes: number) => ((minutes - hours.from * 60) / 60) * hour;
   const lines = [];
   for (let h = hours.from; h <= hours.to; h += 2) lines.push(h);
-  const on = routinesOn(routines, dayKey);
+  const on = routinesOn(routines, dayKey).filter((r) => !r.allDay);
 
   return (
     <View
@@ -333,17 +392,17 @@ function DayColumn({
         const status = (past || today) && total > 0 ? `${doneCount} de ${total}` : null;
         const short = height < 44;
         const key = `${routine.id}:${dayKey}`;
+        // Only routines take things dropped in; events and tasks just open.
+        const target = isRoutine(routine) ? dropTarget : undefined;
         return (
           <Pressable
             key={routine.id}
             ref={
-              dropTarget
-                ? (view) => dropTarget.register(key, routine.id, view as Measurable | null)
+              target
+                ? (view) => target.register(key, routine.id, view as Measurable | null)
                 : undefined
             }
-            onPress={() =>
-              dropTarget?.armed ? dropTarget.onPick(routine) : onOpen(routine, dayKey)
-            }
+            onPress={() => (target?.armed ? target.onPick(routine) : onOpen(routine, dayKey))}
             accessibilityRole="button"
             accessibilityLabel={`${routine.name}, ${dayLabel(dayKey)}, ${showTime(routine.start)} às ${showTime(routine.end)}${
               routine.tag ? `, ${routine.tag}` : ''
@@ -357,7 +416,7 @@ function DayColumn({
                   ? colors.accentSoft
                   : withAlpha(tone, now ? 0.3 : scheme === 'dark' ? 0.18 : 0.14),
                 borderColor: lit ? colors.accent : withAlpha(tone, now ? 0.9 : 0.5),
-                borderStyle: dropTarget?.armed && !lit ? 'dashed' : 'solid',
+                borderStyle: target?.armed && !lit ? 'dashed' : 'solid',
                 opacity: past && !lit ? 0.6 : 1,
                 transform: [{ scale: pressed ? 0.98 : 1 }],
               },
@@ -386,7 +445,7 @@ function DayColumn({
                     ) : null}
                   </View>
                 ) : null}
-                {height >= 92 ? renderBlockExtra?.(routine, dayKey) : null}
+                {height >= 92 && isRoutine(routine) ? renderBlockExtra?.(routine, dayKey) : null}
               </>
             ) : (
               <>
@@ -400,7 +459,7 @@ function DayColumn({
                   {showTime(routine.start)}–{showTime(routine.end)}
                   {status ? ` · ${status}` : ''}
                 </Text>
-                {height >= 60 ? renderBlockExtra?.(routine, dayKey) : null}
+                {height >= 60 && isRoutine(routine) ? renderBlockExtra?.(routine, dayKey) : null}
               </>
             )}
           </Pressable>
@@ -414,9 +473,9 @@ function DayColumn({
           <View style={[styles.nowDot, { backgroundColor: colors.energy }]} />
         </View>
       ) : null}
-      {on.length === 0 && !compact ? (
+      {on.length === 0 && !compact && !routinesOn(routines, dayKey).some((r) => r.allDay) ? (
         <Text variant="footnote" tone="tertiary" style={styles.rest}>
-          Sem rotinas neste dia.
+          Nada marcado neste dia.
         </Text>
       ) : null}
     </View>
@@ -469,6 +528,8 @@ const styles = StyleSheet.create({
   },
   flex: { flex: 1 },
   small: { fontSize: 11 },
+  allDay: { gap: 2 },
+  allDayChip: { borderRadius: radius.sm, paddingHorizontal: 6, paddingVertical: 2 },
   tagRow: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
   tag: {
     alignSelf: 'flex-start',

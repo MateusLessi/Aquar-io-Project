@@ -89,6 +89,89 @@ describe('planReminders', () => {
     expect(planReminders({ habits: many, tasks: [], now })).toHaveLength(MAX_SCHEDULED);
   });
 
+  it('moves or skips a routine reminder changed for one day', () => {
+    const routine = {
+      id: 'r1',
+      name: 'Academia',
+      emoji: null,
+      color: 'coral' as const,
+      start: '19:00',
+      end: '20:00',
+      days: 0b0101010,
+      remind: true,
+      tag: null,
+      sortOrder: 1,
+      createdAt: '2026-10-01T00:00:00.000Z',
+      updatedAt: '2026-10-01T00:00:00.000Z',
+      overrides: {
+        '2026-10-21': {
+          routineId: 'r1',
+          date: '2026-10-21',
+          skip: false,
+          start: '21:00',
+          end: '22:00',
+        },
+        '2026-10-23': { routineId: 'r1', date: '2026-10-23', skip: true, start: null, end: null },
+      },
+    };
+    const plan = planReminders({ habits: [], tasks: [], routines: [routine], now });
+    expect(plan.map((r) => [r.at.getDate(), r.at.getHours()])).toEqual([
+      [21, 21],
+      [26, 19],
+    ]);
+  });
+
+  it('rings events before they start, and whole-day ones the evening before', () => {
+    const base = {
+      emoji: null,
+      color: 'coral' as const,
+      repeat: 'none' as const,
+      notes: null,
+      listId: null,
+      createdAt: '2026-10-01T00:00:00.000Z',
+      updatedAt: '2026-10-01T00:00:00.000Z',
+    };
+    const plan = planReminders({
+      habits: [],
+      tasks: [],
+      events: [
+        {
+          ...base,
+          id: 'e1',
+          title: 'Prova',
+          date: '2026-10-23',
+          start: '08:00',
+          end: '10:00',
+          remindBefore: 60,
+        },
+        {
+          ...base,
+          id: 'e2',
+          title: 'Aniversário',
+          date: '2026-10-25',
+          start: null,
+          end: null,
+          remindBefore: 1440,
+        },
+        {
+          ...base,
+          id: 'e3',
+          title: 'Sem aviso',
+          date: '2026-10-22',
+          start: '08:00',
+          end: '09:00',
+          remindBefore: null,
+        },
+      ],
+      now,
+    });
+    expect(plan.map((r) => [r.title, r.at.getDate(), r.at.getHours()])).toEqual([
+      ['Prova', 23, 7],
+      ['Aniversário', 24, 20],
+    ]);
+    expect(plan[1]!.body).toBe('Amanhã, o dia todo.');
+  });
+
   it('rings routines with a reminder when they start', () => {
     const routine = {
       id: 'r1',

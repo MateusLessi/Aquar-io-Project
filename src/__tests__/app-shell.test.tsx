@@ -363,7 +363,7 @@ describe('Routines', () => {
 
   it('creates a routine from the Routines tab', async () => {
     await renderRouter(routes, { initialUrl: '/aquarium?tab=routines' });
-    expect(screen.getByRole('radio', { name: 'Rotinas' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Agenda' })).toBeChecked();
     await fireEvent.press(await screen.findByRole('button', { name: 'Nova rotina' }));
     await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Academia');
     await fireEvent.changeText(screen.getByLabelText('Novo item'), 'Aquecer');
