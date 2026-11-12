@@ -45,4 +45,4 @@ Uma rotina é um **bloco de tempo do dia** com uma lista curta de itens que **re
 
 ## Navegação
 
-Com Rotinas, o celular teria 5 abas. Por isso, no celular, **Ajustes saiu da barra** e virou uma engrenagem no topo da tela Hoje (`notOnPhoneBar` em `src/shell/destinations.ts`). No tablet e no notebook continua no menu lateral.
+Desde a Fase 2, a navegação está descrita em [navigation.md](navigation.md).

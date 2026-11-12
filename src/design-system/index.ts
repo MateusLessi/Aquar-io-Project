@@ -45,6 +45,7 @@ export {
   type SegmentedOption,
 } from './components/SegmentedControl';
 export { Sheet, type SheetProps } from './components/Sheet';
+export { StickySlot, StickySlotHost, StickySlotProvider } from './components/StickySlot';
 export { Slider, snapToStep, type SliderProps } from './components/Slider';
 export { Surface, type SurfaceProps } from './components/Surface';
 export { Switch, type SwitchProps } from './components/Switch';

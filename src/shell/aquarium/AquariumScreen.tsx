@@ -1,10 +1,21 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { CalendarDays, Link2, ListTodo, Sprout, type LucideIcon } from 'lucide-react-native';
 
-import { Button, Screen, SegmentedControl } from '@/design-system';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+
+import {
+  Button,
+  GlassSurface,
+  Screen,
+  SegmentedControl,
+  StickySlotHost,
+  StickySlotProvider,
+  spacing,
+  useTheme,
+} from '@/design-system';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
@@ -45,60 +56,70 @@ export function AquariumScreen() {
   const { data: lists } = useLists();
   const dated = useMemo(() => taskEntries(tasks ?? []), [tasks]);
   const [newTaskDay, setNewTaskDay] = useState<string | null>(null);
+  const { reduceMotion } = useTheme();
 
   return (
-    <Screen
-      title="Aquário"
-      actions={<Button label="Conectar" variant="secondary" icon={Link2} onPress={startMode} />}
-      accessory={
-        <View style={styles.switch}>
-          <SegmentedControl
-            accessibilityLabel="Seção do Aquário"
-            options={aquariumTabs}
-            value={tab}
-            onChange={(value) => router.setParams({ tab: value })}
-          />
-        </View>
-      }
-    >
-      {tab === 'habits' ? <HabitsPanel /> : null}
-      {tab === 'routines' ? (
-        <RoutinesPanel
-          extraEntries={dated}
-          onOpenEntry={(entry) => {
-            const task = tasks?.find((t) => t.id === entry.refId);
-            if (task)
-              router.push({ pathname: '/aquarium/lists/[id]', params: { id: task.listId } });
-          }}
-          onNewTask={setNewTaskDay}
-          lists={lists}
-          renderWeek={(week) => <ConnectedWeek {...week} />}
-          describe={(routine) =>
-            inside('routine', routine.id).map((c) =>
-              c.kind === 'habit'
-                ? `${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`
-                : c.kind === 'list'
-                  ? c.list.name
-                  : c.folder.name,
-            )
-          }
-          renderRoutine={(routine, onEdit) => (
-            <ConnectedRoutinePiece
-              routine={routine}
-              onEdit={onEdit}
-              initiallyOpen={routine.phase === 'now'}
+    <StickySlotProvider>
+      <Screen
+        title="Aquário"
+        actions={<Button label="Conectar" variant="secondary" icon={Link2} onPress={startMode} />}
+        stickyBar={
+          <GlassSurface radius="xl" depth={1} style={styles.bar}>
+            <SegmentedControl
+              accessibilityLabel="Seção do Aquário"
+              options={aquariumTabs}
+              value={tab}
+              onChange={(value) => router.setParams({ tab: value })}
             />
-          )}
+            {/* Each section's own bar (Dia / Semana… · Grade / Lista…) drops in from here. */}
+            <Animated.View
+              key={tab}
+              entering={reduceMotion ? undefined : FadeInUp.springify().damping(16)}
+            >
+              <StickySlotHost />
+            </Animated.View>
+          </GlassSurface>
+        }
+      >
+        {tab === 'habits' ? <HabitsPanel /> : null}
+        {tab === 'routines' ? (
+          <RoutinesPanel
+            extraEntries={dated}
+            onOpenEntry={(entry) => {
+              const task = tasks?.find((t) => t.id === entry.refId);
+              if (task)
+                router.push({ pathname: '/aquarium/lists/[id]', params: { id: task.listId } });
+            }}
+            onNewTask={setNewTaskDay}
+            lists={lists}
+            renderWeek={(week) => <ConnectedWeek {...week} />}
+            describe={(routine) =>
+              inside('routine', routine.id).map((c) =>
+                c.kind === 'habit'
+                  ? `${c.habit.name}${c.link.at ? ` ${showTime(c.link.at)}` : ''}`
+                  : c.kind === 'list'
+                    ? c.list.name
+                    : c.folder.name,
+              )
+            }
+            renderRoutine={(routine, onEdit) => (
+              <ConnectedRoutinePiece
+                routine={routine}
+                onEdit={onEdit}
+                initiallyOpen={routine.phase === 'now'}
+              />
+            )}
+          />
+        ) : null}
+        {tab === 'lists' ? <ListsPanel onConnect={(item) => open({ from: item })} /> : null}
+        <QuickAddSheet
+          visible={newTaskDay !== null}
+          dueDate={newTaskDay ?? undefined}
+          onClose={() => setNewTaskDay(null)}
         />
-      ) : null}
-      {tab === 'lists' ? <ListsPanel onConnect={(item) => open({ from: item })} /> : null}
-      <QuickAddSheet
-        visible={newTaskDay !== null}
-        dueDate={newTaskDay ?? undefined}
-        onClose={() => setNewTaskDay(null)}
-      />
-    </Screen>
+      </Screen>
+    </StickySlotProvider>
   );
 }
 
-const styles = StyleSheet.create({ switch: { flex: 1 } });
+const styles = StyleSheet.create({ bar: { padding: spacing.xs, gap: spacing.xs } });

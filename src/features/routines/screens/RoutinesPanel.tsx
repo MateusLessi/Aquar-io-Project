@@ -1,7 +1,11 @@
 import { useLocalSearchParams } from 'expo-router';
 import {
+  Calendar,
   CalendarClock,
   CalendarPlus,
+  CalendarRange,
+  List,
+  Sun,
   CheckSquare,
   CloudAlert,
   Plus,
@@ -17,6 +21,7 @@ import {
   ListItem,
   SegmentedControl,
   Sheet,
+  StickySlot,
   spacing,
   useTheme,
 } from '@/design-system';
@@ -38,11 +43,11 @@ export type RoutinesViewMode = 'timeline' | 'week' | 'month' | 'agenda';
 export const ROUTINES_VIEW_SETTING = 'routines.view';
 const NO_ENTRIES: RoutineToday[] = [];
 
-const viewModes: { value: RoutinesViewMode; label: string }[] = [
-  { value: 'timeline', label: 'Dia' },
-  { value: 'week', label: 'Semana' },
-  { value: 'month', label: 'Mês' },
-  { value: 'agenda', label: 'Lista' },
+const viewModes: { value: RoutinesViewMode; label: string; icon: LucideIcon }[] = [
+  { value: 'timeline', label: 'Dia', icon: Sun },
+  { value: 'week', label: 'Semana', icon: CalendarRange },
+  { value: 'month', label: 'Mês', icon: Calendar },
+  { value: 'agenda', label: 'Lista', icon: List },
 ];
 const isViewMode = (value: string | undefined): value is RoutinesViewMode =>
   viewModes.some((m) => m.value === value);
@@ -156,17 +161,20 @@ export function RoutinesPanel({
         />
       ) : routines ? (
         <View style={styles.root}>
-          <View style={styles.bar}>
-            <View style={styles.flex}>
-              <SegmentedControl
-                accessibilityLabel="Ver a agenda como"
-                options={viewModes}
-                value={view}
-                onChange={(value) => void setView(value)}
-              />
+          <StickySlot>
+            <View style={styles.bar}>
+              <View style={styles.flex}>
+                <SegmentedControl
+                  compact
+                  accessibilityLabel="Ver a agenda como"
+                  options={viewModes}
+                  value={view}
+                  onChange={(value) => void setView(value)}
+                />
+              </View>
+              <IconButton icon={Plus} label="Novo na agenda" onPress={() => setChoosing(true)} />
             </View>
-            <IconButton icon={Plus} label="Novo na agenda" onPress={() => setChoosing(true)} />
-          </View>
+          </StickySlot>
           {view === 'timeline' ? (
             <RoutinesView
               routines={routines}

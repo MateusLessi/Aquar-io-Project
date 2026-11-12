@@ -1,11 +1,18 @@
+import type { LucideIcon } from 'lucide-react-native';
+import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { haptics } from '../haptics';
 import { useTheme } from '../theme/ThemeProvider';
-import { radius, spacing, touchTarget } from '../tokens';
+import { fontFamily, radius, spacing, touchTarget } from '../tokens';
 import { Text } from './Text';
 
-export type SegmentedOption<T extends string> = { value: T; label: string };
+export type SegmentedOption<T extends string> = {
+  value: T;
+  label: string;
+  /** Shown before the label, so the choice reads at a glance. */
+  icon?: LucideIcon;
+};
 
 export type SegmentedControlProps<T extends string> = {
   options: SegmentedOption<T>[];
@@ -13,6 +20,8 @@ export type SegmentedControlProps<T extends string> = {
   onChange: (value: T) => void;
   /** Describes the whole group, e.g. "Tema". */
   accessibilityLabel: string;
+  /** Smaller, for a second row under the main one (e.g. Dia / Semana under Agenda). */
+  compact?: boolean;
 };
 
 /** A small set of mutually exclusive options, e.g. System / Light / Dark. */
@@ -21,11 +30,18 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
   accessibilityLabel,
+  compact = false,
 }: SegmentedControlProps<T>) {
   const { colors } = useTheme();
+  // Narrow: only the chosen option keeps its icon, so every word still fits.
+  const [narrow, setNarrow] = useState(false);
 
   return (
     <View
+      onLayout={(e) => {
+        const next = e.nativeEvent.layout.width / options.length < (compact ? 92 : 110);
+        if (next !== narrow) setNarrow(next);
+      }}
       accessibilityRole="radiogroup"
       accessibilityLabel={accessibilityLabel}
       style={[styles.track, { backgroundColor: colors.surfacePressed }]}
@@ -46,15 +62,25 @@ export function SegmentedControl<T extends string>({
             }}
             style={[
               styles.segment,
+              compact && styles.compact,
               selected && [
                 styles.selected,
                 { backgroundColor: colors.surfaceRaised, shadowColor: colors.shadow },
               ],
             ]}
           >
+            {option.icon && (selected || !narrow) ? (
+              <option.icon
+                size={compact ? 15 : 17}
+                strokeWidth={selected ? 2.3 : 1.9}
+                color={selected ? colors.textPrimary : colors.textSecondary}
+              />
+            ) : null}
             <Text
-              variant={selected ? 'bodyStrong' : 'body'}
+              variant={compact ? 'callout' : selected ? 'bodyStrong' : 'body'}
+              style={compact && selected ? styles.strong : undefined}
               tone={selected ? 'primary' : 'secondary'}
+              numberOfLines={1}
             >
               {option.label}
             </Text>
@@ -71,10 +97,14 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: touchTarget,
     borderRadius: radius.pill,
+    flexDirection: 'row',
+    gap: spacing.xs,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
   },
+  compact: { minHeight: 36, paddingHorizontal: spacing.sm },
+  strong: { fontFamily: fontFamily.textBold },
   selected: {
     shadowOpacity: 0.12,
     shadowRadius: 6,
