@@ -23,7 +23,7 @@ Uma rotina é um **bloco de tempo do dia** com uma lista curta de itens que **re
 | Tarefas com data aparecem na agenda (no horário do lembrete, ou o dia todo)                     | `src/shell/aquarium/taskEntries.ts`                                                                                 | REAL   |
 | **Só neste dia**: pular a rotina ou mudar o horário num dia, sem mexer no resto                 | `routine_overrides`, `components/RoutineDaySheet.tsx`                                                               | REAL   |
 | "Novo na agenda" (+ ao lado das visões): Evento, Rotina ou Tarefa no dia escolhido              | `screens/RoutinesPanel.tsx`                                                                                         | REAL   |
-| Notificação dos lembretes de evento                                                             | Fase 1c                                                                                                             | TODO   |
+| Notificação dos lembretes de evento                                                             | `src/shell/reminders/plan.ts`                                                                                       | REAL   |
 | Conflitos de horário, rotinas que passam da meia-noite                                          | Etapa 7                                                                                                             | TODO   |
 
 ## Regras

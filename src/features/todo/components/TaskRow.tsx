@@ -1,4 +1,4 @@
-import { Bell, CalendarDays, ListChecks, Repeat, StickyNote } from 'lucide-react-native';
+import { Bell, CalendarDays, Fish, ListChecks, Repeat, StickyNote } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import {
@@ -17,6 +17,7 @@ import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { dueLabel, dueStatus } from '../domain/dates';
 import type { Task } from '../domain/types';
 import { priorityLabels } from '../domain/validation';
+import { useTaskHabits } from '../hooks/taskHabits';
 import { TaskAmountControl, amountLabel } from './TaskAmountControl';
 
 type TaskRowProps = {
@@ -49,7 +50,16 @@ export function TaskRow({
   const overdue = !done && task.dueDate !== null && dueStatus(task.dueDate, todayKey) === 'overdue';
 
   const amount = amountLabel(task);
+  const habits = useTaskHabits()(task.listId);
   const details = [
+    habits.length > 0 ? (
+      <View key="habit" style={styles.inline}>
+        <Fish size={13} color={colors.accent} />
+        <Text variant="footnote" tone="accent" numberOfLines={1}>
+          {habits.join(', ')}
+        </Text>
+      </View>
+    ) : null,
     amount && !done ? (
       <Text key="amount" variant="footnote" tone="secondary">
         {amount}
@@ -121,7 +131,11 @@ export function TaskRow({
       separator={separator}
       accentColor={done ? undefined : tone}
       onPress={onPress}
-      accessibilityHint="Abre os detalhes da tarefa"
+      accessibilityHint={
+        habits.length > 0
+          ? `Conta para ${habits.join(', ')}. Abre os detalhes da tarefa`
+          : 'Abre os detalhes da tarefa'
+      }
       leading={<Checkbox checked={done} label={task.title} onChange={onToggle} />}
       trailing={done ? undefined : <TaskAmountControl task={task} tone={tone} />}
       subtitle={details.length > 0 ? <View style={styles.details}>{details}</View> : undefined}

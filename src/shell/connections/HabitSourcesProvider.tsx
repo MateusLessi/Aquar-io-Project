@@ -18,18 +18,22 @@ import { useHabitsRepository } from '@/features/habits/hooks/habitsContext';
 import { useRoutinesRepository } from '@/features/routines/hooks/routinesContext';
 import { TaskRow } from '@/features/todo/components/TaskRow';
 import type { TaskWithList } from '@/features/todo/domain/types';
+import { TaskHabitsContext, type TaskHabits } from '@/features/todo/hooks/taskHabits';
 import { useTodo } from '@/features/todo/hooks/todoContext';
 
-import { habitDay, type DayFacts, type HabitDay } from './habitDay';
+import { habitDay, habitSourceLists, type DayFacts, type HabitDay } from './habitDay';
 import { SourcePicker, maskOf } from './SourcePicker';
 
 const dayOfIso = (iso: string) => toDateKey(new Date(iso));
+const NO_HABITS: string[] = [];
 
 type Loaded = {
   days: Map<string, HabitDay>;
   tasks: Map<string, TaskWithList>;
   /** Links into each habit from a list, folder or routine. */
   sources: Map<string, Link[]>;
+  /** Names of the habits each list's items count for. */
+  habitsOfList: Map<string, string[]>;
   facts: DayFacts;
 };
 
@@ -119,13 +123,17 @@ export function HabitSourcesProvider({ children }: { children: ReactNode }) {
       };
       const days = new Map<string, HabitDay>();
       const sources = new Map<string, Link[]>();
+      const habitsOfList = new Map<string, string[]>();
       for (const habit of habits) {
         const into = all.filter((l) => isSource(l) && l.targetId === habit.id);
         if (into.length > 0) sources.set(habit.id, into);
+        for (const listId of habitSourceLists(into, facts)) {
+          habitsOfList.set(listId, [...(habitsOfList.get(listId) ?? []), habit.name]);
+        }
         const day = habitDay(into, facts, todayKey, weekday, dayOfIso);
         if (day) days.set(habit.id, day);
       }
-      return { days, tasks: new Map(tasks.map((t) => [t.id, t])), sources, facts };
+      return { days, tasks: new Map(tasks.map((t) => [t.id, t])), sources, habitsOfList, facts };
     },
   );
 
@@ -196,7 +204,17 @@ export function HabitSourcesProvider({ children }: { children: ReactNode }) {
     };
   }, [data, todo, routines, links, todayKey]);
 
-  return <HabitSourcesContext.Provider value={value}>{children}</HabitSourcesContext.Provider>;
+  const habitsOfList = data?.habitsOfList;
+  const taskHabits = useMemo<TaskHabits>(
+    () => (listId) => habitsOfList?.get(listId) ?? NO_HABITS,
+    [habitsOfList],
+  );
+
+  return (
+    <HabitSourcesContext.Provider value={value}>
+      <TaskHabitsContext.Provider value={taskHabits}>{children}</TaskHabitsContext.Provider>
+    </HabitSourcesContext.Provider>
+  );
 }
 
 /** The items of a connected habit's day, each with its own control. */

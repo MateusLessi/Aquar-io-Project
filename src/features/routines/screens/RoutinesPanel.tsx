@@ -73,7 +73,12 @@ export function RoutinesPanel({
   onNewTask?: (day: string) => void;
 } = {}) {
   const repository = useRoutinesRepository();
-  const params = useLocalSearchParams<{ edit?: string; view?: string; day?: string }>();
+  const params = useLocalSearchParams<{
+    edit?: string;
+    view?: string;
+    day?: string;
+    event?: string;
+  }>();
   const { data: routines, error, todayKey, nowMinutes } = useRoutinesToday();
   const { data: events } = useAgendaEvents();
   // Everything on the agenda, in one shape; routines keep their own phase.
@@ -89,7 +94,13 @@ export function RoutinesPanel({
   );
   const [choosing, setChoosing] = useState(false);
   const [newEvent, setNewEvent] = useState(false);
-  const [eventId, setEventId] = useState<string | null>(null);
+  const [eventId, setEventId] = useState<string | null>(params.event ?? null);
+  // `?event=<id>` (from Início) opens that event, also when the screen is already open.
+  const [lastEvent, setLastEvent] = useState(params.event);
+  if (params.event !== lastEvent) {
+    setLastEvent(params.event);
+    if (params.event) setEventId(params.event);
+  }
   const { data: event } = useAgendaEvent(eventId);
   const [dayOf, setDayOf] = useState<{ id: string; day: string } | null>(null);
   const dayRoutine = dayOf
