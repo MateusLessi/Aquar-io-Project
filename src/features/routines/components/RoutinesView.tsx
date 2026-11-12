@@ -7,6 +7,7 @@ import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
 import { durationLabel, toMinutes } from '../domain/schedule';
 import type { RoutineToday } from '../domain/types';
+import { AgendaRow } from './AgendaView';
 
 const WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
@@ -19,10 +20,20 @@ type RoutinesViewProps = {
    * shows the habits and lists placed in it). Defaults to RoutineCard.
    */
   renderRoutine?: (routine: RoutineToday, onEdit: () => void) => React.ReactNode;
+  /** Today's events and tasks with a date, listed after the routines. */
+  others?: RoutineToday[];
+  onOpenOther?: (entry: RoutineToday) => void;
 };
 
 /** All routines in time order: today's first, then the ones resting today. */
-export function RoutinesView({ routines, onOpen, onCreate, renderRoutine }: RoutinesViewProps) {
+export function RoutinesView({
+  routines,
+  onOpen,
+  onCreate,
+  renderRoutine,
+  others = [],
+  onOpenOther,
+}: RoutinesViewProps) {
   const draw = (r: RoutineToday) =>
     renderRoutine ? (
       <View key={r.id}>{renderRoutine(r, () => onOpen(r.id))}</View>
@@ -37,6 +48,19 @@ export function RoutinesView({ routines, onOpen, onCreate, renderRoutine }: Rout
         {today.map(draw)}
         {resting.length === 0 ? <NewRoutineCard onPress={onCreate} /> : null}
       </Section>
+      {others.length > 0 ? (
+        <Section title="Também hoje">
+          {others.map((entry) => (
+            <AgendaRow
+              key={entry.id}
+              routine={entry}
+              today
+              extras={[]}
+              onPress={() => onOpenOther?.(entry)}
+            />
+          ))}
+        </Section>
+      ) : null}
       {resting.length > 0 ? (
         <Section title="Outros dias">
           {resting.map(draw)}

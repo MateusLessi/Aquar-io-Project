@@ -37,7 +37,7 @@ export type StartTab = 'home' | 'habits' | 'routines' | 'lists';
 export const startTabs: { value: StartTab; label: string }[] = [
   { value: 'home', label: 'Início' },
   { value: 'habits', label: 'Hábitos' },
-  { value: 'routines', label: 'Rotinas' },
+  { value: 'routines', label: 'Agenda' },
   { value: 'lists', label: 'Listas' },
 ];
 

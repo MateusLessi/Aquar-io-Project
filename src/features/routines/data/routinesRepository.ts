@@ -562,8 +562,11 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
     },
 
     /** Routines that ring at their start, for scheduling notifications. */
-    async listReminders(): Promise<Routine[]> {
-      return (await listRoutines()).filter((r) => r.remind);
+    async listReminders(): Promise<(Routine & { overrides: Record<string, RoutineOverride> })[]> {
+      const overrides = await overridesOf();
+      return (await listRoutines())
+        .filter((r) => r.remind)
+        .map((r) => ({ ...r, overrides: overrides.get(r.id) ?? {} }));
     },
   };
 }

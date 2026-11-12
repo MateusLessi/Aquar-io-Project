@@ -3,8 +3,9 @@ import type { Reminder } from '@/core/notifications';
 import { goalOf } from '@/features/habits/domain/amount';
 import { isScheduled } from '@/features/habits/domain/progress';
 import type { HabitWithProgress } from '@/features/habits/domain/types';
+import { eventOccurs } from '@/features/routines/domain/agenda';
 import { isRoutineDay } from '@/features/routines/domain/schedule';
-import type { Routine } from '@/features/routines/domain/types';
+import type { AgendaEvent, Routine, RoutineOverride } from '@/features/routines/domain/types';
 import type { TaskReminder } from '@/features/todo/domain/types';
 
 /** How far ahead reminders are scheduled; the plan is redone whenever the app opens. */
@@ -21,12 +22,15 @@ export function planReminders({
   habits,
   tasks,
   routines = [],
+  events = [],
   now,
 }: {
   habits: HabitWithProgress[];
   tasks: TaskReminder[];
-  /** Routines that ring when they start. */
-  routines?: Routine[];
+  /** Routines that ring when they start (with their one-day changes). */
+  routines?: (Routine & { overrides?: Record<string, RoutineOverride> })[];
+  /** Events with a reminder. */
+  events?: AgendaEvent[];
   now: Date;
 }): Reminder[] {
   const todayKey = toDateKey(now);
@@ -67,12 +71,45 @@ export function planReminders({
     const day = addDays(todayKey, offset);
     for (const routine of routines) {
       if (!routine.remind || !isRoutineDay(routine.days, day)) continue;
+      // Skipped that day, or at another time that day only.
+      const change = routine.overrides?.[day];
+      if (change?.skip) continue;
+      const start = change?.start ?? routine.start;
+      const end = change?.end ?? routine.end;
       plan.push({
-        id: `routine:${routine.id}:${day}T${routine.start}`,
-        at: atTime(day, routine.start),
+        id: `routine:${routine.id}:${day}T${start}`,
+        at: atTime(day, start),
         title: routine.name,
-        body: `Começa agora, até ${routine.end}.`,
+        body: `Começa agora, até ${end}.`,
         url: '/aquarium?tab=routines',
+      });
+    }
+  }
+
+  // Events ring some time before; one the day before rings on that day, so look a day further.
+  for (let offset = 0; offset <= HORIZON_DAYS; offset++) {
+    const day = addDays(todayKey, offset);
+    for (const event of events) {
+      if (event.remindBefore === null || !eventOccurs(event, day)) continue;
+      // A whole-day event rings at 09:00 that day, or at 20:00 the evening before.
+      const at = event.start
+        ? new Date(atTime(day, event.start).getTime() - event.remindBefore * 60_000)
+        : event.remindBefore >= 1440
+          ? atTime(addDays(day, -1), '20:00')
+          : atTime(day, '09:00');
+      const body = event.start
+        ? event.remindBefore === 0
+          ? `Agora, até ${event.end}.`
+          : `${event.remindBefore >= 1440 ? 'Amanhã' : 'Hoje'} às ${event.start}.`
+        : event.remindBefore >= 1440
+          ? 'Amanhã, o dia todo.'
+          : 'Hoje, o dia todo.';
+      plan.push({
+        id: `event:${event.id}:${day}`,
+        at,
+        title: event.title,
+        body,
+        url: `/aquarium?tab=routines&view=agenda`,
       });
     }
   }

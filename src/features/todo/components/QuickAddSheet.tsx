@@ -29,14 +29,29 @@ type QuickAddSheetProps = {
   defaultListId?: string;
   /** Start with "Hoje" selected (e.g. when adding from Today). */
   dueToday?: boolean;
+  /** Start due on this day instead (e.g. the day chosen in the agenda). */
+  dueDate?: string;
 };
 
+const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
 /** The coral "+": a title and a list, and it's saved. Details are optional. */
-export function QuickAddSheet({ visible, onClose, defaultListId, dueToday }: QuickAddSheetProps) {
+export function QuickAddSheet({
+  visible,
+  onClose,
+  defaultListId,
+  dueToday,
+  dueDate,
+}: QuickAddSheetProps) {
   return (
     <Sheet visible={visible} onClose={onClose} title="Nova tarefa">
       {visible ? (
-        <QuickAddForm onClose={onClose} defaultListId={defaultListId} dueToday={dueToday} />
+        <QuickAddForm
+          onClose={onClose}
+          defaultListId={defaultListId}
+          dueToday={dueToday}
+          dueDate={dueDate}
+        />
       ) : null}
     </Sheet>
   );
@@ -46,13 +61,17 @@ function QuickAddForm({
   onClose,
   defaultListId,
   dueToday = false,
+  dueDate,
 }: Omit<QuickAddSheetProps, 'visible'>) {
+  const todayKey = toDateKey(new Date());
+  const target = dueDate ?? todayKey;
+  const [, month = 1, day = 1] = target.split('-').map(Number);
   const todo = useTodo();
   const { scheme } = useTheme();
   const { data: lists = [], loading } = useLists();
   const [title, setTitle] = useState('');
   const [chosenListId, setListId] = useState<string | undefined>(defaultListId);
-  const [today, setToday] = useState(dueToday);
+  const [today, setToday] = useState(dueToday || dueDate !== undefined);
   const [error, setError] = useState<string | null>(null);
   const [creatingList, setCreatingList] = useState(false);
 
@@ -61,7 +80,7 @@ function QuickAddForm({
   const save = async () => {
     if (!listId) return;
     try {
-      await todo.createTask({ listId, title, dueDate: today ? toDateKey(new Date()) : null });
+      await todo.createTask({ listId, title, dueDate: today ? target : null });
       onClose();
     } catch (e) {
       setError(
@@ -129,7 +148,7 @@ function QuickAddForm({
 
       <View style={styles.chipsRow}>
         <Chip
-          label="Para hoje"
+          label={target === todayKey ? 'Para hoje' : `Para ${day} ${MONTHS[month - 1]}`}
           icon={CalendarDays}
           selected={today}
           onPress={() => setToday((t) => !t)}

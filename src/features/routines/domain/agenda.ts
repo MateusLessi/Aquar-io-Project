@@ -1,6 +1,6 @@
 import { isDateKey, isTimeOfDay, weekdayOf } from '@/core/dates';
 
-import { toMinutes } from './schedule';
+import { happensOn, toMinutes } from './schedule';
 import type { AgendaEvent, EventRepeat, NewEvent, RoutineToday } from './types';
 import { RoutineValidationError, validateRoutineColor } from './validation';
 
@@ -102,4 +102,15 @@ export function validateEvent(input: NewEvent) {
     notes: notes || null,
     listId: input.listId ?? null,
   };
+}
+
+/** Where an event or task entry stands today (routines get theirs from the repository). */
+export function withPhase(entry: RoutineToday, todayKey: string, nowMinutes: number): RoutineToday {
+  if (!happensOn(entry, todayKey)) return { ...entry, phase: 'rest', minutesLeft: 0 };
+  if (entry.allDay) return { ...entry, phase: 'now', minutesLeft: 24 * 60 - nowMinutes };
+  const start = toMinutes(entry.start);
+  const end = toMinutes(entry.end);
+  if (nowMinutes < start) return { ...entry, phase: 'upcoming', minutesLeft: start - nowMinutes };
+  if (nowMinutes < end) return { ...entry, phase: 'now', minutesLeft: end - nowMinutes };
+  return { ...entry, phase: 'past', minutesLeft: 0 };
 }

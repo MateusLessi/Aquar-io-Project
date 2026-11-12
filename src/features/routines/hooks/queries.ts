@@ -52,3 +52,16 @@ export function useRoutineDone(from: string, to: string) {
     routines.doneBetween(from, to),
   );
 }
+
+/** Every event on the agenda. Live. */
+export function useAgendaEvents() {
+  const routines = useRoutinesRepository();
+  return useLiveQuery('agenda-events', ['routines'], () => routines.listEvents());
+}
+
+export function useAgendaEvent(id: string | null) {
+  const routines = useRoutinesRepository();
+  return useLiveQuery(`agenda-event:${id}`, ['routines'], () =>
+    id ? routines.getEvent(id) : Promise.resolve(null),
+  );
+}
