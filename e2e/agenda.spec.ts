@@ -49,3 +49,43 @@ test('events, a routine changed for one day, and the month', async ({ page }) =>
   await expect(visible(page.getByRole('button', { name: /, 1 compromisso$/ }))).toBeVisible();
   await expect(page.getByRole('button', { name: /^Leitura, 07:00 às 08:00/ })).toHaveCount(0);
 });
+
+test("today's events show on Início and open from there", async ({ page }) => {
+  await page.goto('/aquarium?tab=routines');
+  await page.getByRole('button', { name: 'Novo na agenda' }).click();
+  await page.getByRole('button', { name: 'Evento', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Nome do evento' }).fill('Consulta');
+  await page.getByRole('switch', { name: 'O dia todo' }).click();
+  await page.getByRole('button', { name: 'Criar evento' }).click();
+  await expect(page.getByRole('button', { name: 'Criar evento' })).toHaveCount(0);
+  await page.waitForTimeout(1500);
+
+  await page.goto('/');
+  await expect(visible(page.getByText('Eventos de hoje'))).toBeVisible();
+  await visible(page.getByRole('button', { name: /^Consulta, o dia todo/ })).click();
+  await expect(page.getByRole('button', { name: 'Apagar evento' })).toBeVisible();
+});
+
+test('an event in a list shows inside the list', async ({ page }) => {
+  await page.goto('/aquarium?tab=lists');
+  await visible(page.getByRole('button', { name: 'Nova lista ou pasta' })).click();
+  await page.getByRole('button', { name: /^Nova lista:/ }).click();
+  await page.getByRole('textbox', { name: 'Nome' }).fill('Cálculo 3');
+  await page.getByRole('button', { name: 'Criar lista', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Criar lista' })).toHaveCount(0);
+  await page.waitForTimeout(1500);
+
+  await page.goto('/aquarium?tab=routines');
+  await page.getByRole('button', { name: 'Novo na agenda' }).click();
+  await page.getByRole('button', { name: 'Evento', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Nome do evento' }).fill('Prova');
+  await page.getByRole('button', { name: 'Cálculo 3', exact: true }).click();
+  await page.getByRole('button', { name: 'Criar evento' }).click();
+  await expect(page.getByRole('button', { name: 'Criar evento' })).toHaveCount(0);
+  await page.waitForTimeout(1500);
+
+  await page.goto('/aquarium?tab=lists');
+  await visible(page.getByRole('button', { name: /^Cálculo 3/ })).click();
+  await expect(visible(page.getByText('Na agenda'))).toBeVisible();
+  await expect(visible(page.getByRole('button', { name: /^Prova, 09:00 às 10:00/ }))).toBeVisible();
+});

@@ -55,6 +55,14 @@ export type Theme = {
   supportsBlur: boolean;
 };
 
+/**
+ * Whether this web page runs on Firefox's engine (Gecko). Its backdrop blur is slow enough to
+ * make the whole app stutter, so glass surfaces fall back to a solid tint there.
+ */
+export function isGecko(userAgent: string | undefined = globalThis.navigator?.userAgent): boolean {
+  return userAgent !== undefined && /\bGecko\/\d/.test(userAgent) && !/like Gecko/.test(userAgent);
+}
+
 export type AccessibilityChoices = {
   reduceMotion: boolean | null;
   reduceTransparency: boolean | null;
@@ -200,7 +208,8 @@ export function ThemeProvider({
       accessibility,
       setAccessibility,
       // Android blur needs a BlurTargetView behind each glass surface; not worth it yet.
-      supportsBlur: Platform.OS === 'ios' || Platform.OS === 'web',
+      // Firefox engines (Firefox, Floorp, LibreWolf…) draw backdrop blur slowly: no blur there.
+      supportsBlur: Platform.OS === 'ios' || (Platform.OS === 'web' && !isGecko()),
     }),
     [
       scheme,

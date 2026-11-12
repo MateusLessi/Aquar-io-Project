@@ -59,6 +59,7 @@ export function RoutinesPanel({
   extraEntries = NO_ENTRIES,
   onOpenEntry,
   onNewTask,
+  lists,
 }: {
   renderRoutine?: (routine: RoutineToday, onEdit: () => void) => React.ReactNode;
   /** Draws the week richer than the plain WeekView (the shell adds what is linked, and dragging). */
@@ -71,9 +72,16 @@ export function RoutinesPanel({
   onOpenEntry?: (entry: RoutineToday, day: string) => void;
   /** "Novo na agenda → Tarefa": the shell's task sheet, due on `day`. */
   onNewTask?: (day: string) => void;
+  /** Lists an event can belong to, from the app shell. */
+  lists?: { id: string; name: string }[];
 } = {}) {
   const repository = useRoutinesRepository();
-  const params = useLocalSearchParams<{ edit?: string; view?: string; day?: string }>();
+  const params = useLocalSearchParams<{
+    edit?: string;
+    view?: string;
+    day?: string;
+    event?: string;
+  }>();
   const { data: routines, error, todayKey, nowMinutes } = useRoutinesToday();
   const { data: events } = useAgendaEvents();
   // Everything on the agenda, in one shape; routines keep their own phase.
@@ -89,7 +97,13 @@ export function RoutinesPanel({
   );
   const [choosing, setChoosing] = useState(false);
   const [newEvent, setNewEvent] = useState(false);
-  const [eventId, setEventId] = useState<string | null>(null);
+  const [eventId, setEventId] = useState<string | null>(params.event ?? null);
+  // `?event=<id>` (from Início) opens that event, also when the screen is already open.
+  const [lastEvent, setLastEvent] = useState(params.event);
+  if (params.event !== lastEvent) {
+    setLastEvent(params.event);
+    if (params.event) setEventId(params.event);
+  }
   const { data: event } = useAgendaEvent(eventId);
   const [dayOf, setDayOf] = useState<{ id: string; day: string } | null>(null);
   const dayRoutine = dayOf
@@ -242,6 +256,7 @@ export function RoutinesPanel({
         visible={newEvent}
         date={newDay}
         todayKey={todayKey}
+        lists={lists}
         onClose={() => setNewEvent(false)}
         onSubmit={(input) => repository.createEvent(input)}
       />
@@ -250,6 +265,7 @@ export function RoutinesPanel({
         event={event}
         date={event?.date ?? todayKey}
         todayKey={todayKey}
+        lists={lists}
         onClose={() => setEventId(null)}
         onSubmit={(input) => repository.updateEvent(eventId!, input)}
         onDelete={() => repository.deleteEvent(eventId!)}

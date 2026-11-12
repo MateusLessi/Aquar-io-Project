@@ -87,6 +87,8 @@ type EventEditorSheetProps = {
   todayKey: string;
   onSubmit: (input: NewEvent) => Promise<unknown>;
   onDelete?: () => Promise<void>;
+  /** Lists the event can belong to ("Prova" in Cálculo 3): it then shows inside the list. */
+  lists?: { id: string; name: string }[];
 };
 
 export function EventEditorSheet({ visible, onClose, event, ...rest }: EventEditorSheetProps) {
@@ -104,6 +106,7 @@ function EventForm({
   onClose,
   onSubmit,
   onDelete,
+  lists = [],
 }: Omit<EventEditorSheetProps, 'visible'>) {
   const { colors, scheme } = useTheme();
   const { weekStart, showTime } = useCalendarPrefs();
@@ -119,6 +122,7 @@ function EventForm({
   const [repeat, setRepeat] = useState<EventRepeat>(event?.repeat ?? 'none');
   const [remindBefore, setRemindBefore] = useState<number | null>(event?.remindBefore ?? null);
   const [notes, setNotes] = useState(event?.notes ?? '');
+  const [listId, setListId] = useState<string | null>(event?.listId ?? null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -138,7 +142,7 @@ function EventForm({
         repeat,
         remindBefore,
         notes,
-        listId: event?.listId ?? null,
+        listId: lists.some((l) => l.id === listId) ? listId : null,
       });
       if (remindBefore !== null) await requestNotificationPermission();
       onClose();
@@ -267,6 +271,24 @@ function EventForm({
         </View>
       </Group>
 
+      {lists.length > 0 ? (
+        <Group label="Lista (opcional)">
+          <View style={styles.wrap}>
+            {lists.map((list) => (
+              <Chip
+                key={list.id}
+                label={list.name}
+                selected={listId === list.id}
+                onPress={() => setListId(listId === list.id ? null : list.id)}
+              />
+            ))}
+          </View>
+          <Text variant="footnote" tone="secondary" style={styles.hint}>
+            O evento aparece dentro da lista.
+          </Text>
+        </Group>
+      ) : null}
+
       <Group label="Ícone e cor">
         <GlyphPicker options={GLYPHS} value={emoji} onChange={setEmoji} allowNone={false} />
         <View style={styles.wrap}>
@@ -354,4 +376,5 @@ const styles = StyleSheet.create({
   field: { borderWidth: 2, borderRadius: radius.lg, padding: spacing.md, gap: 2 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   flex: { flex: 1 },
+  hint: { marginLeft: spacing.xs },
 });

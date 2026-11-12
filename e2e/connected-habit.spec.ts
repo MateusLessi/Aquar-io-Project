@@ -39,6 +39,8 @@ test('a habit done from a list: marking in either place is the same mark', async
   // Filling the counter in the list counts for the habit.
   await page.goto('/aquarium?tab=lists');
   await visible(page.getByRole('button', { name: /^Push/ })).click();
+  // Each item says which habit it counts for.
+  await expect(visible(page.getByText('Academia', { exact: true }))).toBeVisible();
   const supino = visible(page.getByRole('button', { name: /^Supino: .* Somar 1/ }));
   for (let i = 0; i < 3; i++) await supino.click();
   await expect(visible(page.getByText('Concluídas (1)'))).toBeVisible();

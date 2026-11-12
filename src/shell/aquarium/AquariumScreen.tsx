@@ -9,7 +9,7 @@ import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { HabitsPanel } from '@/features/habits/screens/HabitsPanel';
 import { RoutinesPanel } from '@/features/routines/screens/RoutinesPanel';
 import { QuickAddSheet } from '@/features/todo/components/QuickAddSheet';
-import { useFolderTasks } from '@/features/todo/hooks/queries';
+import { useFolderTasks, useLists } from '@/features/todo/hooks/queries';
 import { ListsPanel } from '@/features/todo/screens/ListsPanel';
 
 import { useConnect } from '../connections/ConnectProvider';
@@ -42,6 +42,7 @@ export function AquariumScreen() {
   const { open, startMode } = useConnect();
   const { inside } = useConnections();
   const { data: tasks } = useFolderTasks(null);
+  const { data: lists } = useLists();
   const dated = useMemo(() => taskEntries(tasks ?? []), [tasks]);
   const [newTaskDay, setNewTaskDay] = useState<string | null>(null);
 
@@ -70,6 +71,7 @@ export function AquariumScreen() {
               router.push({ pathname: '/aquarium/lists/[id]', params: { id: task.listId } });
           }}
           onNewTask={setNewTaskDay}
+          lists={lists}
           renderWeek={(week) => <ConnectedWeek {...week} />}
           describe={(routine) =>
             inside('routine', routine.id).map((c) =>
