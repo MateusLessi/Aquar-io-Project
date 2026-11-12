@@ -1,3 +1,6 @@
-import { StatsScreen } from '@/shell/stats/StatsScreen';
+import { Redirect } from 'expo-router';
 
-export default StatsScreen;
+/** Statistics moved to their own destination (Fase 2); old links still land there. */
+export default function OldStatsRoute() {
+  return <Redirect href="/stats" />;
+}

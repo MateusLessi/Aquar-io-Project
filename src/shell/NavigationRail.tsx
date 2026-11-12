@@ -1,5 +1,6 @@
+import { useRouter } from 'expo-router';
 import { TabTrigger } from 'expo-router/ui';
-import { Plus, type LucideIcon } from 'lucide-react-native';
+import { Plus, Settings, type LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,6 +29,7 @@ type NavigationRailProps = {
 export function NavigationRail({ destinations, onCreate }: NavigationRailProps) {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+  const router = useRouter();
 
   return (
     <View
@@ -56,6 +58,18 @@ export function NavigationRail({ destinations, onCreate }: NavigationRailProps) 
             </TabTrigger>
           ))}
         </View>
+
+        <Pressable
+          onPress={() => router.navigate('/profile/settings')}
+          accessibilityRole="button"
+          accessibilityLabel="Ajustes"
+          style={({ pressed }) => [
+            styles.gear,
+            { backgroundColor: pressed ? colors.deepAccentSoft : 'transparent' },
+          ]}
+        >
+          <Settings size={22} color={colors.onDeepSecondary} />
+        </Pressable>
       </DeepSurface>
     </View>
   );
@@ -106,7 +120,12 @@ function RailItem({ icon: Icon, label, isFocused = false, onPress, ...rest }: Ra
           color={isFocused ? colors.onDeepAccent : colors.onDeepSecondary}
         />
       </View>
-      <Text variant="caption" tone={isFocused ? 'onDeep' : 'onDeepSecondary'} numberOfLines={1}>
+      <Text
+        variant="caption"
+        tone={isFocused ? 'onDeep' : 'onDeepSecondary'}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+      >
         {label}
       </Text>
     </Pressable>
@@ -124,6 +143,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   items: { marginTop: spacing.xxl, gap: spacing.md, alignItems: 'center' },
+  gear: {
+    marginTop: 'auto',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   item: { alignItems: 'center', gap: spacing.xs, minWidth: 64 },
   icon: {
     width: 56,

@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Link2 } from 'lucide-react-native';
+import { CalendarDays, Link2, ListTodo, Sprout, type LucideIcon } from 'lucide-react-native';
 
 import { Button, Screen, SegmentedControl } from '@/design-system';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
@@ -20,10 +20,10 @@ import { taskEntries } from './taskEntries';
 
 export type AquariumTab = 'habits' | 'routines' | 'lists';
 
-export const aquariumTabs: { value: AquariumTab; label: string }[] = [
-  { value: 'habits', label: 'Hábitos' },
-  { value: 'routines', label: 'Agenda' },
-  { value: 'lists', label: 'Listas' },
+export const aquariumTabs: { value: AquariumTab; label: string; icon: LucideIcon }[] = [
+  { value: 'habits', label: 'Hábitos', icon: Sprout },
+  { value: 'routines', label: 'Agenda', icon: CalendarDays },
+  { value: 'lists', label: 'Listas', icon: ListTodo },
 ];
 
 export function aquariumTab(value: string | undefined): AquariumTab {

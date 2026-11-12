@@ -43,7 +43,7 @@ export function WeekStatsCard() {
       color: chartColors.routines[scheme],
     },
   ];
-  const open = () => router.push('/profile/stats');
+  const open = () => router.push('/stats');
   const summary = `${t.all} concluídos nesta semana, ${
     delta === 0 ? 'igual à' : `${Math.abs(delta)} ${delta > 0 ? 'a mais que' : 'a menos que'}`
   } semana passada: ${parts.map((p) => `${p.n} ${p.label}`).join(', ')}`;

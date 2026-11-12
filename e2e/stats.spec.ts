@@ -4,7 +4,7 @@ const visible = (locator: Locator) => locator.locator('visible=true').first();
 
 test('statistics count what was done, from the dashboard and the profile', async ({ page }) => {
   // Empty at first: the screen explains what will appear.
-  await page.goto('/profile/stats');
+  await page.goto('/stats');
   await expect(visible(page.getByText('Seus números aparecem aqui'))).toBeVisible();
 
   // A habit done today.
@@ -22,7 +22,7 @@ test('statistics count what was done, from the dashboard and the profile', async
   await expect(visible(page.getByText('Esta semana'))).toBeVisible();
   await expect(visible(page.getByText('1 hábito', { exact: true }))).toBeVisible();
   await visible(page.getByRole('button', { name: 'Ver estatísticas' })).click();
-  await expect(page).toHaveURL(/\/profile\/stats/);
+  await expect(page).toHaveURL(/\/stats$/);
 
   await expect(visible(page.getByLabel(/^Concluídos: 1\./))).toBeVisible();
   await expect(visible(page.getByLabel(/^Meditar: 1 de 1 dias planejados/))).toBeVisible();
@@ -36,5 +36,5 @@ test('statistics count what was done, from the dashboard and the profile', async
   await expect(visible(page.getByText(/^Dias de maré cheia/))).toBeVisible();
   await page.goto('/profile');
   await visible(page.getByRole('button', { name: /^Estatísticas/ })).click();
-  await expect(page).toHaveURL(/\/profile\/stats/);
+  await expect(page).toHaveURL(/\/stats$/);
 });

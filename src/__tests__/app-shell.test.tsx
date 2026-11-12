@@ -13,6 +13,7 @@ import ProfileScreen from '@/app/(tabs)/profile/index';
 import SettingsRoute from '@/app/(tabs)/profile/settings';
 import ProfileLayout from '@/app/(tabs)/profile/_layout';
 import ShopScreen from '@/app/(tabs)/shop';
+import StatsRoute from '@/app/(tabs)/stats';
 import { createMemoryDatabase } from '@/core/database/testing';
 import { toDateKey } from '@/core/dates';
 import { createMemoryAccount, createMemoryRemote } from '@/core/sync/testing';
@@ -53,6 +54,7 @@ const routes = {
   '(tabs)/aquarium/habits/[id]': HabitRoute,
   '(tabs)/aquarium/lists/[id]': ListRoute,
   '(tabs)/shop': ShopScreen,
+  '(tabs)/stats': StatsRoute,
   '(tabs)/profile/_layout': ProfileLayout,
   '(tabs)/profile/index': ProfileScreen,
   '(tabs)/profile/settings': SettingsRoute,
@@ -111,10 +113,12 @@ describe('App shell on phones', () => {
     expect(await data.events.count('TASK_COMPLETED')).toBe(1);
   });
 
-  it('offers "Criar" on Início and the Aquarium, not on the profile or the shop', async () => {
+  it('offers "Criar" on Início and the Aquarium, not on the profile or the statistics', async () => {
     await renderRouter(routes, { initialUrl: '/profile' });
     expect(screen.queryByRole('button', { name: 'Criar' })).toBeNull();
-    await fireEvent.press(screen.getByRole('tab', { name: 'Loja' }));
+    // On phones the shop is a tile in the profile, not a tab.
+    expect(screen.queryByRole('tab', { name: 'Loja' })).toBeNull();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Estatísticas' }));
     expect(screen.queryByRole('button', { name: 'Criar' })).toBeNull();
     await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
     expect(await screen.findByRole('button', { name: 'Criar' })).toBeOnTheScreen();
@@ -156,7 +160,7 @@ describe('App shell with large text', () => {
     setWindowWidth(390, 1.4);
     await renderRouter(routes, { initialUrl: '/' });
     expect(screen.getByText('Aquário')).toBeOnTheScreen();
-    expect(screen.getByText('Loja')).toBeOnTheScreen();
+    expect(screen.getByText('Estatísticas')).toBeOnTheScreen();
     expect(screen.getByText('Perfil')).toBeOnTheScreen();
   });
 });
@@ -173,8 +177,14 @@ describe('App shell on tablets and desktop', () => {
       backgroundColor: lightColors.deepAccent,
     });
 
-    await fireEvent.press(screen.getByRole('tab', { name: 'Perfil' }));
-    expect(screen.getByRole('header', { name: 'Perfil' })).toBeOnTheScreen();
+    // You sit at the bottom: the chip opens the profile, the gear opens Ajustes.
+    await fireEvent.press(screen.getByRole('button', { name: /^Perfil: / }));
+    expect(await screen.findByRole('header', { name: 'Perfil' })).toBeOnTheScreen();
+
+    // The Aquarium opens its sections under it.
+    await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));
+    await fireEvent.press(await screen.findByRole('link', { name: 'Aquário: Listas' }));
+    expect(await screen.findByRole('link', { name: 'Aquário: Listas' })).toBeSelected();
   });
 });
 
