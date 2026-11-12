@@ -1,6 +1,6 @@
 import { addDays, startOfWeek, toDateKey, weekdayOf, type WeekStart } from '@/core/dates';
 
-import type { Routine, RoutinePhase, WeekdayMask } from './types';
+import type { Routine, RoutineOverride, RoutinePhase, WeekdayMask } from './types';
 
 export const toMinutes = (time: string) => {
   const [h, m] = time.split(':').map(Number) as [number, number];
@@ -13,13 +13,20 @@ export function isRoutineDay(days: WeekdayMask, dateKey: string): boolean {
 
 /** Where a routine stands at `minutesNow` (minutes since local midnight) on a given day. */
 export function routinePhase(
-  routine: { start: string; end: string; days: WeekdayMask },
+  routine: {
+    start: string;
+    end: string;
+    days: WeekdayMask;
+    overrides?: Record<string, RoutineOverride>;
+  },
   dateKey: string,
   minutesNow: number,
 ): { phase: RoutinePhase; minutesLeft: number } {
   if (!isRoutineDay(routine.days, dateKey)) return { phase: 'rest', minutesLeft: 0 };
-  const start = toMinutes(routine.start);
-  const end = toMinutes(routine.end);
+  const change = routine.overrides?.[dateKey];
+  if (change?.skip) return { phase: 'rest', minutesLeft: 0 };
+  const start = toMinutes(change?.start ?? routine.start);
+  const end = toMinutes(change?.end ?? routine.end);
   if (minutesNow < start) return { phase: 'upcoming', minutesLeft: start - minutesNow };
   if (minutesNow < end) return { phase: 'now', minutesLeft: end - minutesNow };
   return { phase: 'past', minutesLeft: 0 };
@@ -50,27 +57,52 @@ export function weekDays(start: string): string[] {
   return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 }
 
+/** What `routinesOn` reads: a routine, or an agenda entry of the same shape. */
+type Scheduled = Pick<Routine, 'days' | 'start' | 'end' | 'createdAt'> & {
+  overrides?: Record<string, RoutineOverride>;
+  occurs?: (dateKey: string) => boolean;
+  allDay?: boolean;
+};
+
+/** Whether a routine (or entry) happens on a day, taking its one-day changes into account. */
+export function happensOn(entry: Scheduled, dateKey: string): boolean {
+  if (entry.overrides?.[dateKey]?.skip) return false;
+  if (entry.occurs) return entry.occurs(dateKey);
+  return isRoutineDay(entry.days, dateKey) && toDateKey(new Date(entry.createdAt)) <= dateKey;
+}
+
+/** The entry as it is on a day: at another time when it was changed for that day only. */
+export function onDay<T extends Scheduled>(entry: T, dateKey: string): T {
+  const change = entry.overrides?.[dateKey];
+  if (!change || change.skip || !change.start || !change.end) return entry;
+  return { ...entry, start: change.start, end: change.end };
+}
+
 /**
- * The routines on a day, by start time. A routine does not show on days before it was
- * created: the past only shows what was really planned.
+ * The routines on a day, by start time (whole-day entries first), each at its time for that
+ * day. A routine does not show on days before it was created: the past only shows what was
+ * really planned. Days it was skipped on don't show it.
  */
-export function routinesOn<T extends Pick<Routine, 'days' | 'start' | 'createdAt'>>(
-  routines: readonly T[],
-  dateKey: string,
-): T[] {
+export function routinesOn<T extends Scheduled>(routines: readonly T[], dateKey: string): T[] {
   return routines
-    .filter((r) => isRoutineDay(r.days, dateKey) && toDateKey(new Date(r.createdAt)) <= dateKey)
-    .sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+    .filter((r) => happensOn(r, dateKey))
+    .map((r) => onDay(r, dateKey))
+    .sort((a, b) =>
+      a.allDay !== b.allDay ? (a.allDay ? -1 : 1) : toMinutes(a.start) - toMinutes(b.start),
+    );
 }
 
 /** Whole hours that fit every routine (06:00–22:00 at least), for the week grid. */
-export function hourRange(routines: readonly Pick<Routine, 'start' | 'end'>[]): {
+export function hourRange(
+  routines: readonly (Pick<Routine, 'start' | 'end'> & { allDay?: boolean })[],
+): {
   from: number;
   to: number;
 } {
   let from = 6;
   let to = 22;
   for (const r of routines) {
+    if (r.allDay) continue;
     from = Math.min(from, Math.floor(toMinutes(r.start) / 60));
     to = Math.max(to, Math.ceil(toMinutes(r.end) / 60));
   }

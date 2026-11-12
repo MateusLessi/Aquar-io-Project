@@ -5,8 +5,18 @@ import type { DomainEvent } from '@/core/events/events';
 import type { EventLog } from '@/core/events/eventLog';
 import type { ListColorName } from '@/design-system';
 
-import { isRoutineDay, routinePhase } from '../domain/schedule';
-import type { NewRoutine, Routine, RoutineItem, RoutineToday } from '../domain/types';
+import { validateEvent } from '../domain/agenda';
+import { isRoutineDay, routinePhase, toMinutes } from '../domain/schedule';
+import type {
+  AgendaEvent,
+  EventRepeat,
+  NewEvent,
+  NewRoutine,
+  Routine,
+  RoutineItem,
+  RoutineOverride,
+  RoutineToday,
+} from '../domain/types';
 import {
   RoutineValidationError,
   validateRoutineColor,
@@ -68,6 +78,44 @@ const toItem = (row: ItemRow): RoutineItem => ({
   sortOrder: row.sort_order,
 });
 
+type EventRow = {
+  id: string;
+  title: string;
+  emoji: string | null;
+  color: string;
+  date: string;
+  start_time: string | null;
+  end_time: string | null;
+  repeat: string;
+  remind_before: number | null;
+  notes: string | null;
+  list_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+const EVENT_COLUMNS =
+  'id, title, emoji, color, date, start_time, end_time, repeat, remind_before, notes, list_id, created_at, updated_at';
+
+const toEvent = (row: EventRow): AgendaEvent => ({
+  id: row.id,
+  title: row.title,
+  emoji: row.emoji,
+  color: row.color as ListColorName,
+  date: row.date,
+  start: row.start_time,
+  end: row.end_time,
+  repeat: row.repeat as EventRepeat,
+  remindBefore: row.remind_before,
+  notes: row.notes,
+  listId: row.list_id,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+});
+
+/** One change per routine and day: the same row on every device. */
+export const routineOverrideId = (routineId: string, date: string) => `${routineId}:${date}`;
+
 /** One check per item and day; the id makes it the same row on every device. */
 export const routineCheckId = (itemId: string, date: string) => `${itemId}:${date}`;
 
@@ -107,6 +155,33 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
       [date],
     );
     return new Set(rows.map((r) => r.item_id));
+  }
+
+  /** Every routine's one-day changes, by routine and then by date. */
+  async function overridesOf(): Promise<Map<string, Record<string, RoutineOverride>>> {
+    const rows = await db.all<{
+      routine_id: string;
+      date: string;
+      skip: number;
+      start_time: string | null;
+      end_time: string | null;
+    }>(
+      `SELECT routine_id, date, skip, start_time, end_time FROM routine_overrides
+       WHERE deleted_at IS NULL`,
+    );
+    const byRoutine = new Map<string, Record<string, RoutineOverride>>();
+    for (const row of rows) {
+      const days = byRoutine.get(row.routine_id) ?? {};
+      days[row.date] = {
+        routineId: row.routine_id,
+        date: row.date,
+        skip: row.skip === 1,
+        start: row.start_time,
+        end: row.end_time,
+      };
+      byRoutine.set(row.routine_id, days);
+    }
+    return byRoutine;
   }
 
   /** Makes the routine's items match `titles`: keeps matches, adds new ones, removes the rest. */
@@ -163,14 +238,18 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
       const routines = await listRoutines();
       const items = await itemsOf(routines.map((r) => r.id));
       const checked = await checkedOn(todayKey);
-      return routines.map((routine) => ({
-        ...routine,
-        items: (items.get(routine.id) ?? []).map((item) => ({
-          ...item,
-          done: checked.has(item.id),
-        })),
-        ...routinePhase(routine, todayKey, minutesOf(at)),
-      }));
+      const overrides = await overridesOf();
+      return routines.map((routine) => {
+        const withOverrides = { ...routine, overrides: overrides.get(routine.id) ?? {} };
+        return {
+          ...withOverrides,
+          items: (items.get(routine.id) ?? []).map((item) => ({
+            ...item,
+            done: checked.has(item.id),
+          })),
+          ...routinePhase(withOverrides, todayKey, minutesOf(at)),
+        };
+      });
     },
 
     async getRoutine(id: string): Promise<(Routine & { items: RoutineItem[] }) | null> {
@@ -330,6 +409,7 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
       );
       const routines = await listRoutines();
       const items = await itemsOf(routines.map((r) => r.id));
+      const overrides = await overridesOf();
       const doneByDay = new Map<string, number>();
       for (const check of checks)
         doneByDay.set(
@@ -346,6 +426,7 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
           day = addDays(day, 1)
         ) {
           if (!isRoutineDay(routine.days, day)) continue;
+          if (overrides.get(routine.id)?.[day]?.skip) continue;
           const entry = due.get(day) ?? { day, total: 0, done: 0 };
           entry.total += count;
           entry.done += Math.min(count, doneByDay.get(`${routine.id}:${day}`) ?? 0);
@@ -353,6 +434,131 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
         }
       }
       return { checks: checks.map((c) => ({ day: c.day })), due: [...due.values()] };
+    },
+
+    /**
+     * Changes a routine on one day only: skipped, or at another time. The rest of its days
+     * stay as they are.
+     */
+    async setOverride(
+      routineId: string,
+      date: string,
+      change: { skip: true } | { skip?: false; start: string; end: string },
+    ): Promise<void> {
+      if (!change.skip) {
+        if (toMinutes(change.end) <= toMinutes(change.start)) {
+          throw new RoutineValidationError('O fim precisa ser depois do começo.');
+        }
+      }
+      const at = timestamp();
+      await db.run(
+        `INSERT INTO routine_overrides (id, routine_id, date, skip, start_time, end_time,
+           created_at, updated_at, deleted_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)
+         ON CONFLICT(id) DO UPDATE SET skip = excluded.skip, start_time = excluded.start_time,
+           end_time = excluded.end_time, updated_at = excluded.updated_at, deleted_at = NULL`,
+        [
+          routineOverrideId(routineId, date),
+          routineId,
+          date,
+          change.skip ? 1 : 0,
+          change.skip ? null : change.start,
+          change.skip ? null : change.end,
+          at,
+          at,
+        ],
+      );
+      changes.notify('routines');
+    },
+
+    /** Puts the routine back to normal on that day. */
+    async clearOverride(routineId: string, date: string): Promise<void> {
+      const at = timestamp();
+      await db.run(
+        `UPDATE routine_overrides SET deleted_at = ?, updated_at = ?
+         WHERE id = ? AND deleted_at IS NULL`,
+        [at, at, routineOverrideId(routineId, date)],
+      );
+      changes.notify('routines');
+    },
+
+    async listEvents(): Promise<AgendaEvent[]> {
+      const rows = await db.all<EventRow>(
+        `SELECT ${EVENT_COLUMNS} FROM events WHERE deleted_at IS NULL
+         ORDER BY date, start_time`,
+      );
+      return rows.map(toEvent);
+    },
+
+    async getEvent(id: string): Promise<AgendaEvent | null> {
+      const row = await db.get<EventRow>(
+        `SELECT ${EVENT_COLUMNS} FROM events WHERE id = ? AND deleted_at IS NULL`,
+        [id],
+      );
+      return row ? toEvent(row) : null;
+    },
+
+    async createEvent(input: NewEvent): Promise<string> {
+      const v = validateEvent(input);
+      const id = newId();
+      const at = timestamp();
+      await db.run(
+        `INSERT INTO events (id, title, emoji, color, date, start_time, end_time, repeat,
+           remind_before, notes, list_id, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          v.title,
+          v.emoji,
+          v.color,
+          v.date,
+          v.start,
+          v.end,
+          v.repeat,
+          v.remindBefore,
+          v.notes,
+          v.listId,
+          at,
+          at,
+        ],
+      );
+      changes.notify('routines');
+      return id;
+    },
+
+    /** Replaces the event's fields (the editor always sends the whole thing). */
+    async updateEvent(id: string, input: NewEvent): Promise<void> {
+      const v = validateEvent(input);
+      const { changes: updated } = await db.run(
+        `UPDATE events SET title = ?, emoji = ?, color = ?, date = ?, start_time = ?,
+           end_time = ?, repeat = ?, remind_before = ?, notes = ?, list_id = ?, updated_at = ?
+         WHERE id = ? AND deleted_at IS NULL`,
+        [
+          v.title,
+          v.emoji,
+          v.color,
+          v.date,
+          v.start,
+          v.end,
+          v.repeat,
+          v.remindBefore,
+          v.notes,
+          v.listId,
+          timestamp(),
+          id,
+        ],
+      );
+      if (updated === 0) throw new RoutineValidationError('Este evento não existe mais.');
+      changes.notify('routines');
+    },
+
+    async deleteEvent(id: string): Promise<void> {
+      const at = timestamp();
+      await db.run(
+        'UPDATE events SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL',
+        [at, at, id],
+      );
+      changes.notify('routines');
     },
 
     /** Routines that ring at their start, for scheduling notifications. */

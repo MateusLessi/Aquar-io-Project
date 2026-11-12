@@ -7,18 +7,22 @@ const CONTENT_TABLES = [
   'task_folders',
   'task_lists',
   'tasks',
+  'task_checks',
   'habits',
   'habit_checks',
   'habit_progress',
   'routines',
   'routine_items',
   'routine_checks',
+  'routine_overrides',
+  'events',
   'links',
 ] as const;
 
 /** Local bookkeeping that goes with the content: event log, sync queue and cursors, timers. */
 const BOOKKEEPING_TABLES = [
   'habit_timers',
+  'task_timers',
   'domain_events',
   'sync_outbox',
   'sync_applying',
