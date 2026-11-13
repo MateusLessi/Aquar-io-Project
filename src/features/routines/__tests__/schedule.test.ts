@@ -3,6 +3,7 @@ import {
   hourRange,
   routinePhase,
   routinesOn,
+  shiftTimes,
   toMinutes,
   weekDays,
   weekStartOf,
@@ -66,5 +67,18 @@ describe('routine week', () => {
   it('fits the grid to the routines', () => {
     expect(hourRange([])).toEqual({ from: 6, to: 22 });
     expect(hourRange([{ start: '05:30', end: '23:10' }])).toEqual({ from: 5, to: 24 });
+  });
+});
+
+describe('shiftTimes', () => {
+  it('snaps to quarters and keeps the length', () => {
+    expect(shiftTimes('14:00', '15:00', 362)).toEqual({ start: '20:00', end: '21:00' });
+    expect(shiftTimes('14:00', '15:30', -50)).toEqual({ start: '13:15', end: '14:45' });
+    expect(shiftTimes('14:00', '15:00', 6)).toEqual({ start: '14:00', end: '15:00' });
+  });
+
+  it('stays inside the day', () => {
+    expect(shiftTimes('01:00', '02:00', -300)).toEqual({ start: '00:00', end: '01:00' });
+    expect(shiftTimes('22:00', '23:00', 300)).toEqual({ start: '22:45', end: '23:45' });
   });
 });

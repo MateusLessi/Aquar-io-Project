@@ -437,6 +437,25 @@ export function createRoutinesRepository({ db, changes, events, newId, now }: Ro
     },
 
     /**
+     * Moves a routine for good: new times and, when it changed day, new days of the week.
+     * Its name, items and the rest stay.
+     */
+    async setSchedule(
+      id: string,
+      schedule: { start: string; end: string; days: number },
+    ): Promise<void> {
+      const { start, end } = validateRoutineTimes(schedule.start, schedule.end);
+      const days = validateRoutineDays(schedule.days);
+      const { changes: updated } = await db.run(
+        `UPDATE routines SET start_time = ?, end_time = ?, days = ?, updated_at = ?
+         WHERE id = ? AND deleted_at IS NULL`,
+        [start, end, days, timestamp(), id],
+      );
+      if (updated === 0) throw new RoutineValidationError('Esta rotina não existe mais.');
+      changes.notify('routines');
+    },
+
+    /**
      * Changes a routine on one day only: skipped, or at another time. The rest of its days
      * stay as they are.
      */

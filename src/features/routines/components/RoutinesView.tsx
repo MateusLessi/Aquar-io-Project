@@ -2,10 +2,10 @@ import { Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text, listColors, radius, spacing, useTheme, withAlpha, Glyph } from '@/design-system';
-import { weekdayOrder } from '@/core/dates';
+import { toDateKey, weekdayOrder } from '@/core/dates';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 
-import { durationLabel, toMinutes } from '../domain/schedule';
+import { durationLabel, onDay, toMinutes } from '../domain/schedule';
 import type { RoutineToday } from '../domain/types';
 import { AgendaRow } from './AgendaView';
 
@@ -40,7 +40,9 @@ export function RoutinesView({
     ) : (
       <RoutineCard key={r.id} routine={r} onPress={() => onOpen(r.id)} />
     );
-  const today = routines.filter((r) => r.phase !== 'rest');
+  // Today's at today's time (changed for today only, or moved here from another day).
+  const todayKey = toDateKey(new Date());
+  const today = routines.filter((r) => r.phase !== 'rest').map((r) => onDay(r, todayKey));
   const resting = routines.filter((r) => r.phase === 'rest');
   return (
     <View style={styles.root}>

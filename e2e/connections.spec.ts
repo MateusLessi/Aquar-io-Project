@@ -30,7 +30,7 @@ test('connect a list and a habit to a routine, by menu and by dragging', async (
 
   // By menu: the list goes into the routine.
   await page.getByRole('button', { name: 'Conectar Treino A a…' }).click();
-  await page.getByRole('button', { name: /Academia, 07:00/ }).click();
+  await page.getByRole('button', { name: /^Academia, 07:00–08:00/ }).click();
   await expect(page.getByText('Pronto: Treino A agora está em Academia')).toBeVisible();
 
   // The routine's piece shows it, and opens to the list's tasks.

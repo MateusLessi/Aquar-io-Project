@@ -38,7 +38,7 @@ export { IconButton, type IconButtonProps } from './components/IconButton';
 export { ListItem, type ListItemProps } from './components/ListItem';
 export { OceanBackground } from './components/OceanBackground';
 export { RisingBubbles, type RisingBubblesProps } from './components/RisingBubbles';
-export { Screen, type ScreenProps } from './components/Screen';
+export { Screen, useScreenScroll, type ScreenProps, type ScreenScroll } from './components/Screen';
 export {
   SegmentedControl,
   type SegmentedControlProps,

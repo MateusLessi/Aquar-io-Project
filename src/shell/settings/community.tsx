@@ -68,6 +68,7 @@ export function CommunitySettings() {
       ) : null}
       {links.github ? (
         <Group
+          anchor="feedback"
           title="Feedback"
           note={`Abre no GitHub, já com a versão ${device.version} e o aparelho (${device.platform}).`}
         >

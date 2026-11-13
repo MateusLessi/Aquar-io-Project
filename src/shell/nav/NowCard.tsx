@@ -10,7 +10,7 @@ import type { HabitWithProgress } from '@/features/habits/domain/types';
 import { useHabits } from '@/features/habits/hooks/queries';
 import { useHabitActions } from '@/features/habits/hooks/useHabitActions';
 import { eventEntry, withPhase } from '@/features/routines/domain/agenda';
-import { durationLabel, routinesOn } from '@/features/routines/domain/schedule';
+import { durationLabel, onDay, routinesOn } from '@/features/routines/domain/schedule';
 import type { RoutineToday } from '@/features/routines/domain/types';
 import { useAgendaEvents, useRoutinesToday } from '@/features/routines/hooks/queries';
 
@@ -25,7 +25,7 @@ export function NowCard() {
   const { data: events = [] } = useAgendaEvents();
   const { data: habits = [] } = useHabits();
   const entries = [
-    ...routines,
+    ...routines.map((r) => onDay(r, todayKey)),
     ...routinesOn(
       events.map((e) => withPhase(eventEntry(e), todayKey, nowMinutes)),
       todayKey,

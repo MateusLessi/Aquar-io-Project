@@ -70,10 +70,11 @@ export function planReminders({
   for (let offset = 0; offset < HORIZON_DAYS; offset++) {
     const day = addDays(todayKey, offset);
     for (const routine of routines) {
-      if (!routine.remind || !isRoutineDay(routine.days, day)) continue;
-      // Skipped that day, or at another time that day only.
+      if (!routine.remind) continue;
+      // Skipped that day, at another time that day only, or moved there from another day.
       const change = routine.overrides?.[day];
       if (change?.skip) continue;
+      if (!isRoutineDay(routine.days, day) && !change?.start) continue;
       const start = change?.start ?? routine.start;
       const end = change?.end ?? routine.end;
       plan.push({

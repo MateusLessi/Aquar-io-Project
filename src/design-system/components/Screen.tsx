@@ -1,9 +1,10 @@
 import { ChevronLeft } from 'lucide-react-native';
-import { useState, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
+  useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -17,6 +18,14 @@ import { IconButton } from './IconButton';
 import { OceanBackground } from './OceanBackground';
 import { Text } from './Text';
 import { Waterline } from './Waterline';
+
+/** Lets something inside a screen bring itself into view (a setting found by search). */
+export type ScreenScroll = {
+  /** Scrolls so that a point measured with `measureInWindow` sits near the top. */
+  revealWindowY: (windowY: number) => void;
+};
+const ScreenScrollContext = createContext<ScreenScroll | null>(null);
+export const useScreenScroll = () => useContext(ScreenScrollContext);
 
 /** Scroll distance over which the large title hands over to the compact header. */
 const COLLAPSE_START = 32;
@@ -61,6 +70,18 @@ export function Screen({
   const insets = useSafeAreaInsets();
   const chromeInsets = useChromeInsets();
   const scrollY = useSharedValue(0);
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  const reveal = useMemo<ScreenScroll>(
+    () => ({
+      revealWindowY: (windowY) => {
+        // Below the compact header, with a little air.
+        const target =
+          scrollY.get() + windowY - (insets.top + chrome.compactHeaderHeight + spacing.lg);
+        scrollRef.current?.scrollTo({ y: Math.max(0, target), animated: true });
+      },
+    }),
+    [scrollY, scrollRef, insets.top],
+  );
   // Where the sticky bar starts in the content, and where it stops on screen.
   const [barY, setBarY] = useState(0);
   const contentTop = insets.top + spacing.xxl;
@@ -90,6 +111,7 @@ export function Screen({
   return (
     <OceanBackground>
       <Animated.ScrollView
+        ref={scrollRef}
         testID={testID}
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -127,7 +149,9 @@ export function Screen({
             </Animated.View>
           ) : null}
           <Waterline />
-          <View style={styles.body}>{children}</View>
+          <ScreenScrollContext.Provider value={reveal}>
+            <View style={styles.body}>{children}</View>
+          </ScreenScrollContext.Provider>
         </View>
       </Animated.ScrollView>
 

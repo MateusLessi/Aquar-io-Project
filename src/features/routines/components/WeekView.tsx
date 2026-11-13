@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,12 +12,16 @@ import {
   type ScrollViewInstance,
 } from 'react-native';
 
+import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+
 import { addDays, fromDateKey } from '@/core/dates';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import {
   Button,
   IconButton,
   Text,
+  haptics,
   listColors,
   radius,
   spacing,
@@ -25,7 +30,15 @@ import {
   withAlpha,
 } from '@/design-system';
 
-import { hourRange, routinesOn, toMinutes, weekDays, weekStartOf } from '../domain/schedule';
+import {
+  DRAG_STEP,
+  hourRange,
+  routinesOn,
+  shiftTimes,
+  toMinutes,
+  weekDays,
+  weekStartOf,
+} from '../domain/schedule';
 import type { RoutineToday } from '../domain/types';
 import { useRoutineDone } from '../hooks/queries';
 
@@ -59,6 +72,17 @@ export type WeekViewProps = {
   day: string;
   onDay: (day: string) => void;
   onOpen: (routine: RoutineToday, day: string) => void;
+  /**
+   * A block dragged to another time (or, with the days side by side, another day). Without it,
+   * blocks don't move.
+   */
+  onMove?: (
+    entry: RoutineToday,
+    fromDay: string,
+    toDay: string,
+    start: string,
+    end: string,
+  ) => void;
   /** What sits inside a block (the habits and lists placed in the routine). */
   renderBlockExtra?: (routine: RoutineToday, day: string) => React.ReactNode;
   dropTarget?: WeekDropTarget;
@@ -204,6 +228,7 @@ function WideWeek({ days, ...props }: WeekViewProps & { days: string[] }) {
           <DayColumn
             key={key}
             {...props}
+            days={days}
             dayKey={key}
             hours={hours}
             hour={hour}
@@ -346,9 +371,13 @@ function DayColumn({
   done,
   compact,
   onOpen,
+  onMove,
+  days,
   renderBlockExtra,
   dropTarget,
 }: WeekViewProps & {
+  /** The week's days, side by side: a block can be dragged to another one. */
+  days?: string[];
   dayKey: string;
   hours: { from: number; to: number };
   hour: number;
@@ -394,75 +423,99 @@ function DayColumn({
         const key = `${routine.id}:${dayKey}`;
         // Only routines take things dropped in; events and tasks just open.
         const target = isRoutine(routine) ? dropTarget : undefined;
+        const movable = onMove !== undefined && routine.source !== 'task' && !dropTarget?.armed;
         return (
-          <Pressable
+          <DragBlock
             key={routine.id}
-            ref={
-              target
-                ? (view) => target.register(key, routine.id, view as Measurable | null)
-                : undefined
-            }
-            onPress={() => (target?.armed ? target.onPick(routine) : onOpen(routine, dayKey))}
-            accessibilityRole="button"
-            accessibilityLabel={`${routine.name}, ${dayLabel(dayKey)}, ${showTime(routine.start)} às ${showTime(routine.end)}${
-              routine.tag ? `, ${routine.tag}` : ''
-            }${status ? `, ${status} feitos` : ''}`}
-            style={({ pressed }) => [
-              styles.block,
-              {
-                top,
-                height,
-                backgroundColor: lit
-                  ? colors.accentSoft
-                  : withAlpha(tone, now ? 0.3 : scheme === 'dark' ? 0.18 : 0.14),
-                borderColor: lit ? colors.accent : withAlpha(tone, now ? 0.9 : 0.5),
-                borderStyle: target?.armed && !lit ? 'dashed' : 'solid',
-                opacity: past && !lit ? 0.6 : 1,
-                transform: [{ scale: pressed ? 0.98 : 1 }],
-              },
-            ]}
+            top={top}
+            height={height}
+            hour={hour}
+            enabled={movable}
+            dayIndex={days ? days.indexOf(dayKey) : -1}
+            dayCount={days?.length ?? 0}
+            label={(start) => showTime(start)}
+            entry={routine}
+            onDrop={(delta, dayShift) => {
+              const moved = shiftTimes(routine.start, routine.end, delta);
+              const toDay = days?.[days.indexOf(dayKey) + dayShift] ?? dayKey;
+              if (moved.start !== routine.start || toDay !== dayKey)
+                onMove?.(routine, dayKey, toDay, moved.start, moved.end);
+            }}
           >
-            {short ? (
-              <Text variant="caption" numberOfLines={1}>
-                {routine.name} · {showTime(routine.start)}
-              </Text>
-            ) : compact ? (
-              // A narrow column: one fact per line.
-              <>
-                <Text variant="caption" numberOfLines={1}>
-                  {routine.name}
-                </Text>
-                <Text variant="caption" tone="secondary" numberOfLines={1} style={styles.small}>
-                  {showTime(routine.start)}–{showTime(routine.end)}
-                </Text>
-                {height >= 64 && (routine.tag || status) ? (
-                  <View style={styles.tagRow}>
-                    {routine.tag ? <Tag label={routine.tag} tone={tone} /> : null}
-                    {status ? (
-                      <Text variant="caption" tone="secondary" style={styles.small}>
-                        {status}
-                      </Text>
-                    ) : null}
-                  </View>
-                ) : null}
-                {height >= 92 && isRoutine(routine) ? renderBlockExtra?.(routine, dayKey) : null}
-              </>
-            ) : (
-              <>
-                <View style={styles.tagRow}>
-                  <Text variant="headline" numberOfLines={1} style={styles.flex}>
-                    {routine.name}
+            {(guard) => (
+              <Pressable
+                ref={
+                  target
+                    ? (view) => target.register(key, routine.id, view as Measurable | null)
+                    : undefined
+                }
+                onPress={guard(() =>
+                  target?.armed ? target.onPick(routine) : onOpen(routine, dayKey),
+                )}
+                accessibilityRole="button"
+                accessibilityLabel={`${routine.name}, ${dayLabel(dayKey)}, ${showTime(routine.start)} às ${showTime(routine.end)}${
+                  routine.tag ? `, ${routine.tag}` : ''
+                }${status ? `, ${status} feitos` : ''}`}
+                style={({ pressed }) => [
+                  styles.block,
+                  {
+                    backgroundColor: lit
+                      ? colors.accentSoft
+                      : withAlpha(tone, now ? 0.3 : scheme === 'dark' ? 0.18 : 0.14),
+                    borderColor: lit ? colors.accent : withAlpha(tone, now ? 0.9 : 0.5),
+                    borderStyle: target?.armed && !lit ? 'dashed' : 'solid',
+                    opacity: past && !lit ? 0.6 : 1,
+                    transform: [{ scale: pressed ? 0.98 : 1 }],
+                  },
+                ]}
+              >
+                {short ? (
+                  <Text variant="caption" numberOfLines={1}>
+                    {routine.name} · {showTime(routine.start)}
                   </Text>
-                  {routine.tag ? <Tag label={routine.tag} tone={tone} /> : null}
-                </View>
-                <Text variant="caption" tone="secondary" numberOfLines={1}>
-                  {showTime(routine.start)}–{showTime(routine.end)}
-                  {status ? ` · ${status}` : ''}
-                </Text>
-                {height >= 60 && isRoutine(routine) ? renderBlockExtra?.(routine, dayKey) : null}
-              </>
+                ) : compact ? (
+                  // A narrow column: one fact per line.
+                  <>
+                    <Text variant="caption" numberOfLines={1}>
+                      {routine.name}
+                    </Text>
+                    <Text variant="caption" tone="secondary" numberOfLines={1} style={styles.small}>
+                      {showTime(routine.start)}–{showTime(routine.end)}
+                    </Text>
+                    {height >= 64 && (routine.tag || status) ? (
+                      <View style={styles.tagRow}>
+                        {routine.tag ? <Tag label={routine.tag} tone={tone} /> : null}
+                        {status ? (
+                          <Text variant="caption" tone="secondary" style={styles.small}>
+                            {status}
+                          </Text>
+                        ) : null}
+                      </View>
+                    ) : null}
+                    {height >= 92 && isRoutine(routine)
+                      ? renderBlockExtra?.(routine, dayKey)
+                      : null}
+                  </>
+                ) : (
+                  <>
+                    <View style={styles.tagRow}>
+                      <Text variant="headline" numberOfLines={1} style={styles.flex}>
+                        {routine.name}
+                      </Text>
+                      {routine.tag ? <Tag label={routine.tag} tone={tone} /> : null}
+                    </View>
+                    <Text variant="caption" tone="secondary" numberOfLines={1}>
+                      {showTime(routine.start)}–{showTime(routine.end)}
+                      {status ? ` · ${status}` : ''}
+                    </Text>
+                    {height >= 60 && isRoutine(routine)
+                      ? renderBlockExtra?.(routine, dayKey)
+                      : null}
+                  </>
+                )}
+              </Pressable>
             )}
-          </Pressable>
+          </DragBlock>
         );
       })}
       {today && nowMinutes >= hours.from * 60 && nowMinutes <= hours.to * 60 ? (
@@ -479,6 +532,115 @@ function DayColumn({
         </Text>
       ) : null}
     </View>
+  );
+}
+
+/**
+ * A week block that can be dragged: hold it (or, with a mouse, just drag it) and it follows,
+ * snapping to quarters of an hour, with the new time on top. Across days only when the days
+ * are side by side.
+ */
+function DragBlock({
+  top,
+  height,
+  hour,
+  enabled,
+  dayIndex,
+  dayCount,
+  entry,
+  label,
+  onDrop,
+  children,
+}: {
+  top: number;
+  height: number;
+  /** Pixels per hour. */
+  hour: number;
+  enabled: boolean;
+  /** Where the column is among the days side by side (-1: one day at a time). */
+  dayIndex: number;
+  dayCount: number;
+  entry: RoutineToday;
+  label: (start: string) => string;
+  onDrop: (deltaMinutes: number, dayShift: number) => void;
+  /** The block itself; `guard` keeps a tap from firing right after a drag. */
+  children: (guard: (action: () => void) => () => void) => React.ReactNode;
+}) {
+  const { colors } = useTheme();
+  const touch = Platform.OS !== 'web';
+  const dx = useSharedValue(0);
+  const dy = useSharedValue(0);
+  const [width, setWidth] = useState(0);
+  const [preview, setPreview] = useState<string | null>(null);
+  // Where the press began (the drag counts from there, not from where it took off), and
+  // when the last drag ended.
+  const origin = useRef({ x: 0, y: 0 });
+  const droppedAt = useRef(0);
+  const guard = (action: () => void) => () => {
+    if (Date.now() - droppedAt.current > 400) action();
+  };
+  const step = (hour / 60) * DRAG_STEP;
+  // A column plus the gap between columns.
+  const columnStep = width + 4 + spacing.xs;
+  const shiftOf = (x: number) =>
+    dayIndex < 0 || columnStep <= 0
+      ? 0
+      : Math.max(-dayIndex, Math.min(dayCount - 1 - dayIndex, Math.round(x / columnStep)));
+  const pan = usePanGesture({
+    enabled,
+    runOnJS: true,
+    // Touch: hold first, so scrolling and swiping between days still work.
+    activateAfterLongPress: touch ? 300 : 0,
+    minDistance: touch ? 0 : 6,
+    onBegin: (e) => {
+      origin.current = { x: e.absoluteX, y: e.absoluteY };
+    },
+    onActivate: () => {
+      haptics.selection();
+      setPreview(label(entry.start));
+    },
+    onUpdate: (e) => {
+      const snapped = Math.round((e.absoluteY - origin.current.y) / step) * step;
+      dy.set(snapped);
+      dx.set(shiftOf(e.absoluteX - origin.current.x) * columnStep);
+      const moved = shiftTimes(entry.start, entry.end, (snapped / hour) * 60);
+      setPreview(label(moved.start));
+    },
+    onDeactivate: (e) => {
+      const delta = (Math.round((e.absoluteY - origin.current.y) / step) * step * 60) / hour;
+      const shift = shiftOf(e.absoluteX - origin.current.x);
+      dx.set(0);
+      dy.set(0);
+      setPreview(null);
+      droppedAt.current = Date.now();
+      if (Math.round(delta) !== 0 || shift !== 0) {
+        haptics.selection();
+        onDrop(delta, shift);
+      }
+    },
+  });
+  const moving = useAnimatedStyle(() => ({
+    transform: [{ translateX: dx.get() }, { translateY: dy.get() }],
+  }));
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+        style={[styles.blockBox, { top, height }, moving, preview !== null && styles.lifted]}
+      >
+        {children(guard)}
+        {preview !== null ? (
+          <View
+            pointerEvents="none"
+            style={[styles.dragTime, { backgroundColor: colors.textPrimary }]}
+          >
+            <Text variant="caption" style={{ color: colors.surfaceRaised }}>
+              {preview}
+            </Text>
+          </View>
+        ) : null}
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
@@ -515,10 +677,18 @@ const styles = StyleSheet.create({
   hourLabel: { position: 'absolute', left: 0, fontVariant: ['tabular-nums'] },
   column: { flex: 1, borderRadius: radius.md },
   line: { position: 'absolute', left: 0, right: 0, height: StyleSheet.hairlineWidth },
-  block: {
+  blockBox: { position: 'absolute', left: 2, right: 2 },
+  lifted: { zIndex: 20, elevation: 20 },
+  dragTime: {
     position: 'absolute',
-    left: 2,
-    right: 2,
+    top: -24,
+    left: 0,
+    borderRadius: radius.sm,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  block: {
+    flex: 1,
     borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: 6,

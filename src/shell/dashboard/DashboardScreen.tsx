@@ -1,10 +1,11 @@
-import { Plus } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Plus, Settings } from 'lucide-react-native';
 import { Fragment, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { toDateKey } from '@/core/dates';
 import { useProfile } from '@/core/profile/useProfile';
-import { Button, Screen, spacing, useBreakpoint } from '@/design-system';
+import { Button, IconButton, Screen, spacing, useBreakpoint } from '@/design-system';
 import { TodayHabits } from '@/features/habits/components/TodayHabits';
 import { useTodayHabitProgress } from '@/features/habits/hooks/queries';
 import { TodayRoutines } from '@/features/routines/components/TodayRoutines';
@@ -46,6 +47,7 @@ function dateLabel(date: Date): string {
  */
 export function DashboardScreen() {
   const breakpoint = useBreakpoint();
+  const router = useRouter();
   const create = useCreate();
   const now = new Date();
   const todayKey = toDateKey(now);
@@ -86,7 +88,21 @@ export function DashboardScreen() {
       .map((id) => <Fragment key={id}>{cardNodes[id]}</Fragment>);
 
   return (
-    <Screen title={greeting(now, name)} eyebrow={dateLabel(now)} wide={breakpoint === 'expanded'}>
+    <Screen
+      title={greeting(now, name)}
+      eyebrow={dateLabel(now)}
+      wide={breakpoint === 'expanded'}
+      // Wider screens reach Ajustes from the sidebar or the rail.
+      actions={
+        breakpoint === 'compact' ? (
+          <IconButton
+            icon={Settings}
+            label="Ajustes"
+            onPress={() => router.push('/profile/settings')}
+          />
+        ) : undefined
+      }
+    >
       <InstallHint />
       {breakpoint === 'compact' ? (
         <>

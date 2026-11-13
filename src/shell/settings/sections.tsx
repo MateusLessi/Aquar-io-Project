@@ -1,7 +1,15 @@
 import Constants from 'expo-constants';
 import { ChevronDown, ChevronUp, Download } from 'lucide-react-native';
-import { useContext, useState, type ReactNode } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Platform, Pressable, StyleSheet, View, type ViewInstance } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { notificationsSupported } from '@/core/notifications';
@@ -21,7 +29,9 @@ import {
   TimePicker,
   radius,
   spacing,
+  useScreenScroll,
   useTheme,
+  withAlpha,
   type ThemePreference,
 } from '@/design-system';
 import { BrandHeader } from './community';
@@ -53,26 +63,60 @@ export function Group({
   title,
   children,
   note,
+  anchor,
 }: {
   title?: string;
   children: ReactNode;
   note?: string;
+  /** Search can land here (`?focus=`): it scrolls into view and glows for a moment. */
+  anchor?: string;
 }) {
+  const { ref, glow } = useAnchor(anchor);
   return (
-    <View style={styles.group}>
-      {title ? (
-        <Text variant="overline" tone="tertiary" style={styles.groupTitle}>
-          {title}
-        </Text>
-      ) : null}
-      {children}
-      {note ? (
-        <Text variant="footnote" tone="tertiary" style={styles.note}>
-          {note}
-        </Text>
-      ) : null}
+    <View ref={ref}>
+      <Animated.View style={[styles.group, styles.anchor, glow]}>
+        {title ? (
+          <Text variant="overline" tone="tertiary" style={styles.groupTitle}>
+            {title}
+          </Text>
+        ) : null}
+        {children}
+        {note ? (
+          <Text variant="footnote" tone="tertiary" style={styles.note}>
+            {note}
+          </Text>
+        ) : null}
+      </Animated.View>
     </View>
   );
+}
+
+/** Brings a group into view and makes it glow when search opened the section on it. */
+function useAnchor(anchor: string | undefined) {
+  const { colors } = useTheme();
+  const { focus } = useLocalSearchParams<{ focus?: string }>();
+  const scroll = useScreenScroll();
+  const ref = useRef<ViewInstance>(null);
+  const glow = useSharedValue(0);
+  const hit = anchor !== undefined && focus === anchor;
+  useEffect(() => {
+    if (!hit) return;
+    // After the section has laid out.
+    const timer = setTimeout(() => {
+      ref.current?.measureInWindow((_x, y) => scroll?.revealWindowY(y));
+      glow.set(
+        withSequence(
+          withTiming(1, { duration: 250 }),
+          withDelay(900, withTiming(0, { duration: 900 })),
+        ),
+      );
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [hit, scroll, glow]);
+  const style = useAnimatedStyle(() => ({
+    backgroundColor: withAlpha(colors.accent, 0.14 * glow.get()),
+  }));
+  return { ref, glow: style };
 }
 
 function Choice({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
@@ -145,7 +189,7 @@ export function HomeSettings() {
           onChange={(value) => void setStartTab(value)}
         />
       </Group>
-      <Group title="Cartões do painel" note="As setas mudam a ordem.">
+      <Group anchor="home-cards" title="Cartões do painel" note="As setas mudam a ordem.">
         <Surface>
           {cards.map((card, i) => {
             const label = DASHBOARD_CARDS.find((c) => c.id === card.id)!.label;
@@ -225,7 +269,7 @@ export function SoundRemindersSettings() {
       <Group title="Sons e toque">
         <FeedbackSection />
       </Group>
-      <Group title="Lembretes">
+      <Group anchor="reminders" title="Lembretes">
         <RemindersSection />
         {notificationsSupported ? <QuietHours /> : null}
       </Group>
@@ -329,7 +373,7 @@ export function GameSettings() {
           })}
         </View>
       </Group>
-      <Group title="Jogo">
+      <Group anchor="game" title="Jogo">
         <Surface>
           <ListItem
             title="Mostrar Profundidade"
@@ -460,7 +504,11 @@ export function AccountDataSettings() {
           <AccountSection />
         </Group>
       ) : null}
-      <Group title="Seus dados" note="Tudo em JSON, e as tarefas em CSV para planilhas.">
+      <Group
+        anchor="account-data"
+        title="Seus dados"
+        note="Tudo em JSON, e as tarefas em CSV para planilhas."
+      >
         <Button
           label="Exportar meus dados"
           variant="secondary"
@@ -474,7 +522,7 @@ export function AccountDataSettings() {
           </Text>
         ) : null}
       </Group>
-      <Group title="Zona de perigo">
+      <Group anchor="account-danger" title="Zona de perigo">
         <Button
           label="Apagar os dados deste aparelho"
           variant="danger"
@@ -613,6 +661,8 @@ export function AboutSettings() {
 
 const styles = StyleSheet.create({
   group: { gap: spacing.sm },
+  // Room for the glow around a group that search landed on.
+  anchor: { borderRadius: radius.lg, margin: -spacing.xs, padding: spacing.xs },
   groupTitle: { marginLeft: spacing.xs },
   note: { marginHorizontal: spacing.xs },
   choice: { padding: spacing.lg, gap: spacing.sm },
