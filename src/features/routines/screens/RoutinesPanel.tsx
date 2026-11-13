@@ -14,6 +14,7 @@ import {
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { addDays, fromDateKey, weekdayOf } from '@/core/dates';
 import { useSetting } from '@/core/settings/useSetting';
 import {
   EmptyState,
@@ -29,6 +30,7 @@ import {
 import { AgendaView } from '../components/AgendaView';
 import { EventEditorSheet, longDate } from '../components/EventEditorSheet';
 import { MonthView } from '../components/MonthView';
+import { MoveRoutineSheet, type PendingMove } from '../components/MoveRoutineSheet';
 import { RoutineDaySheet } from '../components/RoutineDaySheet';
 import { RoutineEditorSheet } from '../components/RoutineEditorSheet';
 import { RoutinesView } from '../components/RoutinesView';
@@ -42,6 +44,8 @@ import { useAgendaEvent, useAgendaEvents, useRoutine, useRoutinesToday } from '.
 export type RoutinesViewMode = 'timeline' | 'week' | 'month' | 'agenda';
 export const ROUTINES_VIEW_SETTING = 'routines.view';
 const NO_ENTRIES: RoutineToday[] = [];
+const daysBetween = (from: string, to: string) =>
+  Math.round((fromDateKey(to).getTime() - fromDateKey(from).getTime()) / 86_400_000);
 
 const viewModes: { value: RoutinesViewMode; label: string; icon: LucideIcon }[] = [
   { value: 'timeline', label: 'Dia', icon: Sun },
@@ -137,6 +141,31 @@ export function RoutinesPanel({
     else if (on === todayKey && renderRoutine) setPieceId(routine.id);
     else setDayOf({ id: routine.id, day: on });
   };
+  // Dragged in the week. An event moves whole (all its days); a routine asks first.
+  const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
+  const report = (error: unknown) => console.warn('Could not move it.', error);
+  const moveEntry = (
+    entry: RoutineToday,
+    fromDay: string,
+    toDay: string,
+    start: string,
+    end: string,
+  ) => {
+    if (entry.source === 'event') {
+      const found = events?.find((e) => e.id === entry.refId);
+      if (!found) return;
+      repository
+        .updateEvent(found.id, {
+          ...found,
+          date: addDays(found.date, daysBetween(fromDay, toDay)),
+          start,
+          end,
+        })
+        .catch(report);
+    } else if (!entry.source || entry.source === 'routine') {
+      setPendingMove({ routine: entry, fromDay, toDay, start, end });
+    }
+  };
   // The day new things go on: the one chosen in Semana and Mês, today otherwise.
   const newDay = view === 'week' || view === 'month' ? day : todayKey;
   const [creating, setCreating] = useState(false);
@@ -194,6 +223,7 @@ export function RoutinesPanel({
                   day,
                   onDay: setDay,
                   onOpen: open,
+                  onMove: moveEntry,
                 };
                 return renderWeek ? renderWeek(week) : <WeekView {...week} />;
               })()
@@ -277,6 +307,27 @@ export function RoutinesPanel({
         onClose={() => setEventId(null)}
         onSubmit={(input) => repository.updateEvent(eventId!, input)}
         onDelete={() => repository.deleteEvent(eventId!)}
+      />
+
+      <MoveRoutineSheet
+        move={pendingMove}
+        onClose={() => setPendingMove(null)}
+        onOnlyThisDay={async ({ routine, fromDay, toDay, start, end }) => {
+          // Another day: skipped where it was, and added where it went.
+          if (toDay !== fromDay) await repository.setOverride(routine.id, fromDay, { skip: true });
+          await repository.setOverride(routine.id, toDay, { start, end });
+        }}
+        onEveryWeek={async ({ routine, fromDay, toDay, start, end }) => {
+          const base = routines?.find((r) => r.id === routine.id);
+          if (!base) return;
+          const days =
+            toDay === fromDay
+              ? base.days
+              : (base.days & ~(1 << weekdayOf(fromDay))) | (1 << weekdayOf(toDay));
+          await repository.setSchedule(routine.id, { start, end, days });
+          // That day's own change, if any, would hide the new time.
+          if (base.overrides?.[fromDay]) await repository.clearOverride(routine.id, fromDay);
+        }}
       />
 
       <RoutineDaySheet

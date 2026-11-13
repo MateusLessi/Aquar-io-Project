@@ -117,6 +117,26 @@ describe('a routine changed for one day only', () => {
     },
   };
 
+  it('can be added on a day it does not usually happen (moved there)', () => {
+    const weekdays = {
+      ...routine,
+      days: 0b0111110,
+      overrides: {
+        '2026-11-15': {
+          routineId: 'r',
+          date: '2026-11-15',
+          skip: false,
+          start: '10:00',
+          end: '11:00',
+        },
+      },
+    };
+    // Sunday 15: not its day, but it was moved there.
+    expect(routinesOn([weekdays], '2026-11-15')[0]).toMatchObject({ start: '10:00' });
+    expect(routinePhase(weekdays, '2026-11-15', 9 * 60).phase).toBe('upcoming');
+    expect(routinesOn([weekdays], '2026-11-22')).toEqual([]);
+  });
+
   it('moves on that day and is skipped on the other, and stays on the rest', () => {
     expect(routinesOn([routine], '2026-11-17')[0]).toMatchObject({ start: '09:00', end: '10:00' });
     expect(routinesOn([routine], '2026-11-18')).toEqual([]);
@@ -177,6 +197,25 @@ describe('agenda in the repository', () => {
     await expect(
       repo.setOverride(id, '2026-11-18', { start: '10:00', end: '09:00' }),
     ).rejects.toThrow(RoutineValidationError);
+  });
+
+  it('moves a routine for good: times and days', async () => {
+    const repo = await setup();
+    const id = await repo.createRoutine({
+      name: 'Treino',
+      start: '14:00',
+      end: '15:00',
+      days: 0b0001000,
+    });
+    await repo.setSchedule(id, { start: '20:00', end: '21:00', days: 0b0010000 });
+    expect(await repo.getRoutine(id)).toMatchObject({
+      start: '20:00',
+      end: '21:00',
+      days: 0b0010000,
+    });
+    await expect(repo.setSchedule(id, { start: '20:00', end: '19:00', days: 1 })).rejects.toThrow(
+      RoutineValidationError,
+    );
   });
 
   it('a skipped day is not due for progress', async () => {

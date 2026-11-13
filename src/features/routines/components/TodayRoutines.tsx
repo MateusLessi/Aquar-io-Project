@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Text, spacing } from '@/design-system';
 
 import { eventEntry, withPhase } from '../domain/agenda';
-import { routinesOn } from '../domain/schedule';
+import { onDay, routinesOn } from '../domain/schedule';
 import { useRoutinesRepository } from '../hooks/routinesContext';
 import type { RoutineToday } from '../domain/types';
 import { useAgendaEvents, useRoutinesToday } from '../hooks/queries';
@@ -62,7 +62,8 @@ export function TodayRoutines({
         </View>
       ) : null}
       <RoutineTimeline
-        routines={routines}
+        // At today's time when it was changed for today only.
+        routines={routines.map((r) => onDay(r, todayKey))}
         renderExtra={renderExtra}
         onSeeAll={() => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } })}
         onOpen={(id) =>

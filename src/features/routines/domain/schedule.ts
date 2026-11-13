@@ -7,6 +7,29 @@ export const toMinutes = (time: string) => {
   return h * 60 + m;
 };
 
+/** "07:05" from minutes since midnight. */
+export const fromMinutes = (minutes: number) =>
+  `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+/** Dragging snaps to quarters of an hour. */
+export const DRAG_STEP = 15;
+
+/**
+ * A block dragged by `deltaMinutes`: snapped to quarters, the same length, and kept inside the
+ * day (from 00:00, ending by 23:45).
+ */
+export function shiftTimes(
+  start: string,
+  end: string,
+  deltaMinutes: number,
+): { start: string; end: string } {
+  const from = toMinutes(start);
+  const length = toMinutes(end) - from;
+  const snapped = Math.round(deltaMinutes / DRAG_STEP) * DRAG_STEP;
+  const next = Math.min(Math.max(0, from + snapped), 24 * 60 - DRAG_STEP - length);
+  return { start: fromMinutes(next), end: fromMinutes(next + length) };
+}
+
 export function isRoutineDay(days: WeekdayMask, dateKey: string): boolean {
   return (days & (1 << weekdayOf(dateKey))) !== 0;
 }
@@ -22,9 +45,11 @@ export function routinePhase(
   dateKey: string,
   minutesNow: number,
 ): { phase: RoutinePhase; minutesLeft: number } {
-  if (!isRoutineDay(routine.days, dateKey)) return { phase: 'rest', minutesLeft: 0 };
   const change = routine.overrides?.[dateKey];
   if (change?.skip) return { phase: 'rest', minutesLeft: 0 };
+  // Its usual day, or a day it was moved to.
+  if (!isRoutineDay(routine.days, dateKey) && !change?.start)
+    return { phase: 'rest', minutesLeft: 0 };
   const start = toMinutes(change?.start ?? routine.start);
   const end = toMinutes(change?.end ?? routine.end);
   if (minutesNow < start) return { phase: 'upcoming', minutesLeft: start - minutesNow };
@@ -66,8 +91,11 @@ type Scheduled = Pick<Routine, 'days' | 'start' | 'end' | 'createdAt'> & {
 
 /** Whether a routine (or entry) happens on a day, taking its one-day changes into account. */
 export function happensOn(entry: Scheduled, dateKey: string): boolean {
-  if (entry.overrides?.[dateKey]?.skip) return false;
+  const change = entry.overrides?.[dateKey];
+  if (change?.skip) return false;
   if (entry.occurs) return entry.occurs(dateKey);
+  // A change on a day it does not usually happen adds it there (moved from another day).
+  if (change?.start) return true;
   return isRoutineDay(entry.days, dateKey) && toDateKey(new Date(entry.createdAt)) <= dateKey;
 }
 
