@@ -1,5 +1,5 @@
 import { Slot } from 'expo-router';
-import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -172,9 +172,9 @@ describe('App shell on tablets and desktop', () => {
     await renderRouter(routes, { initialUrl: '/' });
     expect(screen.getByText('Aquar.io')).toBeOnTheScreen();
     expect(screen.getByRole('tab', { name: 'Início' })).toBeSelected();
-    // The active item is filled so it reads clearly on the deep-water sidebar.
-    expect(screen.getByRole('tab', { name: 'Início' })).toHaveStyle({
-      backgroundColor: lightColors.deepAccent,
+    // The active item sits on a solid piece in the panel's color, so it uses the panel's text.
+    expect(within(screen.getByRole('tab', { name: 'Início' })).getByText('Início')).toHaveStyle({
+      color: lightColors.textPrimary,
     });
 
     // You sit at the bottom: the chip opens the profile, the gear opens Ajustes.

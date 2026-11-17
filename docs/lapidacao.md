@@ -51,3 +51,8 @@ A ordem segue as dependências: o que é base para várias outras coisas vem pri
 | 6    | **Vida**              | M15, M16, aquário ilustrado                                 | Expressões e animações das criaturas, junto com o projeto de animação.                       |
 | 7    | **Primeira vez**      | M7, M20 (escolha do tema no início)                         | O tutorial explica o app pronto; feito antes, teria de ser refeito.                          |
 | —    | Depois dos testadores | GPS e lugares                                               | Expansão própria.                                                                            |
+
+## Decisões depois das fases 1–4
+
+- **Profissional × Dinâmico (parte do M20): adiado para depois dos testadores** (17/11/2026). Dois estilos dobrariam o trabalho e os testes em cada tela. O retorno dos testadores vai dizer se alguém sente falta de um modo mais calmo. "Reduzir movimento" já cobre parte disso. A escolha do tema na primeira abertura continua na Fase 7.
+- **Fase 5 enxuta:** 5a = barra lateral e abas de vidro (referência de 17/11), zeros do primeiro dia, contornos, linhas de tarefa maiores e animações. 5b = Loja → **Personalizar** e mais marca.
