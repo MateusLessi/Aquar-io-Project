@@ -13,7 +13,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { chrome, spacing } from '../tokens';
 import { useChromeInsets } from './ChromeInsets';
-import { GlassSurface } from './GlassSurface';
 import { IconButton } from './IconButton';
 import { OceanBackground } from './OceanBackground';
 import { Text } from './Text';
@@ -27,8 +26,7 @@ export type ScreenScroll = {
 const ScreenScrollContext = createContext<ScreenScroll | null>(null);
 export const useScreenScroll = () => useContext(ScreenScrollContext);
 
-/** Scroll distance over which the large title hands over to the compact header. */
-const COLLAPSE_START = 32;
+/** Scroll distance over which the large title fades out. */
 const COLLAPSE_END = 72;
 
 export type ScreenProps = {
@@ -45,8 +43,8 @@ export type ScreenProps = {
   /** Use the full width on large screens (dashboards); text-heavy screens keep a reading width. */
   wide?: boolean;
   /**
-   * A bar under the title that stays at hand: when the content scrolls, it stops under the
-   * compact header instead of leaving the screen (the Aquarium's sections).
+   * A bar under the title that stays at hand: when the content scrolls, it stops at the
+   * top of the screen instead of leaving it (the Aquarium's sections).
    */
   stickyBar?: ReactNode;
   testID?: string;
@@ -54,7 +52,7 @@ export type ScreenProps = {
 
 /**
  * A top-level screen: ocean background, large title at the surface and a waterline.
- * When the content scrolls, the large title gives way to a compact glass header.
+ * When the content scrolls, the large title simply fades away: no bar over the content.
  */
 export function Screen({
   title,
@@ -74,9 +72,8 @@ export function Screen({
   const reveal = useMemo<ScreenScroll>(
     () => ({
       revealWindowY: (windowY) => {
-        // Below the compact header, with a little air.
-        const target =
-          scrollY.get() + windowY - (insets.top + chrome.compactHeaderHeight + spacing.lg);
+        // Near the top, with a little air.
+        const target = scrollY.get() + windowY - (insets.top + spacing.lg);
         scrollRef.current?.scrollTo({ y: Math.max(0, target), animated: true });
       },
     }),
@@ -85,7 +82,8 @@ export function Screen({
   // Where the sticky bar starts in the content, and where it stops on screen.
   const [barY, setBarY] = useState(0);
   const contentTop = insets.top + spacing.xxl;
-  const stopAt = insets.top + chrome.compactHeaderHeight;
+  // No bar over the content (it took too much room): the sticky bar stops at the very top.
+  const stopAt = insets.top + spacing.sm;
   const stickyStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: Math.max(0, scrollY.get() - (contentTop + barY - stopAt)) }],
   }));
@@ -93,15 +91,6 @@ export function Screen({
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.set(event.contentOffset.y);
   });
-
-  const compactHeaderStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      scrollY.get(),
-      [COLLAPSE_START, COLLAPSE_END],
-      [0, 1],
-      Extrapolation.CLAMP,
-    ),
-  }));
 
   const largeTitleStyle = useAnimatedStyle(() => ({
     opacity: interpolate(scrollY.get(), [0, COLLAPSE_END], [1, 0], Extrapolation.CLAMP),
@@ -154,26 +143,6 @@ export function Screen({
           </ScreenScrollContext.Provider>
         </View>
       </Animated.ScrollView>
-
-      <Animated.View
-        pointerEvents="none"
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        style={[styles.compactHeader, compactHeaderStyle]}
-      >
-        <GlassSurface
-          depth={1}
-          radius="none"
-          style={[
-            styles.compactGlass,
-            { paddingTop: insets.top, height: insets.top + chrome.compactHeaderHeight },
-          ]}
-        >
-          <Text variant="headline" numberOfLines={1}>
-            {title}
-          </Text>
-        </GlassSurface>
-      </Animated.View>
     </OceanBackground>
   );
 }
@@ -199,6 +168,4 @@ const styles = StyleSheet.create({
   accessory: { marginTop: spacing.md, flexDirection: 'row' },
   sticky: { marginTop: spacing.md, zIndex: 10, elevation: 10 },
   body: { marginTop: spacing.md, gap: spacing.lg },
-  compactHeader: { position: 'absolute', top: 0, left: 0, right: 0 },
-  compactGlass: { alignItems: 'center', justifyContent: 'center' },
 });

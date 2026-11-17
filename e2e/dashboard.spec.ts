@@ -17,6 +17,11 @@ test('dashboard blocks open their place, and the week says what each day had', a
   // The week chart: today's summary, by kind.
   await expect(visible(page.getByText(/^Hoje: 1 hábito · \d+ pontos/))).toBeVisible();
 
+  // No button inside another (HTML forbids it; screen readers lump them together).
+  await expect(
+    page.locator(':is(button, [role="button"]) :is(button, [role="button"])'),
+  ).toHaveCount(0);
+
   // The whole habits block opens the habits.
   await visible(page.getByRole('button', { name: /^Abrir hábitos/ })).click();
   await expect(page).toHaveURL(/tab=habits/);

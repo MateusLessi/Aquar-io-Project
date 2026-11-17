@@ -71,10 +71,16 @@ export function Group({
   /** Search can land here (`?focus=`): it scrolls into view and glows for a moment. */
   anchor?: string;
 }) {
-  const { ref, glow } = useAnchor(anchor);
+  const { ref, glow, tint } = useAnchor(anchor);
   return (
     <View ref={ref}>
-      <Animated.View style={[styles.group, styles.anchor, glow]}>
+      <View style={[styles.group, styles.anchor]}>
+        {/* The glow is a layer whose opacity animates: its color is worked out here, on the
+            JS side, never inside the animation (that runs on the UI thread on phones). */}
+        <Animated.View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, styles.glow, { backgroundColor: tint }, glow]}
+        />
         {title ? (
           <Text variant="overline" tone="tertiary" style={styles.groupTitle}>
             {title}
@@ -86,7 +92,7 @@ export function Group({
             {note}
           </Text>
         ) : null}
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -113,10 +119,8 @@ function useAnchor(anchor: string | undefined) {
     }, 350);
     return () => clearTimeout(timer);
   }, [hit, scroll, glow]);
-  const style = useAnimatedStyle(() => ({
-    backgroundColor: withAlpha(colors.accent, 0.14 * glow.get()),
-  }));
-  return { ref, glow: style };
+  const style = useAnimatedStyle(() => ({ opacity: glow.get() }));
+  return { ref, glow: style, tint: withAlpha(colors.accent, 0.14) };
 }
 
 function Choice({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
@@ -663,6 +667,7 @@ const styles = StyleSheet.create({
   group: { gap: spacing.sm },
   // Room for the glow around a group that search landed on.
   anchor: { borderRadius: radius.lg, margin: -spacing.xs, padding: spacing.xs },
+  glow: { borderRadius: radius.lg, opacity: 0 },
   groupTitle: { marginLeft: spacing.xs },
   note: { marginHorizontal: spacing.xs },
   choice: { padding: spacing.lg, gap: spacing.sm },
