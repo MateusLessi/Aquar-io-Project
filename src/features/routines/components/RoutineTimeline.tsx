@@ -22,6 +22,8 @@ type RoutineTimelineProps = {
   onSeeAll: () => void;
   /** Extra content under a routine (the app shell shows the habits and lists placed in it). */
   renderExtra?: (routine: RoutineToday) => React.ReactNode;
+  /** In a dashboard block: no "Ver todas" (the block opens the agenda). */
+  bare?: boolean;
 };
 
 /**
@@ -34,6 +36,7 @@ export function RoutineTimeline({
   onOpen,
   onSeeAll,
   renderExtra,
+  bare = false,
 }: RoutineTimelineProps) {
   const today = routines.filter((r) => r.phase !== 'rest');
   if (today.length === 0) return null;
@@ -45,7 +48,7 @@ export function RoutineTimeline({
         <Text variant="overline" tone="tertiary" style={styles.title}>
           Rotinas · {done} de {today.length}
         </Text>
-        <Button label="Ver todas" variant="ghost" onPress={onSeeAll} />
+        {bare ? null : <Button label="Ver todas" variant="ghost" onPress={onSeeAll} />}
       </View>
       <View>
         {today.map((routine, index) => (

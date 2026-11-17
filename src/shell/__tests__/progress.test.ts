@@ -36,8 +36,20 @@ describe('progress from real data', () => {
     const result = await progress();
     expect(result.today).toMatchObject({ points: 60, fullTide: true, capped: false });
     expect(result.depth.meters).toBe(15 + 60);
-    expect(result.byDay['2026-10-21']).toEqual({ points: 15, fullTide: false });
-    expect(result.byDay[today]).toEqual({ points: 60, fullTide: true });
+    expect(result.byDay['2026-10-21']).toEqual({
+      points: 15,
+      fullTide: false,
+      tasks: 0,
+      habits: 1,
+      routines: 0,
+    });
+    expect(result.byDay[today]).toEqual({
+      points: 60,
+      fullTide: true,
+      tasks: 2,
+      habits: 1,
+      routines: 0,
+    });
     expect(result.depth.zone.id).toBe('surface');
   });
 

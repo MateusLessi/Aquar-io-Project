@@ -10,6 +10,8 @@ import { IconButton, Surface, Text, spacing, useTheme, withAlpha } from '@/desig
 const LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 type TideCalendarProps = {
+  /** Inside a dashboard block, which draws the card. */
+  bare?: boolean;
   todayKey: string;
   byDay: Record<string, { points: number; fullTide: boolean }>;
 };
@@ -18,7 +20,8 @@ type TideCalendarProps = {
  * The month as tides: the more you did on a day, the fuller its water; high-tide days are
  * solid with a wave. A glance shows how consistent the month has been.
  */
-export function TideCalendar({ todayKey, byDay }: TideCalendarProps) {
+export function TideCalendar({ todayKey, byDay, bare = false }: TideCalendarProps) {
+  const Root = bare ? View : Surface;
   const { colors } = useTheme();
   const { weekStart } = useCalendarPrefs();
   const [today] = useState(() => todayKey.split('-').map(Number) as [number, number, number]);
@@ -42,8 +45,8 @@ export function TideCalendar({ todayKey, byDay }: TideCalendarProps) {
     });
 
   return (
-    <Surface style={styles.card}>
-      <View style={styles.header}>
+    <Root style={bare ? styles.bare : styles.card}>
+      <View style={[styles.header, bare && styles.bareHeader]}>
         <View style={styles.flex}>
           <Text variant="headline">{title.charAt(0).toUpperCase() + title.slice(1)}</Text>
           <Text variant="footnote" tone="secondary">
@@ -100,13 +103,16 @@ export function TideCalendar({ todayKey, byDay }: TideCalendarProps) {
           );
         })}
       </View>
-    </Surface>
+    </Root>
   );
 }
 
 const styles = StyleSheet.create({
+  bare: { gap: spacing.md },
   card: { padding: spacing.lg, gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center' },
+  // Room for the block's arrow.
+  bareHeader: { paddingRight: spacing.xl },
   flex: { flex: 1 },
   row: { flexDirection: 'row' },
   letter: { width: `${100 / 7}%`, textAlign: 'center' },

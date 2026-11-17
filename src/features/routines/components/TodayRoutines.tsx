@@ -18,8 +18,14 @@ import { WeekRibbon } from './WeekRibbon';
  */
 export function TodayRoutines({
   renderExtra,
+  bare = false,
 }: {
   renderExtra?: (routine: RoutineToday) => React.ReactNode;
+  /**
+   * Inside a dashboard block ("Agenda de hoje"): today only, under one title; the block itself
+   * opens the agenda.
+   */
+  bare?: boolean;
 } = {}) {
   const router = useRouter();
   const repository = useRoutinesRepository();
@@ -31,20 +37,32 @@ export function TodayRoutines({
   );
   return (
     <View style={styles.root}>
-      <WeekRibbon
-        routines={routines}
-        todayKey={todayKey}
-        nowMinutes={nowMinutes}
-        onDay={(day) =>
-          router.navigate({ pathname: '/aquarium', params: { tab: 'routines', view: 'week', day } })
-        }
-        onSeeAll={() => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } })}
-      />
+      {bare ? (
+        <Text variant="overline" tone="tertiary" style={styles.title}>
+          Agenda de hoje
+        </Text>
+      ) : null}
+      {bare ? null : (
+        <WeekRibbon
+          routines={routines}
+          todayKey={todayKey}
+          nowMinutes={nowMinutes}
+          onDay={(day) =>
+            router.navigate({
+              pathname: '/aquarium',
+              params: { tab: 'routines', view: 'week', day },
+            })
+          }
+          onSeeAll={() => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } })}
+        />
+      )}
       {eventsToday.length > 0 ? (
         <View style={styles.events}>
-          <Text variant="overline" tone="tertiary" style={styles.title}>
-            Eventos de hoje
-          </Text>
+          {bare ? null : (
+            <Text variant="overline" tone="tertiary" style={styles.title}>
+              Eventos de hoje
+            </Text>
+          )}
           {eventsToday.map((entry) => (
             <AgendaRow
               key={entry.id}
@@ -74,7 +92,13 @@ export function TodayRoutines({
             .setItemChecked(routineId, itemId, todayKey, done)
             .catch((e: unknown) => console.error(e))
         }
+        bare={bare}
       />
+      {bare && eventsToday.length === 0 && !routines.some((r) => r.phase !== 'rest') ? (
+        <Text variant="footnote" tone="secondary" style={styles.title}>
+          Nada na agenda hoje. Toque para planejar.
+        </Text>
+      ) : null}
     </View>
   );
 }

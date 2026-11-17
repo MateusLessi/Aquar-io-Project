@@ -21,7 +21,7 @@ import { useStats } from './useStats';
  * "Esta semana" on the dashboard: how much got done (and versus last week), the last days as
  * a small line, and the balance between tasks, habits and routines. Opens the statistics.
  */
-export function WeekStatsCard() {
+export function WeekStatsCard({ bare = false }: { bare?: boolean } = {}) {
   const router = useRouter();
   const { colors, scheme } = useTheme();
   const { weekStart } = useCalendarPrefs();
@@ -50,13 +50,17 @@ export function WeekStatsCard() {
 
   return (
     <View
-      style={[styles.card, { backgroundColor: colors.surfaceRaised, borderColor: colors.border }]}
+      style={
+        bare
+          ? styles.bare
+          : [styles.card, { backgroundColor: colors.surfaceRaised, borderColor: colors.border }]
+      }
     >
       <View style={styles.header}>
         <Text variant="overline" tone="tertiary" accessibilityRole="header">
           Esta semana
         </Text>
-        <Button label="Ver estatísticas" variant="ghost" onPress={open} />
+        {bare ? null : <Button label="Ver estatísticas" variant="ghost" onPress={open} />}
       </View>
       <Pressable
         onPress={open}
@@ -101,6 +105,7 @@ export function WeekStatsCard() {
 }
 
 const styles = StyleSheet.create({
+  bare: { gap: spacing.sm },
   card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   main: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md },

@@ -2,7 +2,16 @@ import { useRouter } from 'expo-router';
 import { ChevronRight, Folder } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Glyph, Surface, Text, listColors, spacing, useTheme, withAlpha } from '@/design-system';
+import {
+  Chip,
+  Glyph,
+  Surface,
+  Text,
+  listColors,
+  spacing,
+  useTheme,
+  withAlpha,
+} from '@/design-system';
 
 import { dueLabel, toDateKey } from '../domain/dates';
 import type { FolderSummary } from '../domain/types';
@@ -12,20 +21,51 @@ import { folderContentsLabel, ProgressRing } from './FolderCard';
 const NEXT = 3;
 
 /** The folders pinned to the dashboard: progress and the next tasks of each. */
-export function PinnedFolders() {
+export function PinnedFolders({ bare = false }: { bare?: boolean } = {}) {
   const { data: folders = [] } = useFolders();
   const pinned = folders.filter((f) => f.pinned);
-  if (pinned.length === 0) return null;
+  if (pinned.length === 0) {
+    return bare ? (
+      <View style={styles.root}>
+        <Text variant="overline" tone="tertiary">
+          Pastas fixadas
+        </Text>
+        <Text variant="footnote" tone="secondary">
+          Fixe uma pasta (segure nela, em Listas) para ver aqui o que vence nela.
+        </Text>
+      </View>
+    ) : null;
+  }
   return (
     <View style={styles.root}>
+      {bare ? (
+        <Text variant="overline" tone="tertiary">
+          Pastas fixadas
+        </Text>
+      ) : null}
       {pinned.map((folder) => (
-        <PinnedFolder key={folder.id} folder={folder} />
+        <PinnedFolder
+          key={folder.id}
+          folder={folder}
+          subfolders={folders.filter((f) => f.parentId === folder.id)}
+          bare={bare}
+        />
       ))}
     </View>
   );
 }
 
-function PinnedFolder({ folder }: { folder: FolderSummary }) {
+function PinnedFolder({
+  folder,
+  subfolders,
+  bare,
+}: {
+  folder: FolderSummary;
+  /** Shown as chips that open them. */
+  subfolders: FolderSummary[];
+  bare: boolean;
+}) {
+  const Card = bare ? View : Surface;
   const router = useRouter();
   const { colors, scheme } = useTheme();
   const { data: tasks = [] } = useFolderTasks(folder.id);
@@ -38,7 +78,7 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
   const total = folder.openCount + folder.doneCount;
 
   return (
-    <Surface style={[styles.card, { borderColor: withAlpha(tone, 0.35) }]}>
+    <Card style={bare ? styles.bareCard : [styles.card, { borderColor: withAlpha(tone, 0.35) }]}>
       <Pressable
         onPress={() =>
           router.push({ pathname: '/aquarium/folders/[id]', params: { id: folder.id } })
@@ -63,8 +103,21 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
           </Text>
         </View>
         <ProgressRing value={folder.doneCount} total={total} tone={tone} size={36} />
-        <ChevronRight size={18} color={colors.textTertiary} />
+        {bare ? null : <ChevronRight size={18} color={colors.textTertiary} />}
       </Pressable>
+      {subfolders.length > 0 ? (
+        <View style={styles.chips}>
+          {subfolders.map((sub) => (
+            <Chip
+              key={sub.id}
+              label={sub.openCount > 0 ? `${sub.name} · ${sub.openCount}` : sub.name}
+              onPress={() =>
+                router.push({ pathname: '/aquarium/folders/[id]', params: { id: sub.id } })
+              }
+            />
+          ))}
+        </View>
+      ) : null}
       {next.length > 0 ? (
         <View style={styles.tasks}>
           {next.map((task) => (
@@ -84,13 +137,15 @@ function PinnedFolder({ folder }: { folder: FolderSummary }) {
           {folder.openCount > 0 ? 'Nada com prazo nesta pasta.' : 'Tudo em dia nesta pasta.'}
         </Text>
       )}
-    </Surface>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   root: { gap: spacing.md },
   card: { padding: spacing.lg, gap: spacing.md },
+  bareCard: { gap: spacing.md },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   badge: {
     width: 36,
