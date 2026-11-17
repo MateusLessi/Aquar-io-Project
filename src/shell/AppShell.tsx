@@ -24,6 +24,7 @@ import { useCelebrations } from './progress/useCelebrations';
 import { useReminderScheduler } from './reminders/useReminderScheduler';
 import { Sidebar } from './Sidebar';
 import { TabBar } from './TabBar';
+import { FloatingTimers, PILL_SPACE, useRunningTimers } from './timers/FloatingTimers';
 import { uprightRotation, useDeviceTilt } from './tilt';
 import { WelcomeHost } from './welcome/WelcomeHost';
 
@@ -94,12 +95,17 @@ function ShellLayout() {
     dismissed: dismissedTilt === tilt,
   });
 
+  // A running timer floats above the tab bar: content keeps clear of it too.
+  const timers = useRunningTimers();
+  const pill = timers.length > 0 ? PILL_SPACE : 0;
   const chromeInsets = useMemo(
     () => ({
       bottom:
-        breakpoint === 'compact' ? insets.bottom + chrome.tabBarOffset + chrome.tabBarHeight : 0,
+        breakpoint === 'compact'
+          ? insets.bottom + chrome.tabBarOffset + chrome.tabBarHeight + pill
+          : 0,
     }),
-    [breakpoint, insets.bottom],
+    [breakpoint, insets.bottom, pill],
   );
   const create = () => setCreating(true);
 
@@ -124,6 +130,7 @@ function ShellLayout() {
               </CreateContext.Provider>
             </ChromeInsetsProvider>
           </View>
+          <FloatingTimers timers={timers} />
           {breakpoint === 'compact' ? (
             <TabBar
               destinations={phoneDestinations}
