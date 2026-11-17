@@ -71,3 +71,11 @@ Um hábito pode ser concluído por **uma lista, uma pasta ou uma rotina** (edito
 - Os modelos vêm com valores coerentes (Água = 8 copos de 250 ml; Ler = 20 páginas; Meditar = 10 min; Orar = 2 vezes, manhã e noite), criatura, dias e lembretes sugeridos. Um modelo **só preenche o editor**: nada liga o hábito ao modelo, então mudar o catálogo nunca muda os hábitos de ninguém. Um teste cria todos os modelos pelo repositório, para garantir que são hábitos válidos.
 - **"Começar do zero"** e **"Ver os modelos"** (voltar) estão sempre à mão.
 - O **editor** tem a criatura em destaque no topo, na cor dela, e o campo **"Por quê?"** (`description`, até 140 caracteres, migração 14; mostrado no detalhe). Para contador e tempo há um **mostrador circular** (`Dial` no design system): dá para arrastar o anel, que dá mais de uma volta (12 por volta no contador, 60 min no tempo), tocar em − / + ou ajustar pelo leitor de tela. Bebidas mostram o total ("2 litros por dia"), e trocar copo ↔ garrafa ↔ litro mantém a quantidade. Os dias ganharam o atalho "Fim de semana".
+
+## Cronômetro flutuante (Fase 3b)
+
+- Enquanto um cronômetro corre (hábito de tempo **ou** item de lista com tempo), ele **flutua por cima do app** (`src/shell/timers/`). No celular é uma pílula acima da barra, com o tempo, um anel que enche até a meta, **Pausar** e **Concluir**. No tablet e no PC é um cartão no canto de baixo com todos os que estão correndo.
+- Mais de um no celular: a pílula mostra o primeiro (o mais antigo) e "+N correndo". Tocar nela abre os outros.
+- Tocar no nome abre o mergulho do hábito ou a lista do item. Dentro do mergulho a pílula some, porque a tela já é o cronômetro.
+- **Concluir** para o cronômetro e marca o dia (o hábito enche até a meta; o item fica feito). **Pausar** guarda o tempo, como o botão do cartão.
+- Continua certo com o app fechado: o tempo vem de quando começou (`habit_timers` / `task_timers`), não de um contador na memória. O conteúdo das telas deixa espaço para a pílula.
