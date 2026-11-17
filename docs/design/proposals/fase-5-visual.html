@@ -1,0 +1,108 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Fase 5 · Visual final</title><style>@font-face{font-family:J;font-weight:500;src:url(../../../node_modules/@expo-google-fonts/plus-jakarta-sans/500Medium/PlusJakartaSans_500Medium.ttf)}@font-face{font-family:J;font-weight:600;src:url(../../../node_modules/@expo-google-fonts/plus-jakarta-sans/600SemiBold/PlusJakartaSans_600SemiBold.ttf)}@font-face{font-family:J;font-weight:700;src:url(../../../node_modules/@expo-google-fonts/plus-jakarta-sans/700Bold/PlusJakartaSans_700Bold.ttf)}@font-face{font-family:J;font-weight:800;src:url(../../../node_modules/@expo-google-fonts/plus-jakarta-sans/800ExtraBold/PlusJakartaSans_800ExtraBold.ttf)}
+
+:root{--bg:#06141b;--top:#0d2a33;--raised:#0e1c26;--glass:rgba(16,40,50,.72);--t1:#e6f0f4;--t2:#9db2be;--t3:#6a8291;--sep:rgba(157,178,190,.12);
+--accent:#5cc3bd;--accentSoft:rgba(92,195,189,.16);--lamp:#93dad5;--coral:#ee8a73;--kelp:#86bf7f;--sand:#d7b477;--anemone:#b697de;--tide:#6fa9e0}
+*{box-sizing:border-box;margin:0}body{font-family:J,system-ui;background:#03090d;color:var(--t1);padding:36px;width:1420px}
+h1{font-size:30px;font-weight:800}h2{font-size:19px;font-weight:800;margin:40px 0 4px}.lead{color:var(--t2);font-size:15px;line-height:22px;max-width:1300px;margin-top:6px}.lead b{color:var(--t1)}
+.row{display:flex;gap:36px;align-items:flex-start;margin-top:18px}.note{font-size:13.5px;color:var(--t2);line-height:20px;max-width:360px}.note b{color:var(--t1)}.note li{margin:6px 0 0 16px}
+.ocean{background:radial-gradient(120% 70% at 60% 0%,#12404a 0%,#08202a 45%,#040d13 100%)}
+.desk{width:1000px;height:640px;border-radius:18px;overflow:hidden;display:flex;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.side{width:236px;margin:12px 0 12px 12px;border-radius:26px;background:linear-gradient(180deg,#0b2e38,#061a22);padding:18px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06)}
+.brand{display:flex;gap:10px;align-items:center;padding:2px 6px 14px}.brand b{font-size:21px;font-weight:800}.brand small{display:block;color:var(--t2);font-size:11.5px}
+.mascot{width:38px;height:38px;border-radius:14px;background:radial-gradient(circle at 35% 30%,#f7c3a0,#ee8a73);display:grid;place-items:center}
+.nav{display:flex;align-items:center;gap:12px;height:42px;padding:0 14px;border-radius:999px;font-size:14.5px;font-weight:600;color:var(--t1)}.nav.on{background:var(--lamp);color:#05252a;font-weight:800}
+.sub{display:flex;flex-direction:column;gap:2px;margin:2px 0 6px 26px;padding-left:12px;border-left:2px solid rgba(147,218,213,.25)}
+.sub div{display:flex;gap:9px;align-items:center;height:32px;padding:0 10px;border-radius:12px;font-size:13.5px;color:var(--t2);font-weight:600}.sub .on{background:var(--accentSoft);color:var(--lamp)}
+.now{margin-top:auto;border-radius:18px;background:rgba(147,218,213,.08);padding:12px;display:flex;flex-direction:column;gap:9px}
+.now .h{font-size:10.5px;letter-spacing:.09em;font-weight:800;color:var(--t3);text-transform:uppercase}
+.mini{display:flex;gap:9px;align-items:center;font-size:13px}.mini .d{width:28px;height:28px;border-radius:10px;display:grid;place-items:center}.mini b{display:block;font-size:13px}.mini small{color:var(--t2);font-size:11.5px}
+.plusmini{margin-left:auto;width:28px;height:28px;border-radius:999px;background:var(--accentSoft);display:grid;place-items:center;color:var(--lamp)}
+.me{display:flex;align-items:center;gap:10px;padding:8px;border-radius:16px;background:rgba(255,255,255,.04)}.ava{width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg,#6fa9e0,#5cc3bd);display:grid;place-items:center;font-weight:800;color:#04222a}
+.me b{font-size:13px;display:block}.me small{font-size:11px;color:var(--t2)}.gear{margin-left:auto;color:var(--t2)}
+.create{height:42px;border-radius:999px;background:var(--coral);color:#2a0f08;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14.5px}
+.main{flex:1;padding:18px 26px;position:relative;overflow:hidden}
+.sticky{position:relative;border-radius:22px;background:var(--glass);backdrop-filter:blur(10px);padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.35);border:1px solid rgba(147,218,213,.12)}
+.tabs{display:flex;gap:6px;background:rgba(255,255,255,.05);border-radius:999px;padding:4px}.tabs div{flex:1;display:flex;gap:8px;align-items:center;justify-content:center;height:38px;border-radius:999px;font-weight:700;font-size:14px;color:var(--t2)}.tabs .on{background:rgba(147,218,213,.18);color:var(--t1)}
+.subs{display:flex;gap:6px;margin-top:8px;align-items:center}.subs .c{display:flex;gap:7px;align-items:center;height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:700;color:var(--t2);background:rgba(255,255,255,.04)}.subs .on{background:var(--accent);color:#04222a}
+.subs .add{margin-left:auto;width:32px;height:32px;border-radius:999px;background:var(--accentSoft);display:grid;place-items:center;color:var(--lamp)}
+.drop{position:absolute;left:50%;transform:translateX(-50%);top:-14px;font-size:11px;color:var(--lamp);font-weight:700;white-space:nowrap}
+.title{font-size:28px;font-weight:800;margin:4px 2px 12px}
+.week{display:grid;grid-template-columns:44px repeat(7,1fr);gap:6px;margin-top:14px;position:relative}
+.wh{text-align:center;font-size:11px;color:var(--t2);font-weight:700}.wh b{display:block;font-size:18px;color:var(--t1)}.wh.on{background:var(--accentSoft);border-radius:12px;color:var(--lamp)}.wh.on b{color:var(--lamp)}
+.col{height:360px;border-radius:12px;background:rgba(255,255,255,.02);position:relative}.rail{height:360px;font-size:10.5px;color:var(--t3);position:relative}.rail span{position:absolute;left:0}
+.blk{position:absolute;left:3px;right:3px;border-radius:10px;padding:5px 7px;font-size:11.5px;font-weight:700;border:1px solid}.blk small{display:block;font-weight:600;color:var(--t2);font-size:10.5px}
+.ghost{border-style:dashed;opacity:.45}.lift{box-shadow:0 14px 30px rgba(0,0,0,.55);transform:rotate(-1.5deg) scale(1.04);z-index:3}
+.pop{position:absolute;z-index:5;width:250px;border-radius:18px;background:#10303a;box-shadow:0 18px 40px rgba(0,0,0,.6);padding:14px;border:1px solid rgba(147,218,213,.2)}
+.pop b{font-size:14px}.pop p{font-size:12px;color:var(--t2);margin:4px 0 10px}.pop .o{display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:700;margin-top:4px;background:rgba(255,255,255,.05)}.pop .o.p{background:var(--accent);color:#04222a}
+.phone{width:340px;height:720px;border-radius:44px;overflow:hidden;position:relative;box-shadow:0 22px 50px rgba(0,0,0,.6),0 0 0 7px #010406}
+.status{height:40px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:13px;font-weight:700}
+.pp{padding:4px 16px}.ptitle{font-size:28px;font-weight:800;margin:6px 2px 10px;display:flex;align-items:center;gap:10px}
+.pbar{position:absolute;left:12px;right:12px;bottom:16px;display:flex;gap:10px;align-items:center}
+.pill{flex:1;height:60px;border-radius:999px;background:rgba(14,40,50,.85);display:flex;align-items:center;justify-content:space-around;padding:0 8px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.pill .on{background:#e8f0f4;color:#062a30;border-radius:999px;height:46px;padding:0 14px;display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.fab{width:60px;height:60px;border-radius:999px;background:var(--coral);display:grid;place-items:center;color:#2a0f08;box-shadow:0 10px 26px rgba(238,138,115,.45)}
+.card{border-radius:20px;background:var(--raised);padding:12px 14px;margin-bottom:10px}
+.r{display:flex;gap:12px;align-items:center;padding:10px 4px;border-top:1px solid var(--sep);font-size:14px;font-weight:600}.r:first-child{border-top:0}.r .ic{width:34px;height:34px;border-radius:12px;display:grid;place-items:center}.r small{display:block;color:var(--t2);font-size:12px;font-weight:500}.r .ch{margin-left:auto;color:var(--t3)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.tile{border-radius:20px;padding:14px;height:118px;display:flex;flex-direction:column;justify-content:space-between}.tile b{font-size:15px}.tile small{color:var(--t2);font-size:11.5px}
+.search{display:flex;gap:10px;align-items:center;height:44px;border-radius:14px;background:rgba(255,255,255,.06);padding:0 14px;color:var(--t2);font-size:14px;margin-bottom:12px}
+.sec{font-size:11px;letter-spacing:.09em;font-weight:800;color:var(--t3);text-transform:uppercase;margin:12px 4px 6px}
+.headbtns{margin-left:auto;display:flex;gap:8px}.hb{width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,.07);display:grid;place-items:center;color:var(--t1)}
+.tag{display:inline-block;font-size:11px;font-weight:800;color:#04222a;background:var(--lamp);border-radius:999px;padding:3px 9px;margin-right:6px}
+
+.tank{border-radius:22px;height:170px;position:relative;overflow:hidden;background:linear-gradient(180deg,#14495a 0%,#0e3a48 48%,#5cc3bd 49%,#3a9aa3 78%,#e3c98f 92%)}
+.tank .ch{position:absolute;top:10px;left:10px;font-size:11px;font-weight:700;background:rgba(0,0,0,.28);border-radius:999px;padding:4px 9px}
+.bub{position:absolute;border:1.5px solid rgba(255,255,255,.35);border-radius:999px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.mb{border-radius:18px;background:var(--raised);padding:10px 12px}.mb small{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--t3);text-transform:uppercase}.mb b{display:block;font-size:22px;font-weight:800}.mb span{font-size:11px;color:var(--t2)}
+.caps{display:flex;gap:8px}.cap{width:64px;height:84px;border-radius:20px;position:relative;overflow:hidden;background:rgba(255,255,255,.06)}.cap i{position:absolute;left:0;right:0;bottom:0}
+.pro .tank{background:linear-gradient(180deg,#183641,#122c35)}
+.prow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-top:1px solid var(--sep);font-size:13.5px}.prow:first-child{border-top:0}.bar{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.07);overflow:hidden}.bar i{display:block;height:100%}
+.toggle{display:flex;background:rgba(255,255,255,.06);border-radius:999px;padding:3px;margin:8px 0}.toggle span{flex:1;text-align:center;font-size:12px;font-weight:700;padding:7px 0;border-radius:999px;color:var(--t2)}.toggle .on{background:var(--accent);color:#04222a}
+.first{border-radius:20px;padding:14px;background:linear-gradient(135deg,rgba(92,195,189,.18),rgba(14,28,38,.9));display:flex;gap:12px;align-items:center}
+.zero{border-radius:16px;background:var(--raised);padding:10px;text-align:center}.zero b{font-size:22px;display:block}.zero span{font-size:11px;color:var(--t2)}
+.cardx{border-radius:20px;background:var(--raised);padding:12px;margin-bottom:9px}.sw{display:flex;gap:8px;margin-top:8px}.sw div{flex:1;height:54px;border-radius:14px}
+.soft{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin:12px 2px 6px}
+</style></head><body>
+<h1>Fase 5 · Visual final</h1>
+<p class="lead">Refinar com as telas já no lugar: os estilos <b>Profissional</b> e <b>Dinâmico</b> em cada tema (M20), <b>animações com mais vida</b> (M18), <b>mais marca</b> (M19), uma <b>Loja que convida em vez de vender</b> (M13) e a limpeza dos <b>zeros e contornos</b> que sobraram do levantamento. As referências novas que você mandar (M17) entram aqui também.</p>
+
+<h2><span class="tag">A</span>Dinâmico ou Profissional, em todo tema</h2>
+<div class="row"><div class="phone ocean"><div class="status"><span>9:41</span><span>●●●</span></div><div class="pp"><div class="ptitle" style="margin:0 2px 8px">Bom dia</div><div class="tank"><span class="ch">120 m · Águas Costeiras</span><div class="bub" style="left:30px;top:40px;width:10px;height:10px"></div><div class="bub" style="left:200px;top:60px;width:7px;height:7px"></div><div class="bub" style="left:250px;top:30px;width:12px;height:12px"></div><div class="bub" style="left:120px;top:20px;width:6px;height:6px"></div><div style="position:absolute;left:90px;top:96px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#bfeef0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/><path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/><path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/><path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/></svg></div><div style="position:absolute;left:190px;top:110px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9e8b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 10 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a8 8 0 1 0-16 0v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3l2-4h4Z"/><path d="M4.82 7.9 8 10"/><path d="M15.18 7.9 12 10"/><path d="M16.93 10H20a2 2 0 0 1 0 4H2"/></svg></div></div><div class="mini"><div class="mb"><small>Hábitos</small><b>2 de 4</b><span>Água 5 de 8</span></div><div class="mb"><small>Agora</small><b style="font-size:16px">Estudo</b><span>faltam 40 min</span></div></div><div class="caps"><div class="cap"><i style="height:60%;background:#5cc3bd88"></i></div><div class="cap"><i style="height:100%;background:#b697de88"></i></div><div class="cap"><i style="height:30%;background:#d7b47788"></i></div><div class="cap"><i style="height:0%;background:#86bf7f88"></i></div></div></div></div><div class="pro"><div class="phone ocean"><div class="status"><span>9:41</span><span>●●●</span></div><div class="pp"><div class="ptitle" style="margin:0 2px 8px">Bom dia</div><div class="tank"><span class="ch">120 m · Águas Costeiras</span><div style="position:absolute;left:14px;bottom:14px;font-size:12px;color:var(--t2)">Maré do dia</div><div style="position:absolute;left:14px;right:14px;bottom:36px;height:8px;border-radius:9px;background:rgba(255,255,255,.08)"><i style="display:block;width:60%;height:100%;border-radius:9px;background:var(--accent)"></i></div><div style="position:absolute;right:14px;bottom:50px;font-size:28px;font-weight:800">60%</div></div><div class="mini"><div class="mb"><small>Hábitos</small><b>2 de 4</b><span>50% do dia</span></div><div class="mb"><small>Agora</small><b style="font-size:15px">Estudo</b><span>14:00–16:00</span></div></div><div class="cardx" style="padding:6px 12px"><div class="prow"><div style="width:96px">Beber água</div><div class="bar"><i style="width:62%;background:#5cc3bd"></i></div><div style="width:76px;text-align:right;color:var(--t2);font-size:12px">5/8</div></div><div class="prow"><div style="width:96px">Meditar</div><div class="bar"><i style="width:100%;background:#b697de"></i></div><div style="width:76px;text-align:right;color:var(--t2);font-size:12px">10/10 min</div></div><div class="prow"><div style="width:96px">Ler</div><div class="bar"><i style="width:30%;background:#d7b477"></i></div><div style="width:76px;text-align:right;color:var(--t2);font-size:12px">6/20 páginas</div></div><div class="prow"><div style="width:96px">Academia</div><div class="bar"><i style="width:0%;background:#86bf7f"></i></div><div style="width:76px;text-align:right;color:var(--t2);font-size:12px">0/3</div></div></div></div></div></div>
+<div class="note"><b>Dois jeitos de usar o mesmo app</b><ul>
+<li><b>Dinâmico</b> (como hoje): água que se mexe, bolhas, criaturas nadando, cápsulas que enchem e comemorações.</li>
+<li><b>Profissional:</b> mais calmo e denso. Água parada com a maré em barra, hábitos em linhas com barra de progresso, menos cor, sem bolhas nem confete. Os mesmos dados, num visual de ferramenta de trabalho.</li>
+<li>Vale para <b>Claro, Escuro, Crystal e Sistema</b>. Fica em Ajustes → Aparência (e na primeira vez que abre o app, na Fase 7).</li>
+<li>"Reduzir movimento" continua valendo nos dois.</li></ul></div></div>
+
+<h2><span class="tag">B</span>Zeros, contornos e animações</h2>
+<div class="row"><div class="phone ocean"><div class="status"><span>9:41</span><span>●●●</span></div><div class="pp"><div class="ptitle" style="margin:0 2px 8px">Ler</div><div class="first"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e3c98f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 4 8 4 14a8 8 0 0 0 16 0c0-6-4-12-8-12"/></svg><div><b style="font-size:14px">Seu primeiro dia com Ler</b><div style="font-size:12px;color:var(--t2);margin-top:3px">Marque hoje e o ovo começa a chocar. A sequência e o recorde aparecem a partir de amanhã.</div></div></div>
+<div class="soft">Antes (hoje)</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;opacity:.55"><div class="zero"><b>0</b><span>Seguidos</span></div><div class="zero"><b>0</b><span>Melhor</span></div><div class="zero"><b>—</b><span>30 dias</span></div><div class="zero"><b>0</b><span>Total</span></div></div>
+<div class="soft">Estatísticas sem nada ainda</div><div class="cardx" style="padding:14px;font-size:13px;color:var(--t2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5cc3bd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg><div style="color:var(--t1);font-weight:800;margin:6px 0 2px">Sua primeira semana começa agora</div>Conclua algo hoje e os gráficos começam a encher.</div></div></div>
+<div class="note"><b>O que sai</b><ul>
+<li><b>Zeros no primeiro dia:</b> em vez de "0 · 0 · — · 0", uma frase que diz o que fazer. Os números aparecem quando existem.</li>
+<li><b>Contornos que sobraram:</b> o "+1" com borda, cartões com borda fina, chips com contorno. Fica a sombra suave e o preenchimento, como no resto.</li>
+<li><b>Um estilo de arte só:</b> ícones na mesma espessura, cantos do mesmo raio, as mesmas sombras.</li>
+<li><b>Linhas de tarefa maiores</b> com a cor da lista à esquerda, para ler de relance.</li></ul>
+<br><b>Animações (M18), mais "poppy"</b><ul>
+<li>Marcar algo dá um <b>pulo com mola</b>, um brilho curto e a cápsula enche com um leve balanço.</li>
+<li>Listas e blocos <b>entram em cascata</b> (um depois do outro, bem rápido), e os números <b>contam até o valor</b>.</li>
+<li>Tocar em botões e blocos tem uma <b>pressão macia</b> (encolhe 2–3% e volta com mola).</li>
+<li>No Profissional, as mesmas animações, só que mais curtas e discretas.</li></ul></div></div>
+
+<h2><span class="tag">C</span>Loja que convida, e mais marca</h2>
+<div class="row"><div class="phone ocean"><div class="status"><span>9:41</span><span>●●●</span></div><div class="pp"><div class="ptitle" style="margin:0 2px 8px">Personalizar</div><div class="cardx"><b style="font-size:15px">Deixe com a sua cara</b><div style="font-size:12px;color:var(--t2);margin-top:3px">Tudo isto já é seu, de graça.</div>
+<div class="soft" style="margin-top:10px">Tema e estilo</div><div class="sw"><div style="background:#e9f1f4"></div><div style="background:#0e1c26;outline:2px solid var(--accent)"></div><div style="background:linear-gradient(135deg,#9fd6e0,#5d7bd6)"></div></div>
+<div class="toggle"><span class="on">Dinâmico</span><span>Profissional</span></div>
+<div class="soft">Cor da água</div><div class="sw"><div style="background:#5cc3bd;height:34px;border-radius:999px"></div><div style="background:#6fa9e0;height:34px;border-radius:999px"></div><div style="background:#b697de;height:34px;border-radius:999px"></div><div style="background:#86bf7f;height:34px;border-radius:999px"></div><div style="background:#ee8a73;height:34px;border-radius:999px"></div></div></div>
+<div class="cardx"><b style="font-size:14px">Em breve</b><div style="font-size:12px;color:var(--t2);margin-top:3px">Cenários para o aquário e criaturas raras. Nada do que você usa hoje vai virar pago.</div></div>
+<div class="cardx" style="display:flex;align-items:center;gap:10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d7b477" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg><div style="flex:1;font-size:13px"><b>Planos</b><div style="font-size:11.5px;color:var(--t2)">Para apoiar o app · preço a definir</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div></div></div>
+<div class="note"><b>Loja → Personalizar</b><ul>
+<li>Abre pelo que você <b>já pode mudar agora</b>, de graça: tema, estilo (Dinâmico/Profissional), cor da água e criatura padrão. São atalhos para o que hoje está espalhado em Ajustes.</li>
+<li>"Em breve" vira <b>uma linha honesta</b>, sem vitrine de coisas que não existem.</li>
+<li><b>Planos</b> num cartão pequeno no fim, sem "Em breve" gritando.</li>
+<li>O nome muda para <b>Personalizar</b> (na barra do PC e no Perfil).</li></ul>
+<br><b>Mais marca (M19)</b><ul>
+<li>O <b>peixinho mascote</b> aparece nos vazios, no carregamento e no topo dos Ajustes e do Perfil.</li>
+<li>A <b>linha d'água</b> (a onda sob os títulos) vira a assinatura em todas as telas.</li>
+<li>A <b>dupla de cores</b> lagoa + coral fica fixa nos momentos de marca (criar, comemorar), em qualquer zona.</li>
+<li>Tela de abertura com o mascote e "Tudo importa."</li></ul></div></div>
+</body></html>
