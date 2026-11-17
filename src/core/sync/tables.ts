@@ -92,6 +92,7 @@ export const syncedTables: readonly SyncedTable[] = [
     columns: [
       'id',
       'name',
+      'description',
       'creature',
       'days',
       'reminder_times',

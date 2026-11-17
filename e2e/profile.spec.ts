@@ -6,6 +6,7 @@ test('personalize the profile: line, color, privacy and showcase', async ({ page
   // A habit done today gives a streak to show.
   await page.goto('/aquarium?tab=habits');
   await page.getByRole('button', { name: 'Novo hábito' }).click();
+  await page.getByRole('button', { name: 'Começar do zero' }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Meditar');
   await page.getByRole('button', { name: 'Criar hábito' }).click();
   await expect(page.getByRole('button', { name: 'Criar hábito' })).toHaveCount(0);

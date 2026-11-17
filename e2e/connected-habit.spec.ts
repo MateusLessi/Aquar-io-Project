@@ -29,6 +29,7 @@ test('a habit done from a list: marking in either place is the same mark', async
   // The habit, done from that list.
   await page.goto('/aquarium?tab=habits');
   await visible(page.getByRole('button', { name: /Novo hábito/ })).click();
+  await page.getByRole('button', { name: 'Começar do zero' }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Academia');
   await page.getByRole('radio', { name: /^Uma lista/ }).click();
   await page.getByRole('button', { name: 'Push', exact: true }).click();

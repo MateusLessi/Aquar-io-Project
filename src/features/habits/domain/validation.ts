@@ -20,6 +20,18 @@ export function validateHabitName(name: string): string {
   return text;
 }
 
+export const HABIT_DESCRIPTION_MAX = 140;
+
+/** An optional line about why the habit matters: blank means none. */
+export function validateHabitDescription(description: string | null | undefined): string | null {
+  const text = (description ?? '').trim().replace(/\s+/g, ' ');
+  if (!text) return null;
+  if (text.length > HABIT_DESCRIPTION_MAX) {
+    throw new HabitValidationError(`Use no máximo ${HABIT_DESCRIPTION_MAX} caracteres.`);
+  }
+  return text;
+}
+
 export function validateCreature(creature: string): CreatureId {
   if (!isCreatureId(creature)) throw new HabitValidationError('Escolha uma criatura.');
   return creature;

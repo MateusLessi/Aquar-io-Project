@@ -12,6 +12,7 @@ function habit(overrides: Partial<HabitWithProgress> & { done?: string[] }): Hab
   return {
     id: 'h1',
     name: 'Beber água',
+    description: null,
     creature: 'fish',
     days,
     reminderTimes: ['10:00', '14:00'],
