@@ -23,6 +23,7 @@ import {
   HabitValidationError,
   validateCreature,
   validateDays,
+  validateHabitDescription,
   validateHabitName,
   validateKind,
   validateReminderTimes,
@@ -42,6 +43,7 @@ export type HabitsDeps = {
 type HabitRow = {
   id: string;
   name: string;
+  description: string | null;
   creature: string;
   days: number;
   reminder_times: string | null;
@@ -55,7 +57,7 @@ type HabitRow = {
 };
 
 const HABIT_COLUMNS =
-  'id, name, creature, days, reminder_times, kind, target, unit, steps, sort_order, created_at, updated_at';
+  'id, name, description, creature, days, reminder_times, kind, target, unit, steps, sort_order, created_at, updated_at';
 
 type DayProgress = { amount: number; stepsDone: string[] };
 
@@ -91,6 +93,7 @@ function toHabit(row: HabitRow): Habit {
   return {
     id: row.id,
     name: row.name,
+    description: row.description,
     // A creature added by a newer app version falls back to the turtle here.
     creature: isCreatureId(row.creature) ? row.creature : 'turtle',
     days: row.days,
@@ -434,6 +437,7 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
 
     async createHabit(input: NewHabit): Promise<string> {
       const name = validateHabitName(input.name);
+      const description = validateHabitDescription(input.description);
       const creature = validateCreature(input.creature);
       const days = validateDays(input.days ?? EVERY_DAY);
       const times = validateReminderTimes(input.reminderTimes ?? []);
@@ -446,12 +450,13 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       );
       await db.run(
         `INSERT INTO habits
-           (id, name, creature, days, reminder_times, kind, target, unit, steps,
+           (id, name, description, creature, days, reminder_times, kind, target, unit, steps,
             sort_order, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id,
           name,
+          description,
           creature,
           days,
           times.join(',') || null,
@@ -475,6 +480,10 @@ export function createHabitsRepository({ db, changes, events, newId, now }: Habi
       if (patch.name !== undefined) {
         sets.push('name = ?');
         params.push(validateHabitName(patch.name));
+      }
+      if (patch.description !== undefined) {
+        sets.push('description = ?');
+        params.push(validateHabitDescription(patch.description));
       }
       if (patch.creature !== undefined) {
         sets.push('creature = ?');

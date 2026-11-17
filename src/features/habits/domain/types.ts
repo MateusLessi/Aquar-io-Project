@@ -18,6 +18,8 @@ export type HabitStep = { id: string; title: string };
 export type Habit = {
   id: string;
   name: string;
+  /** Why it matters, in the person's words; null when not written. */
+  description: string | null;
   creature: CreatureId;
   days: WeekdayMask;
   kind: HabitKind;
@@ -75,6 +77,7 @@ export type HabitWithProgress = Habit &
 
 export type NewHabit = {
   name: string;
+  description?: string | null;
   creature: CreatureId;
   days?: WeekdayMask;
   reminderTimes?: string[];

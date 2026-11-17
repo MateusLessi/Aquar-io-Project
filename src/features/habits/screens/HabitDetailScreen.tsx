@@ -96,6 +96,11 @@ export function HabitDetailScreen({
       onBack={back}
       actions={<IconButton icon={Pencil} label="Editar hábito" onPress={() => setEditing(true)} />}
     >
+      {habit.description ? (
+        <Text variant="callout" tone="secondary" style={styles.why}>
+          {habit.description}
+        </Text>
+      ) : null}
       <Hero habit={habit} tone={tone} actions={actions} onDive={openDive} />
 
       {habit.connected && sources ? (
@@ -353,6 +358,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
+  why: { marginHorizontal: spacing.xs, marginTop: -spacing.sm, fontStyle: 'italic' },
   hero: {
     flexDirection: 'row',
     alignItems: 'center',

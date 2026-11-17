@@ -396,6 +396,12 @@ export const migrations: Migration[] = [
       ${outboxTriggers('routine_overrides')}
     `,
   },
+  {
+    version: 14,
+    name: 'habit_description',
+    // Lapidação, Fase 3: why a habit matters to the person ("Para ter energia à tarde").
+    sql: `ALTER TABLE habits ADD COLUMN description TEXT;`,
+  },
 ];
 
 /** Queues every insert and update of `table` for upload (see migration 2). */

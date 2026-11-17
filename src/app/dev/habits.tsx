@@ -85,6 +85,7 @@ function sampleHabits(): HabitWithProgress[] {
     return {
       id: String(i),
       name: sample.name,
+      description: null,
       creature: sample.creature,
       days: sample.days,
       reminderTimes: [],

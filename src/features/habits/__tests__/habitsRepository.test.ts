@@ -70,6 +70,21 @@ describe('habits repository', () => {
     expect(habit?.bestStreak).toBe(3);
   });
 
+  it('keeps why the habit matters, trimmed; blank means none', async () => {
+    const { habits } = await setup();
+    const id = await habits.createHabit({
+      name: 'Beber água',
+      creature: 'fish',
+      description: '  Para ter   energia à tarde ',
+    });
+    expect((await habits.getHabit(id))?.habit.description).toBe('Para ter energia à tarde');
+    await habits.updateHabit(id, { description: '  ' });
+    expect((await habits.getHabit(id))?.habit.description).toBeNull();
+    await expect(habits.updateHabit(id, { description: 'x'.repeat(141) })).rejects.toThrow(
+      '140',
+    );
+  });
+
   it('edits and deletes', async () => {
     const { habits } = await setup();
     const id = await habits.createHabit({ name: 'Correr', creature: 'dolphin' });
