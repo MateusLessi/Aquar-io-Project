@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Settings } from 'lucide-react-native';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { toDateKey } from '@/core/dates';
@@ -97,7 +97,19 @@ export function DashboardScreen() {
       open: go('/stats'),
     },
     calendar: {
-      node: <TideCalendar bare todayKey={todayKey} byDay={byDay} />,
+      node: (
+        <TideCalendar
+          bare
+          todayKey={todayKey}
+          byDay={byDay}
+          onDay={(day) =>
+            router.navigate({
+              pathname: '/aquarium',
+              params: { tab: 'routines', view: 'month', day },
+            })
+          }
+        />
+      ),
       label: 'Abrir a agenda do mês',
       open: go({ pathname: '/aquarium', params: { tab: 'routines', view: 'month' } }),
     },
@@ -122,7 +134,7 @@ export function DashboardScreen() {
   );
   const tankTile = (fill = false) => (
     <Tile key="tank" label="Abrir o Aquário" onPress={go('/aquarium')} plain fill={fill}>
-      {tide}
+      {fill ? <FillingTank done={done} total={total} /> : tide}
     </Tile>
   );
 
@@ -177,6 +189,27 @@ export function DashboardScreen() {
   );
 }
 
+/** The tank as tall as its row, so a taller neighbor leaves no hole under it. */
+function FillingTank({ done, total }: { done: number; total: number }) {
+  const [height, setHeight] = useState(0);
+  return (
+    <View
+      style={styles.fill}
+      onLayout={(e) => {
+        const next = Math.round(e.nativeEvent.layout.height);
+        if (Math.abs(next - height) > 1) setHeight(next);
+      }}
+    >
+      {/* Over the space, not in it: the row's height comes from the blocks beside it. */}
+      <View style={StyleSheet.absoluteFill}>
+        <HomeTank done={done} total={total} height={Math.max(TANK_MIN, height)} />
+      </View>
+    </View>
+  );
+}
+
+const TANK_MIN = 318;
+
 /** Blocks that want two columns on wider screens. */
 const WIDE_BLOCKS = new Set<DashboardCardId>(['week', 'calendar']);
 
@@ -184,4 +217,5 @@ const styles = StyleSheet.create({
   grid: { gap: spacing.lg },
   row: { flexDirection: 'row', gap: spacing.lg, alignItems: 'stretch' },
   cell: { minWidth: 0, flexBasis: 0 },
+  fill: { flex: 1, minHeight: TANK_MIN },
 });

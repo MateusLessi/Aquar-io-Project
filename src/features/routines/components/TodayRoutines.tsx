@@ -42,20 +42,18 @@ export function TodayRoutines({
           Agenda de hoje
         </Text>
       ) : null}
-      {bare ? null : (
-        <WeekRibbon
-          routines={routines}
-          todayKey={todayKey}
-          nowMinutes={nowMinutes}
-          onDay={(day) =>
-            router.navigate({
-              pathname: '/aquarium',
-              params: { tab: 'routines', view: 'week', day },
-            })
-          }
-          onSeeAll={() => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } })}
-        />
-      )}
+      <WeekRibbon
+        routines={routines}
+        todayKey={todayKey}
+        nowMinutes={nowMinutes}
+        onDay={(day) =>
+          router.navigate({
+            pathname: '/aquarium',
+            params: { tab: 'routines', view: 'week', day },
+          })
+        }
+        onSeeAll={() => router.navigate({ pathname: '/aquarium', params: { tab: 'routines' } })}
+      />
       {eventsToday.length > 0 ? (
         <View style={styles.events}>
           {bare ? null : (

@@ -6,7 +6,15 @@ export default defineConfig({
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
-  use: { baseURL: 'http://localhost:4173', trace: 'retain-on-failure' },
+  use: {
+    baseURL: 'http://localhost:4173',
+    trace: 'retain-on-failure',
+    // A machine whose Chromium differs from this Playwright's can point at its own
+    // (PW_CHROMIUM_PATH=/path/to/chrome); CI installs the matching one and leaves it unset.
+    ...(process.env.PW_CHROMIUM_PATH
+      ? { launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH } }
+      : {}),
+  },
   webServer: {
     command: 'node scripts/serve-web.mjs dist 4173',
     url: 'http://localhost:4173',
