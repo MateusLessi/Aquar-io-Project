@@ -1,24 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent, type ViewStyle } from 'react-native';
-import Animated, {
-  Easing,
-  cancelAnimation,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
-import Svg, {
-  Circle,
-  Defs,
-  Ellipse,
-  LinearGradient,
-  Path,
-  RadialGradient,
-  Rect,
-  Stop,
-} from 'react-native-svg';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Svg, { Defs, Ellipse, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { BlurView } from 'expo-blur';
 import type { LucideIcon } from 'lucide-react-native';
@@ -106,7 +89,6 @@ export function AquariumTank({
 
   const waterStyle = useAnimatedStyle(() => ({ top: top.get() }));
   const borderRadius = radii[radius];
-  const glow = mode === 'dark';
 
   return (
     <View
@@ -121,7 +103,6 @@ export function AquariumTank({
       }
       onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)}
     >
-      {glow && width > 0 ? <TankGlow width={width} height={height} lamp={water.lamp} /> : null}
       <View
         style={[
           StyleSheet.absoluteFill,
@@ -134,9 +115,7 @@ export function AquariumTank({
                   mode === 'light'
                     ? mixHex(water.top, specular, 0.5)
                     : mixHex(water.bottom, abyss[950], 0.3),
-                boxShadow: glow
-                  ? `0px 16px 60px 0px ${withAlpha(colors.lamp, 0.33)}`
-                  : `0px 14px 30px 0px ${withAlpha(colors.cardShadow, mode === 'light' ? 0.2 : 0.45)}`,
+                boxShadow: `0px 14px 30px 0px ${withAlpha(colors.cardShadow, mode === 'light' ? 0.2 : 0.45)}`,
               },
         ]}
         importantForAccessibility="no-hide-descendants"
@@ -285,86 +264,9 @@ function Ruler({ height }: { height: number }) {
   );
 }
 
-const seeded = (i: number, salt: number) => {
-  const x = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453;
-  return x - Math.floor(x);
-};
-
-const GLOW = 90;
-
-/**
- * Escuro: the tank is the room's lamp. A soft halo around it and specks of light drifting in
- * the water nearby; the further from the tank, the darker it gets.
- */
-function TankGlow({ width, height, lamp }: { width: number; height: number; lamp: string }) {
-  const { reduceMotion, highContrast } = useTheme();
-  const id = useSvgId('glow');
-  const drift = useSharedValue(0);
-  const specks = useMemo(
-    () =>
-      Array.from({ length: 18 }, (_, i) => ({
-        x: GLOW * 0.4 + seeded(i, 1) * (width + GLOW * 1.2),
-        y: height + GLOW * 0.2 + seeded(i, 2) * GLOW * 2.2,
-        r: 0.8 + seeded(i, 3) * 1.4,
-        o: 0.25 + seeded(i, 4) * 0.4,
-      })),
-    [width, height],
-  );
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    drift.set(
-      withRepeat(withTiming(1, { duration: 9000, easing: Easing.inOut(Easing.sin) }), -1, true),
-    );
-    return () => cancelAnimation(drift);
-  }, [drift, reduceMotion]);
-
-  const speckStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: -drift.get() * 14 }],
-    opacity: 0.7 + drift.get() * 0.3,
-  }));
-
-  if (highContrast) return null;
-  const w = width + GLOW * 2;
-  const h = height + GLOW * 3;
-
-  return (
-    <View
-      style={[styles.glow, { left: -GLOW, top: -GLOW, width: w, height: h }]}
-      pointerEvents="none"
-    >
-      <Svg width={w} height={h}>
-        <Defs>
-          <RadialGradient
-            id={id}
-            cx={w / 2}
-            cy={GLOW + height * 0.6}
-            rx={w * 0.62}
-            ry={height * 0.95}
-            gradientUnits="userSpaceOnUse"
-          >
-            <Stop offset="0" stopColor={lamp} stopOpacity={0.34} />
-            <Stop offset="0.45" stopColor={lamp} stopOpacity={0.12} />
-            <Stop offset="1" stopColor={lamp} stopOpacity={0} />
-          </RadialGradient>
-        </Defs>
-        <Rect x={0} y={0} width={w} height={h} fill={`url(#${id})`} />
-      </Svg>
-      <Animated.View style={[StyleSheet.absoluteFill, speckStyle]}>
-        <Svg width={w} height={h}>
-          {specks.map((s, i) => (
-            <Circle key={i} cx={s.x} cy={s.y} r={s.r} fill={lamp} opacity={s.o} />
-          ))}
-        </Svg>
-      </Animated.View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   clip: { overflow: 'hidden' },
   water: { position: 'absolute', left: 0, right: 0, bottom: 0 },
-  glow: { position: 'absolute' },
   ruler: {
     position: 'absolute',
     left: 12,
