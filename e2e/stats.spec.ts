@@ -5,7 +5,7 @@ const visible = (locator: Locator) => locator.locator('visible=true').first();
 test('statistics count what was done, from the dashboard and the profile', async ({ page }) => {
   // Empty at first: the screen explains what will appear.
   await page.goto('/stats');
-  await expect(visible(page.getByText('Seus números aparecem aqui'))).toBeVisible();
+  await expect(visible(page.getByText('Sua primeira semana começa agora'))).toBeVisible();
 
   // A habit done today.
   await page.goto('/aquarium?tab=habits');
@@ -14,6 +14,13 @@ test('statistics count what was done, from the dashboard and the profile', async
   await page.getByRole('textbox', { name: 'Nome' }).fill('Meditar');
   await page.getByRole('button', { name: 'Criar hábito' }).click();
   await expect(page.getByRole('button', { name: 'Criar hábito' })).toHaveCount(0);
+
+  // Planned but nothing done yet: a line on what to do, not a row of zeros.
+  await page.goto('/stats');
+  await expect(visible(page.getByText('Sua primeira semana começa agora'))).toBeVisible();
+  await expect(page.getByLabel(/^Concluídos: 0\./)).toHaveCount(0);
+  await page.goto('/aquarium?tab=habits');
+
   const check = page.getByRole('checkbox', { name: 'Meditar: feito hoje' }).first();
   await check.click();
   await expect(check).toHaveAttribute('aria-checked', 'true');

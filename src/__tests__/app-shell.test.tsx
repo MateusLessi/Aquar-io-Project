@@ -286,6 +286,18 @@ describe('Habits', () => {
     expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
     expect(app.getPathname()).toMatch(/^\/aquarium\/habits\//);
   });
+
+  it('greets the first day of a habit instead of a row of zeros', async () => {
+    await renderRouter(routes, { initialUrl: '/aquarium?tab=habits' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Novo hábito' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Começar do zero' }));
+    await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Ler');
+    await fireEvent.press(screen.getByRole('radio', { name: 'Peixe' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar hábito' }));
+    await fireEvent.press(await screen.findByRole('button', { name: /^Ler, / }));
+    expect(await screen.findByText('Seu primeiro dia com Ler')).toBeOnTheScreen();
+    expect(screen.queryByText('Seguidos')).toBeNull();
+  });
 });
 
 describe('Repeating tasks and reminders', () => {

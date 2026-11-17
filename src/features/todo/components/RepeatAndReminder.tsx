@@ -83,7 +83,7 @@ export function ReminderField({ task, onChange }: Props) {
   }
 
   return (
-    <View style={[styles.picker, { borderColor: colors.border }]}>
+    <View style={[styles.picker, { backgroundColor: colors.surfacePressed }]}>
       <TimePicker value={draft} onChange={setDraft} />
       <View style={styles.actions}>
         <Button label="Cancelar" variant="ghost" onPress={() => setAdding(false)} />
@@ -111,6 +111,6 @@ const styles = StyleSheet.create({
     minHeight: 44,
     borderRadius: radius.pill,
   },
-  picker: { gap: spacing.md, padding: spacing.md, borderWidth: 1, borderRadius: radius.lg },
+  picker: { gap: spacing.md, padding: spacing.md, borderRadius: radius.lg },
   actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm },
 });

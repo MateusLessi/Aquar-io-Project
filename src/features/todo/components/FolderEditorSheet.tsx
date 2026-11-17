@@ -183,7 +183,7 @@ function FolderForm({
         <Button label="Apagar pasta" variant="danger" block onPress={() => setDeleting(true)} />
       ) : null}
       {folder && deleting ? (
-        <View style={[styles.deleteBox, { borderColor: colors.border }]}>
+        <View style={[styles.deleteBox, { backgroundColor: colors.surfacePressed }]}>
           <Text variant="headline">Apagar “{folder.name}”?</Text>
           {inside > 0 ? (
             <>
@@ -245,6 +245,5 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    borderWidth: 1,
   },
 });

@@ -24,6 +24,8 @@ export type ListItemProps = {
   separator?: boolean;
   /** Color mark on the leading edge, e.g. the task's list color. */
   accentColor?: string;
+  /** "large": taller, with a bigger title and a fuller color mark (task rows, read at a glance). */
+  size?: 'regular' | 'large';
   accessibilityHint?: string;
   testID?: string;
 };
@@ -40,10 +42,12 @@ export function ListItem({
   completed = false,
   separator = false,
   accentColor,
+  size = 'regular',
   accessibilityHint,
   testID,
 }: ListItemProps) {
   const { colors } = useTheme();
+  const large = size === 'large';
 
   const content = (
     <>
@@ -55,10 +59,14 @@ export function ListItem({
           ]}
         />
       ) : null}
-      {accentColor ? <View style={[styles.accent, { backgroundColor: accentColor }]} /> : null}
+      {accentColor ? (
+        <View
+          style={[styles.accent, large && styles.accentLarge, { backgroundColor: accentColor }]}
+        />
+      ) : null}
       {leading ? <View style={styles.leading}>{leading}</View> : null}
       <View style={styles.texts}>
-        <Text variant="body" struck={completed}>
+        <Text variant="body" struck={completed} style={large && styles.titleLarge}>
           {title}
         </Text>
         {typeof subtitle === 'string' ? (
@@ -81,6 +89,7 @@ export function ListItem({
         testID={testID}
         style={[
           styles.row,
+          large && styles.rowLarge,
           selected && { backgroundColor: colors.surfacePressed },
           disabled && styles.disabled,
         ]}
@@ -101,6 +110,7 @@ export function ListItem({
       accessibilityState={{ disabled, selected }}
       style={({ pressed }) => [
         styles.row,
+        large && styles.rowLarge,
         (pressed || selected) && { backgroundColor: colors.surfacePressed },
         disabled && styles.disabled,
       ]}
@@ -119,6 +129,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     gap: spacing.md + 2,
   },
+  rowLarge: { minHeight: touchTarget + 20, paddingVertical: spacing.lg },
+  titleLarge: { fontSize: 16.5, lineHeight: 23 },
   leading: { paddingTop: 1 },
   separator: { position: 'absolute', top: 0, right: 0, height: StyleSheet.hairlineWidth },
   accent: {
@@ -130,6 +142,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4,
     borderBottomRightRadius: 4,
   },
+  accentLarge: { top: spacing.sm, bottom: spacing.sm, width: 5 },
   texts: { flex: 1 },
   subtitle: { marginTop: 3 },
   trailing: { alignSelf: 'center' },

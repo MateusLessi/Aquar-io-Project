@@ -277,7 +277,6 @@ export function HabitControl({
           height: size,
           borderRadius: size * 0.34,
           backgroundColor: filled ? tone : withAlpha(tone, 0.2),
-          borderColor: withAlpha(tone, filled ? 1 : 0.55),
           shadowColor: tone,
           transform: [{ scale: pressed ? 0.92 : 1 }, { translateY: pressed ? 1 : 0 }],
         },
@@ -357,8 +356,8 @@ const styles = StyleSheet.create({
   shrink: { flexShrink: 1 },
   badge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
   badgeText: { fontWeight: '700', fontVariant: ['tabular-nums'] },
+  // No outline (Fase 5): the fill and the soft shadow shape it.
   control: {
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

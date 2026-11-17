@@ -32,7 +32,10 @@ type TaskRowProps = {
   listEmoji?: string | null;
 };
 
-/** A task in a list: checkbox, title and a compact line of details. */
+/**
+ * A task in a list: checkbox, title and a compact line of details. A large row with the list's
+ * color on the left (Fase 5), to read at a glance.
+ */
 export function TaskRow({
   task,
   todayKey,
@@ -130,6 +133,7 @@ export function TaskRow({
       completed={done}
       separator={separator}
       accentColor={done ? undefined : tone}
+      size="large"
       onPress={onPress}
       accessibilityHint={
         habits.length > 0

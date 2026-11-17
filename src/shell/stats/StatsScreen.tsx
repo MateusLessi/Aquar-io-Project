@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import {
   Button,
   Columns,
   EmptyState,
+  Surface,
   Heatmap,
   IconButton,
   Legend,
@@ -123,6 +124,7 @@ export function StatsScreen() {
 }
 
 function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
+  const { colors } = useTheme();
   const wide = useBreakpoint() !== 'compact';
   const { data: habits = [] } = useHabits();
   const { showDepth } = useGamePrefs();
@@ -131,12 +133,20 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
     stats.planned.due === 0 &&
     stats.habitRows.length === 0 &&
     stats.routineRows.length === 0;
+  const week = stats.period.mode === 'week';
+  // Nothing done yet, ever (as far as this and the last period and the habits tell).
+  const firstTime =
+    stats.totals.all === 0 && previous.totals.all === 0 && habits.every((h) => h.daysDone === 0);
+  const startTitle = firstTime
+    ? week
+      ? 'Sua primeira semana começa agora'
+      : 'Seu primeiro mês começa agora'
+    : week
+      ? 'Nada concluído nesta semana ainda'
+      : 'Nada concluído neste mês ainda';
   if (nothing) {
     return (
-      <EmptyState
-        title="Seus números aparecem aqui"
-        message="Conclua algo e os gráficos começam a encher."
-      />
+      <EmptyState title={startTitle} message="Conclua algo hoje e os gráficos começam a encher." />
     );
   }
   const unit = stats.period.mode === 'week' ? 'semana passada' : 'mês passado';
@@ -151,43 +161,59 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
 
   return (
     <View style={styles.body}>
-      <View style={[styles.kpis, wide && styles.kpisWide]}>
-        <Kpi
-          label="Concluídos"
-          value={String(stats.totals.all)}
-          note={`${delta > 0 ? '▲' : delta < 0 ? '▼' : '='} ${Math.abs(delta)} vs. ${unit}`}
-          wide={wide}
-        />
-        <Kpi
-          label="Do planejado"
-          value={rate === null ? '—' : `${rate}%`}
-          note={
-            stats.planned.due > 0
-              ? `${stats.planned.done} de ${stats.planned.due} de hábitos e rotinas`
-              : 'nada planejado ainda'
-          }
-          wide={wide}
-        />
-        <Kpi
-          label="Maior sequência"
-          value={best ? plural(best.streak, 'dia', 'dias') : '—'}
-          note={best ? best.name : 'marque um hábito hoje'}
-          wide={wide}
-        />
-        {showDepth ? (
+      {/* Nothing done in the period: a line on what to do instead of a row of zeros. */}
+      {stats.totals.all === 0 ? (
+        <Surface style={styles.start}>
+          <View style={[styles.startIcon, { backgroundColor: colors.accentSoft }]}>
+            <Sparkles size={22} strokeWidth={2} color={colors.accent} />
+          </View>
+          <View style={styles.flex}>
+            <Text variant="headline">{startTitle}</Text>
+            <Text variant="callout" tone="secondary">
+              Conclua algo hoje e os gráficos começam a encher.
+            </Text>
+          </View>
+        </Surface>
+      ) : (
+        <View style={[styles.kpis, wide && styles.kpisWide]}>
           <Kpi
-            label="Profundidade"
-            value={`+${gained} m`}
-            note={`agora ${stats.depth.end} m`}
+            label="Concluídos"
+            value={String(stats.totals.all)}
+            note={`${delta > 0 ? '▲' : delta < 0 ? '▼' : '='} ${Math.abs(delta)} vs. ${unit}`}
             wide={wide}
           />
-        ) : null}
-      </View>
+          <Kpi
+            label="Do planejado"
+            value={rate === null ? '—' : `${rate}%`}
+            note={
+              stats.planned.due > 0
+                ? `${stats.planned.done} de ${stats.planned.due} de hábitos e rotinas`
+                : 'nada planejado ainda'
+            }
+            wide={wide}
+          />
+          <Kpi
+            label="Maior sequência"
+            value={best ? plural(best.streak, 'dia', 'dias') : '—'}
+            note={best ? best.name : 'marque um hábito hoje'}
+            wide={wide}
+          />
+          {showDepth ? (
+            <Kpi
+              label="Profundidade"
+              value={`+${gained} m`}
+              note={`agora ${stats.depth.end} m`}
+              wide={wide}
+            />
+          ) : null}
+        </View>
+      )}
       <View style={[styles.grid, wide && styles.gridWide]}>
-        <ByDayCard stats={stats} wide={wide} />
-        {showDepth ? <DepthCard stats={stats} wide={wide} /> : null}
+        {/* Charts of what was done wait for something done (the card above says so). */}
+        {stats.totals.all > 0 ? <ByDayCard stats={stats} wide={wide} /> : null}
+        {showDepth && stats.totals.all > 0 ? <DepthCard stats={stats} wide={wide} /> : null}
         {stats.period.mode === 'month' ? <CalendarCard stats={stats} /> : null}
-        <WeekdayCard stats={stats} />
+        {stats.totals.all > 0 ? <WeekdayCard stats={stats} /> : null}
         <HoursCard stats={stats} />
         {stats.habitRows.length > 0 ? <HabitsCard stats={stats} /> : null}
         {stats.routineRows.length > 0 ? <RoutinesCard stats={stats} /> : null}
@@ -583,6 +609,14 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   kpiWide: { flexBasis: 0 },
+  start: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
+  startIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   kpiValue: { fontVariant: ['tabular-nums'] },
   grid: { gap: spacing.md },
   gridWide: { flexDirection: 'row', flexWrap: 'wrap' },
