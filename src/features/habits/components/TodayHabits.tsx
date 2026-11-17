@@ -19,13 +19,24 @@ const HEIGHT = 92;
  * timer, open the checklist); a long press opens the habit. Hidden when none is due.
  * On phones the row scrolls; on wider screens it wraps.
  */
-export function TodayHabits() {
+export function TodayHabits({ bare = false }: { bare?: boolean } = {}) {
   const router = useRouter();
   const breakpoint = useBreakpoint();
   const { data: habits = [], todayKey } = useHabits();
   const actions = useHabitActions(todayKey);
   const due = habits.filter((h) => h.scheduledToday || h.doneToday);
-  if (due.length === 0) return null;
+  if (due.length === 0) {
+    return bare ? (
+      <View style={styles.root}>
+        <Text variant="overline" tone="tertiary" style={styles.title}>
+          Hábitos
+        </Text>
+        <Text variant="footnote" tone="secondary" style={styles.title}>
+          Nenhum hábito para hoje. Toque para ver os seus ou criar um.
+        </Text>
+      </View>
+    ) : null;
+  }
   const done = due.filter((h) => h.doneToday).length;
 
   const items = due.map((habit) => <TodayCapsule key={habit.id} habit={habit} actions={actions} />);
@@ -36,13 +47,15 @@ export function TodayHabits() {
         <Text variant="overline" tone="tertiary" style={styles.title}>
           Hábitos · {done} de {due.length}
         </Text>
-        <Button
-          label="Ver todos"
-          variant="ghost"
-          onPress={() => router.navigate({ pathname: '/aquarium', params: { tab: 'habits' } })}
-        />
+        {bare ? null : (
+          <Button
+            label="Ver todos"
+            variant="ghost"
+            onPress={() => router.navigate({ pathname: '/aquarium', params: { tab: 'habits' } })}
+          />
+        )}
       </View>
-      {breakpoint === 'compact' ? (
+      {breakpoint === 'compact' && !bare ? (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

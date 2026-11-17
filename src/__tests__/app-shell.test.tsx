@@ -91,7 +91,7 @@ describe('App shell on phones', () => {
 
   it('creates a first list and a task for today, then completes it', async () => {
     await renderRouter(routes, { initialUrl: '/' });
-    expect(screen.getByText('Nenhuma tarefa para hoje')).toBeOnTheScreen();
+    expect(screen.getByText(/^Nenhuma tarefa para hoje/)).toBeOnTheScreen();
 
     // No lists yet: the quick add offers to create one first.
     await fireEvent.press(screen.getByRole('button', { name: 'Criar' }));
@@ -389,10 +389,12 @@ describe('Routines', () => {
 describe('Início as a bento on large screens', () => {
   beforeEach(() => setWindowWidth(1240));
 
-  it('shows the create button, the tide calendar and the week chart', async () => {
+  it('shows the tide calendar and the week chart as blocks that open their place', async () => {
     await renderRouter(routes, { initialUrl: '/' });
-    // The sidebar has its own "Criar"; the dashboard adds one at the top of its first column.
-    expect(screen.getAllByRole('button', { name: 'Criar' })).toHaveLength(2);
+    // "Criar" lives in the sidebar only.
+    expect(screen.getAllByRole('button', { name: 'Criar' })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Abrir o Aquário' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Abrir a agenda do mês' })).toBeOnTheScreen();
     expect(screen.getByText('0 dias de maré cheia')).toBeOnTheScreen();
     expect(screen.getByLabelText(/^Sua semana: 0 pontos/)).toBeOnTheScreen();
   });

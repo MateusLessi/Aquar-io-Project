@@ -50,7 +50,7 @@ export function useStartTab() {
 export const DASHBOARD_CARDS = [
   { id: 'depth', label: 'Profundidade' },
   { id: 'weekStats', label: 'Esta semana' },
-  { id: 'routines', label: 'Rotinas e Sua semana' },
+  { id: 'routines', label: 'Agenda de hoje' },
   { id: 'habits', label: 'Hábitos de hoje' },
   { id: 'tasks', label: 'Tarefas de hoje' },
   { id: 'folders', label: 'Pastas fixadas' },

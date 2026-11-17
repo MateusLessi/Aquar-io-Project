@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { addDays, leadingBlanks, toDateKey, weekdayOrder } from '@/core/dates';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
@@ -10,15 +10,20 @@ import { IconButton, Surface, Text, spacing, useTheme, withAlpha } from '@/desig
 const LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 type TideCalendarProps = {
+  /** Inside a dashboard block, which draws the card. */
+  bare?: boolean;
   todayKey: string;
   byDay: Record<string, { points: number; fullTide: boolean }>;
+  /** Tapping a day (the dashboard opens the agenda on it). */
+  onDay?: (day: string) => void;
 };
 
 /**
  * The month as tides: the more you did on a day, the fuller its water; high-tide days are
  * solid with a wave. A glance shows how consistent the month has been.
  */
-export function TideCalendar({ todayKey, byDay }: TideCalendarProps) {
+export function TideCalendar({ todayKey, byDay, bare = false, onDay }: TideCalendarProps) {
+  const Root = bare ? View : Surface;
   const { colors } = useTheme();
   const { weekStart } = useCalendarPrefs();
   const [today] = useState(() => todayKey.split('-').map(Number) as [number, number, number]);
@@ -42,8 +47,8 @@ export function TideCalendar({ todayKey, byDay }: TideCalendarProps) {
     });
 
   return (
-    <Surface style={styles.card}>
-      <View style={styles.header}>
+    <Root style={bare ? styles.bare : styles.card}>
+      <View style={[styles.header, bare && styles.bareHeader]}>
         <View style={styles.flex}>
           <Text variant="headline">{title.charAt(0).toUpperCase() + title.slice(1)}</Text>
           <Text variant="footnote" tone="secondary">
@@ -73,10 +78,13 @@ export function TideCalendar({ todayKey, byDay }: TideCalendarProps) {
           const isToday = key === todayKey;
           return (
             <View key={key} style={styles.cell}>
-              <View
-                accessible
+              <Pressable
+                disabled={!onDay}
+                onPress={() => onDay?.(key)}
+                accessibilityRole={onDay ? 'button' : undefined}
                 accessibilityLabel={`${Number(key.slice(8))}: ${day?.points ?? 0} pontos${day?.fullTide ? ', maré cheia' : ''}`}
-                style={[
+                style={({ pressed }) => [
+                  pressed && styles.pressed,
                   styles.day,
                   {
                     backgroundColor: day?.fullTide
@@ -95,18 +103,22 @@ export function TideCalendar({ todayKey, byDay }: TideCalendarProps) {
                 >
                   {Number(key.slice(8))}
                 </Text>
-              </View>
+              </Pressable>
             </View>
           );
         })}
       </View>
-    </Surface>
+    </Root>
   );
 }
 
 const styles = StyleSheet.create({
+  bare: { gap: spacing.md },
+  pressed: { opacity: 0.6 },
   card: { padding: spacing.lg, gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center' },
+  // Room for the block's arrow.
+  bareHeader: { paddingRight: spacing.xl },
   flex: { flex: 1 },
   row: { flexDirection: 'row' },
   letter: { width: `${100 / 7}%`, textAlign: 'center' },

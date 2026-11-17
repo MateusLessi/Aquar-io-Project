@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
-import { Plus, Settings } from 'lucide-react-native';
-import { Fragment, type ReactNode } from 'react';
+import { Settings } from 'lucide-react-native';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { toDateKey } from '@/core/dates';
 import { useProfile } from '@/core/profile/useProfile';
-import { Button, IconButton, Screen, spacing, useBreakpoint } from '@/design-system';
+import { IconButton, Screen, spacing, useBreakpoint } from '@/design-system';
 import { TodayHabits } from '@/features/habits/components/TodayHabits';
 import { useTodayHabitProgress } from '@/features/habits/hooks/queries';
 import { TodayRoutines } from '@/features/routines/components/TodayRoutines';
@@ -15,13 +15,15 @@ import { TodayTasks } from '@/features/todo/components/TodayTasks';
 import { useToday } from '@/features/todo/hooks/queries';
 
 import { RoutineExtras } from '../connections/RoutineExtras';
-import { useCreate } from '../create/CreateContext';
 import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
 import { useDashboardCards, useGamePrefs, type DashboardCardId } from '../settings/prefs';
 import { WeekStatsCard } from '../stats/WeekStatsCard';
 import { InstallHint } from '../install/InstallHint';
+import { packBento } from './bento';
 import { HomeTank } from './HomeTank';
+import { MiniHabits, MiniNow } from './MiniTiles';
+import { Tile } from './Tile';
 import { TideCalendar } from './TideCalendar';
 import { WeekChart } from './WeekChart';
 
@@ -48,7 +50,6 @@ function dateLabel(date: Date): string {
 export function DashboardScreen() {
   const breakpoint = useBreakpoint();
   const router = useRouter();
-  const create = useCreate();
   const now = new Date();
   const todayKey = toDateKey(now);
   const { data: profile } = useProfile();
@@ -65,33 +66,90 @@ export function DashboardScreen() {
   const done = tasksDone + habits.completed + routines.completed;
   const total = tasks.length + habits.total + routines.total;
   const tide = <HomeTank done={done} total={total} />;
-  const cardNodes: Record<DashboardCardId, ReactNode> = {
-    depth: <DepthGauge />,
-    weekStats: <WeekStatsCard />,
-    routines: <TodayRoutines renderExtra={(routine) => <RoutineExtras routine={routine} />} />,
-    habits: <TodayHabits />,
-    tasks: <TodayTasks />,
-    folders: <PinnedFolders />,
-    week: <WeekChart todayKey={todayKey} byDay={byDay} />,
-    calendar: <TideCalendar todayKey={todayKey} byDay={byDay} />,
+  const go = (href: Parameters<typeof router.navigate>[0]) => () => router.navigate(href);
+  // Every block, bare inside its tile, with where the whole block goes.
+  const blocks: Record<DashboardCardId, { node: ReactNode; label: string; open: () => void }> = {
+    depth: { node: <DepthGauge />, label: 'Abrir o perfil', open: go('/profile') },
+    weekStats: { node: <WeekStatsCard bare />, label: 'Abrir estatísticas', open: go('/stats') },
+    routines: {
+      node: <TodayRoutines bare renderExtra={(routine) => <RoutineExtras routine={routine} />} />,
+      label: 'Abrir a agenda',
+      open: go({ pathname: '/aquarium', params: { tab: 'routines', view: 'timeline' } }),
+    },
+    habits: {
+      node: <TodayHabits bare />,
+      label: 'Abrir hábitos',
+      open: go({ pathname: '/aquarium', params: { tab: 'habits' } }),
+    },
+    tasks: {
+      node: <TodayTasks bare />,
+      label: 'Abrir listas',
+      open: go({ pathname: '/aquarium', params: { tab: 'lists' } }),
+    },
+    folders: {
+      node: <PinnedFolders bare />,
+      label: 'Abrir pastas',
+      open: go({ pathname: '/aquarium', params: { tab: 'lists' } }),
+    },
+    week: {
+      node: <WeekChart bare todayKey={todayKey} byDay={byDay} />,
+      label: 'Abrir estatísticas',
+      open: go('/stats'),
+    },
+    calendar: {
+      node: (
+        <TideCalendar
+          bare
+          todayKey={todayKey}
+          byDay={byDay}
+          onDay={(day) =>
+            router.navigate({
+              pathname: '/aquarium',
+              params: { tab: 'routines', view: 'month', day },
+            })
+          }
+        />
+      ),
+      label: 'Abrir a agenda do mês',
+      open: go({ pathname: '/aquarium', params: { tab: 'routines', view: 'month' } }),
+    },
   };
-  // Ajustes → Início: each column keeps its cards, in the person's order, without the hidden
-  // ones (and without Profundidade when depth is turned off).
-  const rank = new Map(cards.map((c, i) => [c.id, i]));
-  const shown = new Set(
-    cards.filter((c) => c.visible && (c.id !== 'depth' || showDepth)).map((c) => c.id),
+  // Ajustes → Início: the person's order, without the hidden blocks (and without
+  // Profundidade when depth is off, or beside the tank on wider screens, which shows it).
+  const wide = breakpoint === 'expanded';
+  const visible = cards
+    .filter((c) => c.visible && (c.id !== 'depth' || (showDepth && breakpoint === 'compact')))
+    .filter((c) => c.id !== 'calendar' || breakpoint !== 'compact')
+    .map((c) => c.id);
+  const tile = (id: DashboardCardId, fill = false) => (
+    <Tile
+      key={id}
+      label={blocks[id].label}
+      onPress={blocks[id].open}
+      plain={id === 'depth'}
+      fill={fill}
+    >
+      {blocks[id].node}
+    </Tile>
   );
-  const arrange = (ids: DashboardCardId[]) =>
-    ids
-      .filter((id) => shown.has(id))
-      .sort((a, b) => (rank.get(a) ?? 0) - (rank.get(b) ?? 0))
-      .map((id) => <Fragment key={id}>{cardNodes[id]}</Fragment>);
+  const tankTile = (fill = false) => (
+    <Tile key="tank" label="Abrir o Aquário" onPress={go('/aquarium')} plain fill={fill}>
+      {fill ? <FillingTank done={done} total={total} /> : tide}
+    </Tile>
+  );
+
+  // Wider screens: a grid that fills every row (no column ends early, Fase 4).
+  const columns = wide ? 3 : 2;
+  const rows = packBento<DashboardCardId | 'tank'>(
+    [{ id: 'tank', span: 1 }, ...visible.map((id) => ({ id, span: WIDE_BLOCKS.has(id) ? 2 : 1 }))],
+    columns,
+  );
 
   return (
     <Screen
       title={greeting(now, name)}
       eyebrow={dateLabel(now)}
-      wide={breakpoint === 'expanded'}
+      wide={wide}
       // Wider screens reach Ajustes from the sidebar or the rail.
       actions={
         breakpoint === 'compact' ? (
@@ -106,43 +164,58 @@ export function DashboardScreen() {
       <InstallHint />
       {breakpoint === 'compact' ? (
         <>
-          {tide}
-          {arrange(['depth', 'weekStats', 'routines', 'habits', 'tasks', 'folders', 'week'])}
+          {tankTile()}
+          {/* The day in numbers, side by side, before the full blocks. */}
+          <View style={styles.row}>
+            <MiniHabits />
+            <MiniNow />
+          </View>
+          {visible.map((id) => tile(id))}
         </>
-      ) : breakpoint === 'medium' ? (
-        <Columns>
-          <Column>
-            {tide}
-            {arrange(['depth', 'weekStats', 'habits', 'week'])}
-          </Column>
-          <Column>{arrange(['routines', 'tasks', 'folders', 'calendar'])}</Column>
-        </Columns>
       ) : (
-        <Columns>
-          <Column flex={0.9}>
-            <Button label="Criar" variant="energy" icon={Plus} block onPress={create} />
-            {arrange(['weekStats', 'calendar', 'week'])}
-          </Column>
-          <Column flex={1.1}>
-            {tide}
-            {arrange(['depth', 'routines'])}
-          </Column>
-          <Column flex={1.1}>{arrange(['tasks', 'habits', 'folders'])}</Column>
-        </Columns>
+        <View style={styles.grid}>
+          {rows.map((row, r) => (
+            <View key={r} style={styles.row}>
+              {row.map((item) => (
+                <View key={item.id} style={[styles.cell, { flex: item.span }]}>
+                  {item.id === 'tank' ? tankTile(true) : tile(item.id, true)}
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
       )}
     </Screen>
   );
 }
 
-function Columns({ children }: { children: ReactNode }) {
-  return <View style={styles.columns}>{children}</View>;
+/** The tank as tall as its row, so a taller neighbor leaves no hole under it. */
+function FillingTank({ done, total }: { done: number; total: number }) {
+  const [height, setHeight] = useState(0);
+  return (
+    <View
+      style={styles.fill}
+      onLayout={(e) => {
+        const next = Math.round(e.nativeEvent.layout.height);
+        if (Math.abs(next - height) > 1) setHeight(next);
+      }}
+    >
+      {/* Over the space, not in it: the row's height comes from the blocks beside it. */}
+      <View style={StyleSheet.absoluteFill}>
+        <HomeTank done={done} total={total} height={Math.max(TANK_MIN, height)} />
+      </View>
+    </View>
+  );
 }
 
-function Column({ children, flex = 1 }: { children: ReactNode; flex?: number }) {
-  return <View style={[styles.column, { flex }]}>{children}</View>;
-}
+const TANK_MIN = 318;
+
+/** Blocks that want two columns on wider screens. */
+const WIDE_BLOCKS = new Set<DashboardCardId>(['week', 'calendar']);
 
 const styles = StyleSheet.create({
-  columns: { flexDirection: 'row', gap: spacing.lg, alignItems: 'flex-start' },
-  column: { gap: spacing.lg, minWidth: 0 },
+  grid: { gap: spacing.lg },
+  row: { flexDirection: 'row', gap: spacing.lg, alignItems: 'stretch' },
+  cell: { minWidth: 0, flexBasis: 0 },
+  fill: { flex: 1, minHeight: TANK_MIN },
 });

@@ -16,7 +16,8 @@ import { TaskRow } from './TaskRow';
  * Today's tasks for the dashboard: overdue ones first, then the ones due today. With nothing
  * due, a small card points to the lists instead of taking over the screen.
  */
-export function TodayTasks() {
+export function TodayTasks({ bare = false }: { bare?: boolean } = {}) {
+  const Rows = bare ? View : Surface;
   const router = useRouter();
   const todo = useTodo();
   const { colors } = useTheme();
@@ -32,7 +33,7 @@ export function TodayTasks() {
         <Text variant="overline" tone="tertiary" style={styles.sectionTitle}>
           {title}
         </Text>
-        <Surface>
+        <Rows>
           {items.map((task, index) => (
             <TaskRow
               key={task.id}
@@ -48,7 +49,7 @@ export function TodayTasks() {
               onPress={() => setSelected(task.id)}
             />
           ))}
-        </Surface>
+        </Rows>
       </View>
     ) : null;
 
@@ -56,7 +57,16 @@ export function TodayTasks() {
     <View style={styles.root}>
       {section('Atrasadas', overdue)}
       {section('Tarefas de hoje', dueToday)}
-      {tasks.length === 0 ? (
+      {tasks.length === 0 && bare ? (
+        <View style={styles.bareEmpty}>
+          <Text variant="overline" tone="tertiary">
+            Tarefas de hoje
+          </Text>
+          <Text variant="footnote" tone="secondary">
+            Nenhuma tarefa para hoje. Dê um prazo a uma tarefa ou crie uma.
+          </Text>
+        </View>
+      ) : tasks.length === 0 ? (
         <Pressable
           onPress={() => router.navigate({ pathname: '/aquarium', params: { tab: 'lists' } })}
           accessibilityRole="button"
@@ -95,4 +105,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
   },
   flex: { flex: 1 },
+  bareEmpty: { gap: spacing.sm, marginHorizontal: spacing.xs },
 });

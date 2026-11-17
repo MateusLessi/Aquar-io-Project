@@ -22,7 +22,8 @@ test('statistics count what was done, from the dashboard and the profile', async
   await page.goto('/');
   await expect(visible(page.getByText('Esta semana'))).toBeVisible();
   await expect(visible(page.getByText('1 hábito', { exact: true }))).toBeVisible();
-  await visible(page.getByRole('button', { name: 'Ver estatísticas' })).click();
+  // The whole block opens the statistics.
+  await visible(page.getByRole('button', { name: /^Abrir estatísticas/ })).click();
   await expect(page).toHaveURL(/\/stats$/);
 
   await expect(visible(page.getByLabel(/^Concluídos: 1\./))).toBeVisible();

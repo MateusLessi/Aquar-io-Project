@@ -22,10 +22,21 @@ type RoutineFacts = {
   due: { day: string; total: number; done: number }[];
 };
 
+export type DaySummary = {
+  points: number;
+  fullTide: boolean;
+  tasks: number;
+  habits: number;
+  routines: number;
+};
+
 export type Progress = {
   depth: Depth;
-  /** Points (capped) and high tide per day, for the week chart and the calendar. */
-  byDay: Record<string, { points: number; fullTide: boolean }>;
+  /**
+   * Points (capped) and high tide per day, for the week chart and the calendar, with how many
+   * tasks (and subtasks), habit check-ins and routine items were done.
+   */
+  byDay: Record<string, DaySummary>;
   today: { points: number; raw: number; fullTide: boolean; capped: boolean };
 };
 
@@ -61,7 +72,13 @@ export function computeProgress(
   const raw = rawPoints(today);
   const byDay: Progress['byDay'] = {};
   for (const [key, facts] of days) {
-    byDay[key] = { points: dayPoints(facts), fullTide: isFullTide(facts) };
+    byDay[key] = {
+      points: dayPoints(facts),
+      fullTide: isFullTide(facts),
+      tasks: facts.tasks + facts.subtasks,
+      habits: facts.habitsScheduled + facts.habitsRestDay,
+      routines: facts.routineItems,
+    };
   }
   return {
     depth: depthFor(totalDepth(days.values())),
