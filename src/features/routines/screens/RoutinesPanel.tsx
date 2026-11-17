@@ -22,7 +22,9 @@ import {
   ListItem,
   SegmentedControl,
   Sheet,
+  SegmentedListAction,
   StickySlot,
+  useSegmentedListMode,
   spacing,
   useTheme,
 } from '@/design-system';
@@ -190,19 +192,12 @@ export function RoutinesPanel({
         />
       ) : routines ? (
         <View style={styles.root}>
-          <StickySlot>
-            <View style={styles.bar}>
-              <View style={styles.flex}>
-                <SegmentedControl
-                  compact
-                  accessibilityLabel="Ver a agenda como"
-                  options={viewModes}
-                  value={view}
-                  onChange={(value) => void setView(value)}
-                />
-              </View>
-              <IconButton icon={Plus} label="Novo na agenda" onPress={() => setChoosing(true)} />
-            </View>
+          <StickySlot summary={viewModes.find((m) => m.value === view)?.label}>
+            <ViewBar
+              view={view}
+              onView={(value) => void setView(value)}
+              onNew={() => setChoosing(true)}
+            />
           </StickySlot>
           {view === 'timeline' ? (
             <RoutinesView
@@ -370,3 +365,42 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   flex: { flex: 1 },
 });
+
+/**
+ * The Agenda's bar: how to see it, and "Novo na agenda". In the phone's dropdown the choice
+ * stands as a list and "Novo" becomes its last row.
+ */
+function ViewBar({
+  view,
+  onView,
+  onNew,
+}: {
+  view: RoutinesViewMode;
+  onView: (value: RoutinesViewMode) => void;
+  onNew: () => void;
+}) {
+  const inList = useSegmentedListMode();
+  const control = (
+    <SegmentedControl
+      compact
+      accessibilityLabel="Ver a agenda como"
+      options={viewModes}
+      value={view}
+      onChange={onView}
+    />
+  );
+  if (inList) {
+    return (
+      <View>
+        {control}
+        <SegmentedListAction icon={Plus} label="Novo na agenda" onPress={onNew} />
+      </View>
+    );
+  }
+  return (
+    <View style={styles.bar}>
+      <View style={styles.flex}>{control}</View>
+      <IconButton icon={Plus} label="Novo na agenda" onPress={onNew} />
+    </View>
+  );
+}

@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from './fixtures';
+import { expect, test, type Locator, inBar } from './fixtures';
 
 const visible = (locator: Locator) => locator.locator('visible=true').first();
 
@@ -10,7 +10,7 @@ test('drag a routine in the week: only this day, or every week', async ({ page }
   await page.getByRole('textbox', { name: 'Nome' }).fill('Treino');
   await page.getByRole('button', { name: 'Criar rotina' }).click();
   await expect(page.getByRole('button', { name: 'Criar rotina' })).toHaveCount(0);
-  await page.getByRole('radio', { name: 'Semana', exact: true }).click();
+  await inBar(page, page.getByRole('radio', { name: 'Semana', exact: true }));
 
   const drag = async (block: Locator, dx: number, dy: number) => {
     const box = (await block.boundingBox())!;

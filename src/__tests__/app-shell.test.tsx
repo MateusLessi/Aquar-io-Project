@@ -372,6 +372,20 @@ describe('Routines', () => {
     expect(id).toBeTruthy();
   });
 
+  it('drops the section views down from the capsule on phones', async () => {
+    await renderRouter(routes, { initialUrl: '/aquarium?tab=routines' });
+    const agenda = await screen.findByRole('radio', { name: 'Agenda' });
+    expect(agenda).toBeChecked();
+    // Closed, the capsule says what you see; the views wait in the dropdown.
+    expect(screen.queryByRole('radio', { name: 'Semana' })).toBeNull();
+    await fireEvent.press(agenda);
+    expect(screen.getByRole('radio', { name: 'Agenda' })).toBeExpanded();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Semana' }));
+    // Picking closes it, and the capsule now reads the new view.
+    expect(screen.queryByRole('radio', { name: 'Semana' })).toBeNull();
+    expect(screen.getByText(' · Semana')).toBeOnTheScreen();
+  });
+
   it('creates a routine from the Routines tab', async () => {
     await renderRouter(routes, { initialUrl: '/aquarium?tab=routines' });
     expect(screen.getByRole('radio', { name: 'Agenda' })).toBeChecked();

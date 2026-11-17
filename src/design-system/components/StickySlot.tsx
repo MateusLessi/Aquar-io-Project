@@ -10,17 +10,22 @@ import {
 /** Holds what a screen's content puts into the screen's sticky bar. */
 type SlotStore = {
   get: () => ReactNode;
-  set: (node: ReactNode) => void;
+  /** A word for what the bar shows now (e.g. "Dia"), for a closed dropdown on phones. */
+  summary: () => string | null;
+  set: (node: ReactNode, summary?: string | null) => void;
   subscribe: (listener: () => void) => () => void;
 };
 
 function createSlotStore(): SlotStore {
   let node: ReactNode = null;
+  let summary: string | null = null;
   const listeners = new Set<() => void>();
   return {
     get: () => node,
-    set: (next) => {
+    summary: () => summary,
+    set: (next, nextSummary = null) => {
       node = next;
+      summary = nextSummary;
       for (const listener of listeners) listener();
     },
     subscribe: (listener) => {
@@ -49,14 +54,24 @@ export function StickySlotHost() {
   return <>{node}</>;
 }
 
+/** What the bar shows now, in a word (from `StickySlot`'s `summary`), or null. */
+export function useStickySummary(): string | null {
+  const store = useContext(SlotContext);
+  return useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    store?.summary ?? nothing,
+    store?.summary ?? nothing,
+  );
+}
+
 /**
  * A bar that belongs in the screen's sticky bar (the Agenda's Dia / Semana / Mês / Lista).
  * Without a provider above (the same panel elsewhere), it simply shows in place.
  */
-export function StickySlot({ children }: { children: ReactNode }) {
+export function StickySlot({ children, summary }: { children: ReactNode; summary?: string }) {
   const store = useContext(SlotContext);
   useLayoutEffect(() => {
-    store?.set(children);
+    store?.set(children, summary ?? null);
   });
   useLayoutEffect(() => () => store?.set(null), [store]);
   return store ? null : <>{children}</>;

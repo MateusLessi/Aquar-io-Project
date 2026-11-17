@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from './fixtures';
+import { expect, test, type Locator, inBar } from './fixtures';
 
 const visible = (locator: Locator) => locator.locator('visible=true').first();
 
@@ -28,7 +28,7 @@ test('Ajustes change the app: week start, clock, dashboard cards, export', async
 
   // The week now starts on Monday and times read in 12 h.
   await page.goto('/aquarium?tab=routines');
-  await page.getByRole('radio', { name: 'Semana', exact: true }).click();
+  await inBar(page, page.getByRole('radio', { name: 'Semana', exact: true }));
   await expect(
     visible(page.getByRole('button', { name: /^Manhã, .*7:00 AM às 8:00 AM/ })),
   ).toBeVisible();

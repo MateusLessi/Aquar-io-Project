@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from './fixtures';
+import { expect, test, type Locator, inBar } from './fixtures';
 
 const visible = (locator: Locator) => locator.locator('visible=true').first();
 
@@ -13,7 +13,7 @@ test('events, a routine changed for one day, and the month', async ({ page }) =>
   await expect(page.getByRole('button', { name: 'Criar rotina' })).toHaveCount(0);
 
   // An all-day event today, from "Novo na agenda".
-  await page.getByRole('button', { name: 'Novo na agenda' }).click();
+  await inBar(page, page.getByRole('button', { name: 'Novo na agenda' }));
   await page.getByText('Evento', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Nome do evento' }).fill('Prova de Cálculo');
   await page.getByRole('switch', { name: 'O dia todo' }).click();
@@ -26,9 +26,9 @@ test('events, a routine changed for one day, and the month', async ({ page }) =>
   await expect(exam).toBeVisible();
 
   // The list and the month show it too.
-  await page.getByRole('radio', { name: 'Lista', exact: true }).click();
+  await inBar(page, page.getByRole('radio', { name: 'Lista', exact: true }));
   await expect(exam).toBeVisible();
-  await page.getByRole('radio', { name: 'Mês', exact: true }).click();
+  await inBar(page, page.getByRole('radio', { name: 'Mês', exact: true }));
   await expect(visible(page.getByRole('button', { name: /, 2 compromissos$/ }))).toBeVisible();
   await expect(exam).toBeVisible();
 
@@ -52,7 +52,7 @@ test('events, a routine changed for one day, and the month', async ({ page }) =>
 
 test("today's events show on Início and open from there", async ({ page }) => {
   await page.goto('/aquarium?tab=routines');
-  await page.getByRole('button', { name: 'Novo na agenda' }).click();
+  await inBar(page, page.getByRole('button', { name: 'Novo na agenda' }));
   await page.getByRole('button', { name: 'Evento', exact: true }).click();
   await page.getByRole('textbox', { name: 'Nome do evento' }).fill('Consulta');
   await page.getByRole('switch', { name: 'O dia todo' }).click();
@@ -76,7 +76,7 @@ test('an event in a list shows inside the list', async ({ page }) => {
   await page.waitForTimeout(1500);
 
   await page.goto('/aquarium?tab=routines');
-  await page.getByRole('button', { name: 'Novo na agenda' }).click();
+  await inBar(page, page.getByRole('button', { name: 'Novo na agenda' }));
   await page.getByRole('button', { name: 'Evento', exact: true }).click();
   await page.getByRole('textbox', { name: 'Nome do evento' }).fill('Prova');
   await page.getByRole('button', { name: 'Cálculo 3', exact: true }).click();

@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from './fixtures';
+import { expect, test, type Locator, inBar } from './fixtures';
 
 const visible = (locator: Locator) => locator.locator('visible=true').first();
 
@@ -13,13 +13,13 @@ test('see routines as a week and as an agenda, and open the week from the dashbo
   await expect(page.getByRole('button', { name: 'Criar rotina' })).toHaveCount(0);
 
   // The week: the routine is a block with its hours and label.
-  await page.getByRole('radio', { name: 'Semana', exact: true }).click();
+  await inBar(page, page.getByRole('radio', { name: 'Semana', exact: true }));
   await expect(
     visible(page.getByRole('button', { name: /^Estudo, .*07:00 às 08:00, Faculdade/ })),
   ).toBeVisible();
 
   // The agenda lists today first.
-  await page.getByRole('radio', { name: 'Lista', exact: true }).click();
+  await inBar(page, page.getByRole('radio', { name: 'Lista', exact: true }));
   await expect(
     visible(page.getByRole('button', { name: /^Estudo, 07:00 às 08:00/ })),
   ).toBeVisible();
