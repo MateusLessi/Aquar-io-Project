@@ -5,6 +5,9 @@ import { useTheme } from '../theme/ThemeProvider';
 import { radius } from '../tokens';
 import type { ThemeColors, ThemeMode } from '../tokens';
 
+/** The panel's corner radius; the sidebar reaches this far under it, so no gap shows. */
+export const PANEL_RADIUS = radius.xl * 1.4;
+
 const PanelContext = createContext(false);
 
 /** Inside the content panel: screens draw no ocean of their own (the panel is the surface). */
@@ -29,5 +32,5 @@ export function ContentPanel({ children, style }: { children: ReactNode; style?:
 }
 
 const styles = StyleSheet.create({
-  panel: { flex: 1, borderRadius: radius.xl * 1.4, overflow: 'hidden' },
+  panel: { flex: 1, borderRadius: PANEL_RADIUS, overflow: 'hidden' },
 });

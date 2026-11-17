@@ -27,7 +27,7 @@ export {
   type ChromeInsets,
 } from './components/ChromeInsets';
 export { Dial, type DialProps } from './components/Dial';
-export { ContentPanel, panelColor, useInPanel } from './components/ContentPanel';
+export { ContentPanel, PANEL_RADIUS, panelColor, useInPanel } from './components/ContentPanel';
 export { DeepSurface, type DeepSurfaceProps } from './components/DeepSurface';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export {

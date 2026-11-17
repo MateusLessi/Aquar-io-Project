@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Button,
   DeepSurface,
+  PANEL_RADIUS,
   Text,
   panelColor,
   springs,
@@ -277,9 +278,15 @@ function SectionItem({
 
 const styles = StyleSheet.create({
   root: { width: chrome.sidebarWidth, paddingLeft: spacing.md },
-  // No padding on the right: the active piece reaches the panel's edge.
+  // The deep water reaches under the content panel by its corner radius, so the panel's round
+  // corners show the sidebar behind them, not the ocean (no notch between the two). Its
+  // content stops at the panel's edge, where the active piece meets it. No elevation: on
+  // Android it would lift the sidebar over the panel.
   panel: {
     flex: 1,
+    marginRight: -PANEL_RADIUS,
+    paddingRight: PANEL_RADIUS,
+    elevation: 0,
     paddingLeft: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.md,
