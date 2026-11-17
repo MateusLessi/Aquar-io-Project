@@ -64,6 +64,7 @@ test('Ajustes change the app: week start, clock, dashboard cards, export', async
 test('erasing this device leaves an empty aquarium', async ({ page }) => {
   await page.goto('/aquarium?tab=habits');
   await page.getByRole('button', { name: 'Novo hábito' }).click();
+  await page.getByRole('button', { name: 'Começar do zero' }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Ler');
   await page.getByRole('button', { name: 'Criar hábito' }).click();
   await expect(page.getByRole('button', { name: 'Criar hábito' })).toHaveCount(0);

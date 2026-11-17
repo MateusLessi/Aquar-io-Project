@@ -21,6 +21,7 @@ test('a habit bubbles; with sounds off, it stays quiet', async ({ page }) => {
   await recordSounds(page);
   await page.goto('/aquarium?tab=habits');
   await page.getByRole('button', { name: 'Novo hábito' }).click();
+  await page.getByRole('button', { name: 'Começar do zero' }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Meditar');
   await page.getByRole('button', { name: 'Criar hábito' }).click();
   await expect(page.getByRole('button', { name: 'Criar hábito' })).toHaveCount(0);

@@ -12,6 +12,7 @@ test('connect a list and a habit to a routine, by menu and by dragging', async (
 
   await page.goto('/aquarium?tab=habits');
   await page.getByRole('button', { name: 'Novo hábito' }).click();
+  await page.getByRole('button', { name: 'Começar do zero' }).click();
   await page.getByRole('textbox', { name: 'Nome' }).fill('Treinar');
   await page.getByRole('button', { name: 'Criar hábito' }).click();
   await expect(page.getByRole('button', { name: 'Criar hábito' })).toHaveCount(0);

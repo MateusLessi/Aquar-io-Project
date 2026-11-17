@@ -26,6 +26,7 @@ export {
   useChromeInsets,
   type ChromeInsets,
 } from './components/ChromeInsets';
+export { Dial, type DialProps } from './components/Dial';
 export { DeepSurface, type DeepSurfaceProps } from './components/DeepSurface';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export {

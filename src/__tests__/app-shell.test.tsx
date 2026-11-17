@@ -261,6 +261,7 @@ describe('Habits', () => {
     expect(screen.getByRole('radio', { name: 'Hábitos' })).toBeChecked();
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Novo hábito' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Começar do zero' }));
     await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Beber água');
     await fireEvent.press(screen.getByRole('radio', { name: 'Peixe' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Criar hábito' }));

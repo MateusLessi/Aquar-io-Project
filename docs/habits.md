@@ -64,3 +64,10 @@ Um hábito pode ser concluído por **uma lista, uma pasta ou uma rotina** (edito
 ## Eventos
 
 `HABIT_CHECKED` e `HABIT_UNCHECKED` são gravados na mesma transação do check-in, para a futura Fundação da Gamificação (Etapa 9).
+
+## Criar um hábito (Fase 3a)
+
+- **Novo hábito** abre um **catálogo de modelos** (`domain/catalog.ts`, com testes). São 8 categorias (Saúde, Mente, Espiritualidade, Estudos, Trabalho, Casa, Finanças e Social) e 40 modelos, além de "Populares" e uma busca sem acento por nome, categoria ou palavras comuns ("bíblia", "inglês", "academia").
+- Os modelos vêm com valores coerentes (Água = 8 copos de 250 ml; Ler = 20 páginas; Meditar = 10 min; Orar = 2 vezes, manhã e noite), criatura, dias e lembretes sugeridos. Um modelo **só preenche o editor**: nada liga o hábito ao modelo, então mudar o catálogo nunca muda os hábitos de ninguém. Um teste cria todos os modelos pelo repositório, para garantir que são hábitos válidos.
+- **"Começar do zero"** e **"Ver os modelos"** (voltar) estão sempre à mão.
+- O **editor** tem a criatura em destaque no topo, na cor dela, e o campo **"Por quê?"** (`description`, até 140 caracteres, migração 14; mostrado no detalhe). Para contador e tempo há um **mostrador circular** (`Dial` no design system): dá para arrastar o anel, que dá mais de uma volta (12 por volta no contador, 60 min no tempo), tocar em − / + ou ajustar pelo leitor de tela. Bebidas mostram o total ("2 litros por dia"), e trocar copo ↔ garrafa ↔ litro mantém a quantidade. Os dias ganharam o atalho "Fim de semana".

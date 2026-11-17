@@ -1,4 +1,13 @@
-import { Check, Folder, ListChecks, Minus, Plus, Repeat, Timer, X } from 'lucide-react-native';
+import {
+  Check,
+  ChevronLeft,
+  Folder,
+  ListChecks,
+  Plus,
+  Repeat,
+  Timer,
+  X,
+} from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -6,9 +15,8 @@ import {
   Button,
   Chip,
   ConfirmDialog,
-  IconButton,
+  Dial,
   Sheet,
-  Slider,
   Text,
   TextInput,
   listColors,
@@ -24,6 +32,7 @@ import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { useSetting } from '@/core/settings/useSetting';
 
 import { kindInfo } from '../domain/amount';
+import { DRINK_UNITS, totalLabel, type HabitPreset } from '../domain/catalog';
 import {
   DEFAULT_CREATURE_SETTING,
   creatureIds,
@@ -43,12 +52,13 @@ import {
 } from '../domain/types';
 import { STEPS_MAX, TARGET_MAX } from '../domain/validation';
 import { CreatureBubble } from './CreatureBubble';
+import { HabitCatalog } from './HabitCatalog';
 import { HabitCapsule } from './HabitCapsule';
 import { ReminderTimesField } from './ReminderTimesField';
 
 const KIND_ICONS = { check: Check, count: Plus, time: Timer, checklist: ListChecks } as const;
 const UNITS = ['copos', 'páginas', 'vezes', 'km', 'exercícios'];
-const MINUTE_PRESETS = [10, 20, 30, 45, 60];
+const MINUTE_PRESETS = [5, 10, 15, 20, 30, 45, 60];
 /** How full the preview capsule is for each kind, to show how it fills. */
 const PREVIEW_RATIO: Record<HabitKind, number> = {
   check: 0,
@@ -58,6 +68,7 @@ const PREVIEW_RATIO: Record<HabitKind, number> = {
 };
 
 const WEEKDAYS: WeekdayMask = 0b0111110;
+const WEEKEND: WeekdayMask = 0b1000001;
 
 type HabitEditorSheetProps = {
   visible: boolean;
@@ -70,35 +81,88 @@ type HabitEditorSheetProps = {
 };
 
 export function HabitEditorSheet({ visible, onClose, habit, ...actions }: HabitEditorSheetProps) {
+  // A new habit starts from the catalog: a model, or from scratch (null).
+  const [start, setStart] = useState<{ preset: HabitPreset | null } | null>(null);
+  const close = () => {
+    setStart(null);
+    onClose();
+  };
+  const choosing = !habit && start === null;
   return (
-    <Sheet visible={visible} onClose={onClose} title={habit ? 'Editar hábito' : 'Novo hábito'}>
+    <Sheet
+      visible={visible}
+      onClose={close}
+      title={
+        habit ? 'Editar hábito' : choosing ? 'Novo hábito' : (start?.preset?.name ?? 'Novo hábito')
+      }
+    >
       {/* Remount for each opening so the form starts from the habit's current values. */}
-      {visible ? <HabitForm habit={habit} onClose={onClose} {...actions} /> : null}
+      {!visible ? null : choosing ? (
+        <HabitCatalog onPick={(preset) => setStart({ preset })} />
+      ) : (
+        <HabitForm
+          key={start?.preset?.id ?? 'zero'}
+          habit={habit}
+          preset={start?.preset ?? null}
+          onBackToCatalog={habit ? undefined : () => setStart(null)}
+          onClose={close}
+          {...actions}
+        />
+      )}
     </Sheet>
   );
 }
 
-function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheetProps, 'visible'>) {
-  const [name, setName] = useState(habit?.name ?? '');
+function HabitForm({
+  habit,
+  preset,
+  onBackToCatalog,
+  onClose,
+  onSubmit,
+  onDelete,
+}: Omit<HabitEditorSheetProps, 'visible'> & {
+  /** The model a new habit starts from. */
+  preset: HabitPreset | null;
+  onBackToCatalog?: () => void;
+}) {
+  const { colors, scheme } = useTheme();
+  const [name, setName] = useState(habit?.name ?? preset?.name ?? '');
+  const [description, setDescription] = useState(habit?.description ?? preset?.description ?? '');
   const [storedCreature] = useSetting<string>(DEFAULT_CREATURE_SETTING, 'turtle');
   const [creature, setCreature] = useState<CreatureId>(
-    habit?.creature ?? (isCreatureId(storedCreature) ? storedCreature : 'turtle'),
+    habit?.creature ??
+      preset?.creature ??
+      (isCreatureId(storedCreature) ? storedCreature : 'turtle'),
   );
   // The stored default may arrive after the first render: a new habit follows it until the
   // person picks a creature.
   const [seenDefault, setSeenDefault] = useState(storedCreature);
   if (storedCreature !== seenDefault) {
     setSeenDefault(storedCreature);
-    if (!habit && creature === seenDefault && isCreatureId(storedCreature))
+    if (!habit && !preset && creature === seenDefault && isCreatureId(storedCreature))
       setCreature(storedCreature);
   }
-  const [days, setDays] = useState<WeekdayMask>(habit?.days ?? EVERY_DAY);
-  const [reminderTimes, setReminderTimes] = useState<string[]>(habit?.reminderTimes ?? []);
-  const [kind, setKind] = useState<HabitKind>(habit?.kind ?? 'check');
-  const [count, setCount] = useState(habit?.kind === 'count' ? habit.target : 8);
-  const [unit, setUnit] = useState(habit?.unit ?? '');
-  const [minutes, setMinutes] = useState(habit?.kind === 'time' ? habit.target : 20);
-  const [steps, setSteps] = useState<{ id?: string; title: string }[]>(habit?.steps ?? []);
+  const [days, setDays] = useState<WeekdayMask>(habit?.days ?? preset?.days ?? EVERY_DAY);
+  const [reminderTimes, setReminderTimes] = useState<string[]>(
+    habit?.reminderTimes ?? preset?.reminderTimes ?? [],
+  );
+  const [kind, setKind] = useState<HabitKind>(habit?.kind ?? preset?.kind ?? 'check');
+  const [count, setCount] = useState(
+    habit?.kind === 'count' ? habit.target : preset?.kind === 'count' ? (preset.target ?? 8) : 8,
+  );
+  const [unit, setUnit] = useState(habit?.unit ?? preset?.unit ?? '');
+  const [minutes, setMinutes] = useState(
+    habit?.kind === 'time' ? habit.target : preset?.kind === 'time' ? (preset.target ?? 20) : 20,
+  );
+  const [steps, setSteps] = useState<{ id?: string; title: string }[]>(
+    habit?.steps ?? preset?.steps?.map((title) => ({ title })) ?? [],
+  );
+  // Drinks: units that add up ("8 copos de 250 ml = 2 litros").
+  const unitOptions =
+    preset?.units ?? (DRINK_UNITS.some((u) => u.unit === unit) ? DRINK_UNITS : null);
+  const unitOption = unitOptions?.find((u) => u.unit === unit);
+  const total = kind === 'count' ? totalLabel(count, unitOption) : null;
+  const tone = listColors[creatures[creature].color][scheme];
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -113,6 +177,7 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
     try {
       const created = await onSubmit({
         name,
+        description,
         creature,
         days: effectiveDays,
         reminderTimes,
@@ -142,6 +207,27 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
 
   return (
     <View style={styles.form}>
+      {onBackToCatalog ? (
+        <View style={styles.back}>
+          <Button
+            label="Ver os modelos"
+            variant="ghost"
+            icon={ChevronLeft}
+            onPress={onBackToCatalog}
+          />
+        </View>
+      ) : null}
+      {/* The creature, in its color, changing as the habit takes shape. */}
+      <View
+        style={[styles.hero, { backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.18 : 0.14) }]}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <CreatureBubble creature={creature} size={84} done />
+        <Text variant="headline" numberOfLines={1} style={{ color: colors.textPrimary }}>
+          {name.trim() || 'Seu hábito'}
+        </Text>
+      </View>
       <TextInput
         label="Nome"
         value={name}
@@ -154,6 +240,13 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
         autoFocus={!habit}
         returnKeyType="done"
         maxLength={60}
+      />
+      <TextInput
+        label="Por quê? (opcional)"
+        value={description}
+        onChangeText={setDescription}
+        placeholder="Para ter energia à tarde"
+        maxLength={140}
       />
 
       {sources ? (
@@ -196,7 +289,45 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
               <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
                 Meta por dia
               </Text>
-              <Stepper value={count} onChange={setCount} min={1} max={TARGET_MAX.count} />
+              <Dial
+                label="Meta do dia"
+                value={count}
+                onChange={setCount}
+                min={1}
+                max={TARGET_MAX.count}
+                perTurn={12}
+                unit={unit || 'vezes'}
+                tone={tone}
+              />
+              {total ? (
+                <Text variant="headline" style={styles.center}>
+                  {total}
+                </Text>
+              ) : null}
+              <View style={styles.presets}>
+                {unitOptions
+                  ? unitOptions.map((option) => (
+                      <Chip
+                        key={option.unit}
+                        label={option.label}
+                        selected={unit === option.unit}
+                        onPress={() => {
+                          // Same amount to drink in the new unit, as close as it gets.
+                          const ml = count * (unitOption?.ml ?? option.ml ?? 1);
+                          setUnit(option.unit);
+                          setCount(Math.max(1, Math.round(ml / (option.ml ?? 1))));
+                        }}
+                      />
+                    ))
+                  : UNITS.map((option) => (
+                      <Chip
+                        key={option}
+                        label={option}
+                        selected={unit === option}
+                        onPress={() => setUnit(unit === option ? '' : option)}
+                      />
+                    ))}
+              </View>
               <TextInput
                 label="Unidade (opcional)"
                 value={unit}
@@ -204,16 +335,6 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
                 placeholder="copos, páginas…"
                 maxLength={20}
               />
-              <View style={styles.presets}>
-                {UNITS.map((option) => (
-                  <Chip
-                    key={option}
-                    label={option}
-                    selected={unit === option}
-                    onPress={() => setUnit(unit === option ? '' : option)}
-                  />
-                ))}
-              </View>
             </View>
           ) : null}
 
@@ -222,17 +343,16 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
               <Text variant="footnote" tone="secondary" style={styles.groupLabel}>
                 Meta por dia
               </Text>
-              <Text variant="title1" style={styles.center}>
-                {minutes} min
-              </Text>
-              <Slider
-                label="Meta em minutos"
+              <Dial
+                label="Duração"
                 value={minutes}
                 onChange={setMinutes}
                 min={5}
-                max={180}
+                max={TARGET_MAX.time}
+                perTurn={60}
                 step={5}
-                valueText={(v) => `${v} minutos`}
+                unit="min"
+                tone={tone}
               />
               <View style={styles.presets}>
                 {MINUTE_PRESETS.map((option) => (
@@ -286,6 +406,11 @@ function HabitForm({ habit, onClose, onSubmit, onDelete }: Omit<HabitEditorSheet
                 label="Dias úteis"
                 selected={days === WEEKDAYS}
                 onPress={() => setDays(WEEKDAYS)}
+              />
+              <Chip
+                label="Fim de semana"
+                selected={days === WEEKEND}
+                onPress={() => setDays(WEEKEND)}
               />
             </View>
             <WeekdayPicker
@@ -444,43 +569,6 @@ function KindPicker({ value, onChange }: { value: HabitKind; onChange: (k: Habit
   );
 }
 
-function Stepper({
-  value,
-  onChange,
-  min,
-  max,
-}: {
-  value: number;
-  onChange: (value: number) => void;
-  min: number;
-  max: number;
-}) {
-  return (
-    <View style={styles.stepper}>
-      <IconButton
-        icon={Minus}
-        label="Diminuir meta"
-        onPress={() => onChange(Math.max(min, value - 1))}
-        disabled={value <= min}
-      />
-      <Text
-        variant="title1"
-        style={styles.stepperValue}
-        accessibilityLiveRegion="polite"
-        accessibilityLabel={`Meta: ${value}`}
-      >
-        {value}
-      </Text>
-      <IconButton
-        icon={Plus}
-        label="Aumentar meta"
-        onPress={() => onChange(Math.min(max, value + 1))}
-        disabled={value >= max}
-      />
-    </View>
-  );
-}
-
 function StepsField({
   value,
   onChange,
@@ -617,6 +705,13 @@ function WeekdayPicker({
 }
 
 const styles = StyleSheet.create({
+  back: { alignSelf: 'flex-start', marginTop: -spacing.sm },
+  hero: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.xl,
+  },
   tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   tile: { flexBasis: '47%', flexGrow: 1, padding: spacing.md, borderRadius: radius.lg, gap: 2 },
   form: { gap: spacing.xl },

@@ -80,9 +80,7 @@ describe('habits repository', () => {
     expect((await habits.getHabit(id))?.habit.description).toBe('Para ter energia à tarde');
     await habits.updateHabit(id, { description: '  ' });
     expect((await habits.getHabit(id))?.habit.description).toBeNull();
-    await expect(habits.updateHabit(id, { description: 'x'.repeat(141) })).rejects.toThrow(
-      '140',
-    );
+    await expect(habits.updateHabit(id, { description: 'x'.repeat(141) })).rejects.toThrow('140');
   });
 
   it('edits and deletes', async () => {
