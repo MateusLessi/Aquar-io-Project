@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Button,
   DeepSurface,
-  PANEL_RADIUS,
   Text,
   panelColor,
   springs,
@@ -46,9 +45,10 @@ const ITEM_HEIGHT = 48;
 const NOTCH = 18;
 
 /**
- * Tablets in landscape and desktop: a glass sidebar beside the content panel (Fase 5, from the
- * reference): the active item is a solid piece in the panel's color that reaches into it, with
- * inward curves, and slides to the item you pick. The Aquarium opens its
+ * Tablets in landscape and desktop: a floating deep-water card beside the content panel (Fase 5,
+ * from the reference). The panel passes under the card, so its round corners show the panel's
+ * color; the active item is a solid piece in that color that reaches into it, with inward
+ * curves, and slides to the item you pick. The Aquarium opens its
  * sections right under it; "Agora" shows what is on and the habit of the moment; you sit at
  * the bottom, with the gear to Ajustes. The profile is reached from there, not from a tab.
  */
@@ -82,7 +82,7 @@ export function Sidebar({ destinations, onCreate }: SidebarProps) {
         { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.md },
       ]}
     >
-      <DeepSurface radius="xl" corners="left" sheen style={styles.panel}>
+      <DeepSurface radius="xl" sheen style={styles.panel}>
         <View style={styles.brand}>
           <Image source={mascot} style={styles.mascot} accessibilityIgnoresInvertColors />
           <View>
@@ -277,16 +277,12 @@ function SectionItem({
 }
 
 const styles = StyleSheet.create({
-  root: { width: chrome.sidebarWidth, paddingLeft: spacing.md },
-  // The deep water reaches under the content panel by its corner radius, so the panel's round
-  // corners show the sidebar behind them, not the ocean (no notch between the two). Its
-  // content stops at the panel's edge, where the active piece meets it. No elevation: on
-  // Android it would lift the sidebar over the panel.
+  // Above the content panel, which passes under the card's right corners.
+  root: { width: chrome.sidebarWidth, paddingLeft: spacing.md, zIndex: 1 },
+  // A floating card, round on all corners. No padding on the right: the active piece reaches
+  // its edge, where the content panel (passing under the card) shows the same color.
   panel: {
     flex: 1,
-    marginRight: -PANEL_RADIUS,
-    paddingRight: PANEL_RADIUS,
-    elevation: 0,
     paddingLeft: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.md,

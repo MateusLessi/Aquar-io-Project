@@ -8,6 +8,7 @@ import { useSetting } from '@/core/settings/useSetting';
 import {
   ChromeInsetsProvider,
   ContentPanel,
+  PANEL_RADIUS,
   OceanBackground,
   chrome,
   spacing,
@@ -141,7 +142,9 @@ function ShellLayout() {
                       },
                     ]}
                   >
-                    <ContentPanel>
+                    {/* The panel passes under the sidebar card by its corner radius, so the
+                        card's round corners show the panel's color behind them. */}
+                    <ContentPanel style={styles.underSidebar}>
                       <TabSlot style={styles.slot} />
                     </ContentPanel>
                   </View>
@@ -198,4 +201,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
   content: { flex: 1 },
   slot: { flexGrow: 1, flexShrink: 1, minHeight: 0 },
+  underSidebar: { marginLeft: -PANEL_RADIUS, paddingLeft: PANEL_RADIUS },
 });
