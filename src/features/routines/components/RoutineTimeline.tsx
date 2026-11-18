@@ -108,10 +108,12 @@ function TimelineRow({
         {!last ? <View style={[styles.line, { backgroundColor: colors.border }]} /> : null}
       </View>
 
+      {/* The whole card opens the routine, but it is not a button: it holds buttons (the items'
+          checks, the connected extras), and a button can't hold others. Its heading is the
+          real button, with the name (like the dashboard's blocks). */}
       <Pressable
         onPress={onOpen}
-        accessibilityRole="button"
-        accessibilityLabel={`${routine.name}, ${showTime(routine.start)} às ${showTime(routine.end)}, ${status}`}
+        accessible={false}
         style={({ pressed }) => [
           styles.card,
           {
@@ -123,17 +125,24 @@ function TimelineRow({
           },
         ]}
       >
-        <View style={styles.cardHeader}>
-          <Text variant={now ? 'title2' : 'headline'} numberOfLines={1} style={styles.flex}>
-            {routine.name}
+        <Pressable
+          onPress={onOpen}
+          accessibilityRole="button"
+          accessibilityLabel={`${routine.name}, ${showTime(routine.start)} às ${showTime(routine.end)}, ${status}`}
+          style={styles.heading}
+        >
+          <View style={styles.cardHeader}>
+            <Text variant={now ? 'title2' : 'headline'} numberOfLines={1} style={styles.flex}>
+              {routine.name}
+            </Text>
+            <Text variant="footnote" tone="secondary">
+              {showTime(routine.start)}–{showTime(routine.end)}
+            </Text>
+          </View>
+          <Text variant="footnote" style={{ color: now ? tone : colors.textSecondary }}>
+            {status}
           </Text>
-          <Text variant="footnote" tone="secondary">
-            {showTime(routine.start)}–{showTime(routine.end)}
-          </Text>
-        </View>
-        <Text variant="footnote" style={{ color: now ? tone : colors.textSecondary }}>
-          {status}
-        </Text>
+        </Pressable>
 
         {now && routine.items.length > 0 ? (
           <View style={styles.items}>
@@ -187,6 +196,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginBottom: spacing.md,
   },
+  heading: { gap: spacing.xs },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   flex: { flex: 1 },
   items: { gap: spacing.sm, marginTop: spacing.sm },

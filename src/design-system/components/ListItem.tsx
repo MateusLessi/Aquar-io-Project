@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../theme/ThemeProvider';
@@ -48,6 +48,26 @@ export function ListItem({
 }: ListItemProps) {
   const { colors } = useTheme();
   const large = size === 'large';
+  // A row with controls beside its text (a check, "Somar 1") can't be one button: a button
+  // can't hold others (HTML forbids it, screen readers lump them). Then the whole row still
+  // opens on a tap, but only its text is the button, with the title (like dashboard blocks).
+  const split = Boolean(onPress && (leading || trailing));
+  const [held, setHeld] = useState(false);
+
+  const texts = (
+    <>
+      <Text variant="body" struck={completed} style={large && styles.titleLarge}>
+        {title}
+      </Text>
+      {typeof subtitle === 'string' ? (
+        <Text variant="footnote" tone="secondary" style={styles.subtitle}>
+          {subtitle}
+        </Text>
+      ) : subtitle ? (
+        <View style={styles.subtitle}>{subtitle}</View>
+      ) : null}
+    </>
+  );
 
   const content = (
     <>
@@ -65,18 +85,23 @@ export function ListItem({
         />
       ) : null}
       {leading ? <View style={styles.leading}>{leading}</View> : null}
-      <View style={styles.texts}>
-        <Text variant="body" struck={completed} style={large && styles.titleLarge}>
-          {title}
-        </Text>
-        {typeof subtitle === 'string' ? (
-          <Text variant="footnote" tone="secondary" style={styles.subtitle}>
-            {subtitle}
-          </Text>
-        ) : subtitle ? (
-          <View style={styles.subtitle}>{subtitle}</View>
-        ) : null}
-      </View>
+      {split ? (
+        <Pressable
+          onPress={onPress}
+          onPressIn={() => setHeld(true)}
+          onPressOut={() => setHeld(false)}
+          disabled={disabled}
+          accessibilityRole="button"
+          accessibilityLabel={title}
+          accessibilityHint={accessibilityHint}
+          accessibilityState={{ disabled, selected }}
+          style={styles.texts}
+        >
+          {texts}
+        </Pressable>
+      ) : (
+        <View style={styles.texts}>{texts}</View>
+      )}
       {trailing ? <View style={styles.trailing}>{trailing}</View> : null}
     </>
   );
@@ -96,6 +121,25 @@ export function ListItem({
       >
         {content}
       </View>
+    );
+  }
+
+  if (split) {
+    return (
+      <Pressable
+        testID={testID}
+        onPress={onPress}
+        disabled={disabled}
+        accessible={false}
+        style={({ pressed }) => [
+          styles.row,
+          large && styles.rowLarge,
+          (pressed || held || selected) && { backgroundColor: colors.surfacePressed },
+          disabled && styles.disabled,
+        ]}
+      >
+        {content}
+      </Pressable>
     );
   }
 

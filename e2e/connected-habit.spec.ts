@@ -42,6 +42,11 @@ test('a habit done from a list: marking in either place is the same mark', async
   await visible(page.getByRole('button', { name: /^Push/ })).click();
   // Each item says which habit it counts for.
   await expect(visible(page.getByText('Academia', { exact: true }))).toBeVisible();
+  // A task row with "Somar 1" beside it: only its text is a button, not the whole row (a
+  // button can't hold another; HTML forbids it and screen readers lump them together).
+  await expect(
+    page.locator(':is(button, [role="button"]) :is(button, [role="button"])'),
+  ).toHaveCount(0);
   const supino = visible(page.getByRole('button', { name: /^Supino: .* Somar 1/ }));
   for (let i = 0; i < 3; i++) await supino.click();
   await expect(visible(page.getByText('Concluídas (1)'))).toBeVisible();
