@@ -43,7 +43,7 @@ export function TidesBox({
       {view === 'month' ? (
         <TideCalendar bare todayKey={todayKey} byDay={byDay} onDay={onDay} />
       ) : (
-        <WeekChart bare todayKey={todayKey} byDay={byDay} barHeight={72} />
+        <WeekChart bare todayKey={todayKey} byDay={byDay} barHeight={96} />
       )}
     </View>
   );
