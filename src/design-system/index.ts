@@ -85,6 +85,7 @@ export {
 } from './theme/ThemeProvider';
 export { useKeyboardFocus } from './theme/useKeyboardFocus';
 export { useSvgId } from './theme/useSvgId';
+export { cascade, numberIn, useCountUp, useCountUpText, usePop } from './motion/poppy';
 export * from './tokens';
 export { withAlpha } from './utils/color';
 export { Glyph, glyphKey, glyphKeys, glyphNames, glyphs, type GlyphKey } from './glyphs';

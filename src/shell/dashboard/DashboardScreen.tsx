@@ -2,10 +2,11 @@ import { useRouter } from 'expo-router';
 import { Settings } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { toDateKey } from '@/core/dates';
 import { useProfile } from '@/core/profile/useProfile';
-import { IconButton, Screen, spacing, useBreakpoint } from '@/design-system';
+import { IconButton, Screen, cascade, spacing, useBreakpoint, useTheme } from '@/design-system';
 import { TodayHabits } from '@/features/habits/components/TodayHabits';
 import { useTodayHabitProgress } from '@/features/habits/hooks/queries';
 import { TodayRoutines } from '@/features/routines/components/TodayRoutines';
@@ -49,6 +50,7 @@ function dateLabel(date: Date): string {
  */
 export function DashboardScreen() {
   const breakpoint = useBreakpoint();
+  const { reduceMotion } = useTheme();
   const router = useRouter();
   const now = new Date();
   const todayKey = toDateKey(now);
@@ -164,22 +166,32 @@ export function DashboardScreen() {
       <InstallHint />
       {breakpoint === 'compact' ? (
         <>
-          {tankTile()}
+          {/* The blocks come in one after another (Fase 5). */}
+          <Animated.View entering={cascade(0, reduceMotion)}>{tankTile()}</Animated.View>
           {/* The day in numbers, side by side, before the full blocks. */}
-          <View style={styles.row}>
+          <Animated.View entering={cascade(1, reduceMotion)} style={styles.row}>
             <MiniHabits />
             <MiniNow />
-          </View>
-          {visible.map((id) => tile(id))}
+          </Animated.View>
+          {visible.map((id, i) => (
+            <Animated.View key={id} entering={cascade(i + 2, reduceMotion)}>
+              {tile(id)}
+            </Animated.View>
+          ))}
         </>
       ) : (
         <View style={styles.grid}>
           {rows.map((row, r) => (
             <View key={r} style={styles.row}>
-              {row.map((item) => (
-                <View key={item.id} style={[styles.cell, { flex: item.span }]}>
+              {row.map((item, c) => (
+                // The blocks come in one after another (Fase 5), row by row.
+                <Animated.View
+                  key={item.id}
+                  entering={cascade(r * 2 + c, reduceMotion)}
+                  style={[styles.cell, { flex: item.span }]}
+                >
                   {item.id === 'tank' ? tankTile(true) : tile(item.id, true)}
-                </View>
+                </Animated.View>
               ))}
             </View>
           ))}

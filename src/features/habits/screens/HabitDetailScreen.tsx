@@ -15,6 +15,7 @@ import {
   Text,
   listColors,
   spacing,
+  useCountUpText,
   useTheme,
   withAlpha,
 } from '@/design-system';
@@ -373,9 +374,11 @@ function FirstDay({ habit, tone }: { habit: HabitWithProgress; tone: string }) {
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
+  // The number counts up to its value (Fase 5).
+  const shown = useCountUpText(value);
   return (
-    <Surface style={styles.stat}>
-      <Text variant="title2">{value}</Text>
+    <Surface style={styles.stat} accessible accessibilityLabel={`${label}: ${value}`}>
+      <Text variant="title2">{shown}</Text>
       <Text variant="caption" tone="tertiary" numberOfLines={1}>
         {label}
       </Text>

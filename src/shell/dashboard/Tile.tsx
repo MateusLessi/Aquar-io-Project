@@ -1,8 +1,13 @@
 import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
-import { radius, spacing, useTheme, withAlpha } from '@/design-system';
+import { radius, spacing, springs, useTheme, withAlpha } from '@/design-system';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+/** A soft press (Fase 5): the block sinks a little and comes back with a spring. */
+const PRESSED = 0.975;
 
 /**
  * One dashboard block (Fase 4): the whole block opens its place, not only a link inside it.
@@ -29,15 +34,22 @@ export function Tile({
   fill?: boolean;
   children: ReactNode;
 }) {
-  const { colors, mode } = useTheme();
+  const { colors, mode, reduceMotion } = useTheme();
+  const scale = useSharedValue(1);
+  const press = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
+  const sink = (to: number) => {
+    if (!reduceMotion) scale.set(withSpring(to, springs.responsive));
+  };
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={onPress}
+      onPressIn={() => sink(PRESSED)}
+      onPressOut={() => sink(1)}
       // Only a block with nothing to press inside is itself the button.
       accessible={plain}
       accessibilityRole={plain ? 'button' : undefined}
       accessibilityLabel={plain ? label : undefined}
-      style={({ pressed }) => [
+      style={[
         styles.tile,
         fill && styles.fill,
         !plain && [
@@ -47,7 +59,7 @@ export function Tile({
             boxShadow: `0px 10px 26px 0px ${withAlpha(colors.cardShadow, mode === 'light' ? 0.12 : 0.35)}`,
           },
         ],
-        { transform: [{ scale: pressed ? 0.99 : 1 }] },
+        press,
       ]}
     >
       {children}
@@ -65,7 +77,7 @@ export function Tile({
           <ChevronRight size={18} color={colors.textTertiary} />
         </Pressable>
       )}
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 

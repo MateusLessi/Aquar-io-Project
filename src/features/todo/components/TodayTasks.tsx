@@ -2,8 +2,9 @@ import { useRouter } from 'expo-router';
 import { CheckSquare } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { Surface, Text, radius, spacing, useTheme } from '@/design-system';
+import { Surface, Text, cascade, radius, spacing, useTheme } from '@/design-system';
 
 import { dueStatus } from '../domain/dates';
 import type { TaskWithList } from '../domain/types';
@@ -20,7 +21,7 @@ export function TodayTasks({ bare = false }: { bare?: boolean } = {}) {
   const Rows = bare ? View : Surface;
   const router = useRouter();
   const todo = useTodo();
-  const { colors } = useTheme();
+  const { colors, reduceMotion } = useTheme();
   const { data: tasks = [], todayKey } = useToday();
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -35,19 +36,21 @@ export function TodayTasks({ bare = false }: { bare?: boolean } = {}) {
         </Text>
         <Rows>
           {items.map((task, index) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              todayKey={todayKey}
-              listColor={task.listColor}
-              listName={[...task.listPath, task.listName].join(' › ')}
-              listEmoji={task.listEmoji}
-              separator={index > 0}
-              onToggle={(done) =>
-                todo.setCompleted(task.id, done).catch((e: unknown) => console.error(e))
-              }
-              onPress={() => setSelected(task.id)}
-            />
+            // The tasks come in one after another (Fase 5).
+            <Animated.View key={task.id} entering={cascade(index, reduceMotion)}>
+              <TaskRow
+                task={task}
+                todayKey={todayKey}
+                listColor={task.listColor}
+                listName={[...task.listPath, task.listName].join(' › ')}
+                listEmoji={task.listEmoji}
+                separator={index > 0}
+                onToggle={(done) =>
+                  todo.setCompleted(task.id, done).catch((e: unknown) => console.error(e))
+                }
+                onPress={() => setSelected(task.id)}
+              />
+            </Animated.View>
           ))}
         </Rows>
       </View>

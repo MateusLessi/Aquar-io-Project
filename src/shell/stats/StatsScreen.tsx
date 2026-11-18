@@ -22,6 +22,7 @@ import {
   radius,
   spacing,
   useBreakpoint,
+  useCountUpText,
   useTheme,
   withAlpha,
 } from '@/design-system';
@@ -234,6 +235,8 @@ function Kpi({
   wide: boolean;
 }) {
   const { colors } = useTheme();
+  // The number counts up to its value (Fase 5); the label already says the final one.
+  const shown = useCountUpText(value);
   return (
     <View
       accessible
@@ -248,7 +251,7 @@ function Kpi({
         {label}
       </Text>
       <Text variant="title1" style={styles.kpiValue}>
-        {value}
+        {shown}
       </Text>
       <Text variant="caption" tone="secondary" numberOfLines={2}>
         {note}

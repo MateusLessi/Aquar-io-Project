@@ -86,9 +86,9 @@ Se alguém mudar uma cor e quebrar a legibilidade, a CI falha.
 | `Button`                | Ações (`primary`, `secondary`, `ghost`)                                                                              | pressed, focused, disabled, loading             |
 | `IconButton`            | Ações só com ícone (rótulo obrigatório)                                                                              | pressed, focused, selected, disabled            |
 | `FloatingActionButton`  | Criação principal, em forma de gota                                                                                  | pressed, focused, disabled                      |
-| `Checkbox`              | Circular; mola, ondulação e háptico ao marcar                                                                        | checked, pressed, focused, disabled             |
+| `Checkbox`              | Circular; pulo, mola, ondulação e háptico ao marcar                                                                  | checked, pressed, focused, disabled             |
 | `TextInput`             | Campo com rótulo e erro anunciado                                                                                    | focused, error, disabled                        |
-| `ListItem`              | Linha de lista; o controle à esquerda age de forma independente                                                      | pressed, selected, completed, disabled          |
+| `ListItem`              | Linha de lista; o controle à esquerda age de forma independente; `size="large"` para tarefas                         | pressed, selected, completed, disabled          |
 | `WaterLevel`            | Progresso como água enchendo uma cápsula                                                                             | 0–100% (anunciado como `progressbar`)           |
 | `Waterline`             | Onda sutil entre a superfície (cabeçalho) e o conteúdo                                                               | decorativo                                      |
 | `Sheet`                 | Painel de vidro que sobe de baixo; fecha arrastando ou tocando fora                                                  | aberto, arrastando, fechado                     |
@@ -102,6 +102,18 @@ Se alguém mudar uma cor e quebrar a legibilidade, a CI falha.
 | `Grid`                  | Grade em linhas de células iguais (sem largura em pixels, imune a zoom)                                              | —                                               |
 
 Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` / `.selection()` (ignorados na web).
+
+Outros da Fase 5: `ContentPanel` (painel do conteúdo ao lado da barra lateral, `PANEL_RADIUS`), `DeepSurface` com `sheen`, `SegmentedListMode` / `SegmentedListAction` (a barra de uma seção como lista, no celular) e `StickySlot` com `summary`.
+
+## Movimento "poppy" (Fase 5)
+
+Tudo em `src/design-system/motion/poppy.ts`, e nada disso acontece com **Reduzir movimento** (do app ou do sistema).
+
+- **Pulo ao concluir**: `usePop(gatilho, quando)` incha por um instante (1,18) e volta com a mola `buoyant`. Usado no `Checkbox` e no botão do hábito (feito hoje, e a cada +1 de um contador). Nunca no primeiro desenho.
+- **Cascata**: `cascade(índice, reduceMotion)` dá o `entering` de um `Animated.View`: entra de baixo com mola, 45 ms depois do anterior, até o oitavo (os seguintes entram juntos). Nos blocos do Início, nos cartões de hábitos e nas linhas de tarefas.
+- **Números que contam**: `useCountUpText("45%")` conta do valor anterior (zero, ao aparecer) até o novo em 650 ms, desacelerando no fim; mantém o separador e as casas decimais (`numberIn`, com testes). Nos números das Estatísticas e do detalhe do hábito; o rótulo para leitores de tela já diz o valor final.
+- **Pressão macia**: botões, chips e o check afundam com mola (`PressableScale`); os blocos do Início afundam 2,5% e voltam com mola.
+- **Regra para o aparelho**: dentro de `useAnimatedStyle` só se lê valores compartilhados. Funções comuns de JS (como `withAlpha`) rodam fora, senão o app fecha no celular.
 
 ## Plataformas
 

@@ -1,7 +1,8 @@
 import { Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { Grid, Text, radius, spacing, useBreakpoint, useTheme } from '@/design-system';
+import { Grid, Text, cascade, radius, spacing, useBreakpoint, useTheme } from '@/design-system';
 
 import type { HabitWithProgress } from '../domain/types';
 import type { HabitActions } from '../hooks/useHabitActions';
@@ -20,6 +21,7 @@ type HabitsViewProps = {
 /** The reef on top, then today's habits first and resting ones after. */
 export function HabitsView({ habits, actions, onCreate }: HabitsViewProps) {
   const breakpoint = useBreakpoint();
+  const { reduceMotion } = useTheme();
   const columns = COLUMNS[breakpoint];
 
   const today = habits.filter((h) => h.scheduledToday || h.doneToday);
@@ -27,8 +29,11 @@ export function HabitsView({ habits, actions, onCreate }: HabitsViewProps) {
 
   const grid = (items: HabitWithProgress[], withNew: boolean) => (
     <Grid columns={columns} gap={GAP} accessibilityRole="list">
-      {items.map((habit) => (
-        <HabitCard key={habit.id} habit={habit} actions={actions} />
+      {items.map((habit, i) => (
+        // The cards come in one after another (Fase 5).
+        <Animated.View key={habit.id} entering={cascade(i, reduceMotion)} style={styles.fill}>
+          <HabitCard habit={habit} actions={actions} />
+        </Animated.View>
       ))}
       {withNew ? <NewHabitCard onPress={onCreate} /> : null}
     </Grid>
@@ -87,6 +92,7 @@ function NewHabitCard({ onPress }: { onPress: () => void }) {
 }
 
 const styles = StyleSheet.create({
+  fill: { flexGrow: 1 },
   root: { gap: spacing.xl },
   section: { gap: spacing.sm },
   sectionTitle: { marginLeft: spacing.xs },

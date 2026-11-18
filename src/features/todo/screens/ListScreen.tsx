@@ -2,8 +2,18 @@ import { useRouter } from 'expo-router';
 import { ChevronDown, ChevronRight, Pencil, SearchX } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { EmptyState, IconButton, Screen, Surface, Text, spacing, useTheme } from '@/design-system';
+import {
+  EmptyState,
+  IconButton,
+  Screen,
+  Surface,
+  Text,
+  cascade,
+  spacing,
+  useTheme,
+} from '@/design-system';
 
 import { AddTaskField } from '../components/AddTaskField';
 import { ListEditorSheet } from '../components/ListEditorSheet';
@@ -23,7 +33,7 @@ export function ListScreen({
 }) {
   const router = useRouter();
   const todo = useTodo();
-  const { colors } = useTheme();
+  const { colors, reduceMotion } = useTheme();
   const { data: list, loading } = useList(listId);
   const { data: tasks = [] } = useListTasks(listId);
   const { data: place } = useFolderContents(list?.folderId ?? null);
@@ -86,15 +96,17 @@ export function ListScreen({
       {open.length > 0 ? (
         <Surface>
           {open.map((task, index) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              todayKey={todayKey}
-              listColor={list.color}
-              separator={index > 0}
-              onToggle={toggle(task.id)}
-              onPress={() => setSelected(task.id)}
-            />
+            // The tasks come in one after another (Fase 5).
+            <Animated.View key={task.id} entering={cascade(index, reduceMotion)}>
+              <TaskRow
+                task={task}
+                todayKey={todayKey}
+                listColor={list.color}
+                separator={index > 0}
+                onToggle={toggle(task.id)}
+                onPress={() => setSelected(task.id)}
+              />
+            </Animated.View>
           ))}
         </Surface>
       ) : null}

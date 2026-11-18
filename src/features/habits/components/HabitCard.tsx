@@ -13,6 +13,7 @@ import {
   touchTarget,
   useTheme,
   withAlpha,
+  usePop,
 } from '@/design-system';
 
 import { amountLabel, clockLabel, fillRatio } from '../domain/amount';
@@ -209,6 +210,11 @@ export function HabitControl({
   const running = habit.today.timerStartedAt !== null;
   const filled = habit.kind === 'check' ? habit.doneToday : running;
   const iconColor = filled ? colors.surfaceRaised : colors.textPrimary;
+  // A jump when it is done today, and on each +1 of a counter (Fase 5).
+  const pop = usePop(
+    habit.kind === 'count' ? habit.today.amount : habit.doneToday,
+    habit.kind === 'count' || habit.doneToday,
+  );
 
   let content: React.ReactNode;
   let label: string;
@@ -263,34 +269,36 @@ export function HabitControl({
   }
 
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole={checked === undefined ? 'button' : 'checkbox'}
-      accessibilityLabel={label}
-      accessibilityState={checked === undefined ? undefined : { checked }}
-      aria-checked={checked}
-      hitSlop={6}
-      style={({ pressed }) => [
-        styles.control,
-        {
-          width: size,
-          height: size,
-          borderRadius: size * 0.34,
-          backgroundColor: filled ? tone : withAlpha(tone, 0.2),
-          shadowColor: tone,
-          transform: [{ scale: pressed ? 0.92 : 1 }, { translateY: pressed ? 1 : 0 }],
-        },
-      ]}
-    >
-      {/* The top edge catches the light: the button looks raised. */}
-      <View
-        style={[
-          styles.controlShine,
-          { backgroundColor: withAlpha(specular, filled ? 0.35 : 0.12) },
+    <Animated.View style={pop}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole={checked === undefined ? 'button' : 'checkbox'}
+        accessibilityLabel={label}
+        accessibilityState={checked === undefined ? undefined : { checked }}
+        aria-checked={checked}
+        hitSlop={6}
+        style={({ pressed }) => [
+          styles.control,
+          {
+            width: size,
+            height: size,
+            borderRadius: size * 0.34,
+            backgroundColor: filled ? tone : withAlpha(tone, 0.2),
+            shadowColor: tone,
+            transform: [{ scale: pressed ? 0.92 : 1 }, { translateY: pressed ? 1 : 0 }],
+          },
         ]}
-      />
-      {content}
-    </Pressable>
+      >
+        {/* The top edge catches the light: the button looks raised. */}
+        <View
+          style={[
+            styles.controlShine,
+            { backgroundColor: withAlpha(specular, filled ? 0.35 : 0.12) },
+          ]}
+        />
+        {content}
+      </Pressable>
+    </Animated.View>
   );
 }
 

@@ -11,6 +11,7 @@ import Animated, {
 
 import { haptics } from '../haptics';
 import { useTheme } from '../theme/ThemeProvider';
+import { usePop } from '../motion/poppy';
 import { springs, timings, touchTarget } from '../tokens';
 import { PressableScale } from './PressableScale';
 
@@ -26,7 +27,7 @@ export type CheckboxProps = {
 };
 
 /**
- * Circular checkbox. Checking it fills it with a buoyant spring,
+ * Circular checkbox. Checking it makes it jump, fills it with a buoyant spring,
  * sends out a ripple ring and a light haptic tap.
  */
 export function Checkbox({ checked, onChange, label, disabled = false, testID }: CheckboxProps) {
@@ -34,6 +35,8 @@ export function Checkbox({ checked, onChange, label, disabled = false, testID }:
   const fill = useSharedValue(checked ? 1 : 0);
   const ripple = useSharedValue(0);
   const isFirstRender = useRef(true);
+  // Checking it makes the whole circle jump (Fase 5).
+  const pop = usePop(checked, checked);
 
   useEffect(() => {
     fill.set(withSpring(checked ? 1 : 0, springs.buoyant));
@@ -72,7 +75,7 @@ export function Checkbox({ checked, onChange, label, disabled = false, testID }:
       scaleTo={0.85}
       style={disabled && styles.disabled}
     >
-      <View style={styles.box}>
+      <Animated.View style={[styles.box, pop]}>
         <Animated.View
           pointerEvents="none"
           style={[styles.circle, { borderColor: colors.accent, borderWidth: 1.5 }, rippleStyle]}
@@ -83,7 +86,7 @@ export function Checkbox({ checked, onChange, label, disabled = false, testID }:
         >
           <Check size={14} strokeWidth={3} color={colors.onAccent} />
         </Animated.View>
-      </View>
+      </Animated.View>
     </PressableScale>
   );
 }
