@@ -1,3 +1,4 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Globe, Lock, Pencil, Users, type LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -83,7 +84,15 @@ export function ProfileHeader() {
   const { data: profile } = useProfile();
   const { data: progress } = useProgress();
   const { showDepth } = useGamePrefs();
-  const [editing, setEditing] = useState(false);
+  // "?edit=1" (from Personalizar: "Sua criatura e sua cor") opens the editor right away.
+  const { edit } = useLocalSearchParams<{ edit?: string }>();
+  const [editing, setEditing] = useState(edit === '1');
+  const router = useRouter();
+  const close = () => {
+    setEditing(false);
+    // Drop "?edit=1", or the editor would open again next time.
+    if (edit) router.setParams({ edit: '' });
+  };
   const gradientId = useSvgId('profile-band');
   const name = profile?.name ?? '';
   const creature: CreatureId =
@@ -147,14 +156,14 @@ export function ProfileHeader() {
         </View>
       </View>
 
-      <Sheet visible={editing} onClose={() => setEditing(false)} title="Seu perfil">
+      <Sheet visible={editing} onClose={close} title="Seu perfil">
         {editing && profile ? (
           <ProfileForm
             profile={profile}
             creature={creature}
             onSave={async (next) => {
               await repository.set(next);
-              setEditing(false);
+              close();
             }}
           />
         ) : null}

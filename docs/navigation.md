@@ -9,7 +9,7 @@ Onde cada coisa mora e como se chega nela. Proposta aprovada no checkpoint 076: 
 | Início       | sim                   | sim                   | sim                                 |
 | Aquário      | sim                   | sim                   | sim, com Hábitos / Agenda / Listas  |
 | Estatísticas | sim                   | sim                   | sim                                 |
-| Loja         | não: cartão no Perfil | sim                   | sim                                 |
+| Personalizar | não: cartão no Perfil | sim                   | sim                                 |
 | Perfil       | sim                   | sim                   | você, embaixo (avatar, nome, zona)  |
 | Ajustes      | engrenagem no Perfil  | engrenagem embaixo    | engrenagem ao lado de você          |
 

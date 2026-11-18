@@ -12,7 +12,7 @@ import TodayScreen from '@/app/(tabs)/index';
 import ProfileScreen from '@/app/(tabs)/profile/index';
 import SettingsRoute from '@/app/(tabs)/profile/settings';
 import ProfileLayout from '@/app/(tabs)/profile/_layout';
-import ShopScreen from '@/app/(tabs)/shop';
+import PersonalizeScreen from '@/app/(tabs)/personalize';
 import StatsRoute from '@/app/(tabs)/stats';
 import { createMemoryDatabase } from '@/core/database/testing';
 import { toDateKey } from '@/core/dates';
@@ -53,7 +53,7 @@ const routes = {
   '(tabs)/aquarium/index': AquariumScreen,
   '(tabs)/aquarium/habits/[id]': HabitRoute,
   '(tabs)/aquarium/lists/[id]': ListRoute,
-  '(tabs)/shop': ShopScreen,
+  '(tabs)/personalize': PersonalizeScreen,
   '(tabs)/stats': StatsRoute,
   '(tabs)/profile/_layout': ProfileLayout,
   '(tabs)/profile/index': ProfileScreen,
@@ -116,8 +116,8 @@ describe('App shell on phones', () => {
   it('offers "Criar" on Início and the Aquarium, not on the profile or the statistics', async () => {
     await renderRouter(routes, { initialUrl: '/profile' });
     expect(screen.queryByRole('button', { name: 'Criar' })).toBeNull();
-    // On phones the shop is a tile in the profile, not a tab.
-    expect(screen.queryByRole('tab', { name: 'Loja' })).toBeNull();
+    // On phones Personalizar is a tile in the profile, not a tab.
+    expect(screen.queryByRole('tab', { name: 'Personalizar' })).toBeNull();
     await fireEvent.press(screen.getByRole('tab', { name: 'Estatísticas' }));
     expect(screen.queryByRole('button', { name: 'Criar' })).toBeNull();
     await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));

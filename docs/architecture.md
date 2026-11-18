@@ -46,7 +46,7 @@ src/app/
 ├── (tabs)/aquarium/index.tsx        Aquário: Hábitos · Rotinas · Listas (?tab=habits|routines|lists)
 ├── (tabs)/aquarium/habits/[id].tsx  Um hábito
 ├── (tabs)/aquarium/lists/[id].tsx   Uma lista
-├── (tabs)/shop.tsx                  Loja (vitrine "em breve")
+├── (tabs)/personalize.tsx           Personalizar (era a Loja)
 ├── (tabs)/profile/index.tsx         Perfil + todos os ajustes
 ├── (tabs)/profile/stats.tsx         Estatísticas
 └── dev/                             prévias e catálogo (somente desenvolvimento)
@@ -54,7 +54,7 @@ src/app/
 
 - **Início** (`src/shell/dashboard/DashboardScreen.tsx`): visão resumida do dia, com saudação pelo nome do Perfil. No celular, blocos empilhados (maré, profundidade, rotinas, hábitos, tarefas, semana). No tablet em pé, 2 colunas; no tablet deitado e no notebook, um "bento" de 3 colunas com o botão Criar, o **calendário das marés** (dias mais cheios = mais pontos; maré cheia em destaque) e o **gráfico da semana** (pontos dos últimos 7 dias). Cada bloco leva à parte completa no Aquário.
 - **Aquário:** onde cada módulo é gerenciado em detalhe. Um seletor no topo escolhe o módulo; módulos futuros entram aqui. Hábitos, Rotinas e Listas são "painéis" das suas features (`HabitsPanel`, `RoutinesPanel`, `ListsPanel`).
-- **Loja:** vitrine de planos e cosméticos, sem compra (MOCK) até as Etapas 16/17.
+- **Personalizar** (era a Loja, Fase 5b): o que já dá para mudar, de graça (tema e tamanho do texto ali mesmo; atalhos para criatura e cor, blocos do Início, jogo, sons), uma linha honesta de "Em breve" e um cartão pequeno de Planos. Nada à venda até as Etapas 16/17, e nada do que existe hoje vira pago.
 - **Perfil:** nome e criatura-avatar (por aparelho por enquanto) e os ajustes.
 - **Criar (+):** no Início e no Aquário, abre "O que você quer criar?" (tarefa, hábito, rotina, lista); no Aquário, a seção aberta vem destacada (`src/shell/create/CreateFlow.tsx`).
 - **Celular:** a cápsula de águas profundas com 4 destinos; o destino ativo ganha um destaque arredondado com o nome, que desliza de uma aba para outra.

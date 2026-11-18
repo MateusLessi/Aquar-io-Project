@@ -1,11 +1,5 @@
 import { useRouter } from 'expo-router';
-import {
-  ChartColumn,
-  ChevronRight,
-  Settings,
-  ShoppingBag,
-  type LucideIcon,
-} from 'lucide-react-native';
+import { ChartColumn, ChevronRight, Settings, Palette, type LucideIcon } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -25,7 +19,7 @@ import {
 import { ProfileHeader } from './ProfileHeader';
 import { ProfileShowcase } from './Showcase';
 
-/** The person: profile, the way to statistics and the shop, and Ajustes (also the gear on top). */
+/** The person: profile, the way to statistics and Personalizar, and Ajustes (also the gear on top). */
 export function ProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
@@ -47,11 +41,11 @@ export function ProfileScreen() {
           onPress={() => router.push('/stats')}
         />
         <Tile
-          icon={ShoppingBag}
-          color="sand"
-          title="Loja"
-          subtitle="Cenários e planos"
-          onPress={() => router.push('/shop')}
+          icon={Palette}
+          color="anemone"
+          title="Personalizar"
+          subtitle="Tema, cores e o seu jeito"
+          onPress={() => router.push('/personalize')}
         />
       </View>
 

@@ -1,0 +1,31 @@
+import { expect, test, type Locator } from './fixtures';
+
+const visible = (locator: Locator) => locator.locator('visible=true').first();
+
+test('Personalizar: change the theme right there, and the shortcuts open the right place', async ({
+  page,
+}) => {
+  // From the profile (phones) or the sidebar.
+  await page.goto('/profile');
+  await visible(page.getByRole('button', { name: /^Personalizar/ })).click();
+  await expect(page).toHaveURL(/\/personalize$/);
+  await expect(visible(page.getByText('Tudo isto já é seu, de graça'))).toBeVisible();
+
+  // The theme changes here, as in Ajustes.
+  await visible(page.getByRole('radio', { name: 'Escuro' })).click();
+  await expect(visible(page.getByRole('radio', { name: 'Escuro' }))).toBeChecked();
+
+  // Nothing for sale: one honest line and a small card.
+  await expect(visible(page.getByText(/^Em breve: cenários para o aquário/))).toBeVisible();
+  await expect(visible(page.getByText('Para apoiar o app · preço a definir'))).toBeVisible();
+
+  // A shortcut opens Ajustes on the setting.
+  await visible(page.getByRole('button', { name: 'Blocos do Início' })).click();
+  await expect(page).toHaveURL(/section=home/);
+  await expect(visible(page.getByText('Cartões do painel'))).toBeVisible();
+
+  // And one opens the profile's editor.
+  await page.goto('/personalize');
+  await visible(page.getByRole('button', { name: 'Sua criatura e sua cor' })).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+});
