@@ -14,6 +14,7 @@ import {
   StickySlotHost,
   StickySlotProvider,
   spacing,
+  useBreakpoint,
   useTheme,
 } from '@/design-system';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
@@ -27,6 +28,7 @@ import { useConnect } from '../connections/ConnectProvider';
 import { ConnectedRoutinePiece } from '../connections/ConnectedRoutinePiece';
 import { ConnectedWeek } from '../connections/ConnectedWeek';
 import { useConnections } from '../connections/useConnected';
+import { AquariumCapsule } from './AquariumCapsule';
 import { taskEntries } from './taskEntries';
 
 export type AquariumTab = 'habits' | 'routines' | 'lists';
@@ -57,6 +59,7 @@ export function AquariumScreen() {
   const dated = useMemo(() => taskEntries(tasks ?? []), [tasks]);
   const [newTaskDay, setNewTaskDay] = useState<string | null>(null);
   const { reduceMotion } = useTheme();
+  const phone = useBreakpoint() === 'compact';
 
   return (
     <StickySlotProvider>
@@ -64,21 +67,25 @@ export function AquariumScreen() {
         title="Aquário"
         actions={<Button label="Conectar" variant="secondary" icon={Link2} onPress={startMode} />}
         stickyBar={
-          <GlassSurface radius="xl" depth={1} style={styles.bar}>
-            <SegmentedControl
-              accessibilityLabel="Seção do Aquário"
-              options={aquariumTabs}
-              value={tab}
-              onChange={(value) => router.setParams({ tab: value })}
-            />
-            {/* Each section's own bar (Dia / Semana… · Grade / Lista…) drops in from here. */}
-            <Animated.View
-              key={tab}
-              entering={reduceMotion ? undefined : FadeInUp.springify().damping(16)}
-            >
-              <StickySlotHost />
-            </Animated.View>
-          </GlassSurface>
+          phone ? (
+            <AquariumCapsule tab={tab} onTab={(value) => router.setParams({ tab: value })} />
+          ) : (
+            <GlassSurface radius="xl" depth={1} style={styles.bar}>
+              <SegmentedControl
+                accessibilityLabel="Seção do Aquário"
+                options={aquariumTabs}
+                value={tab}
+                onChange={(value) => router.setParams({ tab: value })}
+              />
+              {/* Each section's own bar (Dia / Semana… · Grade / Lista…) drops in from here. */}
+              <Animated.View
+                key={tab}
+                entering={reduceMotion ? undefined : FadeInUp.springify().damping(16)}
+              >
+                <StickySlotHost />
+              </Animated.View>
+            </GlassSurface>
+          )
         }
       >
         {tab === 'habits' ? <HabitsPanel /> : null}

@@ -145,8 +145,8 @@ function TodayCapsule({ habit, actions }: { habit: HabitWithProgress; actions: H
           style={[
             styles.action,
             {
-              backgroundColor: withAlpha(colors.surfaceBase, 0.8),
-              borderColor: withAlpha(colors.textPrimary, 0.18),
+              backgroundColor: withAlpha(colors.surfaceBase, 0.9),
+              shadowColor: colors.shadow,
             },
           ]}
         >
@@ -180,7 +180,10 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    borderWidth: 1,
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

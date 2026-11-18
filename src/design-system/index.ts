@@ -27,6 +27,7 @@ export {
   type ChromeInsets,
 } from './components/ChromeInsets';
 export { Dial, type DialProps } from './components/Dial';
+export { ContentPanel, PANEL_RADIUS, panelColor, useInPanel } from './components/ContentPanel';
 export { DeepSurface, type DeepSurfaceProps } from './components/DeepSurface';
 export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export {
@@ -42,11 +43,19 @@ export { RisingBubbles, type RisingBubblesProps } from './components/RisingBubbl
 export { Screen, useScreenScroll, type ScreenProps, type ScreenScroll } from './components/Screen';
 export {
   SegmentedControl,
+  SegmentedListAction,
+  SegmentedListMode,
+  useSegmentedListMode,
   type SegmentedControlProps,
   type SegmentedOption,
 } from './components/SegmentedControl';
 export { Sheet, type SheetProps } from './components/Sheet';
-export { StickySlot, StickySlotHost, StickySlotProvider } from './components/StickySlot';
+export {
+  StickySlot,
+  StickySlotHost,
+  StickySlotProvider,
+  useStickySummary,
+} from './components/StickySlot';
 export { Slider, snapToStep, type SliderProps } from './components/Slider';
 export { Surface, type SurfaceProps } from './components/Surface';
 export { Switch, type SwitchProps } from './components/Switch';
@@ -76,6 +85,7 @@ export {
 } from './theme/ThemeProvider';
 export { useKeyboardFocus } from './theme/useKeyboardFocus';
 export { useSvgId } from './theme/useSvgId';
+export { cascade, numberIn, useCountUp, useCountUpText, usePop } from './motion/poppy';
 export * from './tokens';
 export { withAlpha } from './utils/color';
 export { Glyph, glyphKey, glyphKeys, glyphNames, glyphs, type GlyphKey } from './glyphs';

@@ -189,8 +189,7 @@ function ShowcasePicker({
                 style={[
                   styles.order,
                   {
-                    backgroundColor: on ? colors.accent : 'transparent',
-                    borderColor: colors.border,
+                    backgroundColor: on ? colors.accent : colors.surfacePressed,
                   },
                 ]}
               >
@@ -256,7 +255,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

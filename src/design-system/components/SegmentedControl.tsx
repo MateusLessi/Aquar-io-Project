@@ -1,5 +1,5 @@
-import type { LucideIcon } from 'lucide-react-native';
-import { useState } from 'react';
+import { Check, type LucideIcon } from 'lucide-react-native';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { haptics } from '../haptics';
@@ -24,8 +24,70 @@ export type SegmentedControlProps<T extends string> = {
   compact?: boolean;
 };
 
+/** Set by a dropdown: its segmented controls stand as a list and tell it when you pick. */
+const ListModeContext = createContext<{ onChoose: () => void } | null>(null);
+
+/**
+ * Turns the segmented controls inside into a vertical list (the phone's dropdown of
+ * subtopics); `onChoose` runs after a pick, so the dropdown can close.
+ */
+export function SegmentedListMode({
+  onChoose,
+  children,
+}: {
+  onChoose: () => void;
+  children: ReactNode;
+}) {
+  return <ListModeContext.Provider value={{ onChoose }}>{children}</ListModeContext.Provider>;
+}
+
+/** Whether this sits in a dropdown's list (so a bar can lay its extras out as rows). */
+export function useSegmentedListMode(): boolean {
+  return useContext(ListModeContext) !== null;
+}
+
+/** An action at the end of a dropdown's list (e.g. "Novo na agenda"); it closes the list. */
+export function SegmentedListAction({
+  icon: Icon,
+  label,
+  onPress,
+}: {
+  icon: LucideIcon;
+  label: string;
+  onPress: () => void;
+}) {
+  const list = useContext(ListModeContext);
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={() => {
+        list?.onChoose();
+        onPress();
+      }}
+      style={({ pressed }) => [
+        styles.row,
+        styles.action,
+        { borderTopColor: colors.separator },
+        pressed && { backgroundColor: colors.surfacePressed },
+      ]}
+    >
+      <Icon size={18} strokeWidth={2.3} color={colors.accent} />
+      <Text variant="bodyStrong" tone="accent" style={styles.flex} numberOfLines={1}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 /** A small set of mutually exclusive options, e.g. System / Light / Dark. */
-export function SegmentedControl<T extends string>({
+export function SegmentedControl<T extends string>(props: SegmentedControlProps<T>) {
+  const list = useContext(ListModeContext);
+  return list ? <SegmentedList {...props} onChoose={list.onChoose} /> : <Segmented {...props} />;
+}
+
+function Segmented<T extends string>({
   options,
   value,
   onChange,
@@ -91,7 +153,83 @@ export function SegmentedControl<T extends string>({
   );
 }
 
+/** The same choice as a vertical list, in a dropdown. Picking closes it. */
+function SegmentedList<T extends string>({
+  options,
+  value,
+  onChange,
+  accessibilityLabel,
+  onChoose,
+}: SegmentedControlProps<T> & { onChoose: () => void }) {
+  const { colors } = useTheme();
+  return (
+    <View
+      accessibilityRole="radiogroup"
+      accessibilityLabel={accessibilityLabel}
+      style={styles.list}
+    >
+      {options.map((option) => {
+        const selected = option.value === value;
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="radio"
+            accessibilityLabel={option.label}
+            accessibilityState={{ checked: selected }}
+            aria-checked={selected}
+            onPress={() => {
+              if (!selected) {
+                haptics.selection();
+                onChange(option.value);
+              }
+              onChoose();
+            }}
+            style={({ pressed }) => [
+              styles.row,
+              {
+                backgroundColor: selected
+                  ? colors.surfaceRaised
+                  : pressed
+                    ? colors.surfacePressed
+                    : 'transparent',
+              },
+            ]}
+          >
+            {option.icon ? (
+              <option.icon
+                size={18}
+                strokeWidth={selected ? 2.3 : 1.9}
+                color={selected ? colors.textPrimary : colors.textSecondary}
+              />
+            ) : null}
+            <Text
+              variant={selected ? 'bodyStrong' : 'body'}
+              tone={selected ? 'primary' : 'secondary'}
+              style={styles.flex}
+              numberOfLines={1}
+            >
+              {option.label}
+            </Text>
+            {selected ? <Check size={18} strokeWidth={2.4} color={colors.textPrimary} /> : null}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  list: { gap: 2 },
+  row: {
+    minHeight: touchTarget,
+    borderRadius: radius.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  flex: { flex: 1 },
+  action: { marginTop: spacing.xs, borderTopWidth: StyleSheet.hairlineWidth },
   track: { flexDirection: 'row', borderRadius: radius.pill, padding: spacing.xs },
   segment: {
     flex: 1,

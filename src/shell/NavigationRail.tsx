@@ -24,7 +24,8 @@ type NavigationRailProps = {
 
 /**
  * Tablets in portrait and unfolded foldables: a slim deep-water rail with icons and short
- * labels, leaving more room for content than the full sidebar.
+ * labels, leaving more room for content than the full sidebar. The active item is an
+ * inverted square (the panel's text color), echoing the sidebar's solid piece.
  */
 export function NavigationRail({ destinations, onCreate }: NavigationRailProps) {
   const insets = useSafeAreaInsets();
@@ -38,7 +39,7 @@ export function NavigationRail({ destinations, onCreate }: NavigationRailProps) 
         { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.md },
       ]}
     >
-      <DeepSurface radius="xl" style={styles.panel}>
+      <DeepSurface radius="xl" sheen style={styles.panel}>
         <Pressable
           onPress={onCreate}
           accessibilityRole="button"
@@ -106,7 +107,8 @@ function RailItem({ icon: Icon, label, isFocused = false, onPress, ...rest }: Ra
       <View
         style={[
           styles.icon,
-          { backgroundColor: isFocused ? colors.deepAccent : 'transparent' },
+          // Fase 5: the active item is an inverted square, like the sidebar's solid piece.
+          { backgroundColor: isFocused ? colors.textPrimary : 'transparent' },
           keyboardFocused && {
             outlineColor: colors.energy,
             outlineWidth: 2,
@@ -117,7 +119,7 @@ function RailItem({ icon: Icon, label, isFocused = false, onPress, ...rest }: Ra
         <Icon
           size={24}
           strokeWidth={isFocused ? 2.2 : 1.8}
-          color={isFocused ? colors.onDeepAccent : colors.onDeepSecondary}
+          color={isFocused ? colors.surfaceBase : colors.onDeepSecondary}
         />
       </View>
       <Text
@@ -153,9 +155,9 @@ const styles = StyleSheet.create({
   },
   item: { alignItems: 'center', gap: spacing.xs, minWidth: 64 },
   icon: {
-    width: 56,
-    height: 36,
-    borderRadius: radius.pill,
+    width: 48,
+    height: 48,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

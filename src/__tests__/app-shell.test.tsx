@@ -1,5 +1,5 @@
 import { Slot } from 'expo-router';
-import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -172,9 +172,9 @@ describe('App shell on tablets and desktop', () => {
     await renderRouter(routes, { initialUrl: '/' });
     expect(screen.getByText('Aquar.io')).toBeOnTheScreen();
     expect(screen.getByRole('tab', { name: 'Início' })).toBeSelected();
-    // The active item is filled so it reads clearly on the deep-water sidebar.
-    expect(screen.getByRole('tab', { name: 'Início' })).toHaveStyle({
-      backgroundColor: lightColors.deepAccent,
+    // The active item sits on a solid piece in the panel's color, so it uses the panel's text.
+    expect(within(screen.getByRole('tab', { name: 'Início' })).getByText('Início')).toHaveStyle({
+      color: lightColors.textPrimary,
     });
 
     // You sit at the bottom: the chip opens the profile, the gear opens Ajustes.
@@ -286,6 +286,18 @@ describe('Habits', () => {
     expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
     expect(app.getPathname()).toMatch(/^\/aquarium\/habits\//);
   });
+
+  it('greets the first day of a habit instead of a row of zeros', async () => {
+    await renderRouter(routes, { initialUrl: '/aquarium?tab=habits' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Novo hábito' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Começar do zero' }));
+    await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Ler');
+    await fireEvent.press(screen.getByRole('radio', { name: 'Peixe' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar hábito' }));
+    await fireEvent.press(await screen.findByRole('button', { name: /^Ler, / }));
+    expect(await screen.findByText('Seu primeiro dia com Ler')).toBeOnTheScreen();
+    expect(screen.queryByText('Seguidos')).toBeNull();
+  });
 });
 
 describe('Repeating tasks and reminders', () => {
@@ -370,6 +382,20 @@ describe('Routines', () => {
     });
     expect(await data.events.count('ROUTINE_ITEM_CHECKED')).toBe(1);
     expect(id).toBeTruthy();
+  });
+
+  it('drops the section views down from the capsule on phones', async () => {
+    await renderRouter(routes, { initialUrl: '/aquarium?tab=routines' });
+    const agenda = await screen.findByRole('radio', { name: 'Agenda' });
+    expect(agenda).toBeChecked();
+    // Closed, the capsule says what you see; the views wait in the dropdown.
+    expect(screen.queryByRole('radio', { name: 'Semana' })).toBeNull();
+    await fireEvent.press(agenda);
+    expect(screen.getByRole('radio', { name: 'Agenda' })).toBeExpanded();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Semana' }));
+    // Picking closes it, and the capsule now reads the new view.
+    expect(screen.queryByRole('radio', { name: 'Semana' })).toBeNull();
+    expect(screen.getByText(' · Semana')).toBeOnTheScreen();
   });
 
   it('creates a routine from the Routines tab', async () => {

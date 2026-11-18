@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Check, Minus, Pencil, SearchX, Waves } from 'lucide-react-native';
+import { Check, Minus, Pencil, SearchX, Sparkles, Waves } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -15,6 +15,7 @@ import {
   Text,
   listColors,
   spacing,
+  useCountUpText,
   useTheme,
   withAlpha,
 } from '@/design-system';
@@ -136,15 +137,20 @@ export function HabitDetailScreen({
         </Surface>
       ) : null}
 
-      <View style={styles.stats}>
-        <Stat label="Seguidos" value={String(habit.streak)} />
-        <Stat label="Melhor" value={String(habit.bestStreak)} />
-        <Stat
-          label="30 dias"
-          value={habit.consistency === null ? '—' : `${Math.round(habit.consistency * 100)}%`}
-        />
-        <Stat label="Total" value={String(habit.daysDone)} />
-      </View>
+      {/* Before the first day done, a line on what to do instead of "0 · 0 · — · 0". */}
+      {habit.daysDone === 0 ? (
+        <FirstDay habit={habit} tone={tone} />
+      ) : (
+        <View style={styles.stats}>
+          <Stat label="Seguidos" value={String(habit.streak)} />
+          <Stat label="Melhor" value={String(habit.bestStreak)} />
+          <Stat
+            label="30 dias"
+            value={habit.consistency === null ? '—' : `${Math.round(habit.consistency * 100)}%`}
+          />
+          <Stat label="Total" value={String(habit.daysDone)} />
+        </View>
+      )}
 
       <Growth habit={habit} tone={tone} />
       {footer?.({ id: habit.id, name: habit.name })}
@@ -346,10 +352,33 @@ function Growth({ habit, tone }: { habit: HabitWithProgress; tone: string }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+/** The habit's first day: what to do, and when the numbers show up. */
+function FirstDay({ habit, tone }: { habit: HabitWithProgress; tone: string }) {
+  const hatches = creatureStage(habit.creature, 0) === 'egg';
   return (
-    <Surface style={styles.stat}>
-      <Text variant="title2">{value}</Text>
+    <Surface style={styles.first}>
+      <View style={[styles.firstIcon, { backgroundColor: withAlpha(tone, 0.16) }]}>
+        <Sparkles size={22} strokeWidth={2} color={tone} />
+      </View>
+      <View style={styles.flex}>
+        <Text variant="headline">Seu primeiro dia com {habit.name}</Text>
+        <Text variant="callout" tone="secondary">
+          {hatches
+            ? 'Marque hoje e o ovo começa a chocar.'
+            : 'Marque hoje e o filhote começa a crescer.'}{' '}
+          A sequência e o recorde aparecem a partir de amanhã.
+        </Text>
+      </View>
+    </Surface>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  // The number counts up to its value (Fase 5).
+  const shown = useCountUpText(value);
+  return (
+    <Surface style={styles.stat} accessible accessibilityLabel={`${label}: ${value}`}>
+      <Text variant="title2">{shown}</Text>
       <Text variant="caption" tone="tertiary" numberOfLines={1}>
         {label}
       </Text>
@@ -380,6 +409,14 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   stats: { flexDirection: 'row', gap: spacing.sm },
   stat: { flex: 1, padding: spacing.md, gap: 2, alignItems: 'center' },
+  first: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
+  firstIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   card: { padding: spacing.md, gap: spacing.sm },
   path: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.xs },
   pathStep: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },

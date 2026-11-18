@@ -8,6 +8,8 @@ export type GlassSurfaceProps = ViewProps & {
   /** Higher levels use more blur and a stronger shadow. */
   depth?: Exclude<DepthLevel, 0>;
   radius?: keyof typeof radii;
+  /** Round only the left corners (the sidebar, whose right edge meets the content panel). */
+  corners?: 'all' | 'left';
 };
 
 /**
@@ -18,6 +20,7 @@ export type GlassSurfaceProps = ViewProps & {
 export function GlassSurface({
   depth = 1,
   radius = 'xl',
+  corners = 'all',
   style,
   children,
   ...rest
@@ -25,13 +28,22 @@ export function GlassSurface({
   const { colors, scheme, supportsBlur, reduceTransparency, highContrast } = useTheme();
   const level = depthLevels[depth];
   const useBlur = supportsBlur && !reduceTransparency;
-  const borderRadius = radii[radius];
+  const r = radii[radius];
+  const round =
+    corners === 'left'
+      ? {
+          borderTopLeftRadius: r,
+          borderBottomLeftRadius: r,
+          borderTopRightRadius: 0,
+          borderBottomRightRadius: 0,
+        }
+      : { borderRadius: r };
 
   return (
     <View
       style={[
         {
-          borderRadius,
+          ...round,
           shadowColor: colors.shadow,
           shadowOpacity: level.shadowOpacity,
           shadowRadius: level.shadowRadius,
@@ -42,7 +54,7 @@ export function GlassSurface({
       ]}
       {...rest}
     >
-      <View style={[StyleSheet.absoluteFill, styles.clip, { borderRadius }]} pointerEvents="none">
+      <View style={[StyleSheet.absoluteFill, styles.clip, round]} pointerEvents="none">
         {useBlur ? (
           <BlurView
             intensity={level.blurIntensity}
@@ -55,7 +67,7 @@ export function GlassSurface({
             StyleSheet.absoluteFill,
             {
               backgroundColor: useBlur ? colors.glass : colors.glassFallback,
-              borderRadius,
+              ...round,
               // No outline: only "Alto contraste" draws the edge.
               borderWidth: highContrast ? StyleSheet.hairlineWidth : 0,
               borderColor: colors.glassBorder,

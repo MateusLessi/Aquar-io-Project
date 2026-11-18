@@ -1,5 +1,13 @@
 import { useRouter } from 'expo-router';
-import { CloudAlert, FolderPlus, Layers, LayoutGrid, List, ListPlus } from 'lucide-react-native';
+import {
+  CloudAlert,
+  FolderPlus,
+  Layers,
+  LayoutGrid,
+  List,
+  ListPlus,
+  type LucideIcon,
+} from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -32,6 +40,11 @@ import { MoveSheet, type MoveTarget } from './MoveSheet';
 
 export type ListsView = 'grid' | 'rows' | 'all';
 const VIEW_SETTING = 'lists.view';
+const listsViews: { value: ListsView; label: string; icon: LucideIcon }[] = [
+  { value: 'grid', label: 'Grade', icon: LayoutGrid },
+  { value: 'rows', label: 'Lista', icon: List },
+  { value: 'all', label: 'Tudo junto', icon: Layers },
+];
 const COLUMNS = { compact: 2, medium: 3, expanded: 4 } as const;
 
 type Item = { kind: 'folder'; folder: FolderSummary } | { kind: 'list'; list: TaskList };
@@ -151,17 +164,13 @@ export function ListsBrowser({
 
   return (
     <View style={styles.root}>
-      <StickySlot>
+      <StickySlot summary={listsViews.find((v) => v.value === view)?.label}>
         <SegmentedControl
           compact
           accessibilityLabel="Visualização"
-          options={[
-            { value: 'grid', label: 'Grade', icon: LayoutGrid },
-            { value: 'rows', label: 'Lista', icon: List },
-            { value: 'all', label: 'Tudo junto', icon: Layers },
-          ]}
+          options={listsViews}
           value={view}
-          onChange={(value) => void setView(value as ListsView)}
+          onChange={(value) => void setView(value)}
         />
       </StickySlot>
 

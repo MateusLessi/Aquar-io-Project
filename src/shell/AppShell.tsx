@@ -5,7 +5,15 @@ import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSetting } from '@/core/settings/useSetting';
-import { ChromeInsetsProvider, OceanBackground, chrome, useBreakpoint } from '@/design-system';
+import {
+  ChromeInsetsProvider,
+  ContentPanel,
+  PANEL_RADIUS,
+  OceanBackground,
+  chrome,
+  spacing,
+  useBreakpoint,
+} from '@/design-system';
 
 import { AMBIENT_SETTING, shouldShowAmbient, useCharging, type AmbientSetting } from './ambient';
 import { AmbientDisplay } from './AmbientDisplay';
@@ -122,11 +130,31 @@ function ShellLayout() {
             ) : null}
             <ChromeInsetsProvider value={chromeInsets}>
               <CreateContext.Provider value={create}>
-                <View style={styles.content}>
-                  {/* TabSlot's container does not shrink by default: a long screen (e.g. Settings)
-                  would grow past the window and never scroll. */}
-                  <TabSlot style={styles.slot} />
-                </View>
+                {breakpoint === 'expanded' ? (
+                  // The content on its own rounded panel, beside the glass sidebar (Fase 5).
+                  <View
+                    style={[
+                      styles.content,
+                      {
+                        paddingTop: insets.top + spacing.md,
+                        paddingBottom: insets.bottom + spacing.md,
+                        paddingRight: spacing.md,
+                      },
+                    ]}
+                  >
+                    {/* The panel passes under the sidebar card by its corner radius, so the
+                        card's round corners show the panel's color behind them. */}
+                    <ContentPanel style={styles.underSidebar}>
+                      <TabSlot style={styles.slot} />
+                    </ContentPanel>
+                  </View>
+                ) : (
+                  <View style={styles.content}>
+                    {/* TabSlot's container does not shrink by default: a long screen (e.g.
+                    Settings) would grow past the window and never scroll. */}
+                    <TabSlot style={styles.slot} />
+                  </View>
+                )}
               </CreateContext.Provider>
             </ChromeInsetsProvider>
           </View>
@@ -173,4 +201,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
   content: { flex: 1 },
   slot: { flexGrow: 1, flexShrink: 1, minHeight: 0 },
+  underSidebar: { marginLeft: -PANEL_RADIUS, paddingLeft: PANEL_RADIUS },
 });

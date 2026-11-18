@@ -14,6 +14,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { useSvgId } from '../theme/useSvgId';
 import { durations, type ColorScheme, type ThemeColors } from '../tokens';
 import { withAlpha } from '../utils/color';
+import { useInPanel } from './ContentPanel';
 import { RisingBubbles } from './RisingBubbles';
 
 const causticsTexture = require('../assets/caustics.png');
@@ -34,6 +35,9 @@ type OceanBackgroundProps = {
  */
 export function OceanBackground({ children, caustics = true }: OceanBackgroundProps) {
   const { colors, scheme, mode } = useTheme();
+  // On the content panel (wider screens), the panel is the surface.
+  const inPanel = useInPanel();
+  if (inPanel) return <View style={styles.root}>{children}</View>;
   if (mode === 'crystal') return <CrystalWater>{children}</CrystalWater>;
   return (
     <PlainBackground caustics={caustics} colors={colors} scheme={scheme}>
