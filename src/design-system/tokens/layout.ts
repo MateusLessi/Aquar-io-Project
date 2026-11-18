@@ -40,6 +40,8 @@ export const chrome = {
   contentMaxWidth: 760,
   /** Dashboards on tablets and desktop. */
   contentMaxWidthWide: 1240,
+  /** Screens that fill the window (Início on computers) use big monitors up to here. */
+  contentMaxWidthFit: 2400,
 } as const;
 
 /**

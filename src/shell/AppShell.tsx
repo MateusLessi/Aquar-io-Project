@@ -201,5 +201,12 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
   content: { flex: 1 },
   slot: { flexGrow: 1, flexShrink: 1, minHeight: 0 },
-  underSidebar: { marginLeft: -PANEL_RADIUS, paddingLeft: PANEL_RADIUS },
+  // Straight on the left: behind the card's round corners the panel is flush, not a second
+  // rounded card peeking out.
+  underSidebar: {
+    marginLeft: -PANEL_RADIUS,
+    paddingLeft: PANEL_RADIUS,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+  },
 });

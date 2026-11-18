@@ -33,6 +33,8 @@ type WeekRibbonProps = {
   nowMinutes: number;
   onDay: (day: string) => void;
   onSeeAll: () => void;
+  /** Only "Próxima: …", without the week (Início on computers shows the week beside it). */
+  nextOnly?: boolean;
 };
 
 /** The next routine: later today, or the first one on the coming days. */
@@ -52,7 +54,14 @@ function nextRoutine(routines: RoutineToday[], todayKey: string) {
  * "Sua semana" on the dashboard: the week's routines as a small map (one column per day, each
  * routine a bar at its hours), today lit with the "now" line, and what comes next.
  */
-export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: WeekRibbonProps) {
+export function WeekRibbon({
+  routines,
+  todayKey,
+  nowMinutes,
+  onDay,
+  onSeeAll,
+  nextOnly = false,
+}: WeekRibbonProps) {
   const { colors, scheme } = useTheme();
   const { weekStart, showTime } = useCalendarPrefs();
   if (routines.length === 0) return null;
@@ -61,6 +70,38 @@ export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: 
   const y = (minutes: number) =>
     ((minutes - hours.from * 60) / ((hours.to - hours.from) * 60)) * HEIGHT;
   const next = nextRoutine(routines, todayKey);
+  const nextUp = next ? (
+    <View
+      style={[
+        styles.next,
+        !nextOnly && { borderTopColor: colors.separator },
+        nextOnly && styles.alone,
+      ]}
+    >
+      <View
+        style={[
+          styles.emoji,
+          { backgroundColor: withAlpha(listColors[next.routine.color][scheme], 0.22) },
+        ]}
+      >
+        <Glyph
+          name={next.routine.emoji}
+          fallback="timer"
+          size={19}
+          color={listColors[next.routine.color][scheme]}
+        />
+      </View>
+      <View style={styles.flex}>
+        <Text variant="headline" numberOfLines={1}>
+          Próxima: {next.routine.name}
+        </Text>
+        <Text variant="footnote" tone="secondary">
+          {showTime(next.routine.start)}–{showTime(next.routine.end)} · {next.when}
+        </Text>
+      </View>
+    </View>
+  ) : null;
+  if (nextOnly) return nextUp;
 
   return (
     <View
@@ -127,36 +168,14 @@ export function WeekRibbon({ routines, todayKey, nowMinutes, onDay, onSeeAll }: 
           );
         })}
       </View>
-      {next ? (
-        <View style={[styles.next, { borderTopColor: colors.separator }]}>
-          <View
-            style={[
-              styles.emoji,
-              { backgroundColor: withAlpha(listColors[next.routine.color][scheme], 0.22) },
-            ]}
-          >
-            <Glyph
-              name={next.routine.emoji}
-              fallback="timer"
-              size={19}
-              color={listColors[next.routine.color][scheme]}
-            />
-          </View>
-          <View style={styles.flex}>
-            <Text variant="headline" numberOfLines={1}>
-              Próxima: {next.routine.name}
-            </Text>
-            <Text variant="footnote" tone="secondary">
-              {showTime(next.routine.start)}–{showTime(next.routine.end)} · {next.when}
-            </Text>
-          </View>
-        </View>
-      ) : null}
+      {nextUp}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // On its own: no line above, no inset.
+  alone: { borderTopWidth: 0, paddingTop: 0, marginTop: 0 },
   card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   columns: { flexDirection: 'row', gap: spacing.xs },

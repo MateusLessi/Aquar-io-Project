@@ -34,6 +34,9 @@ test('see routines as a week and as an agenda, and open the week from the dashbo
   await page.goto('/');
   await expect(visible(page.getByText('Sua semana'))).toBeVisible();
   await expect(visible(page.getByText('Próxima: Estudo'))).toBeVisible();
+  // Computers show the week under the tank (the tides), and only what comes next in the
+  // agenda: the routines' week map is on phones and tablets.
+  if (test.info().project.name === 'desktop') return;
   await visible(
     page.getByRole('button', {
       name: /^(domingo|segunda|terça|quarta|quinta|sexta|sábado) \d+: Estudo às 07:00/,

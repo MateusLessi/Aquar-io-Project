@@ -28,6 +28,8 @@ const SERIES: { key: ChartSeries; label: string; one: string; many: string }[] =
 type WeekChartProps = {
   /** Inside a dashboard block, which draws the card. */
   bare?: boolean;
+  /** Shorter bars, for a small box (Início on a laptop). */
+  barHeight?: number;
   todayKey: string;
   byDay: Record<string, Partial<DaySummary> & { points: number; fullTide: boolean }>;
 };
@@ -45,7 +47,12 @@ export function daySummary(day: (Partial<DaySummary> & { points: number }) | und
  * The last seven days as bars of points, stacked by what was done (tasks, habits, routines);
  * today stands out. Tapping a day says what was done on it, right there.
  */
-export function WeekChart({ todayKey, byDay, bare = false }: WeekChartProps) {
+export function WeekChart({
+  todayKey,
+  byDay,
+  bare = false,
+  barHeight = BAR_HEIGHT,
+}: WeekChartProps) {
   const Root = bare ? View : Surface;
   const { colors, scheme } = useTheme();
   const [chosen, setChosen] = useState<string | null>(null);
@@ -70,7 +77,7 @@ export function WeekChart({ todayKey, byDay, bare = false }: WeekChartProps) {
           const day = byDay[key];
           const points = day?.points ?? 0;
           const isToday = key === todayKey;
-          const height = points > 0 ? Math.max(8, (points / DAILY_CAP) * BAR_HEIGHT) : 0;
+          const height = points > 0 ? Math.max(8, (points / DAILY_CAP) * barHeight) : 0;
           const counts = SERIES.map((s) => day?.[s.key] ?? 0);
           const sum = counts.reduce((a, b) => a + b, 0);
           const selected = key === shown;
@@ -90,6 +97,7 @@ export function WeekChart({ todayKey, byDay, bare = false }: WeekChartProps) {
                 style={[
                   styles.track,
                   {
+                    height: barHeight,
                     backgroundColor: withAlpha(colors.accent, selected ? 0.16 : 0.08),
                     borderColor: isToday ? colors.energy : 'transparent',
                   },

@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { radius, spacing, springs, useTheme, withAlpha } from '@/design-system';
@@ -23,6 +23,7 @@ export function Tile({
   onPress,
   plain = false,
   fill = false,
+  scroll = false,
   children,
 }: {
   /** Where it goes: "Abrir hábitos". */
@@ -32,6 +33,8 @@ export function Tile({
   plain?: boolean;
   /** Stretch to the row (side by side with others); in a column it keeps its own height. */
   fill?: boolean;
+  /** A fixed-size box (Início on computers): content taller than it scrolls inside. */
+  scroll?: boolean;
   children: ReactNode;
 }) {
   const { colors, mode, reduceMotion } = useTheme();
@@ -62,7 +65,13 @@ export function Tile({
         press,
       ]}
     >
-      {children}
+      {scroll ? (
+        <ScrollView style={styles.fill} contentContainerStyle={styles.scrolled}>
+          {children}
+        </ScrollView>
+      ) : (
+        children
+      )}
       {plain ? null : (
         <Pressable
           onPress={onPress}
@@ -84,6 +93,7 @@ export function Tile({
 const styles = StyleSheet.create({
   tile: { minWidth: 0 },
   fill: { flex: 1 },
+  scrolled: { gap: spacing.md },
   card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md, overflow: 'hidden' },
   chevron: {
     position: 'absolute',
