@@ -70,6 +70,8 @@ export function Checkbox({ checked, onChange, label, disabled = false, testID }:
       accessibilityRole="checkbox"
       accessibilityLabel={label}
       accessibilityState={{ checked, disabled }}
+      // On the web, accessibilityState alone does not say it is checked (like Switch).
+      aria-checked={checked}
       hitSlop={(touchTarget - SIZE) / 2}
       focusRadius={SIZE}
       scaleTo={0.85}
