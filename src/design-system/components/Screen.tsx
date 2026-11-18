@@ -47,6 +47,12 @@ export type ScreenProps = {
    * top of the screen instead of leaving it (the Aquarium's sections).
    */
   stickyBar?: ReactNode;
+  /**
+   * Fill the window exactly, with no page scroll (Início on computers): the content gets the
+   * height left under the title and lays itself out in it. A window too short for it still
+   * scrolls, so nothing is squeezed.
+   */
+  fit?: boolean;
   testID?: string;
 };
 
@@ -63,6 +69,7 @@ export function Screen({
   actions,
   wide = false,
   stickyBar,
+  fit = false,
   testID,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
@@ -104,12 +111,15 @@ export function Screen({
         testID={testID}
         onScroll={onScroll}
         scrollEventThrottle={16}
-        contentContainerStyle={{
-          paddingTop: contentTop,
-          paddingBottom: chromeInsets.bottom + spacing.xxxl,
-        }}
+        contentContainerStyle={[
+          {
+            paddingTop: contentTop,
+            paddingBottom: chromeInsets.bottom + (fit ? spacing.lg : spacing.xxxl),
+          },
+          fit && styles.grow,
+        ]}
       >
-        <View style={[styles.column, wide && styles.wide]}>
+        <View style={[styles.column, wide && styles.wide, fit && styles.fit]}>
           {onBack || actions ? (
             <View style={styles.toolbar}>
               {onBack ? (
@@ -139,7 +149,7 @@ export function Screen({
           ) : null}
           <Waterline />
           <ScreenScrollContext.Provider value={reveal}>
-            <View style={styles.body}>{children}</View>
+            <View style={[styles.body, fit && styles.fitBody]}>{children}</View>
           </ScreenScrollContext.Provider>
         </View>
       </Animated.ScrollView>
@@ -155,6 +165,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   wide: { maxWidth: chrome.contentMaxWidthWide },
+  grow: { flexGrow: 1 },
+  // Fit: the whole width of big monitors too, and the height left under the title.
+  fit: { flex: 1, maxWidth: chrome.contentMaxWidthFit },
+  fitBody: { flex: 1, minHeight: 460 },
   toolbar: {
     flexDirection: 'row',
     alignItems: 'center',

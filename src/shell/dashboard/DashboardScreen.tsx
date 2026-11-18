@@ -21,11 +21,12 @@ import { useProgress } from '../progress/useProgress';
 import { useDashboardCards, useGamePrefs, type DashboardCardId } from '../settings/prefs';
 import { WeekStatsCard } from '../stats/WeekStatsCard';
 import { InstallHint } from '../install/InstallHint';
-import { packBento } from './bento';
+import { fitBoard, fitShape, packBento } from './bento';
 import { HomeTank } from './HomeTank';
 import { MiniHabits, MiniNow } from './MiniTiles';
 import { Tile } from './Tile';
 import { TideCalendar } from './TideCalendar';
+import { TidesBox } from './TidesBox';
 import { WeekChart } from './WeekChart';
 
 function greeting(date: Date, name: string): string {
@@ -74,7 +75,14 @@ export function DashboardScreen() {
     depth: { node: <DepthGauge />, label: 'Abrir o perfil', open: go('/profile') },
     weekStats: { node: <WeekStatsCard bare />, label: 'Abrir estatísticas', open: go('/stats') },
     routines: {
-      node: <TodayRoutines bare renderExtra={(routine) => <RoutineExtras routine={routine} />} />,
+      node: (
+        <TodayRoutines
+          bare
+          // On computers the week sits beside it, under the tank: only today here.
+          week={breakpoint !== 'expanded'}
+          renderExtra={(routine) => <RoutineExtras routine={routine} />}
+        />
+      ),
       label: 'Abrir a agenda',
       open: go({ pathname: '/aquarium', params: { tab: 'routines', view: 'timeline' } }),
     },
@@ -123,13 +131,14 @@ export function DashboardScreen() {
     .filter((c) => c.visible && (c.id !== 'depth' || (showDepth && breakpoint === 'compact')))
     .filter((c) => c.id !== 'calendar' || breakpoint !== 'compact')
     .map((c) => c.id);
-  const tile = (id: DashboardCardId, fill = false) => (
+  const tile = (id: DashboardCardId, fill = false, scroll = false) => (
     <Tile
       key={id}
       label={blocks[id].label}
       onPress={blocks[id].open}
       plain={id === 'depth'}
       fill={fill}
+      scroll={scroll}
     >
       {blocks[id].node}
     </Tile>
@@ -139,6 +148,13 @@ export function DashboardScreen() {
       {fill ? <FillingTank done={done} total={total} /> : tide}
     </Tile>
   );
+
+  // Computers: the tides box (week or month), from whichever of the two the person kept.
+  const tidesId: DashboardCardId | undefined = visible.includes('week')
+    ? 'week'
+    : visible.includes('calendar')
+      ? 'calendar'
+      : undefined;
 
   // Wider screens: a grid that fills every row (no column ends early, Fase 4).
   const columns = wide ? 3 : 2;
@@ -152,6 +168,8 @@ export function DashboardScreen() {
       title={greeting(now, name)}
       eyebrow={dateLabel(now)}
       wide={wide}
+      // Computers: the whole day in one window, no page scroll.
+      fit={wide}
       // Wider screens reach Ajustes from the sidebar or the rail.
       actions={
         breakpoint === 'compact' ? (
@@ -179,6 +197,33 @@ export function DashboardScreen() {
             </Animated.View>
           ))}
         </>
+      ) : wide ? (
+        <FitGrid
+          // The week and the month are one box with a switch, under the tank.
+          ids={visible.filter((id) => id !== (tidesId === 'week' ? 'calendar' : 'week'))}
+          under={tidesId}
+          tank={tankTile(true)}
+          tile={(id) =>
+            id === tidesId ? (
+              <Tile key={id} label="Abrir estatísticas" onPress={go('/stats')} fill scroll>
+                <TidesBox
+                  todayKey={todayKey}
+                  byDay={byDay}
+                  initial={id === 'calendar' ? 'month' : 'week'}
+                  onDay={(day) =>
+                    router.navigate({
+                      pathname: '/aquarium',
+                      params: { tab: 'routines', view: 'month', day },
+                    })
+                  }
+                />
+              </Tile>
+            ) : (
+              tile(id, true, true)
+            )
+          }
+          reduceMotion={reduceMotion}
+        />
       ) : (
         <View style={styles.grid}>
           {rows.map((row, r) => (
@@ -198,6 +243,65 @@ export function DashboardScreen() {
         </View>
       )}
     </Screen>
+  );
+}
+
+/**
+ * Computers (Fase 5): Início fills the window with no page scroll, whatever the screen,
+ * from a laptop to a 27" monitor. The tank takes the first column, the day's agenda the last,
+ * and the other blocks stack in the columns between, as many as fit, in the person's order
+ * (Ajustes → Início). Each box keeps its size; what is taller scrolls inside it.
+ */
+function FitGrid({
+  ids,
+  under,
+  tank,
+  tile,
+  reduceMotion,
+}: {
+  ids: DashboardCardId[];
+  under?: DashboardCardId;
+  tank: ReactNode;
+  tile: (id: DashboardCardId) => ReactNode;
+  reduceMotion: boolean;
+}) {
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null);
+  // Until the window is measured, a laptop-sized guess (no empty first frame).
+  const { width, height } = size ?? { width: 1100, height: 600 };
+  const board = fitBoard(ids, fitShape(width, height), 'routines', under);
+  let order = 0;
+  return (
+    <View
+      style={styles.board}
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
+        if (!size || Math.abs(size.width - width) > 1 || Math.abs(size.height - height) > 1)
+          setSize({ width, height });
+      }}
+    >
+      <>
+        <View style={styles.column}>
+          <Animated.View entering={cascade(order++, reduceMotion)} style={styles.tankBox}>
+            {tank}
+          </Animated.View>
+          {board.underTank ? (
+            <Animated.View entering={cascade(order++, reduceMotion)} style={styles.box}>
+              {tile(board.underTank)}
+            </Animated.View>
+          ) : null}
+        </View>
+        {board.columns.map((column) => (
+          <View key={column.join()} style={styles.column}>
+            {column.map((id) => (
+              // The blocks come in one after another (Fase 5).
+              <Animated.View key={id} entering={cascade(order++, reduceMotion)} style={styles.box}>
+                {tile(id)}
+              </Animated.View>
+            ))}
+          </View>
+        ))}
+      </>
+    </View>
   );
 }
 
@@ -230,4 +334,9 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.lg, alignItems: 'stretch' },
   cell: { minWidth: 0, flexBasis: 0 },
   fill: { flex: 1, minHeight: TANK_MIN },
+  board: { flex: 1, flexDirection: 'row', gap: spacing.lg },
+  column: { flex: 1, flexBasis: 0, minWidth: 0, gap: spacing.lg },
+  box: { flex: 1, flexBasis: 0, minHeight: 0 },
+  // The tank keeps two thirds of its column when the tides sit under it.
+  tankBox: { flex: 2, flexBasis: 0, minHeight: 0 },
 });

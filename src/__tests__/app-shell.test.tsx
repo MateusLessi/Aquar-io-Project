@@ -415,14 +415,16 @@ describe('Routines', () => {
 describe('Início as a bento on large screens', () => {
   beforeEach(() => setWindowWidth(1240));
 
-  it('shows the tide calendar and the week chart as blocks that open their place', async () => {
+  it('fits the day in one window: the tank, and the tides as a week or a month under it', async () => {
     await renderRouter(routes, { initialUrl: '/' });
     // "Criar" lives in the sidebar only.
     expect(screen.getAllByRole('button', { name: 'Criar' })).toHaveLength(1);
     expect(screen.getByRole('button', { name: 'Abrir o Aquário' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Abrir a agenda do mês' })).toBeOnTheScreen();
-    expect(screen.getByText('0 dias de maré cheia')).toBeOnTheScreen();
     expect(screen.getByLabelText(/^Sua semana: 0 pontos/)).toBeOnTheScreen();
+    // The same box switches to the month, and remembers it.
+    await fireEvent.press(screen.getByRole('radio', { name: 'Mês' }));
+    expect(await screen.findByText('0 dias de maré cheia')).toBeOnTheScreen();
+    await waitFor(async () => expect(await data.settings.get('dashboard.tides')).toBe('month'));
   });
 });
 

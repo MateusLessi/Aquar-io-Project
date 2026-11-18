@@ -19,8 +19,11 @@ import { WeekRibbon } from './WeekRibbon';
 export function TodayRoutines({
   renderExtra,
   bare = false,
+  week = true,
 }: {
   renderExtra?: (routine: RoutineToday) => React.ReactNode;
+  /** The week at a glance on top. Off on Início on computers, which shows the week beside it. */
+  week?: boolean;
   /**
    * Inside a dashboard block ("Agenda de hoje"): today only, under one title; the block itself
    * opens the agenda.
@@ -42,7 +45,9 @@ export function TodayRoutines({
           Agenda de hoje
         </Text>
       ) : null}
+      {/* On computers, only what comes next: the week sits beside it. */}
       <WeekRibbon
+        nextOnly={!week}
         routines={routines}
         todayKey={todayKey}
         nowMinutes={nowMinutes}
