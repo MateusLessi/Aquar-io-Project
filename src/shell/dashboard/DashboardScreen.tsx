@@ -337,6 +337,6 @@ const styles = StyleSheet.create({
   board: { flex: 1, flexDirection: 'row', gap: spacing.lg },
   column: { flex: 1, flexBasis: 0, minWidth: 0, gap: spacing.lg },
   box: { flex: 1, flexBasis: 0, minHeight: 0 },
-  // The tank keeps two thirds of its column when the tides sit under it.
-  tankBox: { flex: 2, flexBasis: 0, minHeight: 0 },
+  // The tank keeps 60% of its column when the tides sit under it (room for the week's bars).
+  tankBox: { flex: 1.5, flexBasis: 0, minHeight: 0 },
 });
