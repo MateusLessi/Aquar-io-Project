@@ -48,6 +48,9 @@ test('Pular goes straight into an empty app', async ({ page }) => {
   await page.getByRole('button', { name: 'Pular' }).click();
   await expect(page.getByRole('button', { name: 'Pular' })).toHaveCount(0);
   await page.reload();
-  await expect(visible(page.getByText(/Bom dia|Boa tarde|Boa noite/))).toBeVisible();
+  // Início: the greeting (phones, tablets), or the day itself with no title (computers).
+  await expect(
+    page.getByRole('heading', { name: /^(Bom dia|Boa tarde|Boa noite|Início)/ }),
+  ).toHaveCount(1);
   await expect(page.getByRole('button', { name: 'Começar o mergulho' })).toHaveCount(0);
 });

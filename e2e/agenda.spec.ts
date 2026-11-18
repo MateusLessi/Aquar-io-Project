@@ -61,7 +61,8 @@ test("today's events show on Início and open from there", async ({ page }) => {
   await page.waitForTimeout(1500);
 
   await page.goto('/');
-  await expect(visible(page.getByText('Agenda de hoje'))).toBeVisible();
+  // "Agenda de hoje", or "Agenda · <date>" on computers (Início shows no date there).
+  await expect(visible(page.getByText(/^Agenda( de hoje| · )/))).toBeVisible();
   await visible(page.getByRole('button', { name: /^Consulta, o dia todo/ })).click();
   await expect(page.getByRole('button', { name: 'Apagar evento' })).toBeVisible();
 });

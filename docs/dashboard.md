@@ -8,7 +8,8 @@ No PC (largura "expanded"), o Início **cabe na janela, sem rolar a página**, d
 
 - **Coluna do aquário**: o tanque (maré do dia, sequência, profundidade), com a caixa **Marés** embaixo quando a coluna tem três caixas: Semana ou Mês num seletor, e a escolha fica salva (`dashboard.tides`).
 - **Coluna(s) do meio**: os blocos na ordem de Ajustes → Início (por padrão Esta semana, Hábitos de hoje, Tarefas de hoje), três por coluna (duas numa janela baixa).
-- **Coluna da direita**: a **Agenda de hoje** inteira: "Próxima: …" e as rotinas de hoje (a semana das rotinas fica no celular e no tablet).
+- **Sem saudação no PC**: o título "Boa tarde" e a onda saem (cada linha conta ali); para leitores de tela fica um título "Início" invisível (`Screen` com `titleHidden`). A data vai para o título da Agenda. No celular e no tablet a saudação continua: lá a página rola e ela é a boas-vindas.
+- **Coluna da direita**: a **Agenda** ("Agenda · quarta-feira, 18 de novembro") inteira: "Próxima: …" e as rotinas de hoje (a semana das rotinas fica no celular e no tablet).
 - Monitor largo ganha uma coluna a mais, mas só se ela tiver pelo menos duas caixas; senão as outras ficam mais largas.
 - Cada caixa tem tamanho fixo: o que passa dela rola **dentro dela** (`Tile` com `scroll`). O que não couber na janela fica de fora do Início (continua no Aquário e nas Estatísticas).
 - Janela baixa demais (menos de ~460 px para os blocos): a página volta a rolar, para nada ficar espremido.
