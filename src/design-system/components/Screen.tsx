@@ -53,6 +53,11 @@ export type ScreenProps = {
    * scrolls, so nothing is squeezed.
    */
   fit?: boolean;
+  /**
+   * No visible title (Início on computers, where every line counts): the title is still there
+   * for screen readers, and the content starts at the top.
+   */
+  titleHidden?: boolean;
   testID?: string;
 };
 
@@ -70,6 +75,7 @@ export function Screen({
   wide = false,
   stickyBar,
   fit = false,
+  titleHidden = false,
   testID,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
@@ -88,7 +94,7 @@ export function Screen({
   );
   // Where the sticky bar starts in the content, and where it stops on screen.
   const [barY, setBarY] = useState(0);
-  const contentTop = insets.top + spacing.xxl;
+  const contentTop = insets.top + (titleHidden ? spacing.lg : spacing.xxl);
   // No bar over the content (it took too much room): the sticky bar stops at the very top.
   const stopAt = insets.top + spacing.sm;
   const stickyStyle = useAnimatedStyle(() => ({
@@ -130,15 +136,21 @@ export function Screen({
               <View style={styles.actions}>{actions}</View>
             </View>
           ) : null}
-          <Animated.View style={[styles.header, largeTitleStyle]}>
-            {eyebrow ? (
-              <Text variant="footnote" tone="secondary" style={styles.eyebrow}>
-                {eyebrow}
-              </Text>
-            ) : null}
-            <Text variant="largeTitle">{title}</Text>
-            {accessory ? <View style={styles.accessory}>{accessory}</View> : null}
-          </Animated.View>
+          {titleHidden ? (
+            <Text variant="largeTitle" style={styles.hidden}>
+              {title}
+            </Text>
+          ) : (
+            <Animated.View style={[styles.header, largeTitleStyle]}>
+              {eyebrow ? (
+                <Text variant="footnote" tone="secondary" style={styles.eyebrow}>
+                  {eyebrow}
+                </Text>
+              ) : null}
+              <Text variant="largeTitle">{title}</Text>
+              {accessory ? <View style={styles.accessory}>{accessory}</View> : null}
+            </Animated.View>
+          )}
           {stickyBar ? (
             <Animated.View
               onLayout={(e) => setBarY(e.nativeEvent.layout.y)}
@@ -147,7 +159,7 @@ export function Screen({
               {stickyBar}
             </Animated.View>
           ) : null}
-          <Waterline />
+          {titleHidden ? null : <Waterline />}
           <ScreenScrollContext.Provider value={reveal}>
             <View style={[styles.body, fit && styles.fitBody]}>{children}</View>
           </ScreenScrollContext.Provider>
@@ -182,4 +194,6 @@ const styles = StyleSheet.create({
   accessory: { marginTop: spacing.md, flexDirection: 'row' },
   sticky: { marginTop: spacing.md, zIndex: 10, elevation: 10 },
   body: { marginTop: spacing.md, gap: spacing.lg },
+  // Read by screen readers, not drawn.
+  hidden: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', opacity: 0 },
 });

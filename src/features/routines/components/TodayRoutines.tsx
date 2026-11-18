@@ -20,10 +20,13 @@ export function TodayRoutines({
   renderExtra,
   bare = false,
   week = true,
+  date,
 }: {
   renderExtra?: (routine: RoutineToday) => React.ReactNode;
   /** The week at a glance on top. Off on Início on computers, which shows the week beside it. */
   week?: boolean;
+  /** Today's date beside the title ("Agenda · quarta, 18 de novembro"), where Início shows no date. */
+  date?: string;
   /**
    * Inside a dashboard block ("Agenda de hoje"): today only, under one title; the block itself
    * opens the agenda.
@@ -41,8 +44,13 @@ export function TodayRoutines({
   return (
     <View style={styles.root}>
       {bare ? (
-        <Text variant="overline" tone="tertiary" style={styles.title}>
-          Agenda de hoje
+        <Text
+          variant="overline"
+          tone="tertiary"
+          numberOfLines={1}
+          style={[styles.title, styles.clear]}
+        >
+          {date ? `Agenda · ${date}` : 'Agenda de hoje'}
         </Text>
       ) : null}
       {/* On computers, only what comes next: the week sits beside it. */}
@@ -110,4 +118,6 @@ const styles = StyleSheet.create({
   root: { gap: spacing.lg },
   events: { gap: spacing.sm },
   title: { marginLeft: spacing.xs },
+  // Clear of the block's corner arrow.
+  clear: { paddingRight: spacing.xl },
 });

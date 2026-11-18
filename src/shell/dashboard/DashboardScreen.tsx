@@ -80,6 +80,7 @@ export function DashboardScreen() {
           bare
           // On computers the week sits beside it, under the tank: only today here.
           week={breakpoint !== 'expanded'}
+          date={breakpoint === 'expanded' ? dateLabel(now) : undefined}
           renderExtra={(routine) => <RoutineExtras routine={routine} />}
         />
       ),
@@ -165,7 +166,9 @@ export function DashboardScreen() {
 
   return (
     <Screen
-      title={greeting(now, name)}
+      // Computers: no greeting (every line counts there); the date moves to the agenda.
+      title={wide ? 'Início' : greeting(now, name)}
+      titleHidden={wide}
       eyebrow={dateLabel(now)}
       wide={wide}
       // Computers: the whole day in one window, no page scroll.
