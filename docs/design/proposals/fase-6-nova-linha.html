@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Aquar.io · Nova linha</title>
+<style>
+:root{
+  --orange:#FF5B04; --midnight:#075056; --gun:#233038; --bg:#161F25; --deep:#10171C;
+  --ivory:#FDF6E3; --sand:#F4D47C; --silver:#D3DBDD; --muted:#AAB6BA; --turq:#4FC9B8; --line:rgba(211,219,221,.1);
+}
+*{box-sizing:border-box;margin:0}
+body{background:#0c1216;color:var(--ivory);font-family:"Plus Jakarta Sans",system-ui,sans-serif;padding:40px;width:1820px}
+h1{font-size:40px;letter-spacing:-.02em}
+h2{font-size:24px;margin:44px 0 6px}
+.lead{color:var(--silver);opacity:.85;font-size:16px;line-height:1.55;max-width:1200px;margin-top:8px}
+.principles{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.principles span{background:var(--gun);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600}
+.principles b{color:var(--sand)}
+.row{display:flex;gap:26px;margin-top:20px;align-items:flex-start}
+.cap{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px 6px}
+
+/* phone */
+.phone{width:340px;height:720px;border-radius:46px;border:8px solid #2b3a41;background:var(--bg);position:relative;overflow:hidden;flex:none}
+.scr{position:absolute;inset:0;padding:48px 16px 0;overflow:hidden}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--gun);display:grid;place-items:center;font-size:15px}
+.logo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:19px}
+.logo img{width:16px;transform:rotate(90deg)}
+.hello{font-size:22px;font-weight:800;margin:2px 2px 2px}
+.sub{font-size:13px;color:var(--silver);opacity:.8;margin:0 2px 12px}
+.card{background:var(--gun);border-radius:22px}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:16px 4px 8px;font-weight:800;font-size:15px}
+.sec span{color:var(--muted);font-weight:600;font-size:12px}
+.hab{display:flex;align-items:center;gap:11px;background:var(--gun);border-radius:18px;padding:9px 11px;margin-bottom:7px;font-size:14px;font-weight:600}
+.thumb{width:36px;height:36px;border-radius:12px;background:#1a272e;display:grid;place-items:center;flex:none}
+.thumb img{max-width:26px;max-height:26px}
+.hab small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.chk{margin-left:auto;width:26px;height:26px;border-radius:50%;border:2px solid #5d6c72;display:grid;place-items:center;font-size:13px;color:#0b2a2e;font-weight:900;flex:none}
+.chk.on{background:var(--turq);border-color:var(--turq)}
+.tabbar{position:absolute;left:14px;right:14px;bottom:14px;height:62px;border-radius:31px;background:rgba(35,48,56,.95);display:flex;align-items:center;justify-content:space-around;padding:0 6px;font-size:12px;color:var(--muted)}
+.tabbar .on{background:var(--midnight);color:var(--ivory);padding:10px 14px;border-radius:22px;font-weight:700}
+.tabbar .create{width:46px;height:46px;border-radius:16px;background:var(--orange);color:#1A1410;display:grid;place-items:center;font-size:26px;font-weight:800}
+
+/* consistency ring */
+.consist{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.ring{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;flex:none;
+  background:radial-gradient(closest-side,var(--gun) 76%,transparent 78% 100%),conic-gradient(var(--sand) 0 72%,#33444c 72% 100%)}
+.consist b{display:block;font-size:15px}.consist span{font-size:12px;color:var(--silver);opacity:.8}
+
+/* pond */
+.pond{position:relative;overflow:hidden;background:linear-gradient(165deg,#13a08a 0%,#0b7a70 28%,#075056 60%,#06343f 100%)}
+.pond::before{content:"";position:absolute;inset:-30%;background:radial-gradient(ellipse at 30% 20%,rgba(190,255,235,.22),transparent 45%),radial-gradient(ellipse at 75% 60%,rgba(190,255,235,.1),transparent 40%);animation:light 12s ease-in-out infinite alternate}
+@keyframes light{to{transform:translate(8%,6%)}}
+.leaves{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.swim{position:absolute;left:0;top:0;offset-rotate:auto;animation:go var(--t) linear infinite;animation-delay:var(--d)}
+@keyframes go{from{offset-distance:0%}to{offset-distance:100%}}
+.swim img{display:block;transform:rotate(90deg);filter:drop-shadow(0 12px 10px rgba(0,0,0,.35))}
+.swim .wig{animation:wig 1.2s ease-in-out infinite alternate}
+@keyframes wig{from{transform:rotate(84deg)}to{transform:rotate(96deg)}}
+.swim .pulse{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:rotate(90deg) scale(1)}50%{transform:rotate(90deg) scale(.9,1.05)}}
+.far{filter:brightness(.3) saturate(.6) blur(1.4px);opacity:.75}
+.bub{position:absolute;border-radius:50%;border:1.5px solid rgba(220,255,245,.55);animation:rise var(--t) linear infinite}
+@keyframes rise{from{transform:translateY(0);opacity:0}15%{opacity:1}to{transform:translateY(-150px);opacity:0}}
+.pondTag{position:absolute;left:12px;bottom:12px;background:rgba(22,31,37,.78);backdrop-filter:blur(8px);border-radius:16px;padding:7px 12px;font-size:12px}
+.pondTag b{font-size:20px;margin-right:5px}
+.pondGo{position:absolute;right:12px;bottom:12px;background:rgba(22,31,37,.78);border-radius:14px;padding:8px 11px;font-size:12px;font-weight:700}
+
+/* creature detail */
+.hero{height:300px;border-radius:0 0 34px 34px;margin:-48px -16px 0;position:relative}
+.big{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%) rotate(-18deg);width:150px;filter:drop-shadow(0 22px 18px rgba(0,0,0,.4));animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translate(-50%,-54%) rotate(-14deg)}}
+.back{position:absolute;left:16px;top:50px;background:rgba(22,31,37,.7);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700}
+.name{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 2px}
+.name b{font-size:24px}
+.stage{background:rgba(79,201,184,.16);color:var(--turq);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800}
+.bar{height:10px;border-radius:5px;background:#2f3f47;overflow:hidden;margin:10px 2px 4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--turq),var(--sand))}
+.steps{display:flex;justify-content:space-between;align-items:center;margin:8px 6px;position:relative}
+.steps::before{content:"";position:absolute;left:14px;right:14px;top:14px;height:3px;background:#2f3f47}
+.st{position:relative;text-align:center;font-size:11px;color:var(--muted);width:60px}
+.st i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;margin:0 auto 4px;background:#2f3f47;font-style:normal;font-weight:900;color:#0b2a2e}
+.st.ok i{background:var(--turq)}.st.now i{background:var(--sand);box-shadow:0 0 0 4px rgba(244,212,124,.25)}.st.now{color:var(--ivory);font-weight:700}
+.week{display:flex;gap:6px;margin:6px 2px}
+.week span{flex:1;height:34px;border-radius:10px;background:#2b3a41;display:grid;place-items:center;font-size:11px;color:var(--muted)}
+.week .on{background:var(--midnight);color:var(--ivory);font-weight:700}
+.btn{display:block;text-align:center;background:var(--orange);color:#1A1410;font-weight:800;border-radius:18px;padding:14px;margin-top:14px;font-size:15px}
+
+/* folders */
+.folders{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.folder{position:relative;height:150px}
+.folder svg{position:absolute;inset:0;width:100%;height:100%}
+.folder .in{position:relative;height:100%;padding:30px 14px 12px;display:flex;flex-direction:column;justify-content:space-between;color:#16110d}
+.dot{width:38px;height:38px;border-radius:50%;background:#16110d;display:grid;place-items:center}
+.dot svg{position:static;width:18px;height:18px}
+.folder b{font-size:26px;line-height:1}.folder small{font-size:12px;font-weight:700;opacity:.75}
+.lst{display:flex;align-items:center;gap:12px;background:var(--gun);border-radius:18px;padding:12px;margin-top:8px;font-size:14px;font-weight:600}
+.lst i{width:5px;height:30px;border-radius:3px;flex:none}
+.lst span{margin-left:auto;color:var(--muted);font-size:13px}
+
+/* agenda */
+.days{display:flex;gap:6px;margin-bottom:12px}
+.days span{flex:1;border-radius:14px;background:var(--gun);text-align:center;padding:7px 0;font-size:11px;color:var(--muted)}
+.days span b{display:block;font-size:16px;color:var(--ivory)}
+.days .on{background:var(--midnight)}.days .on b{color:var(--sand)}
+.tl{display:flex;gap:10px;margin-bottom:10px}
+.tl .t{width:40px;font-size:11px;color:var(--muted);padding-top:12px;text-align:right}
+.ev{flex:1;background:var(--gun);border-radius:18px;padding:11px 13px;font-size:14px;font-weight:700}
+.ev small{display:block;font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}
+.ev.now{background:var(--midnight);box-shadow:inset 4px 0 0 var(--sand)}
+.ev.now small{color:var(--sand)}
+.it{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-top:8px}
+.it .chk{margin:0;width:20px;height:20px;font-size:10px}
+
+/* desktop */
+.desk{width:1240px;height:720px;border-radius:22px;background:#0c1216;border:8px solid #2b3a41;display:flex;gap:16px;padding:16px;flex:none;position:relative;overflow:hidden}
+.side{width:230px;border-radius:26px;background:linear-gradient(170deg,#0B5F66,#06363C);padding:20px 0 16px 18px;display:flex;flex-direction:column;position:relative;z-index:1}
+.side .logo{font-size:22px;margin-bottom:22px}
+.side .logo img{width:20px}
+.nav{display:flex;align-items:center;gap:12px;height:44px;padding-left:12px;font-size:15px;color:var(--silver);border-radius:16px 0 0 16px}
+.nav.on{background:var(--bg);color:var(--ivory);font-weight:700}
+.side .now{margin:auto 18px 12px 0;background:rgba(253,246,227,.08);border-radius:18px;padding:12px;font-size:12px}
+.side .now b{display:block;font-size:13px;color:var(--ivory)}
+.side .cta{margin-right:18px;background:var(--orange);color:#1A1410;font-weight:800;border-radius:16px;padding:12px;text-align:center}
+.panel{flex:1;background:var(--bg);border-radius:0 26px 26px 0;margin-left:-40px;padding:18px 18px 18px 58px;display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px}
+.col{display:flex;flex-direction:column;gap:14px;min-height:0}
+.box{background:var(--gun);border-radius:22px;padding:14px 16px;overflow:hidden}
+.box h4{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+
+/* system board */
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.tile{background:#141c21;border-radius:22px;padding:18px}
+.tile h3{font-size:15px;margin-bottom:12px}
+.sw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sw div{border-radius:14px;padding:10px;height:76px;font-size:12px;font-weight:800}
+.sw span{display:block;font-weight:500;font-size:11px;opacity:.8;margin-top:3px}
+.type b{display:block}.type .t1{font-size:30px;font-weight:800;letter-spacing:-.02em}.type .t2{font-size:18px;font-weight:800;margin-top:6px}.type .t3{font-size:14px;color:var(--silver);margin-top:4px}.type .t4{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.b1{background:var(--orange);color:#1A1410;font-weight:800;border-radius:16px;padding:11px 16px;font-size:13px}
+.b2{background:#2f3f47;font-weight:700;border-radius:16px;padding:11px 16px;font-size:13px}
+.b3{color:var(--turq);font-weight:700;padding:11px 6px;font-size:13px}
+.chip{background:rgba(79,201,184,.14);color:var(--turq);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700}
+.chip.s{background:rgba(244,212,124,.14);color:var(--sand)}
+.note{color:var(--silver);opacity:.85;font-size:13px;line-height:1.55;margin-top:10px}
+
+/* creatures */
+.critters{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:20px}
+.cr{background:var(--gun);border-radius:22px;padding:16px 10px 12px;text-align:center}
+.cr .im{height:120px;display:grid;place-items:center}
+.cr img{max-height:110px;max-width:120px}
+.cr b{display:block;margin-top:8px}.cr span{font-size:12px;color:var(--muted)}
+.grow{display:flex;align-items:flex-end;justify-content:center;gap:16px;margin-top:10px}
+.grow div{text-align:center;font-size:11px;color:var(--muted)}
+.grow img{display:block;margin:0 auto 4px}
+</style>
+</head>
+<body>
+<h1>Aquar.io · a nova linha</h1>
+<p class="lead">Uma proposta para a reformulação, feita a partir de tudo o que você mandou: a paleta, o aquário visto de cima no clima do GoldFish, as 6 criaturas, as pastas com aba, o cartão de consistência e o Início rápido de ler. Um visual só (sem temas), escuro. Tudo aqui é para testar: cada peça pode ser trocada depois.</p>
+<div class="principles">
+  <span><b>Um visual só</b> · escuro, sem temas</span>
+  <span><b>O aquário é o coração</b> · visto de cima, vivo</span>
+  <span><b>Rápido de olhar</b> · um número por cartão</span>
+  <span><b>Laranja só na ação</b> · Criar, Marcar, Feito</span>
+  <span><b>A aba</b> · a forma da marca (pastas, abas, barra)</span>
+  <span><b>Para todas as idades</b> · elegante, não infantil</span>
+</div>
+
+<h2>Celular</h2>
+<div class="row">
+  <div><div class="cap">Início</div><div class="phone"><div class="scr">
+    <div class="topbar"><div class="avatar">M</div><div class="logo"><img src="fase-6/fish.png" alt="">Aquar.io</div><div class="avatar">🔔</div></div>
+    <div class="hello">Olá, Mateus</div><div class="sub">Domingo, 22 de novembro</div>
+    <div class="pond card" id="pHome" style="height:208px"></div>
+    <div class="card consist" style="margin-top:10px"><div class="ring">72%</div><div><b>Consistência da semana</b><span>5 de 7 dias com tudo feito</span></div></div>
+    <div class="sec">Hábitos de hoje <span>3 de 6</span></div>
+    <div id="hHome"></div>
+    <div class="tabbar"><span class="on">⌂ Início</span><span>Aquário</span><span class="create">+</span><span>Estatísticas</span><span>Perfil</span></div>
+  </div></div></div>
+
+  <div><div class="cap">Seu aquário</div><div class="phone"><div class="pond" id="pFull" style="position:absolute;inset:0"></div>
+    <div class="scr" style="pointer-events:none">
+      <div class="topbar"><span class="back" style="position:static">‹ Início</span><b>Seu aquário</b><span class="back" style="position:static">3 de 6</span></div>
+    </div>
+    <div class="card" style="position:absolute;left:12px;right:12px;bottom:12px;padding:14px;background:rgba(35,48,56,.94)">
+      <div style="display:flex;align-items:center;gap:12px"><div class="thumb"><img src="fase-6/shark.png" alt=""></div><div style="flex:1"><b>Tubarão · Estudar</b><div style="font-size:12px;color:#AAB6BA">Jovem · faltam 18 dias para adulto</div></div><span class="b1" style="padding:8px 12px">✓ Feito</span></div>
+      <div class="bar"><i style="width:40%"></i></div>
+    </div>
+  </div></div>
+
+  <div><div class="cap">A criatura (detalhe do hábito)</div><div class="phone"><div class="scr">
+    <div class="hero pond"><span class="back">‹ Hábitos</span><img class="big" src="fase-6/shark.png" alt=""></div>
+    <div class="name"><b>Tubarão</b><span class="stage">Jovem</span></div>
+    <div class="sub" style="margin-bottom:6px">Estudar · todo dia útil</div>
+    <div class="bar"><i style="width:40%"></i></div>
+    <div style="font-size:12px;color:#AAB6BA;margin:0 2px">12 de 30 dias até Adulto</div>
+    <div class="sec">Evolução</div>
+    <div class="steps"><div class="st ok"><i>✓</i>Ovo</div><div class="st ok"><i>✓</i>Filhote</div><div class="st now"><i>●</i>Jovem</div><div class="st"><i></i>Adulto</div></div>
+    <div class="sec">Esta semana <span>4 de 5</span></div>
+    <div class="week"><span class="on">S</span><span class="on">T</span><span>Q</span><span class="on">Q</span><span class="on">S</span><span>S</span><span>D</span></div>
+    <span class="btn">Marcar hoje</span>
+  </div></div></div>
+
+  <div><div class="cap">Listas e pastas</div><div class="phone"><div class="scr">
+    <div class="hello" style="margin-bottom:12px">Listas</div>
+    <div class="folders" id="folders"></div>
+    <div class="sec">Listas soltas <span>3</span></div>
+    <div class="lst"><i style="background:#4FC9B8"></i>Mercado<span>6</span></div>
+    <div class="lst"><i style="background:#F4D47C"></i>Leituras<span>2</span></div>
+    <div class="lst"><i style="background:#FF5B04"></i>Casa<span>4</span></div>
+    <div class="tabbar"><span>⌂</span><span class="on">Aquário</span><span class="create">+</span><span>Estatísticas</span><span>Perfil</span></div>
+  </div></div></div>
+
+  <div><div class="cap">Agenda</div><div class="phone"><div class="scr">
+    <div class="hello" style="margin-bottom:12px">Agenda</div>
+    <div class="days"><span>S<b>17</b></span><span>T<b>18</b></span><span>Q<b>19</b></span><span>Q<b>20</b></span><span>S<b>21</b></span><span class="on">D<b>22</b></span><span>S<b>23</b></span></div>
+    <div class="tl"><div class="t">08:00</div><div class="ev">Aula de TED<small>08:00–10:00 · feita</small></div></div>
+    <div class="tl"><div class="t">14:00</div><div class="ev now">Aula de POO<small>Agora · faltam 1 h 55</small>
+      <div class="it"><span class="chk on">✓</span>Teste de herança</div><div class="it"><span class="chk"></span>Teste de polimorfismo</div><div class="it"><span class="chk"></span>Entrega do trabalho</div></div></div>
+    <div class="tl"><div class="t">16:00</div><div class="ev">Aula de PED<small>Em 1 h 55</small></div></div>
+    <div class="tl"><div class="t">19:00</div><div class="ev">Academia<small>Treino A · 1 lista</small></div></div>
+    <div class="tabbar"><span>⌂</span><span class="on">Aquário</span><span class="create">+</span><span>Estatísticas</span><span>Perfil</span></div>
+  </div></div></div>
+</div>
+
+<h2>PC · o dia numa tela só</h2>
+<div class="row">
+  <div><div class="cap">Início</div><div class="desk">
+    <div class="side">
+      <div class="logo"><img src="fase-6/fish.png" alt="">Aquar.io</div>
+      <div class="nav on">⌂ Início</div><div class="nav">◎ Aquário</div><div class="nav">▥ Estatísticas</div><div class="nav">◐ Personalizar</div>
+      <div class="now">AGORA<b>Aula de POO</b>faltam 1 h 55</div>
+      <div class="cta">+ Criar</div>
+    </div>
+    <div class="panel">
+      <div class="col"><div class="pond" id="pDesk" style="flex:1;border-radius:24px"></div>
+        <div class="box" style="height:130px"><h4>Semana · <span style="opacity:.6">Mês</span></h4>
+          <div style="display:flex;gap:6px;align-items:flex-end;height:70px" id="weekbars"></div></div></div>
+      <div class="col">
+        <div class="box consist" style="padding:14px 16px"><div class="ring">72%</div><div><b>Consistência da semana</b><span>5 de 7 dias com tudo feito</span></div></div>
+        <div class="box" style="flex:1"><h4>Hábitos de hoje · 3 de 6</h4><div id="hDesk"></div></div>
+        <div class="box"><h4>Tarefas de hoje</h4>
+          <div class="hab" style="background:#1a272e"><span class="chk"></span>Entregar trabalho de POO</div>
+          <div class="hab" style="background:#1a272e;margin:0"><span class="chk"></span>Estudar para a P3</div></div>
+      </div>
+      <div class="col"><div class="box" style="flex:1"><h4>Agenda · domingo, 22 de novembro</h4>
+        <div class="tl"><div class="t">08:00</div><div class="ev" style="background:#1a272e">Aula de TED<small>feita</small></div></div>
+        <div class="tl"><div class="t">14:00</div><div class="ev now">Aula de POO<small>Agora · faltam 1 h 55</small><div class="it"><span class="chk on">✓</span>Teste de herança</div><div class="it"><span class="chk"></span>Teste de polimorfismo</div></div></div>
+        <div class="tl"><div class="t">16:00</div><div class="ev" style="background:#1a272e">Aula de PED<small>Em 1 h 55</small></div></div>
+        <div class="tl"><div class="t">19:00</div><div class="ev" style="background:#1a272e">Academia<small>Treino A</small></div></div>
+      </div></div>
+    </div>
+  </div></div>
+</div>
+<div class="board">
+    <div class="tile"><h3>Paleta (uma só)</h3><div class="sw">
+      <div style="background:#FF5B04;color:#1A1410">Laranja<span>Só a ação principal</span></div>
+      <div style="background:#075056">Verde-meia-noite<span>Água, barra, destaque</span></div>
+      <div style="background:#233038;outline:1px solid #3a4b53">Grafite<span>Cartões</span></div>
+      <div style="background:#FDF6E3;color:#16110d">Marfim<span>Texto</span></div>
+      <div style="background:#F4D47C;color:#16110d">Areia<span>Conquistas, sequência</span></div>
+      <div style="background:#D3DBDD;color:#16110d">Prata<span>Apoio, ícones</span></div></div>
+      <p class="note">Mais as cores das criaturas (turquesa, azul, roxo) só nelas e nos gráficos. Laranja nunca como texto pequeno.</p></div>
+    <div class="tile type"><h3>Tipografia</h3><b class="t1">Título grande</b><b class="t2">Título de cartão</b><b class="t3">Texto do dia a dia, claro e curto.</b><b class="t4">Rótulo de seção</b>
+      <p class="note">A mesma fonte de hoje; menos tamanhos, mais peso nos números.</p></div>
+    <div class="tile"><h3>Botões e chips</h3><div class="btns"><span class="b1">+ Criar</span><span class="b2">Editar</span><span class="b3">Ver tudo</span><span class="chip">Jovem</span><span class="chip s">7 dias seguidos</span></div>
+      <p class="note">Sem contornos: os cartões se separam pela cor (grafite sobre o fundo) e sombra suave.</p></div>
+    <div class="tile"><h3>A aba, a forma da marca</h3><div style="display:flex;gap:12px" id="tabs"></div>
+      <p class="note">Aparece nas pastas, na peça ativa da barra lateral e nas abas do Aquário: a mesma curva, sempre.</p></div>
+</div>
+
+<h2>As criaturas · vistas de cima</h2>
+<p class="lead">Seis para começar, cada uma de uma cor e de um formato. O crescimento aparece no tamanho e num brilho que fica mais forte (uma imagem por criatura).</p>
+<div class="critters" id="critters"></div>
+<div class="tile" style="margin-top:16px"><h3>Crescimento (exemplo: tartaruga)</h3><div class="grow">
+  <div><img src="fase-6/turtle.png" style="height:34px;opacity:.7" alt="">Ovo</div>
+  <div><img src="fase-6/turtle.png" style="height:52px" alt="">Filhote</div>
+  <div><img src="fase-6/turtle.png" style="height:72px" alt="">Jovem</div>
+  <div><img src="fase-6/turtle.png" style="height:96px;filter:drop-shadow(0 0 14px rgba(244,212,124,.6))" alt="">Adulto</div></div></div>
+
+<script>
+const IMG = { fish:'fase-6/fish.png', shark:'fase-6/shark.png', turtle:'fase-6/turtle.png', jellyfish:'fase-6/jellyfish.png', octopus:'fase-6/octopus.png', ray:'fase-6/ray.png' };
+const MOVE = { fish:'wig', shark:'wig', turtle:'wig', ray:'wig', jellyfish:'pulse', octopus:'pulse' };
+const swim = (k, path, t, d, w) => `<div class="swim" style="offset-path:path('${path}');--t:${t}s;--d:${d}s"><img class="${MOVE[k]}" src="${IMG[k]}" style="width:${w}px" alt=""></div>`;
+const leaves = (id) => `<svg class="leaves" viewBox="0 0 360 760" preserveAspectRatio="none"><defs>
+<linearGradient id="a${id}" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0a5a45"/><stop offset="1" stop-color="#2fd48f"/></linearGradient>
+<linearGradient id="b${id}" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#06402f"/><stop offset="1" stop-color="#16a86e"/></linearGradient></defs>
+<path d="M-20 760 C10 640 40 600 30 520 C70 600 90 680 80 760Z" fill="url(#b${id})"/>
+<path d="M-30 760 C40 690 60 620 110 560 C100 650 120 700 150 760Z" fill="url(#a${id})"/>
+<path d="M380 760 C320 680 300 620 320 540 C280 610 250 690 250 760Z" fill="url(#b${id})"/>
+<path d="M380 -10 C320 40 300 90 330 160 C350 110 370 70 380 50Z" fill="url(#a${id})"/>
+<path d="M-20 -10 C30 30 40 70 20 120 C0 80 -10 40 -20 20Z" fill="url(#b${id})" opacity=".9"/></svg>`;
+const bubbles = (n, w) => Array.from({length:n},(_,i)=>`<span class="bub" style="left:${(20+i*61)%w}px;bottom:${30+(i*37)%120}px;width:${5+i%3*3}px;height:${5+i%3*3}px;--t:${5+i%4}s;animation-delay:-${i}s"></span>`).join('');
+
+document.getElementById('pHome').innerHTML =
+  `<div class="far">${swim('fish',"M260 30 C190 10 120 50 150 110 C180 160 280 120 260 30Z",19,-7,30)}</div>` +
+  swim('fish',"M50 150 C30 90 130 20 210 50 C300 90 220 200 50 150Z",15,0,44) +
+  swim('shark',"M300 170 C260 90 150 100 130 50 C110 0 260 -10 300 50 C330 110 330 210 300 170Z",22,-6,58) +
+  swim('ray',"M80 120 C140 80 230 140 250 100 C270 60 120 40 80 120Z",26,-12,48) +
+  leaves('h') + bubbles(5, 300) + `<div class="pondTag"><b>3</b>de 6 hoje</div><div class="pondGo">Abrir aquário ›</div>`;
+
+document.getElementById('pFull').innerHTML =
+  `<div class="far">${swim('shark',"M300 140 C200 80 80 140 120 240 C160 320 330 260 300 140Z",30,-4,60)}${swim('fish',"M60 520 C120 460 240 490 230 560 C220 620 80 610 60 520Z",24,-10,34)}</div>` +
+  swim('shark',"M70 330 C60 180 260 150 290 280 C320 420 100 480 70 330Z",26,0,92) +
+  swim('fish',"M270 170 C150 110 60 210 120 300 C180 380 330 300 270 170Z",15,-4,58) +
+  swim('ray',"M70 540 C170 470 300 540 300 450 C300 370 110 400 70 540Z",28,-8,90) +
+  swim('jellyfish',"M70 170 C90 140 130 150 140 185 C150 220 100 230 70 170Z",18,-2,56) +
+  swim('turtle',"M230 520 C290 480 310 410 260 390 C210 370 180 480 230 520Z",34,-5,72) +
+  swim('octopus',"M150 600 C200 590 240 620 220 650 C200 680 140 660 150 600Z",40,-9,64) +
+  leaves('f') + bubbles(9, 320);
+
+document.getElementById('pDesk').innerHTML =
+  `<div class="far">${swim('turtle',"M300 120 C220 60 120 120 150 210 C180 290 330 230 300 120Z",34,-6,46)}</div>` +
+  swim('fish',"M60 420 C40 300 170 260 230 320 C290 380 220 500 60 420Z",17,0,58) +
+  swim('shark',"M200 120 C120 60 40 140 80 220 C120 300 300 260 260 160 C240 110 230 140 200 120Z",24,-14,80) +
+  swim('jellyfish',"M180 520 C200 490 240 500 250 540 C260 580 200 590 180 520Z",20,-3,48) +
+  leaves('d') + bubbles(7, 360) + `<div class="pondTag"><b>3</b>de 6 hoje</div><div class="pondGo">Abrir aquário ›</div>`;
+
+const habits = [['fish','Beber água','5 de 8 copos',1],['shark','Estudar','Jovem · 12 dias',1],['jellyfish','Meditar','10 min',1],['turtle','Caminhar','30 min',0],['ray','Alongar','5 min',0]];
+const row = ([k,n,s,on]) => `<div class="hab"><span class="thumb"><img src="${IMG[k]}" alt=""></span><div>${n}<small>${s}</small></div><span class="chk ${on?'on':''}">${on?'✓':''}</span></div>`;
+document.getElementById('hHome').innerHTML = habits.slice(0,4).map(row).join('');
+document.getElementById('hDesk').innerHTML = habits.map(row).join('').replace(/class="hab"/g,'class="hab" style="background:#1a272e"');
+
+const tab = (w,h,c) => { const t=20, xs=w*0.46, r=22; return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path fill="${c}" d="M${r},${t} L${xs-16},${t} C${xs-4},${t} ${xs-4},0 ${xs+14},0 L${w-r},0 Q${w},0 ${w},${r} L${w},${h-r} Q${w},${h} ${w-r},${h} L${r},${h} Q0,${h} 0,${h-r} L0,${t+r} Q0,${t} ${r},${t} Z"/></svg>`; };
+const ic = '<svg viewBox="0 0 24 24" fill="none" stroke="#FDF6E3" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+const folders = [['UnB',12,'3 listas','#F4D47C'],['Trabalho',8,'4 listas','#FF5B04'],['Casa',5,'2 listas','#4FC9B8'],['Academia',3,'1 lista','#D3DBDD']];
+document.getElementById('folders').innerHTML = folders.map(([n,k,s,c])=>`<div class="folder">${tab(140,150,c)}<div class="in"><div class="dot">${ic}</div><div><b>${k}</b><br><small>${n} · ${s}</small></div></div></div>`).join('');
+document.getElementById('tabs').innerHTML = folders.slice(0,3).map(([n,k,s,c])=>`<div class="folder" style="width:120px;height:100px">${tab(120,100,c)}</div>`).join('');
+
+const wk=[3,5,2,6,4,7,3]; document.getElementById('weekbars').innerHTML = wk.map((v,i)=>`<div style="flex:1;height:${v*10}px;border-radius:8px;background:${i===5?'#F4D47C':'#4FC9B8'};opacity:${i===5?1:.75}"></div>`).join('');
+
+const crit = [['fish','Peixe','koi, laranja'],['shark','Tubarão','azul'],['turtle','Tartaruga','verde'],['jellyfish','Água-viva','roxo'],['octopus','Polvo','laranja-vermelho'],['ray','Raia','azul-violeta']];
+document.getElementById('critters').innerHTML = crit.map(([k,n,c])=>`<div class="cr"><div class="im"><img src="${IMG[k]}" alt=""></div><b>${n}</b><span>${c}</span></div>`).join('');
+</script>
+</body>
+</html>

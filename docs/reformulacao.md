@@ -1,0 +1,52 @@
+# Reformulação de design (Fase 6)
+
+Registro de tudo o que foi decidido e de tudo o que falta fazer na nova linha visual do Aquar.io. Estamos em fase de **teste e reteste** de imagem, marca e desenvolvimento: as decisões abaixo valem para testar, e cada peça é feita para ser trocada sem refazer o resto.
+
+Proposta visual: [design/proposals/fase-6-nova-linha.html](design/proposals/fase-6-nova-linha.html) (e `.png`).
+
+## Decisões tomadas
+
+| Tema                | Decisão                                                                                                                                                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Temas               | **Acabam todos** (Claro, Escuro, Crystal e Meia-noite). O app passa a ter **um visual só**, escuro, com a paleta nova. O seletor de tema sai de Personalizar e de Ajustes.                                                           |
+| Paleta              | Laranja `#FF5B04`, Verde-meia-noite `#075056`, Grafite `#233038`, Marfim `#FDF6E3`, Areia `#F4D47C`, Prata `#D3DBDD`, mais cores marinhas de apoio (turquesa, azul, roxo das criaturas).                                             |
+| Aquário             | **Visto de cima (top-down)**: como olhar a parte de cima dos peixes num lago. 2D animado agora (caminho + balanço do corpo); 3D completo depois, como evolução.                                                                      |
+| Referência de clima | GoldFish: água em degradê verde, folhas orgânicas emoldurando as bordas, poucas criaturas e grandes, criaturas escuras e desfocadas ao fundo (profundidade).                                                                         |
+| Criaturas           | **6 no começo**, no estilo da folha enviada (degradê, visto de cima): peixe (koi), tubarão, tartaruga, água-viva, polvo, raia. Hábitos que usam as criaturas antigas continuam funcionando até a migração.                           |
+| Pastas              | Sistema de pastas **com aba** (cartão cheio de cor, ícone em círculo escuro, número grande), inspirado na referência, sem copiar. Nas Pastas fixadas do Início, um maço.                                                             |
+| Início              | Rápido de olhar, entender e usar: o aquário, os hábitos do dia, as tarefas de hoje, a semana (trocável pelo mês), uma estatística simples (consistência) e o progresso. Nada de métricas complicadas. No PC, sem rolagem (já feito). |
+| Logo                | Proposta: o **peixe laranja visto de cima** (combina com o laranja da paleta). A confirmar.                                                                                                                                          |
+| Cuidado             | Não mudar tudo de uma vez: cada parte vem com checkpoint, e o que estiver em teste fica fácil de trocar.                                                                                                                             |
+
+## O que fazer (em ordem sugerida)
+
+1. **Proposta da nova linha** (este passo): telas-chave no celular e no PC, paleta, formas e componentes. Aprovação antes de codar.
+2. **Tema único**: tokens novos com a paleta; remover os quatro temas, o seletor, o Crystal (fundo vivo, vidro fosco) e as cores por zona de profundidade; limpar testes de contraste para um tema só.
+3. **Componentes base**: cartões (sem contorno, cantos generosos, a "aba" como forma da marca), botões (laranja só na ação principal), chips, linhas de lista, check, barra de abas do celular, barra lateral do PC.
+4. **Catálogo das criaturas**: as 6 artes registradas num lugar só (trocar arte = trocar arquivo); água-viva e raia como criaturas novas; escolha só entre as 6; migração das 12 antigas para a mais parecida.
+5. **Lago visto de cima**: componente animado (criaturas seguindo caminhos, balanço do corpo, folhas, bolhas, camada de fundo desfocada), leve no celular e respeitando "Reduzir movimento".
+6. **Início novo**: lago no topo, consistência da semana, hábitos do dia, tarefas de hoje, agenda; celular e PC (PC sem rolagem).
+7. **Aquário (Hábitos, Agenda, Listas)** no novo visual: cartões de hábito com a criatura, linhas de tarefa, a agenda.
+8. **Pastas com aba**: grade de pastas e o maço nas Pastas fixadas.
+9. **A criatura (detalhe do hábito)**: a criatura grande vista de cima, estágio, barra até o próximo, evolução em passos, a semana, "Marcar hoje".
+10. **Seu aquário (tela explorável)**: todas as criaturas nadando; tocar numa abre o cartão do hábito.
+11. **Estatísticas simplificadas**: consistência como número principal, semana e mês.
+12. **Profundezas e regiões de progressão**: repensar (conversa própria antes de qualquer código). Inclui decidir se entra "nível/XP" como na referência.
+13. **Marca**: logo, ícone do app, tela de abertura.
+14. **Acesso para testes**: publicar a versão web (EAS Hosting ou outra hospedagem com os cabeçalhos de isolamento que o banco web exige) para outra IA e testadores verem o app. Só com autorização.
+15. **Fechamento**: docs, testes, E2E, CI, por etapa.
+
+## Em aberto
+
+- Nível/XP por criatura (como na referência) ou só estágios (ovo → adulto)? Depende do item 12.
+- O peixe laranja como logo.
+- Como mostrar o crescimento na arte vista de cima: proposta é tamanho + brilho (uma imagem por criatura).
+- Arte final das criaturas: hoje recortada da folha de referência; idealmente arquivos com fundo transparente em alta resolução.
+- Acesso web para outra IA: qual hospedagem e quem faz o login.
+
+## Já feito nesta fase
+
+- Início do PC sem rolagem, sem saudação, data na Agenda.
+- Personalizar no lugar da Loja (o seletor de tema sai na etapa 2).
+- Tema Meia-noite em teste (vira a base do tema único na etapa 2).
+- Arte das 6 criaturas recortada (branch `feat/criaturas-de-cima`, ainda não usada nas telas).
