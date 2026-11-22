@@ -63,7 +63,7 @@ export type AppData = {
 };
 
 const THEME_KEY = 'theme';
-const themePreferences: ThemePreference[] = ['system', 'light', 'dark', 'crystal'];
+const themePreferences: ThemePreference[] = ['system', 'light', 'dark', 'crystal', 'midnight'];
 const ZONE_KEY = 'theme.zone';
 
 /** Wires every module to the same database: the app's composition root. */

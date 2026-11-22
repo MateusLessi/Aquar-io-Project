@@ -11,6 +11,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { ThemePicker } from './ThemePicker';
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { notificationsSupported } from '@/core/notifications';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
@@ -32,7 +33,6 @@ import {
   useScreenScroll,
   useTheme,
   withAlpha,
-  type ThemePreference,
 } from '@/design-system';
 import { BrandHeader } from './community';
 import { CreatureArt } from '@/features/habits/components/CreatureArt';
@@ -137,26 +137,15 @@ function Choice({ label, hint, children }: { label: string; hint?: string; child
   );
 }
 
-const themeOptions: { value: ThemePreference; label: string }[] = [
-  { value: 'system', label: 'Sistema' },
-  { value: 'light', label: 'Claro' },
-  { value: 'dark', label: 'Escuro' },
-  { value: 'crystal', label: 'Crystal' },
-];
 const textSizeLabels = ['Padrão', 'Grande', 'Maior'];
 
 export function AppearanceSettings() {
-  const { preference, setPreference, textScale, setTextScale } = useTheme();
+  const { textScale, setTextScale } = useTheme();
   return (
     <Group>
       <Surface>
         <Choice label="Tema">
-          <SegmentedControl
-            accessibilityLabel="Tema"
-            options={themeOptions}
-            value={preference}
-            onChange={setPreference}
-          />
+          <ThemePicker />
         </Choice>
         <Choice label="Tamanho do texto" hint="Soma-se ao tamanho escolhido no seu aparelho">
           <SegmentedControl

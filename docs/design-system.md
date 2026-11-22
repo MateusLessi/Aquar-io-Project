@@ -105,6 +105,23 @@ Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` 
 
 Outros da Fase 5: `ContentPanel` (painel do conteúdo ao lado da barra lateral, `PANEL_RADIUS`), `DeepSurface` com `sheen`, `SegmentedListMode` / `SegmentedListAction` (a barra de uma seção como lista, no celular) e `StickySlot` com `summary`.
 
+## Tema Meia-noite (em teste, Fase 6)
+
+A paleta nova da marca, como um **tema a mais** (não substitui o Escuro), para testar no dia a dia: `midnightColors` em `tokens/themes.ts`, escolhido em Personalizar → Tema (cartões com a prévia das cores, `ThemePicker`).
+
+| Cor              | Hex       | Papel                                                    |
+| ---------------- | --------- | -------------------------------------------------------- |
+| Grafite          | `#233038` | Cartões e barras (`surfaceRaised`); o fundo é mais fundo |
+| Verde-meia-noite | `#075056` | A barra lateral e a água (`deep*`)                       |
+| Marfim           | `#FDF6E3` | Texto principal                                          |
+| Prata            | `#D3DBDD` | Texto de apoio, ícones                                   |
+| Areia            | `#F4D47C` | Destaques e foco (sequências, conquistas)                |
+| Laranja          | `#FF5B04` | Só a ação principal (Criar), com texto escuro            |
+
+- O laranja **nunca** é cor de texto pequeno: no grafite fica 4,35:1, abaixo do AA.
+- É igual em todas as zonas de profundidade, enquanto as profundezas são repensadas.
+- Todos os pares de texto estão em `contrast.test.ts` (AA; AAA no Alto contraste).
+
 ## Movimento "poppy" (Fase 5)
 
 Tudo em `src/design-system/motion/poppy.ts`, e nada disso acontece com **Reduzir movimento** (do app ou do sistema).
