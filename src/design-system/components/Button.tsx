@@ -7,8 +7,9 @@ import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
 /**
- * `deep` is the primary button on a DeepSurface; `energy` (coral) is reserved for the
- * main creation action, matching the drop button.
+ * `primary` is the main action, orange (Fase 6); `energy` is the same, kept for the places that
+ * name it. `secondary` is a quiet gunmetal button, `ghost` a turquoise link. `deep` is the
+ * primary button on a DeepSurface.
  */
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'deep' | 'energy' | 'danger';
 
@@ -41,11 +42,12 @@ export function Button({
   const inactive = disabled || loading;
 
   const palette = {
-    primary: { background: colors.accent, pressed: colors.accentPressed, content: colors.onAccent },
+    // Fase 6: the main action is orange (laranja só na ação principal).
+    primary: { background: colors.energy, pressed: colors.energyPressed, content: colors.onEnergy },
     secondary: {
-      background: colors.accentSoft,
-      pressed: colors.accentSoft,
-      content: colors.accent,
+      background: colors.surfacePressed,
+      pressed: colors.border,
+      content: colors.textPrimary,
     },
     ghost: { background: 'transparent', pressed: colors.accentSoft, content: colors.accent },
     deep: { background: colors.deepAccent, pressed: colors.onDeep, content: colors.onDeepAccent },
@@ -62,7 +64,7 @@ export function Button({
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: inactive, busy: loading }}
-      focusRadius={radius.pill}
+      focusRadius={radius.md}
       style={[block && styles.block, inactive && !loading && styles.disabled]}
     >
       {({ pressed }) => (
@@ -94,7 +96,8 @@ const styles = StyleSheet.create({
   container: {
     minHeight: touchTarget + 4,
     paddingHorizontal: spacing.xl,
-    borderRadius: radius.pill,
+    // Rounded corners, not a pill: the same family as the cards and the tab shape.
+    borderRadius: radius.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

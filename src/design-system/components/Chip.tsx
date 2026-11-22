@@ -31,7 +31,7 @@ export function Chip({
   testID,
 }: ChipProps) {
   const { colors, highContrast } = useTheme();
-  const content = selected ? colors.onAccent : colors.textPrimary;
+  const content = selected ? colors.onSelected : colors.textPrimary;
 
   return (
     <PressableScale
@@ -48,7 +48,7 @@ export function Chip({
         style={[
           styles.chip,
           selected
-            ? { backgroundColor: colors.accent, borderColor: colors.accent }
+            ? { backgroundColor: colors.selected, borderColor: colors.selected }
             : {
                 backgroundColor: colors.surfacePressed,
                 borderColor: highContrast ? colors.border : 'transparent',

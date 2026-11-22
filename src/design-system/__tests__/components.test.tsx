@@ -8,10 +8,14 @@ import {
   IconButton,
   ListItem,
   Sheet,
+  TAB_HEIGHT,
+  TabCard,
+  Tag,
   Text,
   TextInput,
   TideHero,
   WaterLevel,
+  tabPath,
   tideLevel,
   useTheme,
 } from '..';
@@ -200,5 +204,38 @@ describe('TideHero', () => {
       screen.getByRole('progressbar', { name: 'Maré do dia: 0 de 0 tarefas concluídas' }),
     ).toBeOnTheScreen();
     expect(screen.getByText('Mar calmo.')).toBeOnTheScreen();
+  });
+});
+
+describe('TabCard (the brand shape)', () => {
+  it('draws a closed outline that rises into a tab on the right', () => {
+    const d = tabPath(200, 150);
+    expect(d.startsWith('M')).toBe(true);
+    expect(d.endsWith('Z')).toBe(true);
+    // The body's top edge is at the tab height; the tab reaches the very top.
+    expect(d).toContain(`,${TAB_HEIGHT}`);
+    expect(d).toMatch(/ \d+(\.\d+)?,0 /);
+  });
+
+  it('keeps the corners round on small cards', () => {
+    const d = tabPath(60, 50);
+    expect(d).not.toContain('NaN');
+    expect(d).not.toMatch(/-\d/);
+  });
+
+  it('shows its content', async () => {
+    await renderWithTheme(
+      <TabCard color={appColors.warning}>
+        <Text>UnB</Text>
+      </TabCard>,
+    );
+    expect(screen.getByText('UnB')).toBeOnTheScreen();
+  });
+});
+
+describe('Tag', () => {
+  it('reads its label', async () => {
+    await renderWithTheme(<Tag label="7 dias seguidos" tone="sand" />);
+    expect(screen.getByText('7 dias seguidos')).toBeOnTheScreen();
   });
 });

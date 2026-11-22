@@ -50,9 +50,9 @@ type TabBarProps = {
 };
 
 /**
- * Phones: the glass capsule with the destinations side by side. Icons sit bare; the
- * active one gets a rounded highlight with its name, and the highlight slides from tab to
- * tab. The round button beside the capsule creates.
+ * Phones: the capsule with the destinations side by side. Icons sit bare; the active one gets
+ * a midnight-green highlight with its name (Fase 6), and the highlight slides from tab to tab.
+ * The orange button beside the capsule creates.
  */
 export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }: TabBarProps) {
   const insets = useSafeAreaInsets();
@@ -95,7 +95,7 @@ export function TabBar({ destinations, activeName, onCreate, iconRotation = 0 }:
             {active ? (
               <Animated.View
                 pointerEvents="none"
-                style={[styles.highlight, { backgroundColor: colors.textPrimary }, highlightStyle]}
+                style={[styles.highlight, { backgroundColor: colors.selected }, highlightStyle]}
               />
             ) : null}
             {destinations.map((destination) => (
@@ -193,7 +193,7 @@ function TabBarButton({
             <Icon
               size={24}
               strokeWidth={isFocused ? 2.3 : 1.8}
-              color={isFocused ? colors.surfaceBase : colors.textSecondary}
+              color={isFocused ? colors.onSelected : colors.textSecondary}
             />
           </Upright>
         </Animated.View>
@@ -202,7 +202,7 @@ function TabBarButton({
             <Text
               variant="bodyStrong"
               numberOfLines={1}
-              style={{ color: isFocused ? colors.surfaceBase : colors.textSecondary }}
+              style={{ color: isFocused ? colors.onSelected : colors.textSecondary }}
             >
               {label}
             </Text>

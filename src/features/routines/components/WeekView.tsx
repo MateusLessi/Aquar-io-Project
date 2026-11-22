@@ -285,15 +285,16 @@ function DayCarousel({ days, ...props }: WeekViewProps & { days: string[] }) {
               style={[
                 styles.stripDay,
                 {
-                  backgroundColor: selected ? colors.accent : colors.surfacePressed,
+                  backgroundColor: selected ? colors.selected : colors.surfacePressed,
                   borderColor: today && !selected ? colors.accent : 'transparent',
                 },
               ]}
             >
-              <Text variant="caption" tone={selected ? 'onAccent' : 'tertiary'}>
+              <Text variant="caption" tone={selected ? 'secondary' : 'tertiary'}>
                 {DAY_SHORT[fromDateKey(key).getDay()]}
               </Text>
-              <Text variant="headline" tone={selected ? 'onAccent' : 'primary'}>
+              {/* The chosen day: midnight green with its number in sand (Fase 6). */}
+              <Text variant="headline" style={selected ? { color: colors.deepAccent } : undefined}>
                 {fromDateKey(key).getDate()}
               </Text>
               <View style={styles.dots}>
@@ -303,7 +304,7 @@ function DayCarousel({ days, ...props }: WeekViewProps & { days: string[] }) {
                     style={[
                       styles.dot,
                       {
-                        backgroundColor: selected ? colors.onAccent : listColors[r.color][scheme],
+                        backgroundColor: selected ? colors.onSelected : listColors[r.color][scheme],
                       },
                     ]}
                   />

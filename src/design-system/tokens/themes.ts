@@ -46,6 +46,12 @@ export type ThemeColors = {
   deepAccent: string;
   deepAccentSoft: string;
   onDeepAccent: string;
+  /**
+   * Selected: the chosen tab, segment or chip (Fase 6: midnight green, the same everywhere),
+   * with its text.
+   */
+  selected: string;
+  onSelected: string;
   /** Energy: coral, the warm counterpart to the ocean. Reserved for the main action. */
   energy: string;
   energyPressed: string;
@@ -99,6 +105,8 @@ export const appColors: ThemeColors = {
   deepAccent: '#F4D47C',
   deepAccentSoft: 'rgba(244, 212, 124, 0.16)',
   onDeepAccent: '#233038',
+  selected: '#075056',
+  onSelected: '#FDF6E3',
   energy: '#FF5B04',
   energyPressed: '#FF7A33',
   onEnergy: '#1A1410',

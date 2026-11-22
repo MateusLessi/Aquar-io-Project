@@ -47,6 +47,11 @@ describe('the one look (WCAG AA)', () => {
     expect(contrastRatio(c.onAccent, c.accent)).toBeGreaterThanOrEqual(AA_TEXT);
   });
 
+  it('text on what is selected (midnight green) is readable', () => {
+    expect(contrastRatio(c.onSelected, c.selected)).toBeGreaterThanOrEqual(AA_TEXT);
+    expect(contrastRatio(c.deepAccent, c.selected)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
   it('keeps orange out of small text: it is below AA on the cards', () => {
     // A reminder of why the orange is only a button and icon color.
     expect(contrastRatio(c.energy, c.surfaceRaised)).toBeLessThan(AA_TEXT);

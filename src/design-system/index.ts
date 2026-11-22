@@ -50,6 +50,8 @@ export {
   type SegmentedOption,
 } from './components/SegmentedControl';
 export { Sheet, type SheetProps } from './components/Sheet';
+export { TAB_HEIGHT, TabCard, tabPath, type TabCardProps } from './components/TabCard';
+export { Tag, type TagProps, type TagTone } from './components/Tag';
 export {
   StickySlot,
   StickySlotHost,
