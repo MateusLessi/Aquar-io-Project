@@ -1,11 +1,4 @@
-import {
-  ChartColumn,
-  Fish,
-  House,
-  ShoppingBag,
-  UserRound,
-  type LucideIcon,
-} from 'lucide-react-native';
+import { ChartColumn, Fish, House, Palette, UserRound, type LucideIcon } from 'lucide-react-native';
 import type { Href } from 'expo-router';
 
 export type Destination = {
@@ -22,8 +15,8 @@ export type Destination = {
 
 /**
  * Top-level destinations (Checkpoints 027 and 076): the dashboard with the day at a glance,
- * the Aquarium where every module is managed, the statistics, the shop and the profile. On
- * phones the shop leaves the bar (a tile in the profile) until it sells something.
+ * the Aquarium where every module is managed, the statistics, Personalizar and the profile.
+ * On phones Personalizar is a tile in the profile, not a tab.
  */
 export const destinations: Destination[] = [
   { name: 'index', href: '/', label: 'Início', icon: House, showsCreate: true },
@@ -36,10 +29,10 @@ export const destinations: Destination[] = [
     showsCreate: false,
   },
   {
-    name: 'shop',
-    href: '/shop',
-    label: 'Loja',
-    icon: ShoppingBag,
+    name: 'personalize',
+    href: '/personalize',
+    label: 'Personalizar',
+    icon: Palette,
     showsCreate: false,
     notOnPhone: true,
   },

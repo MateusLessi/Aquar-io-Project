@@ -125,6 +125,8 @@ function Segmented<T extends string>({
             style={[
               styles.segment,
               compact && styles.compact,
+              // Narrow: less side room, so "Sistema" fits whole.
+              narrow && styles.tight,
               selected && [
                 styles.selected,
                 { backgroundColor: colors.surfaceRaised, shadowColor: colors.shadow },
@@ -242,6 +244,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   compact: { minHeight: 36, paddingHorizontal: spacing.sm },
+  tight: { paddingHorizontal: spacing.xs },
   strong: { fontFamily: fontFamily.textBold },
   selected: {
     shadowOpacity: 0.12,
