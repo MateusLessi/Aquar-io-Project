@@ -4,7 +4,10 @@ import { isZoneId, useTheme } from '@/design-system';
 
 import { useProgress } from '../progress/useProgress';
 
-/** Keeps the app's colors on the zone the person reached: the whole app dives with them. */
+/**
+ * Keeps the zone the person reached. Since the redesign (one look) only the tank's water follows
+ * it, until the depths are rethought.
+ */
 export function ZoneTheme() {
   const { setZone } = useTheme();
   const { data } = useProgress();

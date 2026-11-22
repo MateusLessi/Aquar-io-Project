@@ -4,8 +4,8 @@ const ids = (q: string) => searchSettings(q).map((e) => e.id);
 
 describe('searchSettings', () => {
   it('finds settings by name or by the words people use, without accents', () => {
-    expect(ids('tema')[0]).toBe('theme');
-    expect(ids('escuro')).toContain('theme');
+    expect(ids('texto')[0]).toBe('text');
+    expect(ids('letra')).toContain('text');
     expect(ids('notificação')).toContain('reminders');
     expect(ids('NOTIFICACAO')).toContain('reminders');
     expect(ids('semana')[0]).toBe('week');
@@ -14,7 +14,7 @@ describe('searchSettings', () => {
 
   it('needs every word, and finds nothing for an empty query', () => {
     expect(ids('apagar conta')).toEqual(['erase']);
-    expect(ids('tema volume')).toEqual([]);
+    expect(ids('letra volume')).toEqual([]);
     expect(ids('  ')).toEqual([]);
   });
 

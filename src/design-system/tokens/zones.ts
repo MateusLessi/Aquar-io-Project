@@ -1,6 +1,6 @@
 /**
- * The water of each depth zone. Every mode (Escuro, Claro, Crystal) takes its colors from the
- * zone the person is in: sunlit and turquoise near the surface, blue and violet in the deep,
+ * The water of each depth zone. The tank takes its colors from the zone the person is in (since
+ * the redesign, only the tank: the app has one look): sunlit and turquoise near the surface, blue and violet in the deep,
  * lit only by bioluminescence at the bottom. The ids match `ZONES` in core/progress.
  */
 export type ZoneId =

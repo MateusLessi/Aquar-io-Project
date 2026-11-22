@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
 import { useTheme } from '../theme/ThemeProvider';
@@ -12,7 +11,7 @@ export type SurfaceProps = ViewProps & {
 
 /**
  * Solid surface for content: lists and cards. It has no border: what sets it apart is a soft
- * shadow and the light of the water. In Crystal it is frosted glass over the aquarium.
+ * shadow and the light of the water.
  */
 export function Surface({
   radius = 'lg',
@@ -21,36 +20,20 @@ export function Surface({
   children,
   ...rest
 }: SurfaceProps) {
-  const { colors, mode, supportsBlur, reduceTransparency, highContrast } = useTheme();
+  const { colors, highContrast } = useTheme();
   const borderRadius = radii[radius];
-  const glass = mode === 'crystal';
-  const blur = glass && supportsBlur && !reduceTransparency;
-  const background = glass && !blur ? colors.glassFallback : colors.surfaceRaised;
 
   return (
     <View
       style={[
         styles.base,
-        { borderRadius },
-        // Without blur the color goes on the card itself. A layer is only needed for real
-        // frosted glass, and it sits behind the content: on the web, an absolutely positioned
-        // layer would otherwise cover text fields.
-        blur ? styles.stack : { backgroundColor: background },
+        { borderRadius, backgroundColor: colors.surfaceRaised },
         elevated ? shadowStyle(colors.cardShadow, colors.cardShadowOpacity) : null,
         highContrast ? { borderWidth: 1, borderColor: colors.border } : null,
         style,
       ]}
       {...rest}
     >
-      {blur ? (
-        <View
-          style={[StyleSheet.absoluteFill, styles.behind, { borderRadius }]}
-          pointerEvents="none"
-        >
-          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.surfaceRaised }]} />
-        </View>
-      ) : null}
       {children}
     </View>
   );
@@ -66,7 +49,4 @@ export function shadowStyle(color: string, opacity: number) {
 
 const styles = StyleSheet.create({
   base: { overflow: 'hidden' },
-  /** Its own stacking context, so the glass layer can sit behind the content. */
-  stack: { zIndex: 0 },
-  behind: { zIndex: -1, overflow: 'hidden' },
 });

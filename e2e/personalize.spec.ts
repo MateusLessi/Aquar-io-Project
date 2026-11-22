@@ -2,7 +2,7 @@ import { expect, test, type Locator } from './fixtures';
 
 const visible = (locator: Locator) => locator.locator('visible=true').first();
 
-test('Personalizar: change the theme right there, and the shortcuts open the right place', async ({
+test('Personalizar: change the text size right there, and the shortcuts open the right place', async ({
   page,
 }) => {
   // From the profile (phones) or the sidebar.
@@ -11,9 +11,10 @@ test('Personalizar: change the theme right there, and the shortcuts open the rig
   await expect(page).toHaveURL(/\/personalize$/);
   await expect(visible(page.getByText('Tudo isto já é seu, de graça'))).toBeVisible();
 
-  // The theme changes here, as in Ajustes.
-  await visible(page.getByRole('radio', { name: 'Escuro' })).click();
-  await expect(visible(page.getByRole('radio', { name: 'Escuro' }))).toBeChecked();
+  // One look (no themes to pick); the text size changes here, as in Ajustes.
+  await expect(page.getByRole('radio', { name: 'Escuro' })).toHaveCount(0);
+  await visible(page.getByRole('radio', { name: 'Grande' })).click();
+  await expect(visible(page.getByRole('radio', { name: 'Grande' }))).toBeChecked();
 
   // Nothing for sale: one honest line and a small card.
   await expect(visible(page.getByText(/^Em breve: cenários para o aquário/))).toBeVisible();

@@ -16,7 +16,7 @@ import {
   useTheme,
 } from '..';
 import { clampProgress } from '../components/WaterLevel';
-import { colorsFor } from '../tokens';
+import { appColors } from '../tokens';
 import { renderWithTheme } from '../test-utils/render';
 
 describe('ThemeProvider', () => {
@@ -25,25 +25,9 @@ describe('ThemeProvider', () => {
     return <Text testID="probe">{`${scheme}:${colors.surfaceBase}`}</Text>;
   }
 
-  it('applies the light and dark token sets of the zone', async () => {
-    await renderWithTheme(<SchemeProbe />, 'dark');
-    expect(screen.getByTestId('probe')).toHaveTextContent(
-      `dark:${colorsFor('dark', 'surface').surfaceBase}`,
-    );
-  });
-
-  it('defaults a forced light preference to light tokens', async () => {
-    await renderWithTheme(<SchemeProbe />, 'light');
-    expect(screen.getByTestId('probe')).toHaveTextContent(
-      `light:${colorsFor('light', 'surface').surfaceBase}`,
-    );
-  });
-
-  it('Crystal uses light text over the water', async () => {
-    await renderWithTheme(<SchemeProbe />, 'crystal');
-    expect(screen.getByTestId('probe')).toHaveTextContent(
-      `dark:${colorsFor('crystal', 'surface').surfaceBase}`,
-    );
+  it('has one look: the dark colors, with no theme to choose', async () => {
+    await renderWithTheme(<SchemeProbe />);
+    expect(screen.getByTestId('probe')).toHaveTextContent(`dark:${appColors.surfaceBase}`);
   });
 });
 

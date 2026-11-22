@@ -2,7 +2,7 @@ import { render as rtlRender } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { ThemeProvider, type ThemePreference } from '../theme/ThemeProvider';
+import { ThemeProvider } from '../theme/ThemeProvider';
 
 const metrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
@@ -10,10 +10,10 @@ const metrics = {
 };
 
 /** Renders inside the providers every screen has: safe area + theme. */
-export function renderWithTheme(ui: ReactElement, preference: ThemePreference = 'light') {
+export function renderWithTheme(ui: ReactElement) {
   return rtlRender(
     <SafeAreaProvider initialMetrics={metrics}>
-      <ThemeProvider initialPreference={preference}>{ui}</ThemeProvider>
+      <ThemeProvider>{ui}</ThemeProvider>
     </SafeAreaProvider>,
   );
 }

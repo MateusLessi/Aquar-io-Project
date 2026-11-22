@@ -17,7 +17,7 @@ import StatsRoute from '@/app/(tabs)/stats';
 import { createMemoryDatabase } from '@/core/database/testing';
 import { toDateKey } from '@/core/dates';
 import { createMemoryAccount, createMemoryRemote } from '@/core/sync/testing';
-import { ThemeProvider, lightColors } from '@/design-system';
+import { ThemeProvider, appColors } from '@/design-system';
 import { AppDataProvider, createAppData, type AppData } from '@/shell/AppData';
 
 const metrics = {
@@ -36,7 +36,7 @@ beforeEach(async () => {
 function TestRoot() {
   return (
     <SafeAreaProvider initialMetrics={metrics}>
-      <ThemeProvider initialPreference="light">
+      <ThemeProvider>
         <AppDataProvider data={data}>
           <Slot />
         </AppDataProvider>
@@ -132,12 +132,13 @@ describe('App shell on phones', () => {
     expect(screen.getByRole('switch', { name: 'Reduzir movimento' })).toBeChecked();
   });
 
-  it('switches the theme from Settings', async () => {
+  it('changes the text size from Settings, with no theme to pick (one look)', async () => {
     await renderRouter(routes, { initialUrl: '/profile/settings?section=appearance' });
-    const dark = screen.getByRole('radio', { name: 'Escuro' });
-    expect(dark).not.toBeChecked();
-    await fireEvent.press(dark);
-    expect(screen.getByRole('radio', { name: 'Escuro' })).toBeChecked();
+    expect(screen.queryByRole('radio', { name: 'Escuro' })).toBeNull();
+    const large = screen.getByRole('radio', { name: 'Grande' });
+    expect(large).not.toBeChecked();
+    await fireEvent.press(large);
+    expect(screen.getByRole('radio', { name: 'Grande' })).toBeChecked();
   });
 
   it('turns Modo Maré off from Settings and remembers it', async () => {
@@ -174,7 +175,7 @@ describe('App shell on tablets and desktop', () => {
     expect(screen.getByRole('tab', { name: 'Início' })).toBeSelected();
     // The active item sits on a solid piece in the panel's color, so it uses the panel's text.
     expect(within(screen.getByRole('tab', { name: 'Início' })).getByText('Início')).toHaveStyle({
-      color: lightColors.textPrimary,
+      color: appColors.textPrimary,
     });
 
     // You sit at the bottom: the chip opens the profile, the gear opens Ajustes.

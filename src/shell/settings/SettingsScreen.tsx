@@ -78,7 +78,7 @@ const isSection = (value: string | undefined): value is SettingsSection =>
 
 /** What each row says without opening it ("Semana começa no domingo · 24 h"). */
 function useSummaries(): Record<SettingsSection, string> {
-  const { preference, textScale, reduceMotion, reduceTransparency, highContrast } = useTheme();
+  const { textScale, reduceMotion, reduceTransparency, highContrast } = useTheme();
   const { weekStart, clock24 } = useCalendarPrefs();
   const [startTab] = useStartTab();
   const { prefs } = useFeedbackSettings();
@@ -90,9 +90,7 @@ function useSummaries(): Record<SettingsSection, string> {
     highContrast && 'alto contraste',
   ].filter(Boolean);
   return {
-    appearance: `Tema ${{ system: 'do sistema', light: 'claro', dark: 'escuro', crystal: 'crystal', midnight: 'meia-noite' }[preference]} · texto ${
-      textScale > 1.2 ? 'maior' : textScale > 1 ? 'grande' : 'padrão'
-    }`,
+    appearance: `Texto ${textScale > 1.2 ? 'maior' : textScale > 1 ? 'grande' : 'padrão'}`,
     home: `Abre em ${startTabs.find((t) => t.value === startTab)?.label ?? 'Início'}`,
     calendar: `Semana começa ${weekStart === 1 ? 'na segunda' : 'no domingo'} · ${clock24 ? '24 h' : '12 h'}`,
     sounds: prefs.sound
@@ -196,7 +194,7 @@ function SectionList({
         label="Buscar nos ajustes"
         value={query}
         onChangeText={setQuery}
-        placeholder="Tema, lembrete, semana…"
+        placeholder="Texto, lembrete, semana…"
         returnKeyType="search"
         onSubmitEditing={() => {
           const first = results[0];

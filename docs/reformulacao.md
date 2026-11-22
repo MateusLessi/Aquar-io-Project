@@ -48,5 +48,5 @@ Proposta visual: [design/proposals/fase-6-nova-linha.html](design/proposals/fase
 
 - Início do PC sem rolagem, sem saudação, data na Agenda.
 - Personalizar no lugar da Loja (o seletor de tema sai na etapa 2).
-- Tema Meia-noite em teste (vira a base do tema único na etapa 2).
+- **Etapa 2 feita: tema único.** `appColors` no lugar dos quatro temas; sem seletor de tema; sem Crystal (fundo vivo e vidro fosco); a zona só muda a água do tanque; contraste testado para o visual único; `app.json` em modo escuro.
 - Arte das 6 criaturas recortada (branch `feat/criaturas-de-cima`, ainda não usada nas telas).

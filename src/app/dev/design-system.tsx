@@ -28,7 +28,6 @@ import {
   useBreakpoint,
   useTheme,
   type ListColorName,
-  type ThemePreference,
   type TypographyVariant,
 } from '@/design-system';
 
@@ -86,8 +85,7 @@ function Catalog() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const breakpoint = useBreakpoint();
-  const { scheme, preference, setPreference, reduceMotion, reduceTransparency, supportsBlur } =
-    useTheme();
+  const { scheme, reduceMotion, reduceTransparency, supportsBlur } = useTheme();
   const [tasks, setTasks] = useState(initialTasks);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [draft, setDraft] = useState('');
@@ -98,12 +96,6 @@ function Catalog() {
     setTasks((current) =>
       current.map((task) => (task.id === id ? { ...task, done: value } : task)),
     );
-
-  const preferences: { value: ThemePreference; label: string }[] = [
-    { value: 'system', label: 'Sistema' },
-    { value: 'light', label: 'Claro' },
-    { value: 'dark', label: 'Escuro' },
-  ];
 
   return (
     <OceanBackground>
@@ -143,17 +135,7 @@ function Catalog() {
             />
           </Section>
 
-          <Section title="Tema">
-            <View style={styles.wrap}>
-              {preferences.map((option) => (
-                <Button
-                  key={option.value}
-                  label={option.label}
-                  variant={preference === option.value ? 'primary' : 'secondary'}
-                  onPress={() => setPreference(option.value)}
-                />
-              ))}
-            </View>
+          <Section title="Ambiente">
             <Text variant="footnote" tone="tertiary">
               Blur: {supportsBlur && !reduceTransparency ? 'ativo' : 'fallback sólido'} · Reduzir
               movimento: {reduceMotion ? 'sim' : 'não'}

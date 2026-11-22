@@ -12,7 +12,6 @@ import {
   AppDataProvider,
   saveAccessibility,
   saveTextScale,
-  saveThemePreference,
   saveZone,
   useAppDataBootstrap,
 } from '@/shell/AppData';
@@ -46,7 +45,6 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider
-      initialPreference={boot.data.themePreference}
       initialAccessibility={boot.data.accessibility}
       onAccessibilityChange={(key, value) => {
         saveAccessibility(boot.data, key, value).catch((error: unknown) =>
@@ -65,11 +63,6 @@ export default function RootLayout() {
           console.warn('Could not save the text size.', error),
         );
       }}
-      onPreferenceChange={(preference) => {
-        saveThemePreference(boot.data, preference).catch((error: unknown) =>
-          console.warn('Could not save the theme preference.', error),
-        );
-      }}
     >
       <AppDataProvider data={boot.data}>
         <ZoneTheme />
@@ -82,11 +75,12 @@ export default function RootLayout() {
 }
 
 function ThemedStack() {
-  const { scheme, colors } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      {/* One look, dark: light status bar text. */}
+      <StatusBar style="light" />
       {/* Drag and drop (modo Conectar) needs the gesture system at the root. */}
       <GestureHandlerRootView style={styles.fill}>
         <Stack

@@ -1,5 +1,10 @@
 # Design System: Aquatic Glass
 
+> **Fase 6 "Nova linha" (reformulação, novembro de 2026):** o app tem **um visual só**, escuro, sem temas para escolher
+> (Claro, Escuro, Crystal e Meia-noite saíram). Paleta: grafite, verde-meia-noite, marfim, prata, areia e laranja só na
+> ação principal. O aquário passa a ser **visto de cima**. Registro e plano: [reformulacao.md](reformulacao.md);
+> proposta: `docs/design/proposals/fase-6-nova-linha.png`. As notas das versões abaixo ficam como histórico.
+
 > **v3 "O aquário no centro" (Visual 3.4, aprovada em novembro de 2026):** o tanque vivo com as criaturas é o
 > coração do app. Três modos (**Escuro**, **Claro** e **Crystal**), todos com as cores da **zona** onde a pessoa está.
 > Sem bordas nos cartões (o volume vem de sombra suave e da luz da água), **nenhum emoji** (ícones e criaturas em vetor),
@@ -28,7 +33,7 @@ Linguagem visual do Aquar.io: vidro, água, profundidade e luz, em um tom sofist
 | Grupo      | Arquivo                | Conteúdo                                                                                     |
 | ---------- | ---------------------- | -------------------------------------------------------------------------------------------- |
 | Paleta     | `tokens/palette.ts`    | Escalas `ocean` (acento) e `abyss` (neutros azulados), `specular` e `listColors`             |
-| Temas      | `tokens/themes.ts`     | Tokens semânticos (`surfaceBase`, `textPrimary`, `accent`...); `colorsFor(modo, zona)`       |
+| Cores      | `tokens/themes.ts`     | Tokens semânticos (`surfaceBase`, `textPrimary`, `accent`...): `appColors`, o visual único   |
 | Zonas      | `tokens/zones.ts`      | A água de cada uma das 9 zonas: tanque, areia, algas, raios, luz (`lamp`) e sala do Escuro   |
 | Tipografia | `tokens/typography.ts` | **Plus Jakarta Sans** em tudo (600–800 nos títulos e números); `largeTitle` a `numeric`      |
 | Ícones     | `glyphs.tsx`           | Ícones guardáveis de listas, pastas e rotinas (chave + nome falado); emoji antigo vira ícone |
@@ -39,21 +44,20 @@ Linguagem visual do Aquar.io: vidro, água, profundidade e luz, em um tom sofist
 
 `lagoon`, `tide`, `coral`, `kelp`, `sand`, `anemone`. Cada uma tem um tom para o light e outro para o dark. A lista guarda o **nome** da cor, nunca o hex.
 
-### Modos e zonas
+### Um visual só
 
-- **Escuro:** uma sala escura iluminada pelo tanque. O fundo toma o tom da zona (`room`) e o acento é a luz dela (`lamp`). O tanque não tem mais halo nem partículas em volta (removidos a pedido, depois da Fase 3): ele tem a mesma sombra suave dos outros cartões.
-- **Claro:** água clara e areia. A zona tinge o topo da tela; o acento continua o petróleo da marca.
-- **Crystal:** o aquário ocupa a tela inteira (`OceanBackground`) e os cartões são vidro fosco por cima. A água é escurecida o bastante para o texto branco.
-- A zona vem do progresso (`shell/theme/ZoneTheme`) e fica salva (`theme.zone`), para o app abrir já na cor certa.
-- **Sem bordas:** `Surface`, chips, vidro e superfícies fundas não desenham contorno. Só o **Alto contraste** desenha bordas.
+- **Sem temas:** `appColors` vale para o app inteiro; o Alto contraste (acessibilidade) aplica `highContrastColors` por cima.
+- A **zona** (`shell/theme/ZoneTheme`) agora só muda a água do tanque, até as profundezas serem repensadas.
+- **Sem bordas:** `Surface`, chips e superfícies fundas não desenham contorno. Só o **Alto contraste** desenha bordas.
 
 ### Contraste
 
-`src/design-system/__tests__/contrast.test.ts` verifica automaticamente o padrão **WCAG AA** nos temas base e em **todas as 9 zonas × 3 modos** (no Crystal, sobre o vidro composto na água):
+`src/design-system/__tests__/contrast.test.ts` verifica automaticamente o padrão **WCAG AA** no visual único (e AAA no Alto contraste):
 
 - texto (primário, secundário, terciário, acento, prioridade e semânticas) sobre as superfícies: ≥ 4.5:1;
 - `onAccent` sobre `accent`: ≥ 4.5:1;
-- cores de lista como elementos gráficos: ≥ 3:1.
+- cores de lista como elementos gráficos: ≥ 3:1;
+- o laranja fica abaixo do AA nos cartões: por isso ele nunca é texto pequeno, só botão e ícone.
 
 Se alguém mudar uma cor e quebrar a legibilidade, a CI falha.
 
@@ -105,9 +109,7 @@ Utilitários: `useTheme()`, `useBreakpoint()`, `haptics.light()` / `.success()` 
 
 Outros da Fase 5: `ContentPanel` (painel do conteúdo ao lado da barra lateral, `PANEL_RADIUS`), `DeepSurface` com `sheen`, `SegmentedListMode` / `SegmentedListAction` (a barra de uma seção como lista, no celular) e `StickySlot` com `summary`.
 
-## Tema Meia-noite (em teste, Fase 6)
-
-A paleta nova da marca, como um **tema a mais** (não substitui o Escuro), para testar no dia a dia: `midnightColors` em `tokens/themes.ts`, escolhido em Personalizar → Tema (cartões com a prévia das cores, `ThemePicker`).
+## Paleta da nova linha (Fase 6)
 
 | Cor              | Hex       | Papel                                                    |
 | ---------------- | --------- | -------------------------------------------------------- |
@@ -116,11 +118,7 @@ A paleta nova da marca, como um **tema a mais** (não substitui o Escuro), para 
 | Marfim           | `#FDF6E3` | Texto principal                                          |
 | Prata            | `#D3DBDD` | Texto de apoio, ícones                                   |
 | Areia            | `#F4D47C` | Destaques e foco (sequências, conquistas)                |
-| Laranja          | `#FF5B04` | Só a ação principal (Criar), com texto escuro            |
-
-- O laranja **nunca** é cor de texto pequeno: no grafite fica 4,35:1, abaixo do AA.
-- É igual em todas as zonas de profundidade, enquanto as profundezas são repensadas.
-- Todos os pares de texto estão em `contrast.test.ts` (AA; AAA no Alto contraste).
+| Laranja          | `#FF5B04` | Só a ação principal (Criar, Marcar, Feito), texto escuro |
 
 ## Movimento "poppy" (Fase 5)
 
@@ -150,7 +148,6 @@ Tudo em `src/design-system/motion/poppy.ts`, e nada disso acontece com **Reduzir
 | Tokens, tema, fontes, componentes do lote 1          | REAL, com testes automatizados                       |
 | Verificação visual                                   | REAL na web (celular e tablet, light e dark)         |
 | Desempenho em aparelho (FPS do blur e das cáusticas) | **Não medido ainda**: precisa de iPhone 11 / Tab S8+ |
-| Persistência da preferência de tema                  | TODO (hoje fica só em memória)                       |
 | Demais componentes (DatePicker, Tabs, Toast...)      | Criados quando uma etapa precisar deles              |
 
 ## Blur e o motor do Firefox

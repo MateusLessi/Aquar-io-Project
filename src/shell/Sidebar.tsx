@@ -54,9 +54,9 @@ const NOTCH = 18;
  */
 export function Sidebar({ destinations, onCreate }: SidebarProps) {
   const insets = useSafeAreaInsets();
-  const { reduceMotion, colors, mode } = useTheme();
+  const { reduceMotion, colors } = useTheme();
   const sectionLine = withAlpha(colors.onDeep, 0.25);
-  const piece = panelColor(colors, mode);
+  const piece = panelColor(colors);
   // Where each item sits, so the active piece can slide to it.
   const [rows, setRows] = useState<Record<string, number>>({});
   const [active, setActive] = useState<string | null>(null);

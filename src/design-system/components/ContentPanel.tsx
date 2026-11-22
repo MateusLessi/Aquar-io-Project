@@ -3,7 +3,7 @@ import { StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { useTheme } from '../theme/ThemeProvider';
 import { radius } from '../tokens';
-import type { ThemeColors, ThemeMode } from '../tokens';
+import type { ThemeColors } from '../tokens';
 
 /** The panel's corner radius; the sidebar reaches this far under it, so no gap shows. */
 export const PANEL_RADIUS = radius.xl * 1.4;
@@ -14,8 +14,8 @@ const PanelContext = createContext(false);
 export const useInPanel = () => useContext(PanelContext);
 
 /** The panel's color: the active sidebar item takes it, so the two read as one piece. */
-export function panelColor(colors: ThemeColors, mode: ThemeMode): string {
-  return mode === 'crystal' ? colors.surfaceRaised : colors.surfaceBase;
+export function panelColor(colors: ThemeColors): string {
+  return colors.surfaceBase;
 }
 
 /**
@@ -23,9 +23,9 @@ export function panelColor(colors: ThemeColors, mode: ThemeMode): string {
  * sidebar, in a solid tone of the theme, like the reference.
  */
 export function ContentPanel({ children, style }: { children: ReactNode; style?: ViewStyle }) {
-  const { colors, mode } = useTheme();
+  const { colors } = useTheme();
   return (
-    <View style={[styles.panel, { backgroundColor: panelColor(colors, mode) }, style]}>
+    <View style={[styles.panel, { backgroundColor: panelColor(colors) }, style]}>
       <PanelContext.Provider value>{children}</PanelContext.Provider>
     </View>
   );

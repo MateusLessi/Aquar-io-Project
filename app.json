@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mateuslessi.aquario"
@@ -25,8 +25,8 @@
       "favicon": "./assets/favicon.png",
       "name": "Aquar.io",
       "shortName": "Aquar.io",
-      "themeColor": "#06202A",
-      "backgroundColor": "#06202A"
+      "themeColor": "#161F25",
+      "backgroundColor": "#161F25"
     },
     "plugins": [
       "expo-router",

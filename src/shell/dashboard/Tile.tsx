@@ -37,7 +37,7 @@ export function Tile({
   scroll?: boolean;
   children: ReactNode;
 }) {
-  const { colors, mode, reduceMotion } = useTheme();
+  const { colors, reduceMotion } = useTheme();
   const scale = useSharedValue(1);
   const press = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
   const sink = (to: number) => {
@@ -59,7 +59,7 @@ export function Tile({
           styles.card,
           {
             backgroundColor: colors.surfaceRaised,
-            boxShadow: `0px 10px 26px 0px ${withAlpha(colors.cardShadow, mode === 'light' ? 0.12 : 0.35)}`,
+            boxShadow: `0px 10px 26px 0px ${withAlpha(colors.cardShadow, 0.35)}`,
           },
         ],
         press,
