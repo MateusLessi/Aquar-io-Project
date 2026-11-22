@@ -59,7 +59,11 @@ Um hábito pode ser concluído por **uma lista, uma pasta ou uma rotina** (edito
 
 ## Criaturas
 
-12 espécies desenhadas em vetor (`CreatureArt`, arte provisória até o projeto de animação) e com cor própria (`domain/creatures.ts`): a criatura define a cor, então criar um hábito é uma escolha só. Uma criatura desconhecida (vinda de uma versão mais nova do app) aparece como tartaruga.
+**Seis criaturas, vistas de cima (Fase 6):** peixe, tubarão, tartaruga, água-viva, polvo e raia, cada uma com uma cor e um formato (`domain/creatures.ts`): a criatura define a cor, então criar um hábito é uma escolha só. A arte é uma imagem por criatura (`assets/creatures/`, registrada em `creatureImages` no `CreatureArt`): testar outra arte é trocar o arquivo.
+
+- **Crescimento:** pelo tamanho; o ovo é pequeno e apagado, o adulto ganha um halo areia (`stageInfo`). Tubarão e raia nascem filhotes.
+- **Criaturas antigas** (golfinho, baleia, foca, baiacu, camarão, caranguejo, lula, lagosta) continuam válidas nos dados e aparecem como a mais parecida das seis (`catalogCreature`): golfinho → tubarão, baleia → raia, foca → tartaruga, baiacu e camarão → peixe, caranguejo, lula e lagosta → polvo. Nada é reescrito no banco; ao editar, o hábito passa a guardar a nova.
+- Para escolher (editor, perfil, Ajustes e mergulho de boas-vindas), só as seis. Os modelos do catálogo também.
 
 ## Eventos
 

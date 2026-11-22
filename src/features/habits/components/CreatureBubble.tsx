@@ -10,7 +10,7 @@ import Animated, {
 import { listColors, specular, springs, useTheme, withAlpha } from '@/design-system';
 
 import { creatures, type CreatureId } from '../domain/creatures';
-import { stageInfo, type Stage } from '../domain/stages';
+import type { Stage } from '../domain/stages';
 import { CreatureArt } from './CreatureArt';
 
 type CreatureBubbleProps = {
@@ -80,7 +80,7 @@ export function CreatureBubble({
           },
         ]}
       />
-      <CreatureArt creature={creature} stage={stage} size={size * 0.74 * stageInfo[stage].scale} />
+      <CreatureArt creature={creature} stage={stage} size={size * 0.86} />
     </Animated.View>
   );
 }

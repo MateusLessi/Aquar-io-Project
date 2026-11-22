@@ -145,7 +145,7 @@ function Swimmer({
     return {
       transform: [
         { translateX: home - size / 2 + x },
-        { translateY: y.get() - size * 0.375 + (bob.get() - 0.5) * (egg ? 0 : 6) },
+        { translateY: y.get() - size / 2 + (bob.get() - 0.5) * (egg ? 0 : 6) },
         { scaleX: facing },
       ],
     };
@@ -153,7 +153,7 @@ function Swimmer({
 
   return (
     <Animated.View style={[styles.swimmer, { opacity: resting ? 0.55 : 1 }, style]}>
-      <CreatureArt creature={habit.creature} stage={habit.stage} size={size} />
+      <CreatureArt creature={habit.creature} stage={habit.stage} size={size} heading="right" />
     </Animated.View>
   );
 }

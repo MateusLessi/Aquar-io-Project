@@ -16,7 +16,7 @@ import { Text, listColors, specular, springs, useTheme, withAlpha } from '@/desi
 
 import { creatures, type CreatureId } from '../domain/creatures';
 import { CreatureArt } from './CreatureArt';
-import { stageInfo, type Stage } from '../domain/stages';
+import type { Stage } from '../domain/stages';
 
 const WAVE = 8;
 
@@ -54,7 +54,7 @@ export function HabitCapsule({
 }: HabitCapsuleProps) {
   const { scheme, reduceMotion } = useTheme();
   const tone = listColors[creatures[creature].color][scheme];
-  const fontSize = Math.round(Math.min(width * 0.4, 64) * stageInfo[stage].scale);
+  const fontSize = Math.round(Math.min(width * 0.4, 64));
   const level = useSharedValue(ratio);
   const drift = useSharedValue(0);
   const bob = useSharedValue(0);

@@ -1,12 +1,12 @@
-import type { CreatureId } from './creatures';
+import { catalogCreature, type CatalogCreature, type CreatureId } from './creatures';
 
 /**
  * Creatures grow with consistency (total days done, ever), never with perfect streaks, and
- * never shrink back (docs/gamification-rules.md). Mammals and sharks are born, not hatched.
+ * never shrink back (docs/gamification-rules.md). Sharks and rays are born, not hatched.
  */
 export type Stage = 'egg' | 'baby' | 'young' | 'adult';
 
-const BORN_ALIVE: ReadonlySet<CreatureId> = new Set(['dolphin', 'whale', 'seal', 'shark']);
+const BORN_ALIVE: ReadonlySet<CatalogCreature> = new Set(['shark', 'ray']);
 
 /** Days done needed to reach each stage. */
 const THRESHOLDS: { stage: Stage; from: number }[] = [
@@ -15,15 +15,22 @@ const THRESHOLDS: { stage: Stage; from: number }[] = [
   { stage: 'adult', from: 30 },
 ];
 
-export const stageInfo: Record<Stage, { label: string; scale: number }> = {
-  egg: { label: 'Ovo', scale: 0.7 },
-  baby: { label: 'Filhote', scale: 0.85 },
-  young: { label: 'Jovem', scale: 1 },
-  adult: { label: 'Adulto', scale: 1.15 },
+/**
+ * How each stage looks (Fase 6: one image per creature). It grows in size; the egg is small and
+ * faint, and the adult gets a soft sand halo. `scale` is of the art's box.
+ */
+export const stageInfo: Record<
+  Stage,
+  { label: string; scale: number; opacity: number; glow: boolean }
+> = {
+  egg: { label: 'Ovo', scale: 0.55, opacity: 0.6, glow: false },
+  baby: { label: 'Filhote', scale: 0.72, opacity: 1, glow: false },
+  young: { label: 'Jovem', scale: 0.88, opacity: 1, glow: false },
+  adult: { label: 'Adulto', scale: 1, opacity: 1, glow: true },
 };
 
 export function creatureStage(creature: CreatureId, daysDone: number): Stage {
-  let stage: Stage = BORN_ALIVE.has(creature) ? 'baby' : 'egg';
+  let stage: Stage = BORN_ALIVE.has(catalogCreature(creature)) ? 'baby' : 'egg';
   for (const threshold of THRESHOLDS) if (daysDone >= threshold.from) stage = threshold.stage;
   return stage;
 }
