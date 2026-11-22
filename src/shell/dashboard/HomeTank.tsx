@@ -2,7 +2,9 @@ import { Anchor, Waves } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { TankChip, TankTag, spacing } from '@/design-system';
+import { HabitPond, PondCount, PondTag } from '@/features/habits/components/HabitPond';
 import { HabitTank } from '@/features/habits/components/HabitTank';
+import { useAquariumView } from '@/features/habits/hooks/aquariumView';
 import { useHabits } from '@/features/habits/hooks/queries';
 
 import { useProgress } from '../progress/useProgress';
@@ -24,6 +26,7 @@ export function HomeTank({ done, total, height = 318 }: HomeTankProps) {
   const { data: habits = [] } = useHabits();
   const { data: progress } = useProgress();
   const { showDepth } = useGamePrefs();
+  const [view] = useAquariumView();
   const level = total > 0 ? done / total : 0;
   const tide = Math.round(level * 100);
   const streak = Math.max(0, ...habits.map((h) => h.streak));
@@ -47,6 +50,28 @@ export function HomeTank({ done, total, height = 318 }: HomeTankProps) {
       : []),
     ...(showDepth ? [{ label: 'Hoje', value: `+${todayMeters}`, unit: 'm' }] : []),
   ];
+
+  if (view === 'pond') {
+    // Fase 6: the pond seen from above, with the day in one number.
+    return (
+      <HabitPond
+        habits={habits}
+        height={height}
+        accessibilityLabel={summary}
+        progress={{ now: done, max: total }}
+        overlay={
+          <View style={styles.bottom} pointerEvents="none">
+            {total > 0 ? (
+              <PondCount value={String(done)} label={`de ${total} hoje`} />
+            ) : (
+              <PondTag label="Nada para hoje" />
+            )}
+            <PondTag label="Abrir aquário ›" />
+          </View>
+        }
+      />
+    );
+  }
 
   return (
     <HabitTank
@@ -80,6 +105,16 @@ export function HomeTank({ done, total, height = 318 }: HomeTankProps) {
 }
 
 const styles = StyleSheet.create({
+  bottom: {
+    position: 'absolute',
+    left: spacing.md,
+    right: spacing.md,
+    bottom: spacing.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    gap: spacing.sm,
+  },
   top: {
     flexDirection: 'row',
     justifyContent: 'space-between',

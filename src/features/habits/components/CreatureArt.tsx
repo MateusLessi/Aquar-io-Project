@@ -26,6 +26,8 @@ type CreatureArtProps = {
   size?: number;
   /** Head up (a still portrait) or right (swimming; mirror the parent to swim left). */
   heading?: 'up' | 'right';
+  /** Draw only its shape, in this color (a creature deep below the surface). */
+  silhouette?: string;
 };
 
 /**
@@ -38,6 +40,7 @@ export const CreatureArt = memo(function CreatureArt({
   stage = 'young',
   size = 64,
   heading = 'up',
+  silhouette,
 }: CreatureArtProps) {
   const { colors } = useTheme();
   const look = stageInfo[stage];
@@ -48,7 +51,7 @@ export const CreatureArt = memo(function CreatureArt({
       accessibilityElementsHidden
       style={[styles.box, { width: size, height: size }]}
     >
-      {look.glow ? (
+      {look.glow && !silhouette ? (
         <View
           style={[
             styles.halo,
@@ -66,6 +69,7 @@ export const CreatureArt = memo(function CreatureArt({
         source={creatureImages[catalogCreature(creature)]}
         resizeMode="contain"
         accessibilityIgnoresInvertColors
+        tintColor={silhouette}
         style={{
           width: inner,
           height: inner,

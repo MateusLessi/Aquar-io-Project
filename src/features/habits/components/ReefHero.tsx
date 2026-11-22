@@ -4,6 +4,8 @@ import { StyleSheet, View } from 'react-native';
 import { TankTag, spacing } from '@/design-system';
 
 import type { HabitWithProgress } from '../domain/types';
+import { useAquariumView } from '../hooks/aquariumView';
+import { HabitPond, PondTag } from './HabitPond';
 import { HabitTank } from './HabitTank';
 
 type ReefHeroProps = { habits: HabitWithProgress[] };
@@ -17,6 +19,23 @@ export function ReefHero({ habits }: ReefHeroProps) {
   const done = due.filter((h) => h.doneToday).length;
   const count = `${habits.length} ${habits.length === 1 ? 'criatura' : 'criaturas'}`;
   const today = due.length === 0 ? 'Descanso hoje' : `${done} de ${due.length} hoje`;
+  const [view] = useAquariumView();
+
+  if (view === 'pond') {
+    return (
+      <HabitPond
+        habits={habits}
+        height={232}
+        accessibilityLabel={`Seu aquário: ${count}. ${today}.`}
+        overlay={
+          <View style={styles.top} pointerEvents="none">
+            <PondTag label={count} />
+            <PondTag label={today} />
+          </View>
+        }
+      />
+    );
+  }
 
   return (
     <HabitTank

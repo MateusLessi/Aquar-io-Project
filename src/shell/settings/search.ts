@@ -33,6 +33,13 @@ export const SETTING_ENTRIES: SettingEntry[] = [
     keywords: ['abre', 'inicio', 'comecar', 'primeira tela', 'aba'],
   },
   {
+    id: 'aquarium',
+    label: 'O aquário (lago ou tanque)',
+    section: 'home',
+    anchor: 'aquarium-view',
+    keywords: ['aquario', 'lago', 'tanque', 'peixes', 'criaturas', 'visual'],
+  },
+  {
     id: 'cards',
     label: 'Cartões do painel',
     section: 'home',
