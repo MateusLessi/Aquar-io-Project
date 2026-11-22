@@ -47,7 +47,6 @@ export function HabitTank({
   accessibilityLabel,
   progress,
 }: HabitTankProps) {
-  const { mode } = useTheme();
   const shown = habits.slice(0, MAX_SWIMMERS);
   return (
     <AquariumTank
@@ -55,7 +54,6 @@ export function HabitTank({
       level={level}
       ruler={ruler}
       floor={floor}
-      transparent={mode === 'crystal'}
       overlay={overlay}
       accessibilityLabel={accessibilityLabel}
       progress={progress}

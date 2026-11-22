@@ -8,37 +8,29 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { AccessibilityInfo, Platform, useColorScheme, useWindowDimensions } from 'react-native';
+import { AccessibilityInfo, Platform, useWindowDimensions } from 'react-native';
 import { ReduceMotion, ReducedMotionConfig } from 'react-native-reanimated';
 
 import {
+  appColors,
   breakpointForWidth,
-  colorsFor,
   highContrastColors,
-  schemeOfMode,
   zoneWater,
   type Breakpoint,
   type ColorScheme,
   type ThemeColors,
-  type ThemeMode,
   type ZoneId,
   type ZoneWater,
 } from '../tokens';
 
-export type ThemePreference = 'system' | ThemeMode;
-
 export type Theme = {
-  /** Text tone: 'dark' for Escuro and Crystal, 'light' for Claro. */
+  /** Text tone: always 'dark'. The app has one look (Fase 6), with no themes to choose from. */
   scheme: ColorScheme;
-  /** Escuro, Claro or Crystal. */
-  mode: ThemeMode;
   colors: ThemeColors;
-  /** The depth zone the person is in: the whole app takes its water and light. */
+  /** The depth zone the person is in. Only the tank's water follows it now. */
   zone: ZoneId;
   water: ZoneWater;
   setZone: (zone: ZoneId) => void;
-  preference: ThemePreference;
-  setPreference: (preference: ThemePreference) => void;
   /** Effective "Reduce Transparency": the person's choice, or the OS setting. Glass becomes solid. */
   reduceTransparency: boolean;
   /** Effective "Reduce Motion": the person's choice, or the OS setting. Applies to all animations. */
@@ -100,9 +92,6 @@ const IOS_ONLY = ['ios'] as const;
 
 type ThemeProviderProps = {
   children: ReactNode;
-  initialPreference?: ThemePreference;
-  /** Called when the user picks a theme, so the app can persist it. */
-  onPreferenceChange?: (preference: ThemePreference) => void;
   initialAccessibility?: Partial<AccessibilityChoices>;
   /** Called when the user changes an accessibility choice, so the app can persist it. */
   onAccessibilityChange?: (key: keyof AccessibilityChoices, value: boolean | null) => void;
@@ -115,8 +104,6 @@ type ThemeProviderProps = {
 
 export function ThemeProvider({
   children,
-  initialPreference = 'system',
-  onPreferenceChange,
   initialAccessibility,
   onAccessibilityChange,
   initialTextScale = 1,
@@ -124,16 +111,6 @@ export function ThemeProvider({
   initialZone = 'surface',
   onZoneChange,
 }: ThemeProviderProps) {
-  const systemScheme = useColorScheme();
-  const [preference, setPreferenceState] = useState<ThemePreference>(initialPreference);
-  const onChangeRef = useRef(onPreferenceChange);
-  useEffect(() => {
-    onChangeRef.current = onPreferenceChange;
-  });
-  const setPreference = useCallback((next: ThemePreference) => {
-    setPreferenceState(next);
-    onChangeRef.current?.(next);
-  }, []);
   const [accessibility, setAccessibilityState] = useState<AccessibilityChoices>({
     reduceMotion: initialAccessibility?.reduceMotion ?? null,
     reduceTransparency: initialAccessibility?.reduceTransparency ?? null,
@@ -181,25 +158,19 @@ export function ThemeProvider({
   const reduceTransparency = accessibility.reduceTransparency ?? systemReduceTransparency;
   const highContrast = accessibility.highContrast ?? false;
 
-  const mode: ThemeMode =
-    preference === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : preference;
-  const scheme = schemeOfMode(mode);
-
-  const colors = useMemo(() => {
-    const base = colorsFor(mode, zone);
-    return highContrast ? { ...base, ...highContrastColors[mode] } : base;
-  }, [mode, zone, highContrast]);
+  const scheme: ColorScheme = 'dark';
+  const colors = useMemo(
+    () => (highContrast ? { ...appColors, ...highContrastColors } : appColors),
+    [highContrast],
+  );
 
   const value = useMemo<Theme>(
     () => ({
       scheme,
-      mode,
       colors,
       zone,
       water: zoneWater[zone],
       setZone,
-      preference,
-      setPreference,
       reduceTransparency,
       reduceMotion,
       highContrast,
@@ -213,12 +184,9 @@ export function ThemeProvider({
     }),
     [
       scheme,
-      mode,
       colors,
       zone,
       setZone,
-      preference,
-      setPreference,
       reduceTransparency,
       reduceMotion,
       highContrast,

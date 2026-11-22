@@ -11,7 +11,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { ThemePicker } from './ThemePicker';
 import { DataChangesContext } from '@/core/database/useLiveQuery';
 import { notificationsSupported } from '@/core/notifications';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
@@ -144,9 +143,6 @@ export function AppearanceSettings() {
   return (
     <Group>
       <Surface>
-        <Choice label="Tema">
-          <ThemePicker />
-        </Choice>
         <Choice label="Tamanho do texto" hint="Soma-se ao tamanho escolhido no seu aparelho">
           <SegmentedControl
             accessibilityLabel="Tamanho do texto"

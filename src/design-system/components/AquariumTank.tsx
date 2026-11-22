@@ -36,8 +36,6 @@ export type AquariumTankProps = {
   level: number;
   /** Depth marks on the side: the ruler of your depth. */
   ruler?: boolean;
-  /** Crystal: the aquarium is the whole screen behind, so the tank is only a window. */
-  transparent?: boolean;
   radius?: keyof typeof radii;
   /** How tall the sand is, from the bottom. Taller when chips sit on it, so nothing hides. */
   floor?: number;
@@ -69,7 +67,6 @@ export function AquariumTank({
   height,
   level,
   ruler = false,
-  transparent = false,
   radius = 'xl',
   floor = 18,
   children,
@@ -78,7 +75,7 @@ export function AquariumTank({
   progress,
   style,
 }: AquariumTankProps) {
-  const { water, mode, colors } = useTheme();
+  const { water, colors } = useTheme();
   const [width, setWidth] = useState(0);
   const waterline = tankWaterline(height, level);
   const top = useSharedValue(waterline);
@@ -108,37 +105,24 @@ export function AquariumTank({
           StyleSheet.absoluteFill,
           styles.clip,
           { borderRadius },
-          transparent
-            ? null
-            : {
-                backgroundColor:
-                  mode === 'light'
-                    ? mixHex(water.top, specular, 0.5)
-                    : mixHex(water.bottom, abyss[950], 0.3),
-                boxShadow: `0px 14px 30px 0px ${withAlpha(colors.cardShadow, mode === 'light' ? 0.2 : 0.45)}`,
-              },
+          {
+            backgroundColor: mixHex(water.bottom, abyss[950], 0.3),
+            boxShadow: `0px 14px 30px 0px ${withAlpha(colors.cardShadow, 0.45)}`,
+          },
         ]}
         importantForAccessibility="no-hide-descendants"
         accessibilityElementsHidden
       >
         {width > 0 ? (
           <>
-            {transparent ? null : (
-              <Animated.View style={[styles.water, waterStyle]} pointerEvents="none">
-                <WaterBody width={width} height={height} water={water} />
-              </Animated.View>
-            )}
-            <Floor
-              width={width}
-              height={height}
-              sand={height - floor}
-              water={water}
-              transparent={transparent}
-            />
+            <Animated.View style={[styles.water, waterStyle]} pointerEvents="none">
+              <WaterBody width={width} height={height} water={water} />
+            </Animated.View>
+            <Floor width={width} height={height} sand={height - floor} water={water} />
             <View style={StyleSheet.absoluteFill} pointerEvents="none">
               {children?.({ width, height, waterline, sand: height - floor })}
             </View>
-            {transparent ? null : <RisingBubbles height={height - waterline} count={7} />}
+            <RisingBubbles height={height - waterline} count={7} />
             {ruler ? <Ruler height={height} /> : null}
           </>
         ) : null}
@@ -188,20 +172,18 @@ function WaterBody({ width, height, water }: { width: number; height: number; wa
   );
 }
 
-/** Kelp, sand and stones. In Crystal the floor is the background's, so only kelp shows. */
+/** Kelp, sand and stones. */
 function Floor({
   width,
   height,
   sand,
   water,
-  transparent,
 }: {
   width: number;
   height: number;
   /** Y of the top of the sand. */
   sand: number;
   water: ZoneWater;
-  transparent: boolean;
 }) {
   const kelp: [number, number][] = [
     [0.07, 0.42],
@@ -225,30 +207,12 @@ function Floor({
           />
         );
       })}
-      {transparent ? null : (
-        <>
-          <Path
-            d={`M0 ${sand + 2} Q${width * 0.3} ${sand - 10} ${width * 0.55} ${sand} T${width} ${sand - 4} V${height} H0Z`}
-            fill={water.sand}
-          />
-          <Ellipse
-            cx={width * 0.7}
-            cy={sand - 2}
-            rx={22}
-            ry={10}
-            fill={water.bottom}
-            opacity={0.55}
-          />
-          <Ellipse
-            cx={width * 0.26}
-            cy={sand + 2}
-            rx={14}
-            ry={7}
-            fill={water.bottom}
-            opacity={0.5}
-          />
-        </>
-      )}
+      <Path
+        d={`M0 ${sand + 2} Q${width * 0.3} ${sand - 10} ${width * 0.55} ${sand} T${width} ${sand - 4} V${height} H0Z`}
+        fill={water.sand}
+      />
+      <Ellipse cx={width * 0.7} cy={sand - 2} rx={22} ry={10} fill={water.bottom} opacity={0.55} />
+      <Ellipse cx={width * 0.26} cy={sand + 2} rx={14} ry={7} fill={water.bottom} opacity={0.5} />
     </Svg>
   );
 }
@@ -297,22 +261,17 @@ export function TankTag({ icon: Icon, label }: { icon?: LucideIcon; label: strin
 
 /** A number on frosted glass at the bottom of the tank. */
 export function TankChip({ label, value, unit }: { label: string; value: string; unit: string }) {
-  const { mode, colors, supportsBlur, reduceTransparency } = useTheme();
-  const light = mode === 'light';
-  const color = light ? colors.textPrimary : specular;
+  const { supportsBlur, reduceTransparency } = useTheme();
+  const color = specular;
   const blur = supportsBlur && !reduceTransparency;
   return (
     <View style={tagStyles.chip}>
-      {blur ? (
-        <BlurView intensity={30} tint={light ? 'light' : 'dark'} style={StyleSheet.absoluteFill} />
-      ) : null}
+      {blur ? <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} /> : null}
       <View
         style={[
           StyleSheet.absoluteFill,
           {
-            backgroundColor: light
-              ? withAlpha(specular, blur ? 0.55 : 0.85)
-              : withAlpha(abyss[950], blur ? 0.32 : 0.6),
+            backgroundColor: withAlpha(abyss[950], blur ? 0.32 : 0.6),
           },
         ]}
       />

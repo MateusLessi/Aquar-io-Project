@@ -21,28 +21,10 @@ export type SettingEntry = {
 
 export const SETTING_ENTRIES: SettingEntry[] = [
   {
-    id: 'theme',
-    label: 'Tema',
-    section: 'appearance',
-    keywords: [
-      'tema',
-      'escuro',
-      'claro',
-      'crystal',
-      'meia-noite',
-      'meia noite',
-      'cor',
-      'modo',
-      'aparencia',
-      'noturno',
-      'dark',
-    ],
-  },
-  {
     id: 'text',
     label: 'Tamanho do texto',
     section: 'appearance',
-    keywords: ['texto', 'letra', 'fonte', 'tamanho', 'grande', 'ler'],
+    keywords: ['texto', 'letra', 'fonte', 'tamanho', 'grande', 'ler', 'aparencia'],
   },
   {
     id: 'start',

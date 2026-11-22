@@ -20,12 +20,7 @@ import {
   type SettingsRepository,
 } from '@/core/settings/settingsRepository';
 import { SettingsContext } from '@/core/settings/useSetting';
-import {
-  isZoneId,
-  type AccessibilityChoices,
-  type ThemePreference,
-  type ZoneId,
-} from '@/design-system';
+import { isZoneId, type AccessibilityChoices, type ZoneId } from '@/design-system';
 import {
   createHabitsRepository,
   type HabitsRepository,
@@ -53,7 +48,6 @@ export type AppData = {
   routines: RoutinesRepository;
   profile: ProfileRepository;
   links: LinksRepository;
-  themePreference: ThemePreference;
   /** The person's accessibility choices (null: follow the device). */
   accessibility: AccessibilityChoices;
   /** Text size chosen in Ajustes → Aparência. */
@@ -62,8 +56,6 @@ export type AppData = {
   zone: ZoneId;
 };
 
-const THEME_KEY = 'theme';
-const themePreferences: ThemePreference[] = ['system', 'light', 'dark', 'crystal', 'midnight'];
 const ZONE_KEY = 'theme.zone';
 
 /** Wires every module to the same database: the app's composition root. */
@@ -88,8 +80,6 @@ export async function createAppData(
   if (!current.name && !current.creature && (oldName || oldCreature)) {
     await profile.set({ name: oldName ?? '', creature: oldCreature });
   }
-  const storedTheme = await settings.get(THEME_KEY);
-  const themePreference = themePreferences.find((p) => p === storedTheme) ?? 'system';
   const choice = (value: string | null) => (value === 'on' ? true : value === 'off' ? false : null);
   const accessibility: AccessibilityChoices = {
     reduceMotion: choice(await settings.get('reduceMotion')),
@@ -111,7 +101,6 @@ export async function createAppData(
     routines,
     profile,
     links,
-    themePreference,
     accessibility,
     textScale,
     zone,
@@ -196,6 +185,3 @@ export const saveTextScale = (data: AppData, scale: number) =>
   data.settings.set(TEXT_SCALE_KEY, String(scale));
 
 export const saveZone = (data: AppData, zone: ZoneId) => data.settings.set(ZONE_KEY, zone);
-
-export const saveThemePreference = (data: AppData, preference: ThemePreference) =>
-  data.settings.set(THEME_KEY, preference);
