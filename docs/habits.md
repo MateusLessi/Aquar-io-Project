@@ -65,6 +65,16 @@ Um hábito pode ser concluído por **uma lista, uma pasta ou uma rotina** (edito
 - **Criaturas antigas** (golfinho, baleia, foca, baiacu, camarão, caranguejo, lula, lagosta) continuam válidas nos dados e aparecem como a mais parecida das seis (`catalogCreature`): golfinho → tubarão, baleia → raia, foca → tartaruga, baiacu e camarão → peixe, caranguejo, lula e lagosta → polvo. Nada é reescrito no banco; ao editar, o hábito passa a guardar a nova.
 - Para escolher (editor, perfil, Ajustes e mergulho de boas-vindas), só as seis. Os modelos do catálogo também.
 
+## O lago visto de cima (Fase 6)
+
+`components/HabitPond.tsx`: o aquário como um lago visto de cima, no Início e no topo de Aquário → Hábitos.
+
+- Cada hábito de hoje é uma criatura **colorida perto da superfície**; os que **descansam hoje** deslizam **no fundo, como sombras escuras** (`silhouette` no `CreatureArt`). Até 8 perto e 4 no fundo.
+- Cada uma nada num **caminho em forma de oito** só seu (centro, tamanho, velocidade e sentido sorteados de forma fixa pelo índice). Peixe, tubarão, tartaruga e raia viram a cabeça para onde vão e balançam o corpo; água-viva e polvo flutuam de pé e pulsam. Ovos andam mais devagar.
+- Água em degradê verde, luz que passeia devagar, folhas nas bordas e bolhas (`tokens/pond.ts`). Com **Reduzir movimento**, tudo fica parado.
+- O número do dia fica em vidro escuro por cima ("2 de 4 hoje"), com "Abrir aquário ›" no Início.
+- **Chave Lago / Tanque** em Ajustes → Início (`aquarium.view`, `hooks/aquariumView.ts`): o tanque antigo continua a um toque enquanto testamos.
+
 ## Eventos
 
 `HABIT_CHECKED` e `HABIT_UNCHECKED` são gravados na mesma transação do check-in, para a futura Fundação da Gamificação (Etapa 9).

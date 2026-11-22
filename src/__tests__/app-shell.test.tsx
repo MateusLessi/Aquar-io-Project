@@ -449,3 +449,28 @@ describe('Welcome dive', () => {
     expect(screen.queryByRole('button', { name: 'Começar o mergulho' })).toBeNull();
   });
 });
+
+describe('The pond (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('opens Início on the pond, and the old tank is one switch away in Ajustes', async () => {
+    await renderRouter(routes, { initialUrl: '/profile/settings?section=home' });
+    const pond = await screen.findByRole('radio', { name: 'Lago' });
+    expect(pond).toBeChecked();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Tanque' }));
+    await waitFor(async () => expect(await data.settings.get('aquarium.view')).toBe('tank'));
+  });
+
+  it('shows the day in one number over the water', async () => {
+    await data.todo.createTask({
+      listId: await data.todo.createList({ name: 'Casa' }),
+      title: 'Lavar a louça',
+      dueDate: toDateKey(new Date()),
+    });
+    await renderRouter(routes, { initialUrl: '/' });
+    expect(await screen.findByText('Abrir aquário ›')).toBeOnTheScreen();
+    expect(screen.getByText('de 1 hoje')).toBeOnTheScreen();
+    // The old tank's chips are not there.
+    expect(screen.queryByText('Maré do dia')).toBeNull();
+  });
+});

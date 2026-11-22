@@ -36,6 +36,7 @@ import {
 import { BrandHeader } from './community';
 import { CreatureArt } from '@/features/habits/components/CreatureArt';
 import { creatureIds, creatures } from '@/features/habits/domain/creatures';
+import { useAquariumView } from '@/features/habits/hooks/aquariumView';
 
 import { useAccount } from '../Account';
 import { AccountSection } from '../AccountSection';
@@ -162,6 +163,7 @@ export function AppearanceSettings() {
 export function HomeSettings() {
   const [startTab, setStartTab] = useStartTab();
   const [cards, setCards] = useDashboardCards();
+  const [aquariumView, setAquariumView] = useAquariumView();
   const move = (index: number, delta: -1 | 1) => {
     const next = [...cards];
     const [card] = next.splice(index, 1);
@@ -176,6 +178,21 @@ export function HomeSettings() {
           options={startTabs}
           value={startTab}
           onChange={(value) => void setStartTab(value)}
+        />
+      </Group>
+      <Group
+        anchor="aquarium-view"
+        title="O aquário"
+        note="O lago visto de cima é o visual novo, em teste. O tanque é o de antes."
+      >
+        <SegmentedControl
+          accessibilityLabel="O aquário"
+          options={[
+            { value: 'pond', label: 'Lago' },
+            { value: 'tank', label: 'Tanque' },
+          ]}
+          value={aquariumView}
+          onChange={(value) => void setAquariumView(value)}
         />
       </Group>
       <Group anchor="home-cards" title="Cartões do painel" note="As setas mudam a ordem.">
