@@ -23,10 +23,7 @@ export const test = base.extend({
  * Clicks something in the Aquarium's section bar (Semana, Mês, "Novo na agenda"…). On phones
  * it lives in a dropdown under the section's capsule, so it opens the dropdown first.
  */
-export async function inBar(
-  page: import('@playwright/test').Page,
-  target: import('@playwright/test').Locator,
-) {
+export async function inBar(page: Page, target: Locator) {
   const shown = target.locator('visible=true').first();
   const capsule = page.locator('[role="radio"][aria-expanded="false"]').first();
   // Wait for the bar to show up, as the option itself or as the closed capsule.

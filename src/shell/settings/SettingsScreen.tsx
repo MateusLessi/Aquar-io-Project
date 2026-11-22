@@ -90,7 +90,7 @@ function useSummaries(): Record<SettingsSection, string> {
     highContrast && 'alto contraste',
   ].filter(Boolean);
   return {
-    appearance: `Tema ${{ system: 'do sistema', light: 'claro', dark: 'escuro', crystal: 'crystal' }[preference]} · texto ${
+    appearance: `Tema ${{ system: 'do sistema', light: 'claro', dark: 'escuro', crystal: 'crystal', midnight: 'meia-noite' }[preference]} · texto ${
       textScale > 1.2 ? 'maior' : textScale > 1 ? 'grande' : 'padrão'
     }`,
     home: `Abre em ${startTabs.find((t) => t.value === startTab)?.label ?? 'Início'}`,

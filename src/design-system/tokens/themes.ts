@@ -4,8 +4,11 @@ import { zoneWater, type ZoneId, type ZoneWater } from './zones';
 /** The tone of the text: light text on dark backgrounds ('dark') or dark text on light ones. */
 export type ColorScheme = 'light' | 'dark';
 
-/** Escuro, Claro or Crystal (the live aquarium behind everything, with frosted-glass cards). */
-export type ThemeMode = 'light' | 'dark' | 'crystal';
+/**
+ * Escuro, Claro, Crystal (the live aquarium behind everything, with frosted-glass cards) or
+ * Meia-noite (the brand palette under test, dark: orange, midnight green, gunmetal, ivory).
+ */
+export type ThemeMode = 'light' | 'dark' | 'crystal' | 'midnight';
 
 export const schemeOfMode = (mode: ThemeMode): ColorScheme => (mode === 'light' ? 'light' : 'dark');
 
@@ -150,6 +153,57 @@ export const darkColors: ThemeColors = {
   cardShadowOpacity: 0.35,
 };
 
+/**
+ * Meia-noite (under test, Fase 6): the new brand palette, dark. Gunmetal surfaces, ivory text,
+ * midnight-green chrome, sand for streaks and highlights, orange for the main action only
+ * (never small text: 4.35:1 on gunmetal). The same in every depth zone, while the depths are
+ * being rethought. Every text pair is checked in contrast.test.ts.
+ */
+export const midnightColors: ThemeColors = {
+  ...darkColors,
+  surfaceTop: '#1D2A31',
+  surfaceBase: '#161F25',
+  surfaceDeep: '#10171C',
+  surfaceRaised: '#233038',
+  surfacePressed: '#2C3B44',
+  glass: 'rgba(35, 48, 56, 0.82)',
+  glassFallback: 'rgba(35, 48, 56, 0.97)',
+  glassBorder: 'rgba(211, 219, 221, 0.08)',
+  scrim: 'rgba(8, 12, 15, 0.55)',
+  textPrimary: '#FDF6E3',
+  textSecondary: '#D3DBDD',
+  textTertiary: '#AAB6BA',
+  separator: 'rgba(211, 219, 221, 0.1)',
+  border: '#3A4A52',
+  accent: '#4FC9B8',
+  accentPressed: '#7AD9CC',
+  accentSoft: 'rgba(79, 201, 184, 0.14)',
+  onAccent: '#0B2A2E',
+  focusRing: '#F4D47C',
+  priority: '#FF8A4C',
+  success: '#6FD49B',
+  warning: '#F4D47C',
+  error: '#FF7B72',
+  info: '#79B8F0',
+  caustic: '#4FC9B8',
+  waterline: 'rgba(79, 201, 184, 0.14)',
+  shadow: '#000000',
+  deepTop: '#0B5F66',
+  deepBottom: '#06363C',
+  deepBorder: 'rgba(244, 212, 124, 0.12)',
+  onDeep: '#FDF6E3',
+  onDeepSecondary: '#D3DBDD',
+  deepAccent: '#F4D47C',
+  deepAccentSoft: 'rgba(244, 212, 124, 0.16)',
+  onDeepAccent: '#233038',
+  energy: '#FF5B04',
+  energyPressed: '#FF7A33',
+  onEnergy: '#1A1410',
+  lamp: '#4FC9B8',
+  cardShadow: '#000000',
+  cardShadowOpacity: 0.35,
+};
+
 export const themeColors: Record<ColorScheme, ThemeColors> = {
   light: lightColors,
   dark: darkColors,
@@ -173,6 +227,13 @@ export const highContrastColors: Record<ThemeMode, Partial<ThemeColors>> = {
     separator: 'rgba(190, 210, 220, 0.3)',
     border: abyss[400],
     glassBorder: 'rgba(200, 230, 235, 0.38)',
+  },
+  midnight: {
+    textSecondary: '#F2F5F5',
+    textTertiary: '#DDE4E6',
+    separator: 'rgba(211, 219, 221, 0.3)',
+    border: '#6B7C84',
+    glassBorder: 'rgba(211, 219, 221, 0.38)',
   },
   crystal: {
     textSecondary: '#FFFFFF',
@@ -302,6 +363,7 @@ export function colorsFor(mode: ThemeMode, zone: ZoneId): ThemeColors {
   const water = zoneWater[zone];
   if (mode === 'light') return lightFor(water);
   if (mode === 'crystal') return crystalFor(water);
+  if (mode === 'midnight') return midnightColors;
   return darkFor(water);
 }
 
