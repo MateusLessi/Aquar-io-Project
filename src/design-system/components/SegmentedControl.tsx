@@ -127,9 +127,10 @@ function Segmented<T extends string>({
               compact && styles.compact,
               // Narrow: less side room, so "Sistema" fits whole.
               narrow && styles.tight,
+              // Fase 6: what is chosen is midnight green, everywhere.
               selected && [
                 styles.selected,
-                { backgroundColor: colors.surfaceRaised, shadowColor: colors.shadow },
+                { backgroundColor: colors.selected, shadowColor: colors.shadow },
               ],
             ]}
           >
@@ -190,7 +191,7 @@ function SegmentedList<T extends string>({
               styles.row,
               {
                 backgroundColor: selected
-                  ? colors.surfaceRaised
+                  ? colors.selected
                   : pressed
                     ? colors.surfacePressed
                     : 'transparent',

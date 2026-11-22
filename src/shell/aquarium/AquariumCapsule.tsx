@@ -79,18 +79,18 @@ export function AquariumCapsule({ tab, onTab }: AquariumCapsuleProps) {
               }}
               style={({ pressed }) => [
                 styles.active,
-                { backgroundColor: colors.textPrimary, opacity: pressed ? 0.85 : 1 },
+                { backgroundColor: colors.selected, opacity: pressed ? 0.85 : 1 },
               ]}
             >
-              <Icon size={20} strokeWidth={2.3} color={colors.surfaceBase} />
+              <Icon size={20} strokeWidth={2.3} color={colors.onSelected} />
               <Text
                 variant="bodyStrong"
                 numberOfLines={1}
-                style={[styles.label, { color: colors.surfaceBase }]}
+                style={[styles.label, { color: colors.onSelected }]}
               >
                 {option.label}
                 {summary ? (
-                  <Text variant="body" style={{ color: colors.surfaceBase }}>
+                  <Text variant="body" style={{ color: colors.onSelected }}>
                     {` · ${summary}`}
                   </Text>
                 ) : null}
@@ -99,7 +99,7 @@ export function AquariumCapsule({ tab, onTab }: AquariumCapsuleProps) {
                 <ChevronDown
                   size={18}
                   strokeWidth={2.4}
-                  color={colors.surfaceBase}
+                  color={colors.onSelected}
                   style={open ? styles.flip : undefined}
                 />
               ) : null}

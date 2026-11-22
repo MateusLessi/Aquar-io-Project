@@ -49,6 +49,7 @@ Linguagem visual do Aquar.io: vidro, água, profundidade e luz, em um tom sofist
 - **Sem temas:** `appColors` vale para o app inteiro; o Alto contraste (acessibilidade) aplica `highContrastColors` por cima.
 - A **zona** (`shell/theme/ZoneTheme`) agora só muda a água do tanque, até as profundezas serem repensadas.
 - **Sem bordas:** `Surface`, chips e superfícies fundas não desenham contorno. Só o **Alto contraste** desenha bordas.
+- **Escolhido = verde-meia-noite** (`selected` / `onSelected`): a aba ativa do celular, o segmento escolhido, o chip, a cápsula do Aquário, o dia da Semana, os cartões de escolha. Em superfícies fundas (barra lateral, trilho), o item ativo é uma peça na cor do painel.
 
 ### Contraste
 
@@ -87,9 +88,11 @@ Se alguém mudar uma cor e quebrar a legibilidade, a CI falha.
 | `Surface`               | Superfície sólida para conteúdo                                                                                      | —                                               |
 | `GlassSurface`          | Vidro para o cromo; fallback sólido automático                                                                       | blur / fallback                                 |
 | `OceanBackground`       | Fundo de tela em duas faixas (superfície e profundidade) que se encontram onde as cáusticas somem, sem borda visível | movimento / estático                            |
-| `Button`                | Ações (`primary`, `secondary`, `ghost`)                                                                              | pressed, focused, disabled, loading             |
+| `Button`                | Ações: `primary` laranja (a ação principal), `secondary` grafite, `ghost` link turquesa; cantos arredondados         | pressed, focused, disabled, loading             |
+| `TabCard`               | **A aba**, a forma da marca: cartão cheio de cor com uma aba em cima (pastas); `tabPath` desenha o contorno          | —                                               |
+| `Tag`                   | Rótulo que só informa ("Jovem", "7 dias seguidos"): tons `accent`, `sand`, `neutral`                                 | —                                               |
 | `IconButton`            | Ações só com ícone (rótulo obrigatório)                                                                              | pressed, focused, selected, disabled            |
-| `FloatingActionButton`  | Criação principal, em forma de gota                                                                                  | pressed, focused, disabled                      |
+| `FloatingActionButton`  | Criação principal: quadrado arredondado laranja                                                                      | pressed, focused, disabled                      |
 | `Checkbox`              | Circular; pulo, mola, ondulação e háptico ao marcar                                                                  | checked, pressed, focused, disabled             |
 | `TextInput`             | Campo com rótulo e erro anunciado                                                                                    | focused, error, disabled                        |
 | `ListItem`              | Linha de lista; o controle à esquerda age de forma independente; `size="large"` para tarefas                         | pressed, selected, completed, disabled          |

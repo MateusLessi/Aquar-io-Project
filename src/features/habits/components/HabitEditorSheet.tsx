@@ -504,23 +504,23 @@ function SourceTiles({
               styles.tile,
               {
                 backgroundColor: selected
-                  ? colors.accent
+                  ? colors.selected
                   : pressed
                     ? colors.surfacePressed
                     : colors.waterline,
               },
             ]}
           >
-            <Icon size={20} color={selected ? colors.onAccent : colors.textSecondary} />
+            <Icon size={20} color={selected ? colors.onSelected : colors.textSecondary} />
             <Text
               variant="bodyStrong"
-              style={{ color: selected ? colors.onAccent : colors.textPrimary }}
+              style={{ color: selected ? colors.onSelected : colors.textPrimary }}
             >
               {tile.title}
             </Text>
             <Text
               variant="footnote"
-              style={{ color: selected ? colors.onAccent : colors.textTertiary }}
+              style={{ color: selected ? colors.textSecondary : colors.textTertiary }}
             >
               {tile.hint}
             </Text>

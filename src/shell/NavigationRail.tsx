@@ -24,8 +24,8 @@ type NavigationRailProps = {
 
 /**
  * Tablets in portrait and unfolded foldables: a slim deep-water rail with icons and short
- * labels, leaving more room for content than the full sidebar. The active item is an
- * inverted square (the panel's text color), echoing the sidebar's solid piece.
+ * labels, leaving more room for content than the full sidebar. The active item is a
+ * square in the panel's color, echoing the sidebar's solid piece.
  */
 export function NavigationRail({ destinations, onCreate }: NavigationRailProps) {
   const insets = useSafeAreaInsets();
@@ -107,8 +107,8 @@ function RailItem({ icon: Icon, label, isFocused = false, onPress, ...rest }: Ra
       <View
         style={[
           styles.icon,
-          // Fase 5: the active item is an inverted square, like the sidebar's solid piece.
-          { backgroundColor: isFocused ? colors.textPrimary : 'transparent' },
+          // The active item is a piece in the panel's color, like the sidebar's.
+          { backgroundColor: isFocused ? colors.surfaceBase : 'transparent' },
           keyboardFocused && {
             outlineColor: colors.energy,
             outlineWidth: 2,
@@ -119,7 +119,7 @@ function RailItem({ icon: Icon, label, isFocused = false, onPress, ...rest }: Ra
         <Icon
           size={24}
           strokeWidth={isFocused ? 2.2 : 1.8}
-          color={isFocused ? colors.surfaceBase : colors.onDeepSecondary}
+          color={isFocused ? colors.textPrimary : colors.onDeepSecondary}
         />
       </View>
       <Text

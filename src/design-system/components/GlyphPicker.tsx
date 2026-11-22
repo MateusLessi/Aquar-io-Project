@@ -31,7 +31,7 @@ export function GlyphPicker({ options, value, onChange, allowNone = true }: Glyp
               styles.option,
               {
                 backgroundColor: selected
-                  ? colors.accent
+                  ? colors.selected
                   : pressed
                     ? colors.surfacePressed
                     : colors.waterline,
@@ -41,7 +41,7 @@ export function GlyphPicker({ options, value, onChange, allowNone = true }: Glyp
             <Glyph
               name={option}
               size={22}
-              color={selected ? colors.onAccent : colors.textSecondary}
+              color={selected ? colors.onSelected : colors.textSecondary}
               strokeWidth={selected ? 2.3 : 1.9}
             />
           </Pressable>

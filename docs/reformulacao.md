@@ -49,4 +49,5 @@ Proposta visual: [design/proposals/fase-6-nova-linha.html](design/proposals/fase
 - Início do PC sem rolagem, sem saudação, data na Agenda.
 - Personalizar no lugar da Loja (o seletor de tema sai na etapa 2).
 - **Etapa 2 feita: tema único.** `appColors` no lugar dos quatro temas; sem seletor de tema; sem Crystal (fundo vivo e vidro fosco); a zona só muda a água do tanque; contraste testado para o visual único; `app.json` em modo escuro.
+- **Etapa 3 feita: componentes base.** Botão principal laranja (cantos arredondados), secundário grafite, link turquesa; "escolhido" em verde-meia-noite em todo lugar (`selected`); `TabCard` (a aba) e `Tag`; Criar como quadrado arredondado laranja; catálogo atualizado. O Criar continua ao lado da cápsula no celular (só no Início e no Aquário), não no meio.
 - Arte das 6 criaturas recortada (branch `feat/criaturas-de-cima`, ainda não usada nas telas).

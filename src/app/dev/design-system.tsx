@@ -15,6 +15,8 @@ import {
   OceanBackground,
   Sheet,
   Surface,
+  TabCard,
+  Tag,
   Text,
   TextInput,
   TideHero,
@@ -85,7 +87,7 @@ function Catalog() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const breakpoint = useBreakpoint();
-  const { scheme, reduceMotion, reduceTransparency, supportsBlur } = useTheme();
+  const { scheme, colors, reduceMotion, reduceTransparency, supportsBlur } = useTheme();
   const [tasks, setTasks] = useState(initialTasks);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [draft, setDraft] = useState('');
@@ -188,12 +190,36 @@ function Catalog() {
             </Surface>
           </Section>
 
+          <Section title="A aba (forma da marca)">
+            <View style={styles.wrap}>
+              {(['warning', 'energy', 'accent', 'textSecondary'] as const).map((tone, i) => (
+                <TabCard key={tone} color={colors[tone]} style={styles.folder}>
+                  <View style={styles.folderIn}>
+                    <Text variant="title1" style={{ color: colors.surfaceDeep }}>
+                      {[12, 8, 5, 3][i]}
+                    </Text>
+                    <Text variant="caption" style={{ color: colors.surfaceDeep }}>
+                      {['UnB', 'Trabalho', 'Casa', 'Academia'][i]}
+                    </Text>
+                  </View>
+                </TabCard>
+              ))}
+            </View>
+          </Section>
+
+          <Section title="Rótulos">
+            <View style={styles.wrap}>
+              <Tag label="Jovem" />
+              <Tag label="7 dias seguidos" tone="sand" />
+              <Tag label="Todo dia útil" tone="neutral" />
+            </View>
+          </Section>
+
           <Section title="Botões">
             <View style={styles.wrap}>
-              <Button label="Primário" />
+              <Button label="Principal" />
               <Button label="Secundário" variant="secondary" />
-              <Button label="Ghost" variant="ghost" />
-              <Button label="Criar" variant="energy" />
+              <Button label="Ver tudo" variant="ghost" />
             </View>
             <View style={styles.wrap}>
               <Button label="Desabilitado" disabled />
@@ -306,6 +332,8 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
+  folder: { width: 140, height: 140 },
+  folderIn: { flex: 1, justifyContent: 'flex-end', padding: spacing.md },
   content: { paddingHorizontal: spacing.md },
   column: { width: '100%', maxWidth: 720, alignSelf: 'center', gap: spacing.sm },
   header: { paddingHorizontal: spacing.sm, gap: spacing.xs },
