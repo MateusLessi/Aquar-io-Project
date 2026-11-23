@@ -13,7 +13,6 @@ import {
   haptics,
   listColors,
   radius,
-  specular,
   spacing,
   useTheme,
   withAlpha,
@@ -115,32 +114,16 @@ export function RoutinePiece({
       style={[
         styles.piece,
         {
-          backgroundColor: colors.surfaceRaised,
-          borderColor: withAlpha(tone, now ? 0.75 : 0.4),
+          // Fase 6: what is happening now is midnight green, marked in sand on the left.
+          backgroundColor: now ? colors.selected : colors.surfaceRaised,
+          borderWidth: 0,
+          borderLeftWidth: now ? 4 : 0,
+          borderLeftColor: colors.deepAccent,
           shadowColor: colors.shadow,
           opacity: routine.phase === 'rest' ? 0.7 : 1,
         },
       ]}
     >
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          styles.round,
-          {
-            backgroundColor: withAlpha(
-              tone,
-              scheme === 'dark' ? (now ? 0.26 : 0.16) : now ? 0.18 : 0.1,
-            ),
-          },
-        ]}
-      />
-      <View
-        style={[
-          styles.shine,
-          { backgroundColor: withAlpha(specular, scheme === 'dark' ? 0.1 : 0.6) },
-        ]}
-      />
-
       <View style={styles.head}>
         <Pressable
           onPress={toggle}
@@ -157,7 +140,10 @@ export function RoutinePiece({
             <Text variant="headline" numberOfLines={1}>
               {routine.name}
             </Text>
-            <Text variant="footnote" tone="secondary">
+            <Text
+              variant="footnote"
+              style={{ color: now ? colors.deepAccent : colors.textSecondary }}
+            >
               {status}
             </Text>
           </View>
@@ -465,8 +451,6 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 3,
   },
-  round: { borderRadius: radius.xl },
-  shine: { position: 'absolute', top: 0, left: spacing.lg, right: spacing.lg, height: 1 },
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   headMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   emoji: {

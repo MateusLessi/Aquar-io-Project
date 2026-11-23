@@ -5,10 +5,10 @@ import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanim
 
 import {
   Checkbox,
+  Tag,
   Text,
   listColors,
   radius,
-  specular,
   spacing,
   touchTarget,
   useTheme,
@@ -24,7 +24,7 @@ import type { DayState, HabitWithProgress } from '../domain/types';
 import { useHabitSources } from '../hooks/habitSources';
 import type { HabitActions } from '../hooks/useHabitActions';
 import { useElapsed } from '../hooks/useElapsed';
-import { HabitCapsule } from './HabitCapsule';
+import { CreatureArt } from './CreatureArt';
 
 type HabitCardProps = {
   habit: HabitWithProgress;
@@ -68,9 +68,9 @@ function statusLabel(habit: HabitWithProgress, amount: number): string {
 }
 
 /**
- * A habit as a glass card: its capsule, the week's tide and the control for its kind.
- * The control acts on today; the rest of the card opens the habit. A checklist opens its
- * steps right inside the card.
+ * A habit as a card (Fase 6): its creature seen from above, the stage, today's progress as a
+ * bar, the week and the control for its kind. The control acts on today; the rest of the card
+ * opens the habit. A checklist opens its steps right inside the card.
  */
 export function HabitCard({ habit, actions }: HabitCardProps) {
   const { colors, scheme } = useTheme();
@@ -83,26 +83,14 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
     : habit.today.ratio;
   const sources = useHabitSources();
   const day = habit.connected;
-  // A connected habit says it in the line below ("Push · 1 de 2"): no badge too.
+  // A connected habit says it in the line below ("Push · 1 de 2"): no amount too.
   const badge = day ? null : amountLabel(habit, amount);
 
   return (
     <Animated.View
       layout={LinearTransition.springify().damping(22)}
-      style={[
-        styles.card,
-        {
-          backgroundColor: colors.surfaceRaised,
-          borderColor: withAlpha(tone, habit.doneToday ? 0.55 : 0.22),
-        },
-      ]}
+      style={[styles.card, { backgroundColor: colors.surfaceRaised }]}
     >
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          { backgroundColor: withAlpha(tone, habit.doneToday ? 0.14 : 0.06) },
-        ]}
-      />
       <View style={styles.row}>
         <Pressable
           onPress={() => actions.open(habit)}
@@ -119,26 +107,19 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
           accessibilityHint="Abre o hábito"
           style={({ pressed }) => [styles.main, { opacity: pressed ? 0.85 : 1 }]}
         >
-          <HabitCapsule
-            creature={habit.creature}
-            stage={habit.stage}
-            ratio={ratio}
-            done={habit.doneToday}
-            resting={resting}
-            width={60}
-            height={80}
-          />
+          <CreatureTile habit={habit} resting={resting} />
           <View style={styles.body}>
             <View style={styles.titleRow}>
               <Text variant="headline" numberOfLines={1} style={styles.name}>
                 {habit.name}
               </Text>
-              {badge ? <Badge label={badge} tone={tone} /> : null}
+              <Tag label={stageInfo[habit.stage].label} />
             </View>
             <Text variant="footnote" tone="secondary" numberOfLines={1}>
-              {statusLabel(habit, amount)}
+              {[badge, statusLabel(habit, amount)].filter(Boolean).join(' · ')}
               {habit.streak > 1 ? ` · ${habit.streak} dias seguidos` : ''}
             </Text>
+            <ProgressBar ratio={habit.doneToday ? 1 : ratio} />
             <WeekTide week={habit.week} ratios={habit.weekRatios} tone={tone} />
           </View>
         </Pressable>
@@ -180,12 +161,41 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
   );
 }
 
-function Badge({ label, tone }: { label: string; tone: string }) {
+/** The creature seen from above, on a small square of deep water. Faint while it rests. */
+export function CreatureTile({
+  habit,
+  resting = false,
+  size = 64,
+}: {
+  habit: HabitWithProgress;
+  resting?: boolean;
+  size?: number;
+}) {
+  const { colors } = useTheme();
   return (
-    <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.16) }]}>
-      <Text variant="caption" style={styles.badgeText} numberOfLines={1}>
-        {label}
-      </Text>
+    <View
+      style={[
+        styles.tile,
+        { width: size, height: size, backgroundColor: colors.selected, opacity: resting ? 0.5 : 1 },
+      ]}
+    >
+      <CreatureArt creature={habit.creature} stage={habit.stage} size={size - 6} />
+    </View>
+  );
+}
+
+/** Today's progress, turquoise to sand (Fase 6). */
+function ProgressBar({ ratio }: { ratio: number }) {
+  const { colors } = useTheme();
+  const width = `${Math.round(Math.max(0, Math.min(1, ratio)) * 100)}%` as const;
+  return (
+    <View style={[styles.bar, { backgroundColor: colors.surfacePressed }]}>
+      <View
+        style={[
+          styles.barFill,
+          { width, backgroundColor: ratio >= 1 ? colors.deepAccent : colors.accent },
+        ]}
+      />
     </View>
   );
 }
@@ -209,7 +219,7 @@ export function HabitControl({
   const { colors } = useTheme();
   const running = habit.today.timerStartedAt !== null;
   const filled = habit.kind === 'check' ? habit.doneToday : running;
-  const iconColor = filled ? colors.surfaceRaised : colors.textPrimary;
+  const iconColor = filled ? colors.onAccent : colors.accent;
   // A jump when it is done today, and on each +1 of a counter (Fase 5).
   const pop = usePop(
     habit.kind === 'count' ? habit.today.amount : habit.doneToday,
@@ -279,24 +289,26 @@ export function HabitControl({
         hitSlop={6}
         style={({ pressed }) => [
           styles.control,
+          // Fase 6: round, turquoise; a check waits as an empty ring.
           {
             width: size,
             height: size,
-            borderRadius: size * 0.34,
-            backgroundColor: filled ? tone : withAlpha(tone, 0.2),
-            shadowColor: tone,
-            transform: [{ scale: pressed ? 0.92 : 1 }, { translateY: pressed ? 1 : 0 }],
+            borderRadius: size / 2,
+            backgroundColor: filled
+              ? colors.accent
+              : checked === false
+                ? 'transparent'
+                : colors.accentSoft,
+            borderColor: filled
+              ? colors.accent
+              : checked === false
+                ? colors.textTertiary
+                : 'transparent',
+            transform: [{ scale: pressed ? 0.92 : 1 }],
           },
         ]}
       >
-        {/* The top edge catches the light: the button looks raised. */}
-        <View
-          style={[
-            styles.controlShine,
-            { backgroundColor: withAlpha(specular, filled ? 0.35 : 0.12) },
-          ]}
-        />
-        {content}
+        {checked === false ? null : content}
       </Pressable>
     </Animated.View>
   );
@@ -304,7 +316,7 @@ export function HabitControl({
 
 /**
  * The week as seven small capsules, Sunday first: how full each day was, not only yes or no.
- * Today is ringed, resting days are hatched and future days are faint.
+ * Today is ringed in sand, resting days are hatched and future days are faint.
  */
 export function WeekTide({
   week,
@@ -331,7 +343,11 @@ export function WeekTide({
                 {
                   backgroundColor:
                     state === 'rest' ? 'transparent' : withAlpha(colors.textPrimary, 0.07),
-                  borderColor: today ? tone : state === 'rest' ? colors.border : 'transparent',
+                  borderColor: today
+                    ? colors.deepAccent
+                    : state === 'rest'
+                      ? colors.border
+                      : 'transparent',
                   borderStyle: state === 'rest' ? 'dashed' : 'solid',
                   opacity: state === 'future' ? 0.4 : 1,
                 },
@@ -340,7 +356,7 @@ export function WeekTide({
               <View
                 style={[
                   styles.dayFill,
-                  { height: `${Math.round(ratio * 100)}%`, backgroundColor: tone },
+                  { height: `${Math.round(ratio * 100)}%`, backgroundColor: colors.accent },
                 ]}
               />
             </View>
@@ -362,19 +378,14 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xs },
   name: { flexShrink: 1, minWidth: 72 },
   shrink: { flexShrink: 1 },
-  badge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
-  badgeText: { fontWeight: '700', fontVariant: ['tabular-nums'] },
-  // No outline (Fase 5): the fill and the soft shadow shape it.
+  tile: { borderRadius: radius.lg - 4, alignItems: 'center', justifyContent: 'center' },
+  bar: { height: 6, borderRadius: 3, overflow: 'hidden', marginTop: spacing.sm },
+  barFill: { height: '100%', borderRadius: 3 },
   control: {
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 2,
   },
-  controlShine: { position: 'absolute', top: 0, left: 6, right: 6, height: 1.5, borderRadius: 1 },
   week: { flexDirection: 'row', gap: 6, marginTop: spacing.sm },
   day: { alignItems: 'center', gap: 2 },
   dayCapsule: {
