@@ -117,10 +117,10 @@ function TimelineRow({
         style={({ pressed }) => [
           styles.card,
           {
-            backgroundColor: now
-              ? withAlpha(tone, scheme === 'dark' ? 0.28 : 0.16)
-              : colors.surfaceRaised,
-            borderColor: withAlpha(tone, now ? 0.7 : 0.25),
+            // Fase 6: what is happening now is midnight green, marked in sand on the left.
+            backgroundColor: now ? colors.selected : colors.surfaceRaised,
+            borderLeftWidth: now ? 4 : 0,
+            borderLeftColor: colors.deepAccent,
             transform: [{ scale: pressed ? 0.99 : 1 }],
           },
         ]}
@@ -139,7 +139,10 @@ function TimelineRow({
               {showTime(routine.start)}–{showTime(routine.end)}
             </Text>
           </View>
-          <Text variant="footnote" style={{ color: now ? tone : colors.textSecondary }}>
+          <Text
+            variant="footnote"
+            style={{ color: now ? colors.deepAccent : colors.textSecondary }}
+          >
             {status}
           </Text>
         </Pressable>

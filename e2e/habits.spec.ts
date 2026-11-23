@@ -39,7 +39,7 @@ test('a count habit fills up to its goal and a checklist step by step', async ({
   await expect(page.getByText('1/2 copos').first()).toBeVisible();
   await add.click();
   await expect(page.getByText('2/2 copos').first()).toBeVisible();
-  await expect(page.getByText(/^Feito/).first()).toBeVisible();
+  await expect(page.getByText('2/2 copos · Feito').first()).toBeVisible();
 
   await page.getByRole('button', { name: 'Novo hábito' }).click();
 

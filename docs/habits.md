@@ -65,6 +65,10 @@ Um hábito pode ser concluído por **uma lista, uma pasta ou uma rotina** (edito
 - **Criaturas antigas** (golfinho, baleia, foca, baiacu, camarão, caranguejo, lula, lagosta) continuam válidas nos dados e aparecem como a mais parecida das seis (`catalogCreature`): golfinho → tubarão, baleia → raia, foca → tartaruga, baiacu e camarão → peixe, caranguejo, lula e lagosta → polvo. Nada é reescrito no banco; ao editar, o hábito passa a guardar a nova.
 - Para escolher (editor, perfil, Ajustes e mergulho de boas-vindas), só as seis. Os modelos do catálogo também.
 
+## Cartão de hábito (Fase 6)
+
+`HabitCard`: a criatura vista de cima num quadrado verde-meia-noite (`CreatureTile`, apagada quando descansa), o nome com o rótulo do estágio (`Tag`: Ovo, Filhote, Jovem, Adulto), a situação ("2/8 copos · Faltam 6", "Feito"), uma **barra** do progresso de hoje (turquesa; areia quando completa), a semana em pílulas (hoje marcado em areia) e o botão do hábito **redondo**: ✓ como um anel vazio que enche de turquesa, +1, ▶/⏸ e os passos. O mesmo botão vale no detalhe e nas peças da agenda.
+
 ## O lago visto de cima (Fase 6)
 
 `components/HabitPond.tsx`: o aquário como um lago visto de cima, no Início e no topo de Aquário → Hábitos.

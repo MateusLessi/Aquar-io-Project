@@ -76,10 +76,13 @@ export function useCountUp(target: number): number {
   useEffect(() => {
     if (reduceMotion) return;
     const start = from.current;
-    const began = Date.now();
+    // Counted in steps, not by the clock: a frozen or jumping clock can't stall it.
+    const steps = Math.ceil(COUNT_MS / FRAME_MS);
+    let done = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const step = () => {
-      const t = Math.min(1, (Date.now() - began) / COUNT_MS);
+      done += 1;
+      const t = Math.min(1, done / steps);
       const value = start + (target - start) * easeOut(t);
       from.current = value;
       setShown(value);
