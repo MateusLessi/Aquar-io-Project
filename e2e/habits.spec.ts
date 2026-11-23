@@ -20,7 +20,7 @@ test('create a habit, check today, and it survives a reload', async ({ page }) =
 
   // Today shows the creature too.
   await page.goto('/');
-  await expect(page.getByText('Hábitos · 1 de 1')).toBeVisible();
+  await expect(page.getByText('Hábitos de hoje · 1 de 1')).toBeVisible();
 });
 
 test('a count habit fills up to its goal and a checklist step by step', async ({ page }) => {
@@ -60,7 +60,7 @@ test('a count habit fills up to its goal and a checklist step by step', async ({
   await page.reload();
   await expect(page.getByText('1/2 passos').first()).toBeVisible();
   await page.goto('/');
-  await expect(page.getByText('Hábitos · 1 de 2')).toBeVisible();
+  await expect(page.getByText('Hábitos de hoje · 1 de 2')).toBeVisible();
 });
 
 test('start a habit from a model: water adds up, and the model only fills the editor', async ({

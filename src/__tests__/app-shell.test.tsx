@@ -150,6 +150,27 @@ describe('App shell on phones', () => {
   });
 });
 
+describe('Início (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('shows the week as one number and today’s habits as rows you can check', async () => {
+    await data.habits.createHabit({ name: 'Meditar', creature: 'jellyfish' });
+    await renderRouter(routes, { initialUrl: '/' });
+    expect(
+      await screen.findByText('Hábitos de hoje · 0 de 1', {}, { timeout: 5000 }),
+    ).toBeOnTheScreen();
+    // The card reads as one sentence to screen readers.
+    expect(screen.getByLabelText(/^Consistência da semana: /)).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Meditar, Para hoje' })).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Meditar: feito hoje' }));
+    expect(await screen.findByText('Hábitos de hoje · 1 de 1')).toBeOnTheScreen();
+    expect(
+      await screen.findByLabelText('Consistência da semana: 100%. 1 de 1 hábitos e rotinas feitos'),
+    ).toBeOnTheScreen();
+  });
+});
+
 describe('App shell with large text', () => {
   it('shows only the active tab name at normal sizes', async () => {
     setWindowWidth(390, 1.0);
@@ -277,7 +298,7 @@ describe('Habits', () => {
 
     // Today shows the creature, already done.
     await fireEvent.press(screen.getByRole('tab', { name: 'Início' }));
-    expect(await screen.findByText('Hábitos · 1 de 1')).toBeOnTheScreen();
+    expect(await screen.findByText('Hábitos de hoje · 1 de 1')).toBeOnTheScreen();
 
     // The details show the streak.
     await fireEvent.press(screen.getByRole('tab', { name: 'Aquário' }));

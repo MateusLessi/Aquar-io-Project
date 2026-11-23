@@ -1,27 +1,27 @@
 import { useRouter } from 'expo-router';
-import { Check, ListChecks, Pause, Play, Plus } from 'lucide-react-native';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Check, ListChecks, Pause, Play, Plus, type LucideIcon } from 'lucide-react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { Button, Text, spacing, useBreakpoint, useTheme, withAlpha } from '@/design-system';
+import { Button, Text, radius, spacing, usePop, useTheme } from '@/design-system';
 
-import { amountLabel, fillRatio } from '../domain/amount';
+import { amountLabel } from '../domain/amount';
 import type { HabitWithProgress } from '../domain/types';
 import { useHabits } from '../hooks/queries';
 import { useHabitActions, type HabitActions } from '../hooks/useHabitActions';
+import { CreatureArt } from './CreatureArt';
 import { useLiveAmount } from './HabitCard';
-import { HabitCapsule } from './HabitCapsule';
 
-const WIDTH = 70;
-const HEIGHT = 92;
+const THUMB = 40;
+const CONTROL = 34;
 
 /**
- * Today's habits as capsules: one tap does the habit's main action (check, +1, start the
- * timer, open the checklist); a long press opens the habit. Hidden when none is due.
- * On phones the row scrolls; on wider screens it wraps.
+ * Today's habits as rows (Fase 6): the creature, the name, where it stands ("5 de 8 copos",
+ * "Feito hoje") and the habit's main action on the right (check, +1, start the timer, open the
+ * steps). The row itself opens the habit. Hidden when none is due, unless bare.
  */
 export function TodayHabits({ bare = false }: { bare?: boolean } = {}) {
   const router = useRouter();
-  const breakpoint = useBreakpoint();
   const { data: habits = [], todayKey } = useHabits();
   const actions = useHabitActions(todayKey);
   const due = habits.filter((h) => h.scheduledToday || h.doneToday);
@@ -29,7 +29,7 @@ export function TodayHabits({ bare = false }: { bare?: boolean } = {}) {
     return bare ? (
       <View style={styles.root}>
         <Text variant="overline" tone="tertiary" style={styles.title}>
-          Hábitos
+          Hábitos de hoje
         </Text>
         <Text variant="footnote" tone="secondary" style={styles.title}>
           Nenhum hábito para hoje. Toque para ver os seus ou criar um.
@@ -39,13 +39,11 @@ export function TodayHabits({ bare = false }: { bare?: boolean } = {}) {
   }
   const done = due.filter((h) => h.doneToday).length;
 
-  const items = due.map((habit) => <TodayCapsule key={habit.id} habit={habit} actions={actions} />);
-
   return (
     <View style={styles.root}>
       <View style={styles.header}>
         <Text variant="overline" tone="tertiary" style={styles.title}>
-          Hábitos · {done} de {due.length}
+          Hábitos de hoje · {done} de {due.length}
         </Text>
         {bare ? null : (
           <Button
@@ -55,33 +53,35 @@ export function TodayHabits({ bare = false }: { bare?: boolean } = {}) {
           />
         )}
       </View>
-      {breakpoint === 'compact' && !bare ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.row}
-        >
-          {items}
-        </ScrollView>
-      ) : (
-        <View style={[styles.row, styles.wrap]}>{items}</View>
-      )}
+      <View style={styles.rows}>
+        {due.map((habit) => (
+          <HabitRow key={habit.id} habit={habit} actions={actions} />
+        ))}
+      </View>
     </View>
   );
 }
 
-function TodayCapsule({ habit, actions }: { habit: HabitWithProgress; actions: HabitActions }) {
+function HabitRow({ habit, actions }: { habit: HabitWithProgress; actions: HabitActions }) {
   const { colors } = useTheme();
   const amount = useLiveAmount(habit);
   const running = habit.today.timerStartedAt !== null;
-  const ratio = running ? fillRatio(habit, amount, habit.doneToday) : habit.today.ratio;
   const day = habit.connected;
-  const caption =
-    day && day.required > 0
-      ? `${day.doneCount}/${day.required}`
-      : amountLabel({ ...habit, unit: null }, amount);
+  // A little jump when it is done, and on each +1 (Fase 5).
+  const pop = usePop(
+    habit.kind === 'count' ? habit.today.amount : habit.doneToday,
+    habit.kind === 'count' || habit.doneToday,
+  );
 
-  let Icon = Check;
+  const status = day
+    ? `${day.label} · ${day.doneCount} de ${day.required}`
+    : habit.kind === 'check'
+      ? habit.doneToday
+        ? 'Feito hoje'
+        : 'Para hoje'
+      : `${amountLabel(habit, amount)}${habit.doneToday ? ' · feito' : ''}`;
+
+  let Icon: LucideIcon = Check;
   let action: string;
   let onPress: () => void;
   switch (day ? 'connected' : habit.kind) {
@@ -107,83 +107,95 @@ function TodayCapsule({ habit, actions }: { habit: HabitWithProgress; actions: H
       onPress = () => actions.open(habit);
       break;
     default:
-      action = habit.doneToday ? 'desmarcar' : 'marcar como feito';
+      action = 'feito hoje';
       onPress = () => actions.toggle(habit, !habit.doneToday);
   }
-  const label = [
-    habit.name,
-    day ? `${day.label}, ${day.doneCount} de ${day.required}` : amountLabel(habit, amount),
-    habit.doneToday ? 'feito hoje' : null,
-  ]
-    .filter(Boolean)
-    .join(', ');
+  const isCheck = !day && habit.kind === 'check';
+  const filled = habit.doneToday || running;
 
   return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={() => actions.open(habit)}
-      accessibilityRole={habit.kind === 'check' ? 'checkbox' : 'button'}
-      accessibilityLabel={label}
-      accessibilityHint={`Toque para ${action}. Segure para abrir o hábito.`}
-      accessibilityState={habit.kind === 'check' ? { checked: habit.doneToday } : undefined}
-      aria-checked={habit.kind === 'check' ? habit.doneToday : undefined}
-      accessibilityActions={[{ name: 'longpress', label: 'Abrir hábito' }]}
-      onAccessibilityAction={() => actions.open(habit)}
-      style={({ pressed }) => [styles.item, { transform: [{ scale: pressed ? 0.94 : 1 }] }]}
-    >
-      <View>
-        <HabitCapsule
-          creature={habit.creature}
-          stage={habit.stage}
-          ratio={ratio}
-          done={habit.doneToday}
-          width={WIDTH}
-          height={HEIGHT}
-          caption={caption}
-        />
-        <View
-          style={[
-            styles.action,
-            {
-              backgroundColor: withAlpha(colors.surfaceBase, 0.9),
-              shadowColor: colors.shadow,
-            },
+    <View style={[styles.row, { backgroundColor: colors.surfaceBase }]}>
+      {/* The row opens the habit; the round button beside it acts (no button inside another). */}
+      <Pressable
+        onPress={() => actions.open(habit)}
+        accessibilityRole="button"
+        accessibilityLabel={`${habit.name}, ${status}`}
+        accessibilityHint="Abre o hábito"
+        style={({ pressed }) => [styles.open, pressed && styles.pressed]}
+      >
+        <View style={[styles.thumb, { backgroundColor: colors.surfacePressed }]}>
+          <CreatureArt creature={habit.creature} stage={habit.stage} size={THUMB - 4} />
+        </View>
+        <View style={styles.text}>
+          <Text variant="bodyStrong" numberOfLines={1}>
+            {habit.name}
+          </Text>
+          <Text variant="footnote" tone="secondary" numberOfLines={1}>
+            {status}
+          </Text>
+        </View>
+      </Pressable>
+      <Animated.View style={pop}>
+        <Pressable
+          onPress={onPress}
+          accessibilityRole={isCheck ? 'checkbox' : 'button'}
+          accessibilityLabel={`${habit.name}: ${action}`}
+          accessibilityState={isCheck ? { checked: habit.doneToday } : undefined}
+          aria-checked={isCheck ? habit.doneToday : undefined}
+          hitSlop={6}
+          style={({ pressed }) => [
+            styles.control,
+            filled
+              ? { backgroundColor: colors.accent, borderColor: colors.accent }
+              : {
+                  backgroundColor: isCheck ? 'transparent' : colors.accentSoft,
+                  borderColor: isCheck ? colors.textTertiary : 'transparent',
+                },
+            pressed && styles.pressed,
           ]}
         >
-          <Icon size={13} strokeWidth={2.6} color={colors.textPrimary} />
-        </View>
-      </View>
-      <Text
-        variant="caption"
-        tone={habit.doneToday ? 'primary' : 'secondary'}
-        numberOfLines={1}
-        style={styles.name}
-      >
-        {habit.name}
-      </Text>
-    </Pressable>
+          {isCheck && !habit.doneToday ? null : (
+            <Icon size={17} strokeWidth={2.6} color={filled ? colors.onAccent : colors.accent} />
+          )}
+        </Pressable>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { gap: spacing.xs },
+  root: { gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: { marginLeft: spacing.xs },
-  row: { gap: spacing.md, paddingHorizontal: spacing.xs, paddingVertical: spacing.xs },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap' },
-  item: { alignItems: 'center', gap: spacing.xs, width: WIDTH + 6 },
-  name: { textAlign: 'center', width: WIDTH + 6 },
-  action: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    shadowOpacity: 0.18,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+  rows: { gap: spacing.sm },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: radius.lg - 4,
+    paddingRight: spacing.md,
+  },
+  open: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+    paddingLeft: spacing.sm,
+  },
+  pressed: { opacity: 0.75 },
+  thumb: {
+    width: THUMB,
+    height: THUMB,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: { flex: 1, minWidth: 0 },
+  control: {
+    width: CONTROL,
+    height: CONTROL,
+    borderRadius: CONTROL / 2,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

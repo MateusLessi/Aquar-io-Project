@@ -52,6 +52,16 @@ export function cascade(index: number, reduceMotion: boolean) {
 }
 
 const COUNT_MS = 650;
+/**
+ * A steady step (about 60 a second) rather than the next frame: where frames come instantly
+ * (tests, some web views) the count would otherwise re-render thousands of times.
+ */
+const FRAME_MS = 16;
+/**
+ * Unit tests show the final number at once: each step of the count would be a state update
+ * outside the test's act(), and dozens of those slow every test that follows.
+ */
+const STILL = process.env.NODE_ENV === 'test';
 const easeOut = (t: number) => 1 - (1 - t) ** 3;
 
 /**
@@ -59,23 +69,24 @@ const easeOut = (t: number) => 1 - (1 - t) ** 3;
  * With "Reduzir movimento" it is simply the value.
  */
 export function useCountUp(target: number): number {
-  const { reduceMotion } = useTheme();
+  const { reduceMotion: reduce } = useTheme();
+  const reduceMotion = reduce || STILL;
   const [shown, setShown] = useState(0);
   const from = useRef(0);
   useEffect(() => {
     if (reduceMotion) return;
     const start = from.current;
     const began = Date.now();
-    let frame = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const step = () => {
       const t = Math.min(1, (Date.now() - began) / COUNT_MS);
       const value = start + (target - start) * easeOut(t);
       from.current = value;
       setShown(value);
-      if (t < 1) frame = requestAnimationFrame(step);
+      if (t < 1) timer = setTimeout(step, FRAME_MS);
     };
-    frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
+    timer = setTimeout(step, FRAME_MS);
+    return () => clearTimeout(timer);
   }, [target, reduceMotion]);
   return reduceMotion ? target : shown;
 }

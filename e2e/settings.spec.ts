@@ -45,11 +45,11 @@ test('Ajustes change the app: week start, clock, dashboard cards, export', async
 
   // Hide a dashboard card.
   await page.goto('/profile/settings?section=home');
-  const card = visible(page.getByRole('switch', { name: 'Mostrar Esta semana' }));
+  const card = visible(page.getByRole('switch', { name: 'Mostrar Consistência da semana' }));
   await card.click();
   await expect(card).toHaveAttribute('aria-checked', 'false');
   await page.goto('/');
-  await expect(page.getByText('Esta semana', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Consistência da semana', { exact: true })).toHaveCount(0);
 
   // Export downloads the JSON and the CSV.
   await page.goto('/profile/settings?section=account');

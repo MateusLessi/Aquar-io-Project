@@ -48,11 +48,12 @@ export function useStartTab() {
 
 /** Dashboard cards that can be moved and hidden (the day's tide always leads). */
 export const DASHBOARD_CARDS = [
-  { id: 'depth', label: 'Profundidade' },
-  { id: 'weekStats', label: 'Esta semana' },
-  { id: 'routines', label: 'Agenda de hoje' },
+  { id: 'weekStats', label: 'Consistência da semana' },
   { id: 'habits', label: 'Hábitos de hoje' },
   { id: 'tasks', label: 'Tarefas de hoje' },
+  { id: 'routines', label: 'Agenda de hoje' },
+  // After the day's blocks while the depths are rethought (Fase 6).
+  { id: 'depth', label: 'Profundidade' },
   { id: 'folders', label: 'Pastas fixadas' },
   { id: 'week', label: 'Marés da semana' },
   { id: 'calendar', label: 'Calendário das marés (tablet e PC)' },
