@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
+import { weekdayOrder } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import {
   Checkbox,
   Tag,
@@ -315,7 +317,7 @@ export function HabitControl({
 }
 
 /**
- * The week as seven small capsules, Sunday first: how full each day was, not only yes or no.
+ * The week as seven small capsules, from the chosen first day: how full each day was, not only yes or no.
  * Today is ringed in sand, resting days are hatched and future days are faint.
  */
 export function WeekTide({
@@ -328,6 +330,9 @@ export function WeekTide({
   tone: string;
 }) {
   const { colors } = useTheme();
+  // The week starts on the chosen day, so the letters follow it.
+  const { weekStart } = useCalendarPrefs();
+  const order = weekdayOrder(weekStart);
   // Future days come last, so today is the last one that is not in the future.
   const todayIndex = week.filter((s) => s !== 'future').length - 1;
   return (
@@ -361,7 +366,7 @@ export function WeekTide({
               />
             </View>
             <Text variant="caption" tone="tertiary" style={styles.dayLetter}>
-              {weekdayInitial[i]}
+              {weekdayInitial[order[i]!]}
             </Text>
           </View>
         );

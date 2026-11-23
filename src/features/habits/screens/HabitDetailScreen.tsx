@@ -2,8 +2,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Check, Minus, Pencil, SearchX, Sparkles, Waves } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { toDateKey } from '@/core/dates';
+import { addDays, startOfWeek, toDateKey, weekdayOf } from '@/core/dates';
+import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import {
   Button,
   Checkbox,
@@ -12,47 +14,50 @@ import {
   IconButton,
   Screen,
   Surface,
+  Tag,
   Text,
   listColors,
+  radius,
   spacing,
   useCountUpText,
+  usePop,
   useTheme,
   withAlpha,
 } from '@/design-system';
 
-import { CreatureArt } from '../components/CreatureArt';
-import { HabitCapsule } from '../components/HabitCapsule';
+import { CreatureHero } from '../components/CreatureHero';
 import { HabitControl, streakLabel, useLiveAmount } from '../components/HabitCard';
 import { HabitCalendar } from '../components/HabitCalendar';
 import { HabitDive } from '../components/HabitDive';
 import { HabitEditorSheet } from '../components/HabitEditorSheet';
+import { PondTag } from '../components/HabitPond';
 import { ReefMap } from '../components/ReefMap';
-import { amountLabel, clockLabel, fillRatio } from '../domain/amount';
+import { amountLabel, clockLabel } from '../domain/amount';
 import { creatures } from '../domain/creatures';
-import { daysLabel } from '../domain/progress';
-import { creatureStage, nextStage, stageInfo, type Stage } from '../domain/stages';
+import { daysLabel, isScheduled, weekdayInitial, weekdayShort } from '../domain/progress';
+import { creatureStage, nextStage, stageInfo, stagePath } from '../domain/stages';
 import type { HabitWithProgress } from '../domain/types';
 import { useHabitSources } from '../hooks/habitSources';
 import { useHabitsRepository } from '../hooks/habitsContext';
 import { useHabit } from '../hooks/queries';
 import { useHabitActions, type HabitActions } from '../hooks/useHabitActions';
 
-const STAGES: Stage[] = ['egg', 'baby', 'young', 'adult'];
-/** Days done where each stage begins (mirrors domain/stages). */
-const STAGE_FROM: Record<Stage, number> = { egg: 0, baby: 3, young: 10, adult: 30 };
-
+/**
+ * A habit's page, as its creature (Fase 6): the creature big on the water, its stage and how far
+ * the next one is, the evolution in steps, this week and today's action. The details (numbers,
+ * reef and calendar) follow below.
+ */
 export function HabitDetailScreen({
   habitId,
   footer,
 }: {
   habitId: string;
-  /** Extra section after the growth path (the app shell's "Conectado a"). */
+  /** Extra section after the habit's numbers (the app shell's "Conectado a"). */
   footer?: (habit: { id: string; name: string }) => React.ReactNode;
 }) {
   const router = useRouter();
   const { dive } = useLocalSearchParams<{ dive?: string }>();
   const repository = useHabitsRepository();
-  const sources = useHabitSources();
   const { scheme } = useTheme();
   const { data, loading, todayKey } = useHabit(habitId);
   const actions = useHabitActions(todayKey);
@@ -83,59 +88,67 @@ export function HabitDetailScreen({
   const { habit, doneDays, dayRatios } = data;
   const creature = creatures[habit.creature];
   const tone = listColors[creature.color][scheme];
+  const stage = stageInfo[habit.stage].label;
   const startKey = [toDateKey(new Date(habit.createdAt)), ...doneDays].sort()[0]!;
   const toggle = (date: string, done: boolean) =>
     repository.setChecked(habit.id, date, done).catch((e: unknown) => console.error(e));
   // Opening the dive lives in the URL (?dive=1), so a notification can open it directly.
   const openDive = () => router.setParams({ dive: '1' });
   const closeDive = () => router.setParams({ dive: undefined });
+  const resting = !habit.scheduledToday && !habit.doneToday;
+  const status = habit.doneToday ? 'Feito hoje' : resting ? 'Descansa hoje' : 'Para hoje';
 
   return (
+    // The creature comes first: the name is under it, and the title stays for screen readers.
     <Screen
       title={habit.name}
-      eyebrow={`${creature.name} · ${daysLabel(habit.days)}`}
+      titleHidden
       onBack={back}
       actions={<IconButton icon={Pencil} label="Editar hábito" onPress={() => setEditing(true)} />}
     >
-      {habit.description ? (
-        <Text variant="callout" tone="secondary" style={styles.why}>
-          {habit.description}
-        </Text>
-      ) : null}
-      <Hero habit={habit} tone={tone} actions={actions} onDive={openDive} />
+      <View style={styles.top}>
+        <CreatureHero
+          creature={habit.creature}
+          stage={habit.stage}
+          accessibilityLabel={`${creature.name}, ${stage.toLowerCase()}, no lago. ${status}.`}
+        >
+          <PondTag label={status} />
+          {habit.streak >= 2 ? <PondTag label={`${habit.streak} dias seguidos`} /> : null}
+        </CreatureHero>
 
-      {habit.connected && sources ? (
-        <Surface style={styles.steps}>
-          <Text variant="headline">Hoje · {habit.connected.label}</Text>
-          <sources.DayView habitId={habit.id} />
-          <Text variant="footnote" tone="tertiary">
-            Marcar aqui marca no lugar de origem, e marcar lá também conta aqui.
+        <View style={styles.name}>
+          <View style={styles.nameRow}>
+            {/* Already read as the screen's title. */}
+            <View
+              style={styles.flex}
+              aria-hidden
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Text variant="title1" numberOfLines={2}>
+                {habit.name}
+              </Text>
+            </View>
+            <View>
+              <Tag label={stage} />
+            </View>
+          </View>
+          <Text variant="callout" tone="secondary">
+            {creature.name} · {daysLabel(habit.days)}
           </Text>
-        </Surface>
-      ) : null}
+          {habit.description ? (
+            <Text variant="callout" tone="secondary" style={styles.why}>
+              {habit.description}
+            </Text>
+          ) : null}
+        </View>
 
-      {!habit.connected && habit.kind === 'checklist' ? (
-        <Surface style={styles.steps}>
-          {habit.steps.map((step) => {
-            const done = habit.today.stepsDone.includes(step.id);
-            return (
-              <View key={step.id} style={styles.step}>
-                <Checkbox
-                  checked={done}
-                  label={step.title}
-                  onChange={(checked) => actions.setStep(habit, step.id, checked)}
-                />
-                <Text variant="body" struck={done} style={styles.flex}>
-                  {step.title}
-                </Text>
-              </View>
-            );
-          })}
-          <Text variant="footnote" tone="tertiary">
-            Os passos recomeçam todo dia.
-          </Text>
-        </Surface>
-      ) : null}
+        <GrowthBar habit={habit} />
+        {/* Today's action before the evolution and the week: on a phone it shows unscrolled. */}
+        <Today habit={habit} tone={tone} actions={actions} onDive={openDive} />
+        <Evolution habit={habit} />
+        <ThisWeek habit={habit} todayKey={todayKey} />
+      </View>
 
       {/* Before the first day done, a line on what to do instead of "0 · 0 · — · 0". */}
       {habit.daysDone === 0 ? (
@@ -152,7 +165,6 @@ export function HabitDetailScreen({
         </View>
       )}
 
-      <Growth habit={habit} tone={tone} />
       {footer?.({ id: habit.id, name: habit.name })}
 
       <Surface style={styles.card}>
@@ -194,8 +206,217 @@ export function HabitDetailScreen({
   );
 }
 
-/** The big capsule with today's amount and the controls for the habit's kind. */
-function Hero({
+const days = (n: number) => (n === 1 ? '1 dia' : `${n} dias`);
+
+/** How far the next stage is: "12 de 30 dias até Adulto". Full once grown. */
+function GrowthBar({ habit }: { habit: HabitWithProgress }) {
+  const { colors } = useTheme();
+  const next = nextStage(habit.creature, habit.daysDone);
+  const goal = next ? habit.daysDone + next.daysLeft : habit.daysDone;
+  const ratio = next ? habit.daysDone / goal : 1;
+  const label = next
+    ? `${habit.daysDone} de ${days(goal)} até ${stageInfo[next.stage].label}`
+    : `Totalmente crescido · ${days(habit.daysDone)} feitos`;
+  return (
+    <View
+      style={styles.growth}
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={`Crescimento: ${label}`}
+      accessibilityValue={{ min: 0, max: Math.max(goal, 1), now: habit.daysDone }}
+    >
+      <View style={[styles.growthTrack, { backgroundColor: colors.surfacePressed }]}>
+        <View
+          style={[
+            styles.growthFill,
+            {
+              width: `${Math.round(ratio * 100)}%`,
+              backgroundColor: next ? colors.accent : colors.deepAccent,
+            },
+          ]}
+        />
+      </View>
+      <Text variant="footnote" tone="secondary">
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+const STEP = 28;
+
+/** The stages in steps: the ones reached checked, the current one in sand, the rest ahead. */
+function Evolution({ habit }: { habit: HabitWithProgress }) {
+  const { colors } = useTheme();
+  const path = stagePath(habit.creature);
+  const now = Math.max(
+    0,
+    path.findIndex((p) => p.stage === habit.stage),
+  );
+  const said = path
+    .map((p, i) =>
+      i < now
+        ? `${stageInfo[p.stage].label}, alcançado`
+        : i === now
+          ? `${stageInfo[p.stage].label}, agora`
+          : `${stageInfo[p.stage].label}, com ${days(p.from)}`,
+    )
+    .join('; ');
+  return (
+    <View style={styles.section}>
+      <Text variant="headline">Evolução</Text>
+      <View style={styles.evolution} accessible accessibilityLabel={`Evolução: ${said}`}>
+        {/* The line behind the steps, filled up to the current one. */}
+        <View style={[styles.evoLine, { backgroundColor: colors.surfacePressed }]}>
+          <View
+            style={[
+              styles.evoLineFill,
+              { width: `${(now / (path.length - 1)) * 100}%`, backgroundColor: colors.accent },
+            ]}
+          />
+        </View>
+        {path.map((p, i) => {
+          const reached = i < now;
+          const current = i === now;
+          return (
+            <View key={p.stage} style={styles.evoStep}>
+              <View
+                style={[
+                  styles.evoDot,
+                  {
+                    backgroundColor: reached
+                      ? colors.accent
+                      : current
+                        ? colors.deepAccent
+                        : colors.surfacePressed,
+                  },
+                  current && { boxShadow: `0px 0px 0px 4px ${colors.deepAccentSoft}` },
+                ]}
+              >
+                {reached ? (
+                  <Check size={15} strokeWidth={3.2} color={colors.surfaceBase} />
+                ) : current ? (
+                  <View style={[styles.evoNow, { backgroundColor: colors.surfaceBase }]} />
+                ) : null}
+              </View>
+              <Text
+                variant="caption"
+                tone={current ? 'primary' : reached ? 'secondary' : 'tertiary'}
+                style={current && styles.bold}
+                numberOfLines={1}
+              >
+                {stageInfo[p.stage].label}
+              </Text>
+              {i > now ? (
+                <Text variant="caption" tone="tertiary" style={styles.small} numberOfLines={1}>
+                  {days(p.from)}
+                </Text>
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+/** This week, day by day: done in midnight green, today ringed in sand, rest days dashed. */
+function ThisWeek({ habit, todayKey }: { habit: HabitWithProgress; todayKey: string }) {
+  const { colors } = useTheme();
+  const { weekStart } = useCalendarPrefs();
+  const first = startOfWeek(todayKey, weekStart);
+  const keys = habit.week.map((_, i) => addDays(first, i));
+  const done = habit.week.filter((s) => s === 'done').length;
+  // The days it was meant for this week (from its start), plus any done on a rest day.
+  const planned = keys.filter(
+    (key, i) =>
+      habit.week[i] === 'done' || (habit.week[i] !== 'rest' && isScheduled(habit.days, key)),
+  ).length;
+  return (
+    <View style={styles.section}>
+      <View style={styles.sectionHead}>
+        <Text variant="headline">Esta semana</Text>
+        {planned > 0 ? (
+          <Text variant="footnote" tone="secondary">
+            {done} de {planned}
+          </Text>
+        ) : null}
+      </View>
+      <View
+        style={styles.week}
+        accessible
+        accessibilityLabel={`Esta semana: ${keys
+          .map((key, i) => {
+            const state = habit.week[i];
+            const day = weekdayShort[weekdayOf(key)];
+            const what =
+              state === 'done'
+                ? 'feito'
+                : state === 'missed'
+                  ? 'não feito'
+                  : state === 'pending'
+                    ? 'hoje'
+                    : state === 'rest'
+                      ? 'descanso'
+                      : isScheduled(habit.days, key)
+                        ? 'a fazer'
+                        : 'descanso';
+            return `${day}, ${what}`;
+          })
+          .join('; ')}`}
+      >
+        {keys.map((key, i) => {
+          const state = habit.week[i];
+          const isDone = state === 'done';
+          const today = key === todayKey;
+          const rest = state === 'rest' || (state === 'future' && !isScheduled(habit.days, key));
+          return (
+            <View
+              key={key}
+              style={[
+                styles.weekDay,
+                {
+                  backgroundColor: isDone
+                    ? colors.selected
+                    : rest
+                      ? 'transparent'
+                      : colors.surfaceRaised,
+                  borderColor: today ? colors.deepAccent : rest ? colors.border : 'transparent',
+                  borderStyle: rest && !today ? 'dashed' : 'solid',
+                  opacity: state === 'future' ? 0.5 : 1,
+                },
+              ]}
+            >
+              <Text
+                variant="caption"
+                style={[
+                  styles.weekLetter,
+                  isDone && styles.bold,
+                  {
+                    color: isDone
+                      ? colors.onSelected
+                      : today
+                        ? colors.textPrimary
+                        : colors.textTertiary,
+                  },
+                ]}
+              >
+                {weekdayInitial[weekdayOf(key)]}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+/**
+ * Today: where it stands and the action for the habit's kind. A one-tap habit gets the orange
+ * "Marcar hoje" beside it; a counter gets −/+1, a timer ▶ and the dive, a checklist its steps, and
+ * a habit done from a list or routine today's items.
+ */
+function Today({
   habit,
   tone,
   actions,
@@ -206,10 +427,11 @@ function Hero({
   actions: HabitActions;
   onDive: () => void;
 }) {
+  const sources = useHabitSources();
   const amount = useLiveAmount(habit);
   const running = habit.today.timerStartedAt !== null;
-  const ratio = running ? fillRatio(habit, amount, habit.doneToday) : habit.today.ratio;
   const day = habit.connected;
+  const pop = usePop(habit.doneToday, habit.doneToday);
   const headline = day
     ? day.required === 0
       ? 'Dia de descanso'
@@ -233,121 +455,115 @@ function Hero({
         ? `de ${habit.target} min${running ? ' · rodando' : ''}`
         : habit.kind === 'checklist'
           ? 'feitos hoje'
-          : streakLabel(habit);
+          : habit.streak === 1 && !habit.doneToday
+            ? '1 dia seguido'
+            : streakLabel(habit);
 
   return (
-    <Surface style={[styles.hero, { borderColor: withAlpha(tone, 0.3) }]} accessible={false}>
-      <HabitCapsule
-        creature={habit.creature}
-        stage={habit.stage}
-        ratio={ratio}
-        done={habit.doneToday}
-        resting={!habit.scheduledToday && !habit.doneToday}
-        width={112}
-        height={150}
-      />
-      <View style={styles.heroBody}>
-        <Text variant="title1" style={styles.amount} accessibilityRole="header">
-          {headline}
-        </Text>
-        <Text variant="callout" tone="secondary">
-          {sub}
-        </Text>
-        <View style={styles.controls}>
-          {day ? (
-            day.required > 0 ? (
-              <Button
-                label={day.done ? 'Desmarcar tudo' : 'Marcar tudo'}
-                variant={day.done ? 'secondary' : 'primary'}
-                icon={day.done ? undefined : Check}
-                onPress={() => actions.toggle(habit, !day.done)}
-              />
-            ) : null
-          ) : habit.kind === 'count' ? (
-            <>
-              <IconButton
-                icon={Minus}
-                label={`${habit.name}: tirar 1`}
-                onPress={() => actions.add(habit, -1)}
-                disabled={amount <= 0}
-              />
-              <HabitControl habit={habit} tone={tone} actions={actions} />
-            </>
-          ) : habit.kind === 'time' ? (
-            <>
-              <HabitControl
-                habit={habit}
-                tone={tone}
-                actions={{
-                  ...actions,
-                  // Already on the habit: start here and open the dive over it.
-                  toggleTimer: (h) => {
-                    if (running) actions.toggleTimer(h);
-                    else {
-                      actions.startTimer(h);
-                      onDive();
-                    }
-                  },
-                }}
-              />
-              <Button label="Mergulho" variant="secondary" icon={Waves} onPress={onDive} />
-            </>
-          ) : habit.kind === 'check' ? (
+    <Surface style={styles.today}>
+      <View style={styles.todayHead}>
+        <Animated.View style={[styles.flex, pop]}>
+          <Text variant="overline" tone="tertiary">
+            Hoje
+          </Text>
+          <Text variant="title2" style={styles.amount}>
+            {headline}
+          </Text>
+          <Text variant="footnote" tone="secondary">
+            {sub}
+          </Text>
+        </Animated.View>
+        {day ? null : habit.kind === 'count' ? (
+          <View style={styles.controls}>
+            <IconButton
+              icon={Minus}
+              label={`${habit.name}: tirar 1`}
+              onPress={() => actions.add(habit, -1)}
+              disabled={amount <= 0}
+            />
             <HabitControl habit={habit} tone={tone} actions={actions} />
-          ) : null}
-        </View>
-        {habit.kind === 'time' ? (
-          <View style={styles.quick}>
-            {[5, 15, 30].map((minutes) => (
-              <Chip
-                key={minutes}
-                label={`+${minutes} min`}
-                onPress={() => actions.add(habit, minutes * 60)}
-              />
-            ))}
           </View>
+        ) : habit.kind === 'check' ? (
+          <Button
+            label={habit.doneToday ? 'Desmarcar' : 'Marcar hoje'}
+            variant={habit.doneToday ? 'secondary' : 'primary'}
+            icon={habit.doneToday ? undefined : Check}
+            accessibilityHint={habit.doneToday ? 'Desfaz o de hoje' : undefined}
+            onPress={() => actions.toggle(habit, !habit.doneToday)}
+          />
+        ) : habit.kind === 'time' ? (
+          <HabitControl
+            habit={habit}
+            tone={tone}
+            actions={{
+              ...actions,
+              // Already on the habit: start here and open the dive over it.
+              toggleTimer: (h) => {
+                if (running) actions.toggleTimer(h);
+                else {
+                  actions.startTimer(h);
+                  onDive();
+                }
+              },
+            }}
+          />
         ) : null}
       </View>
-    </Surface>
-  );
-}
 
-function Growth({ habit, tone }: { habit: HabitWithProgress; tone: string }) {
-  const next = nextStage(habit.creature, habit.daysDone);
-  // Mammals and sharks are born, not hatched: their path starts at baby.
-  const path = STAGES.slice(STAGES.indexOf(creatureStage(habit.creature, 0)));
-  return (
-    <Surface style={styles.card}>
-      <Text variant="headline">Crescimento</Text>
-      <Text variant="footnote" tone="secondary">
-        {stageInfo[habit.stage].label} ·{' '}
-        {next
-          ? `${next.daysLeft === 1 ? 'falta 1 dia' : `faltam ${next.daysLeft} dias`} para ${stageInfo[next.stage].label.toLowerCase()}`
-          : 'totalmente crescido!'}
-      </Text>
-      <View style={styles.path} accessible={false}>
-        {path.map((stage, i) => {
-          const following = path[i + 1];
-          const span = following ? STAGE_FROM[following] - STAGE_FROM[stage] : 0;
-          const progress = following
-            ? Math.min(1, Math.max(0, (habit.daysDone - STAGE_FROM[stage]) / span))
-            : 0;
-          return (
-            <View key={stage} style={[styles.pathStep, following ? styles.flex : null]}>
-              <View style={{ opacity: STAGE_FROM[stage] <= habit.daysDone ? 1 : 0.4 }}>
-                <CreatureArt creature={habit.creature} stage={stage} size={30} />
+      {!day && habit.kind === 'time' ? (
+        <View style={styles.quick}>
+          {[5, 15, 30].map((minutes) => (
+            <Chip
+              key={minutes}
+              label={`+${minutes} min`}
+              onPress={() => actions.add(habit, minutes * 60)}
+            />
+          ))}
+          <Button label="Mergulho" variant="secondary" icon={Waves} onPress={onDive} />
+        </View>
+      ) : null}
+
+      {!day && habit.kind === 'checklist' ? (
+        <View>
+          {habit.steps.map((step) => {
+            const done = habit.today.stepsDone.includes(step.id);
+            return (
+              <View key={step.id} style={styles.step}>
+                <Checkbox
+                  checked={done}
+                  label={step.title}
+                  onChange={(checked) => actions.setStep(habit, step.id, checked)}
+                />
+                <Text variant="body" struck={done} style={styles.flex}>
+                  {step.title}
+                </Text>
               </View>
-              {following ? (
-                <View style={[styles.bar, { backgroundColor: withAlpha(tone, 0.15) }]}>
-                  <View
-                    style={[styles.barFill, { width: `${progress * 100}%`, backgroundColor: tone }]}
-                  />
-                </View>
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
+            );
+          })}
+          <Text variant="footnote" tone="tertiary">
+            Os passos recomeçam todo dia.
+          </Text>
+        </View>
+      ) : null}
+
+      {day && sources ? (
+        <View style={styles.connected}>
+          <sources.DayView habitId={habit.id} />
+          <Text variant="footnote" tone="tertiary">
+            Marcar aqui marca no lugar de origem, e marcar lá também conta aqui.
+          </Text>
+        </View>
+      ) : null}
+
+      {day && day.required > 0 ? (
+        <Button
+          label={day.done ? 'Desmarcar tudo' : 'Marcar tudo'}
+          variant={day.done ? 'secondary' : 'primary'}
+          icon={day.done ? undefined : Check}
+          block
+          onPress={() => actions.toggle(habit, !day.done)}
+        />
+      ) : null}
     </Surface>
   );
 }
@@ -387,26 +603,55 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  why: { marginHorizontal: spacing.xs, marginTop: -spacing.sm, fontStyle: 'italic' },
-  hero: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-    padding: spacing.lg,
-  },
-  heroBody: { flex: 1, gap: 2 },
-  amount: { fontVariant: ['tabular-nums'] },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.md,
-    flexWrap: 'wrap',
-  },
-  quick: { flexDirection: 'row', gap: spacing.xs, marginTop: spacing.sm, flexWrap: 'wrap' },
-  steps: { padding: spacing.md, gap: spacing.xs },
-  step: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 6 },
+  top: { gap: spacing.lg },
+  name: { gap: 2, marginTop: -spacing.xs, paddingHorizontal: spacing.xxs },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  why: { fontStyle: 'italic', marginTop: spacing.xs },
   flex: { flex: 1 },
+  bold: { fontWeight: '700' },
+  small: { fontSize: 10, lineHeight: 12 },
+  growth: { gap: spacing.xs, marginTop: -spacing.xs, paddingHorizontal: spacing.xxs },
+  growthTrack: { height: 10, borderRadius: 5, overflow: 'hidden' },
+  growthFill: { height: '100%', borderRadius: 5 },
+  section: { gap: spacing.sm, paddingHorizontal: spacing.xxs },
+  sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  evolution: { flexDirection: 'row', justifyContent: 'space-between' },
+  evoLine: {
+    position: 'absolute',
+    left: 32,
+    right: 32,
+    top: STEP / 2 - 1.5,
+    height: 3,
+    borderRadius: 1.5,
+    overflow: 'hidden',
+  },
+  evoLineFill: { height: '100%' },
+  evoStep: { width: 64, alignItems: 'center', gap: 4 },
+  evoDot: {
+    width: STEP,
+    height: STEP,
+    borderRadius: STEP / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  evoNow: { width: 8, height: 8, borderRadius: 4 },
+  week: { flexDirection: 'row', gap: 6 },
+  weekDay: {
+    flex: 1,
+    height: 36,
+    borderRadius: radius.sm + 2,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  weekLetter: { fontSize: 12 },
+  today: { padding: spacing.md, gap: spacing.md, paddingVertical: spacing.sm + 4 },
+  todayHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  amount: { fontVariant: ['tabular-nums'] },
+  controls: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  quick: { flexDirection: 'row', gap: spacing.xs, flexWrap: 'wrap', alignItems: 'center' },
+  step: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 6 },
+  connected: { gap: spacing.xs },
   stats: { flexDirection: 'row', gap: spacing.sm },
   stat: { flex: 1, padding: spacing.md, gap: 2, alignItems: 'center' },
   first: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
@@ -418,9 +663,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: { padding: spacing.md, gap: spacing.sm },
-  path: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.xs },
-  pathStep: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  bar: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' },
-  barFill: { height: '100%', borderRadius: 3 },
   note: { marginLeft: spacing.xs },
 });

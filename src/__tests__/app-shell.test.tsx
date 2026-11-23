@@ -320,6 +320,37 @@ describe('Habits', () => {
     expect(await screen.findByText('Seu primeiro dia com Ler')).toBeOnTheScreen();
     expect(screen.queryByText('Seguidos')).toBeNull();
   });
+
+  it("shows the habit as its creature: stage, evolution, this week and 'Marcar hoje'", async () => {
+    await renderRouter(routes, { initialUrl: '/aquarium?tab=habits' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Novo hábito' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Começar do zero' }));
+    await fireEvent.changeText(await screen.findByLabelText('Nome'), 'Ler');
+    await fireEvent.press(screen.getByRole('radio', { name: 'Peixe' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Criar hábito' }));
+    await fireEvent.press(await screen.findByRole('button', { name: /^Ler, / }));
+
+    // The fish, still an egg: the path ahead, and how far the next stage is.
+    expect(await screen.findByLabelText('Peixe, ovo, no lago. Para hoje.')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Crescimento: 0 de 3 dias até Filhote')).toBeOnTheScreen();
+    expect(
+      screen.getByLabelText(
+        'Evolução: Ovo, agora; Filhote, com 3 dias; Jovem, com 10 dias; Adulto, com 30 dias',
+      ),
+    ).toBeOnTheScreen();
+
+    // Marking today counts a day toward the next stage, and the week shows it.
+    await fireEvent.press(screen.getByRole('button', { name: 'Marcar hoje' }));
+    expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Peixe, ovo, no lago. Feito hoje.')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Crescimento: 1 de 3 dias até Filhote')).toBeOnTheScreen();
+    expect(screen.getByLabelText(/^Esta semana: .*feito/)).toBeOnTheScreen();
+    expect(await data.events.count('HABIT_CHECKED')).toBe(1);
+
+    // And it can be undone.
+    await fireEvent.press(screen.getByRole('button', { name: 'Desmarcar' }));
+    expect(await screen.findByRole('button', { name: 'Marcar hoje' })).toBeOnTheScreen();
+  });
 });
 
 describe('Repeating tasks and reminders', () => {

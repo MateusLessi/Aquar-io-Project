@@ -38,7 +38,12 @@ import { CreatureArt } from './CreatureArt';
 const MAX_NEAR = 8;
 const MAX_DEEP = 4;
 /** These swim head first along their path, swaying; the others drift upright and pulse. */
-const SWIMS_HEAD_FIRST: ReadonlySet<CatalogCreature> = new Set(['fish', 'shark', 'turtle', 'ray']);
+export const SWIMS_HEAD_FIRST: ReadonlySet<CatalogCreature> = new Set([
+  'fish',
+  'shark',
+  'turtle',
+  'ray',
+]);
 
 type HabitPondProps = {
   habits: HabitWithProgress[];
@@ -90,7 +95,7 @@ export function HabitPond({
       >
         {width > 0 ? (
           <>
-            <Water width={width} height={height} />
+            <PondWater width={width} height={height} />
             {deep.map((habit, i) => (
               <Swimmer
                 key={habit.id}
@@ -104,7 +109,7 @@ export function HabitPond({
             {near.map((habit, i) => (
               <Swimmer key={habit.id} habit={habit} index={i} width={width} height={height} />
             ))}
-            <Leaves width={width} height={height} />
+            <PondLeaves width={width} height={height} />
             <RisingBubbles height={height} count={5} />
           </>
         ) : null}
@@ -138,7 +143,7 @@ export function PondTag({ label }: { label: string }) {
 }
 
 /** Green water, deeper toward one corner, with soft light drifting on it. */
-function Water({ width, height }: { width: number; height: number }) {
+export function PondWater({ width, height }: { width: number; height: number }) {
   const { reduceMotion } = useTheme();
   const waterId = useSvgId('pond-water');
   const lightId = useSvgId('pond-light');
@@ -206,7 +211,7 @@ function Water({ width, height }: { width: number; height: number }) {
 }
 
 /** Leaves framing the corners, over the creatures, like plants at the pond's edge. */
-function Leaves({ width, height }: { width: number; height: number }) {
+export function PondLeaves({ width, height }: { width: number; height: number }) {
   const lit = useSvgId('leaf-lit');
   const shade = useSvgId('leaf-shade');
   return (

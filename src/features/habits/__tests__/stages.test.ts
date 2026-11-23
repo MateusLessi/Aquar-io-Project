@@ -1,4 +1,4 @@
-import { creatureStage, nextStage } from '../domain/stages';
+import { creatureStage, nextStage, stagePath } from '../domain/stages';
 
 describe('creature stages', () => {
   it('hatches egg-laying creatures from an egg', () => {
@@ -22,5 +22,16 @@ describe('creature stages', () => {
   it('says how far the next stage is, and nothing once adult', () => {
     expect(nextStage('turtle', 1)).toEqual({ stage: 'baby', daysLeft: 2 });
     expect(nextStage('turtle', 30)).toBeNull();
+  });
+
+  it('lists the path from the first stage, with the day each one begins', () => {
+    expect(stagePath('fish')).toEqual([
+      { stage: 'egg', from: 0 },
+      { stage: 'baby', from: 3 },
+      { stage: 'young', from: 10 },
+      { stage: 'adult', from: 30 },
+    ]);
+    // Born alive: no egg in the path.
+    expect(stagePath('shark').map((s) => s.stage)).toEqual(['baby', 'young', 'adult']);
   });
 });
