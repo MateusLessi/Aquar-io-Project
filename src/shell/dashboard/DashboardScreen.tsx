@@ -19,15 +19,17 @@ import { RoutineExtras } from '../connections/RoutineExtras';
 import { DepthGauge } from '../progress/DepthGauge';
 import { useProgress } from '../progress/useProgress';
 import { useDashboardCards, useGamePrefs, type DashboardCardId } from '../settings/prefs';
-import { WeekStatsCard } from '../stats/WeekStatsCard';
+import { ConsistencyCard } from '../stats/ConsistencyCard';
 import { InstallHint } from '../install/InstallHint';
 import { fitBoard, fitShape, packBento } from './bento';
 import { HomeTank } from './HomeTank';
-import { MiniHabits, MiniNow } from './MiniTiles';
 import { Tile } from './Tile';
 import { TideCalendar } from './TideCalendar';
 import { TidesBox } from './TidesBox';
 import { WeekChart } from './WeekChart';
+
+/** Blocks that keep their own height in the computer layout (a single line of content). */
+const SHORT: ReadonlySet<DashboardCardId> = new Set(['weekStats']);
 
 function greeting(date: Date, name: string): string {
   const hour = date.getHours();
@@ -68,12 +70,16 @@ export function DashboardScreen() {
   const tasksDone = tasks.filter((t) => t.completedAt).length;
   const done = tasksDone + habits.completed + routines.completed;
   const total = tasks.length + habits.total + routines.total;
-  const tide = <HomeTank done={done} total={total} />;
+  // Phones: a lower pond, so the day's blocks start above the fold.
+  const tide = (
+    <HomeTank done={done} total={total} height={breakpoint === 'compact' ? 240 : undefined} />
+  );
   const go = (href: Parameters<typeof router.navigate>[0]) => () => router.navigate(href);
   // Every block, bare inside its tile, with where the whole block goes.
   const blocks: Record<DashboardCardId, { node: ReactNode; label: string; open: () => void }> = {
     depth: { node: <DepthGauge />, label: 'Abrir o perfil', open: go('/profile') },
-    weekStats: { node: <WeekStatsCard bare />, label: 'Abrir estatísticas', open: go('/stats') },
+    // Fase 6: the week as one number, the consistency (the details live in the statistics).
+    weekStats: { node: <ConsistencyCard />, label: 'Abrir estatísticas', open: go('/stats') },
     routines: {
       node: (
         <TodayRoutines
@@ -189,13 +195,8 @@ export function DashboardScreen() {
         <>
           {/* The blocks come in one after another (Fase 5). */}
           <Animated.View entering={cascade(0, reduceMotion)}>{tankTile()}</Animated.View>
-          {/* The day in numbers, side by side, before the full blocks. */}
-          <Animated.View entering={cascade(1, reduceMotion)} style={styles.row}>
-            <MiniHabits />
-            <MiniNow />
-          </Animated.View>
           {visible.map((id, i) => (
-            <Animated.View key={id} entering={cascade(i + 2, reduceMotion)}>
+            <Animated.View key={id} entering={cascade(i + 1, reduceMotion)}>
               {tile(id)}
             </Animated.View>
           ))}
@@ -222,7 +223,8 @@ export function DashboardScreen() {
                 />
               </Tile>
             ) : (
-              tile(id, true, true)
+              // The consistency keeps its own height; the other boxes share the rest.
+              tile(id, !SHORT.has(id), !SHORT.has(id))
             )
           }
           reduceMotion={reduceMotion}
@@ -297,7 +299,11 @@ function FitGrid({
           <View key={column.join()} style={styles.column}>
             {column.map((id) => (
               // The blocks come in one after another (Fase 5).
-              <Animated.View key={id} entering={cascade(order++, reduceMotion)} style={styles.box}>
+              <Animated.View
+                key={id}
+                entering={cascade(order++, reduceMotion)}
+                style={SHORT.has(id) ? styles.boxShort : styles.box}
+              >
                 {tile(id)}
               </Animated.View>
             ))}
@@ -340,6 +346,7 @@ const styles = StyleSheet.create({
   board: { flex: 1, flexDirection: 'row', gap: spacing.lg },
   column: { flex: 1, flexBasis: 0, minWidth: 0, gap: spacing.lg },
   box: { flex: 1, flexBasis: 0, minHeight: 0 },
+  boxShort: { flexGrow: 0, flexShrink: 0 },
   // The tank keeps 60% of its column when the tides sit under it (room for the week's bars).
   tankBox: { flex: 1.5, flexBasis: 0, minHeight: 0 },
 });

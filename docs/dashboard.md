@@ -2,12 +2,19 @@
 
 Fase 4 da Lapidação (M9). Proposta aprovada no checkpoint 082: `docs/design/proposals/fase-4-painel.png`. Como ficou: `fase-4-desk.png`, `fase-4-tablet.png`, `fase-4-phone.png`.
 
+## Início novo (Fase 6)
+
+- **Consistência da semana** (`stats/ConsistencyCard.tsx`): um anel, um número e uma frase. É a parte do planejado até hoje nesta semana (hábitos e itens de rotina) que foi feita (`consistency`, com testes). Sem nada planejado, mostra "—" em vez de 0%. Ocupa o lugar do antigo "Esta semana" (mesmo bloco em Ajustes → Início). No PC, fica com a altura dele.
+- **Hábitos de hoje em linhas** (`TodayHabits`): a criatura, o nome, onde está ("5 de 8 copos", "Feito hoje") e, à direita, a ação do hábito (✓, +1, ▶, passos). A linha abre o hábito; o botão redondo age (nunca um botão dentro de outro).
+- **Celular**: o lago (240 de altura), a consistência e os blocos; saíram os mini-cartões do topo.
+- **Ordem padrão**: consistência, hábitos, tarefas, agenda, profundidade, pastas e marés. Quem já mudou a ordem em Ajustes mantém a sua.
+
 ## O dia numa tela só (PC)
 
 No PC (largura "expanded"), o Início **cabe na janela, sem rolar a página**, do notebook ao monitor de 27" (`Screen` com `fit`; `FitGrid` em `DashboardScreen.tsx`; `fitBoard` e `fitShape` em `bento.ts`, com testes). A ideia: abrir e entender o dia de relance, sem métricas complicadas.
 
 - **Coluna do aquário**: o tanque (maré do dia, sequência, profundidade), com a caixa **Marés** embaixo quando a coluna tem três caixas: Semana ou Mês num seletor, e a escolha fica salva (`dashboard.tides`).
-- **Coluna(s) do meio**: os blocos na ordem de Ajustes → Início (por padrão Esta semana, Hábitos de hoje, Tarefas de hoje), três por coluna (duas numa janela baixa).
+- **Coluna(s) do meio**: os blocos na ordem de Ajustes → Início (por padrão Consistência da semana, Hábitos de hoje, Tarefas de hoje), três por coluna (duas numa janela baixa).
 - **Sem saudação no PC**: o título "Boa tarde" e a onda saem (cada linha conta ali); para leitores de tela fica um título "Início" invisível (`Screen` com `titleHidden`). A data vai para o título da Agenda. No celular e no tablet a saudação continua: lá a página rola e ela é a boas-vindas.
 - **Coluna da direita**: a **Agenda** ("Agenda · quarta-feira, 18 de novembro") inteira: "Próxima: …" e as rotinas de hoje (a semana das rotinas fica no celular e no tablet).
 - Monitor largo ganha uma coluna a mais, mas só se ela tiver pelo menos duas caixas; senão as outras ficam mais largas.
