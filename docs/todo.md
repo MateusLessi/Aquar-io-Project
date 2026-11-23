@@ -63,16 +63,11 @@ Proposta aprovada no checkpoint 038: `docs/design/proposals/folders.png`.
 - **Árvore** (`data/folders.ts`, `loadTree`): conta listas, subpastas e tarefas abertas/concluídas de tudo o que está dentro (anel de progresso). Uma pasta cuja mãe sumiu (apagada ou ainda não sincronizada), ou um laço criado por dois aparelhos movendo pastas ao mesmo tempo, aparece **no topo**: nada some.
 - **Mover** (`moveFolder`, `moveList`): uma pasta nunca vai para dentro dela mesma, nem tão fundo que suas subpastas passem do limite. A folha "Mover para…" escurece esses lugares.
 - **Apagar pasta**: `keep` sobe o conteúdo para a pasta de cima; `all` apaga pastas, listas e tarefas de dentro (sempre soft delete, com confirmação).
-- **Visualizações** (`ListsBrowser.tsx`, lembradas por aparelho): **Grade** (pastas com aba, listas como cartões lisos; ver abaixo), **Lista** (linhas compactas) e **Tudo junto** (`folderTasks`: tarefas de todas as listas de dentro, por prazo, concluídas escondidas no fim).
+- **Visualizações** (`ListsBrowser.tsx`, lembradas por aparelho): **Grade** (pastas como cartas empilhadas), **Lista** (linhas compactas) e **Tudo junto** (`folderTasks`: tarefas de todas as listas de dentro, por prazo, concluídas escondidas no fim).
 - **Trilha** `Listas › UnB › Semestre 3` (`FolderScreen.tsx`, `Crumbs`); a tela de uma lista mostra o caminho dela.
 - **Criar**: o card "Nova lista ou pasta" e o botão Criar do app sabem em que pasta você está.
-- **Painel Início**: tarefas de hoje mostram de onde vêm (`listPath`) e pastas **fixadas** (`pinned`) aparecem como um **maço** (`PinnedFolders.tsx`): a da frente com as próximas tarefas com prazo e as subpastas; as de trás só pela aba e o nome, e um toque traz uma para a frente.
+- **Painel Início**: tarefas de hoje mostram de onde vêm (`listPath`) e pastas **fixadas** (`pinned`) aparecem com anel e próximas tarefas (`PinnedFolders.tsx`).
 - **Arrastar**: no modo Conectar (etapa 3), soltar uma lista ou pasta numa pasta guarda ela lá, em qualquer aparelho. Segurar → "Mover para…" continua valendo.
-
-## Pastas com aba (Fase 6)
-
-- **Pasta** (`FolderCard`): a forma da marca, a aba (`TabCard`), cheia da cor da pasta; o ícone num círculo escuro; o número de **tarefas abertas** em destaque ("✓ tudo em dia" quando zera); o nome e o que tem dentro. Texto escuro sobre a cor (6,7:1 ou mais em todas as cores).
-- **Lista** (`ListCard`): cartão **liso** grafite com a cor da lista numa faixa à esquerda. A aba fica só para as pastas, para significar "isto é uma pasta".
 
 ## Itens com contador ou tempo, e listas que zeram (Lapidação, Fase 1a)
 
