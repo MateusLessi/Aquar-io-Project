@@ -171,6 +171,25 @@ describe('Início (Fase 6)', () => {
   });
 });
 
+describe('Pinned folders (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('stacks pinned folders on Início: a tap brings the one behind to the front', async () => {
+    for (const name of ['UnB', 'Trabalho']) {
+      const id = await data.todo.createFolder({ name, color: 'sand' });
+      await data.todo.updateFolder(id, { pinned: true });
+    }
+    await renderRouter(routes, { initialUrl: '/' });
+    const behind = await screen.findByRole('button', { name: /^Mostrar a pasta / });
+    const name = /^Mostrar a pasta (\S+),/.exec(behind.props.accessibilityLabel)![1]!;
+    expect(screen.queryByRole('button', { name: new RegExp(`^Pasta ${name}: `) })).toBeNull();
+    await fireEvent.press(behind);
+    expect(
+      await screen.findByRole('button', { name: new RegExp(`^Pasta ${name}: `) }),
+    ).toBeOnTheScreen();
+  });
+});
+
 describe('App shell with large text', () => {
   it('shows only the active tab name at normal sizes', async () => {
     setWindowWidth(390, 1.0);
