@@ -1,21 +1,11 @@
 import { ChevronRight, Folder } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
 
-import {
-  Glyph,
-  Text,
-  listColors,
-  radius,
-  specular,
-  spacing,
-  useTheme,
-  withAlpha,
-} from '@/design-system';
+import { Glyph, TabCard, Text, listColors, spacing, useTheme, withAlpha } from '@/design-system';
 
 import type { FolderSummary } from '../domain/types';
 
-const CARD_HEIGHT = 148;
+const CARD_HEIGHT = 156;
 
 type FolderCardProps = {
   folder: FolderSummary;
@@ -40,13 +30,15 @@ function progressLabel(folder: FolderSummary): string {
 }
 
 /**
- * A folder as a glass block with its lists peeking out behind it, like stacked cards. The
- * ring shows how much of everything inside is done.
+ * A folder as the brand shape (Fase 6, "a aba"): a card in the folder's color that rises into a
+ * tab, its icon in a dark circle and the number of open tasks as the biggest thing on it. Lists
+ * stay plain cards, so the tab always means "a folder".
  */
 export function FolderCard({ folder, onPress, onLongPress }: FolderCardProps) {
   const { colors, scheme } = useTheme();
   const tone = folder.color ? listColors[folder.color][scheme] : colors.accent;
-  const total = folder.openCount + folder.doneCount;
+  // Dark text on the folder's color (at least 6.7:1 on every list color).
+  const ink = colors.surfaceBase;
   const label = `Pasta ${folder.name}, ${folderContentsLabel(folder)}, ${progressLabel(folder)}`;
 
   return (
@@ -58,65 +50,39 @@ export function FolderCard({ folder, onPress, onLongPress }: FolderCardProps) {
       accessibilityHint="Abre a pasta. Segure para mover, editar ou fixar."
       accessibilityActions={onLongPress ? [{ name: 'longpress', label: 'Mais opções' }] : []}
       onAccessibilityAction={onLongPress}
-      style={({ pressed }) => [styles.root, { transform: [{ scale: pressed ? 0.97 : 1 }] }]}
+      style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.97 : 1 }] })}
     >
-      {/* The cards behind: lists inside the folder. */}
-      <View
-        style={[
-          styles.back,
-          styles.backLeft,
-          { backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.32 : 0.28) },
-        ]}
-      />
-      <View
-        style={[
-          styles.back,
-          styles.backRight,
-          { backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.5 : 0.42) },
-        ]}
-      />
-      <View
-        style={[
-          styles.front,
-          {
-            backgroundColor: colors.surfaceRaised,
-            borderColor: withAlpha(tone, 0.5),
-            shadowColor: colors.shadow,
-          },
-        ]}
-      >
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.22 : 0.14) },
-          ]}
-        />
-        <View style={[styles.tab, { backgroundColor: tone }]} />
-        <View
-          style={[
-            styles.shine,
-            { backgroundColor: withAlpha(specular, scheme === 'dark' ? 0.1 : 0.6) },
-          ]}
-        />
-        <View style={styles.head}>
-          <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.28) }]}>
+      <TabCard color={tone} style={styles.folder}>
+        <View style={styles.inside}>
+          <View style={[styles.circle, { backgroundColor: ink }]}>
             {folder.emoji ? (
-              <Glyph name={folder.emoji} size={24} color={tone} />
+              <Glyph name={folder.emoji} size={20} color={tone} />
             ) : (
-              <Folder size={22} color={tone} />
+              <Folder size={18} color={tone} />
             )}
           </View>
-          <ProgressRing value={folder.doneCount} total={total} tone={tone} size={42} />
+          <View>
+            <View style={styles.countRow}>
+              <Text style={[styles.count, { color: ink }]}>
+                {folder.openCount > 0 ? folder.openCount : '✓'}
+              </Text>
+              <Text variant="caption" style={{ color: ink }}>
+                {folder.openCount === 0
+                  ? 'tudo em dia'
+                  : folder.openCount === 1
+                    ? 'aberta'
+                    : 'abertas'}
+              </Text>
+            </View>
+            <Text variant="bodyStrong" numberOfLines={1} style={{ color: ink }}>
+              {folder.name}
+            </Text>
+            <Text variant="caption" numberOfLines={1} style={[styles.contents, { color: ink }]}>
+              {folderContentsLabel(folder)}
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text variant="headline" numberOfLines={1}>
-            {folder.name}
-          </Text>
-          <Text variant="footnote" tone="secondary" numberOfLines={1}>
-            {folderContentsLabel(folder)} · {progressLabel(folder)}
-          </Text>
-        </View>
-      </View>
+      </TabCard>
     </Pressable>
   );
 }
@@ -164,86 +130,19 @@ export function FolderRow({
   );
 }
 
-export function ProgressRing({
-  value,
-  total,
-  tone,
-  size,
-}: {
-  value: number;
-  total: number;
-  tone: string;
-  size: number;
-}) {
-  const { colors } = useTheme();
-  const stroke = 4;
-  const r = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * r;
-  const ratio = total > 0 ? value / total : 0;
-  return (
-    <View style={{ width: size, height: size }} accessible={false}>
-      <Svg width={size} height={size}>
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          stroke={withAlpha(colors.textPrimary, 0.1)}
-          strokeWidth={stroke}
-          fill="none"
-        />
-        {ratio > 0 ? (
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={r}
-            stroke={tone}
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={`${circumference} ${circumference}`}
-            strokeDashoffset={circumference * (1 - ratio)}
-            fill="none"
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          />
-        ) : null}
-      </Svg>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  root: { height: CARD_HEIGHT + 16, paddingTop: 16 },
-  back: { position: 'absolute', height: 60, borderRadius: radius.lg },
-  backLeft: { top: 2, left: 8, right: 16, transform: [{ rotate: '-4deg' }] },
-  backRight: { top: 6, left: 20, right: 4, transform: [{ rotate: '3deg' }] },
-  front: {
-    height: CARD_HEIGHT,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    justifyContent: 'space-between',
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  tab: {
-    position: 'absolute',
-    top: 0,
-    left: spacing.lg,
-    width: 48,
-    height: 5,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  shine: { position: 'absolute', top: 0, left: 0, right: 0, height: 1 },
-  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  badge: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+  folder: { height: CARD_HEIGHT },
+  inside: { flex: 1, padding: spacing.md, paddingTop: spacing.sm, justifyContent: 'space-between' },
+  circle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  countRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
+  count: { fontSize: 30, lineHeight: 34, fontWeight: '800' },
+  contents: { opacity: 0.8 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -10,8 +10,9 @@ const CARD_HEIGHT = 148;
 type ListCardProps = { list: TaskList; onPress: () => void; onLongPress?: () => void };
 
 /**
- * A list as a bold colored tile: the list's color fills the card, its emoji sits in a bubble
- * and the number of open tasks is the biggest thing on it.
+ * A list as a plain card (Fase 6): gunmetal with the list's color as a stripe on the left, its
+ * icon in a soft bubble and the number of open tasks as the biggest thing on it. Plain on
+ * purpose: the tab shape is for folders.
  */
 export function ListCard({ list, onPress, onLongPress }: ListCardProps) {
   const { colors, scheme } = useTheme();
@@ -33,19 +34,11 @@ export function ListCard({ list, onPress, onLongPress }: ListCardProps) {
         styles.card,
         {
           backgroundColor: colors.surfaceRaised,
-          borderColor: withAlpha(tone, 0.45),
           transform: [{ scale: pressed ? 0.97 : 1 }],
         },
       ]}
     >
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          { backgroundColor: withAlpha(tone, scheme === 'dark' ? 0.26 : 0.18) },
-        ]}
-      />
-      {/* A wave of the list's color along the bottom. */}
-      <View style={[styles.wave, { backgroundColor: withAlpha(tone, 0.22) }]} />
+      <View style={[styles.stripe, { backgroundColor: tone }]} />
       <View style={styles.top}>
         <View style={[styles.badge, { backgroundColor: withAlpha(tone, 0.28) }]}>
           {list.emoji ? (
@@ -55,9 +48,7 @@ export function ListCard({ list, onPress, onLongPress }: ListCardProps) {
           )}
         </View>
         {list.pendingCount > 0 ? (
-          <Text variant="title1" style={{ color: tone }}>
-            {list.pendingCount}
-          </Text>
+          <Text variant="title1">{list.pendingCount}</Text>
         ) : (
           <Text variant="title2">✓</Text>
         )}
@@ -187,12 +178,13 @@ const styles = StyleSheet.create({
   },
   flex: { flex: 1 },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  wave: {
+  stripe: {
     position: 'absolute',
-    left: -20,
-    right: -20,
-    bottom: -46,
-    height: 80,
-    borderRadius: 999,
+    left: 0,
+    top: spacing.lg,
+    bottom: spacing.lg,
+    width: 5,
+    borderTopRightRadius: 4,
+    borderBottomRightRadius: 4,
   },
 });
