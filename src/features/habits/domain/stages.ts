@@ -35,6 +35,15 @@ export function creatureStage(creature: CreatureId, daysDone: number): Stage {
   return stage;
 }
 
+/**
+ * The stages a creature goes through, with the days done where each begins: an egg first, or a
+ * baby for those born alive (sharks and rays).
+ */
+export function stagePath(creature: CreatureId): { stage: Stage; from: number }[] {
+  const first = creatureStage(creature, 0);
+  return [{ stage: first, from: 0 }, ...THRESHOLDS.filter((t) => t.stage !== first)];
+}
+
 /** The next stage and how many more days it takes, or null when fully grown. */
 export function nextStage(
   creature: CreatureId,

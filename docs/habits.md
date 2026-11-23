@@ -44,7 +44,7 @@ Proposta aprovada no checkpoint 036: `docs/design/proposals/habits-2.png`.
 - **Cartão** (`HabitCard.tsx`): cápsula, etiqueta (`3/8 copos`), **maré da semana** (7 mini-cápsulas) e o botão do tipo (✓, +1, ▶/❚❚, passos).
 - **Painel Início** (`TodayHabits.tsx`): toque faz a ação principal; segurar abre o hábito.
 - **Recife** (`ReefHero.tsx`): cada criatura nada na altura do seu progresso.
-- **Detalhe**: cápsula grande com controles, passos, números, crescimento, mapa do recife (`ReefMap.tsx`) e calendário.
+- **Detalhe (a criatura, Fase 6)**: a criatura grande vista de cima sobre a água do lago, flutuando com a sombra no fundo (`CreatureHero.tsx`; parada com Reduzir movimento); o nome com o estágio; a barra até o próximo estágio ("12 de 30 dias até Adulto"); **Hoje** com a ação do tipo ("Marcar hoje" laranja, −/+1, ▶ e Mergulho, os passos ou os itens do dia); a **Evolução** em passos (`stagePath`); **Esta semana** dia a dia (feito em verde-meia-noite, hoje com anel areia, descanso tracejado); depois os números, o mapa do recife (`ReefMap.tsx`) e o calendário.
 
 ## Hábito conectado (Lapidação, Fase 1a)
 
