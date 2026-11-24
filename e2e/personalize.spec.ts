@@ -22,7 +22,7 @@ test('Personalizar: change the text size right there, and the shortcuts open the
   await expect(
     visible(page.getByRole('radio', { name: 'Recife de Coral, faltam 300 pontos' })),
   ).toBeDisabled();
-  await expect(visible(page.getByText(/^Em breve: enfeites para o lago/))).toBeVisible();
+  await expect(visible(page.getByText(/^Em breve: o nível das criaturas/))).toBeVisible();
   await expect(visible(page.getByText('Para apoiar o app · preço a definir'))).toBeVisible();
 
   // A shortcut opens Ajustes on the setting.
