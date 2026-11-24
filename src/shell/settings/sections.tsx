@@ -382,14 +382,10 @@ export function GameSettings() {
       <Group anchor="game" title="Jogo">
         <Surface>
           <ListItem
-            title="Mostrar Profundidade"
-            subtitle="Metros, zona e pontos no painel e nas Estatísticas"
+            title="Mostrar Região"
+            subtitle="A região do aquário e os pontos no Início e no perfil"
             trailing={
-              <Switch
-                label="Mostrar Profundidade"
-                value={game.showDepth}
-                onChange={game.setShowDepth}
-              />
+              <Switch label="Mostrar Região" value={game.showDepth} onChange={game.setShowDepth} />
             }
           />
           <ListItem

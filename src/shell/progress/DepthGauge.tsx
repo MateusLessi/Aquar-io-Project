@@ -5,11 +5,11 @@ import { DeepSurface, Glyph, Text, radius, spacing, useTheme, withAlpha } from '
 
 import { useProgress } from './useProgress';
 
-const meters = (value: number) => `${new Intl.NumberFormat('pt-BR').format(value)} m`;
+const points = (value: number) => `${new Intl.NumberFormat('pt-BR').format(value)} pontos`;
 
 /**
- * How deep the person has gone: their zone, the meters, how far to the next zone and the
- * points earned today. The card itself gets darker the deeper they are.
+ * The region the aquarium reached (Fase 6, etapa 12, in place of the depth): its name, how many
+ * points to the next one and the points earned today. The card gets darker the farther it is.
  */
 export function DepthGauge() {
   const { colors } = useTheme();
@@ -20,7 +20,7 @@ export function DepthGauge() {
   const next = depth.next;
   const remaining = next ? next.from - depth.meters : 0;
   const summary = next
-    ? `Faltam ${meters(remaining)} para ${next.name}`
+    ? `Faltam ${points(remaining)} para ${next.name}`
     : 'Você chegou ao ponto mais fundo do oceano!';
 
   return (
@@ -29,10 +29,10 @@ export function DepthGauge() {
       style={styles.card}
       accessible
       accessibilityRole="progressbar"
-      accessibilityLabel={`Profundidade: ${meters(depth.meters)}, ${depth.zone.name}. ${summary}. ${today.points} pontos hoje.`}
+      accessibilityLabel={`Região: ${depth.zone.name}, ${points(depth.meters)}. ${summary}. ${today.points} pontos hoje.`}
       accessibilityValue={{ min: 0, max: 100, now: Math.round(depth.progress * 100) }}
     >
-      {/* Deeper zones, darker water. */}
+      {/* Farther regions, darker water. */}
       <View
         style={[
           StyleSheet.absoluteFill,
@@ -46,10 +46,10 @@ export function DepthGauge() {
         </View>
         <View style={styles.texts}>
           <Text variant="overline" tone="onDeepSecondary">
-            Profundidade
+            Região
           </Text>
           <Text variant="title2" tone="onDeep" numberOfLines={1}>
-            {meters(depth.meters)} · {depth.zone.name}
+            {depth.zone.name}
           </Text>
         </View>
         <View style={[styles.points, { backgroundColor: colors.energy }]}>

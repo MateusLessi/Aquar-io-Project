@@ -20,23 +20,20 @@ Os pontos são **calculados a partir do estado atual**, não guardados: tarefas 
 - Corrigir um hábito de ontem conta para ontem (respeitando o limite de ontem).
 - Excluir uma tarefa que já foi concluída **não** tira os pontos: o esforço aconteceu.
 
-## Profundidade (nunca diminui)
+## Regiões (nunca voltam)
 
-**1 ponto = 1 metro.** A profundidade é a soma de todos os dias, e cada dia respeita o limite.
+**Fase 6, etapa 12:** as zonas de profundidade viraram **regiões do oceano** e os metros saíram de cena. Os pontos são os mesmos (somados dia a dia, cada dia com o limite) e levam o aquário a regiões novas. Toda região alcançada pode ser o **cenário do lago** (Personalizar → Cenário do aquário); sem escolha, o lago mostra a mais nova.
 
-| Zona                  | A partir de | Com ~100 pontos/dia          |
-| --------------------- | ----------: | ---------------------------- |
-| 🌤️ Superfície         |         0 m | dia 1                        |
-| 🏝️ Águas Costeiras    |       100 m | ~1 dia                       |
-| 🪸 Recife de Coral    |       300 m | ~3 dias                      |
-| 🌊 Mar Aberto         |       700 m | ~1 semana                    |
-| 🌆 Zona do Crepúsculo |     1.500 m | ~2 semanas                   |
-| 🌑 Zona da Meia-Noite |     3.000 m | ~1 mês                       |
-| 🕳️ Abismo             |     6.000 m | ~2 meses                     |
-| 🔱 Zona Hadal         |     8.000 m | ~3 meses                     |
-| 🏁 Fossa das Marianas |    10.994 m | ~4 meses (marco final da V1) |
+| Região                   | A partir de | Com ~100 pontos/dia |
+| ------------------------ | ----------: | ------------------- |
+| 🏝️ Lagoa                 |    0 pontos | dia 1               |
+| 🪸 Recife de Coral       |         300 | ~3 dias             |
+| 🌿 Floresta de Kelp      |       1.000 | ~10 dias            |
+| 🌊 Mar Aberto            |       2.500 | ~1 mês              |
+| ✨ Fossa Bioluminescente |       5.500 | ~2 meses            |
+| 🏁 Fossa das Marianas    |      10.994 | ~4 meses            |
 
-Mudar de zona mostra uma comemoração uma vez. Os nomes seguem a ordem do [gamification.md](gamification.md).
+Chegar numa região nova mostra uma comemoração uma vez ("Nova região: …"). Quem já tinha progresso nas zonas antigas não recebe comemoração repetida na troca. Cada região tem uma pintura (`features/habits/assets/regions/`, `regionScenes`); a luz e as bolhas são desenhadas por cima, em código. A Lagoa ainda é desenhada em código.
 
 ## Evolução das criaturas (consistência, não perfeição)
 

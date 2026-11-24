@@ -23,7 +23,7 @@ describe('badges', () => {
     expect(badges).toHaveLength(15);
     expect(badges.every((b) => !b.earned)).toBe(true);
     expect(badges.find((b) => b.id === 'tide-10')?.hint).toBe('Faltam 10');
-    expect(badges.find((b) => b.id === 'zone-reef')?.hint).toBe('Faltam 300 m');
+    expect(badges.find((b) => b.id === 'zone-reef')?.hint).toBe('Faltam 300 pontos');
   });
 
   it('earns from real progress', () => {
@@ -42,7 +42,6 @@ describe('badges', () => {
       'tide-1',
       'tide-10',
       'streak-7',
-      'zone-coastal',
       'zone-reef',
       'tasks-100',
       'grown',

@@ -15,6 +15,7 @@ import { StyleSheet, View } from 'react-native';
 import { ListItem, Screen, Surface, Text, radius, spacing, useTheme } from '@/design-system';
 
 import { AppearanceSettings } from '../settings/sections';
+import { RegionPicker } from './RegionPicker';
 
 /** A way to make the app yours that already exists, and where it lives. */
 type Shortcut = {
@@ -45,7 +46,7 @@ const shortcuts: Shortcut[] = [
   },
   {
     icon: Trophy,
-    title: 'Profundidade e comemorações',
+    title: 'Regiões e comemorações',
     subtitle: 'O jogo do mergulho, do seu jeito',
     href: { pathname: '/profile/settings', params: { section: 'game', focus: 'game' } },
   },
@@ -68,6 +69,10 @@ export function PersonalizeScreen() {
   const { colors } = useTheme();
   return (
     <Screen title="Personalizar" eyebrow="Tudo isto já é seu, de graça">
+      <Section title="Cenário do aquário">
+        <RegionPicker />
+      </Section>
+
       <Section title="Aparência">
         <AppearanceSettings />
       </Section>
@@ -92,8 +97,8 @@ export function PersonalizeScreen() {
       <View style={styles.soon}>
         <Sparkles size={18} color={colors.textSecondary} />
         <Text variant="callout" tone="secondary" style={styles.flex}>
-          Em breve: cenários para o aquário e criaturas raras. Nada do que você usa hoje vai virar
-          pago.
+          Em breve: enfeites para o lago, nível das criaturas e criaturas raras. Nada do que você
+          usa hoje vai virar pago.
         </Text>
       </View>
 

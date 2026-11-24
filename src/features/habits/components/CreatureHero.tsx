@@ -14,6 +14,7 @@ import { RisingBubbles, pond, radius, useSvgId, useTheme } from '@/design-system
 
 import { catalogCreature, type CreatureId } from '../domain/creatures';
 import type { Stage } from '../domain/stages';
+import { regionScenes, useAquariumRegion } from '../hooks/aquariumRegion';
 import { CreatureArt } from './CreatureArt';
 import { PondLeaves, PondWater, SWIMS_HEAD_FIRST } from './HabitPond';
 
@@ -40,6 +41,8 @@ export function CreatureHero({
   const [width, setWidth] = useState(0);
   const height = heightFor(width);
   const size = Math.round(height * 0.62);
+  const [region] = useAquariumRegion();
+  const scene = regionScenes[region];
 
   return (
     <View
@@ -57,9 +60,9 @@ export function CreatureHero({
       >
         {width > 0 ? (
           <>
-            <PondWater width={width} height={height} />
+            <PondWater width={width} height={height} scene={scene} />
             <Floating creature={creature} stage={stage} size={size} />
-            <PondLeaves width={width} height={height} />
+            {scene ? null : <PondLeaves width={width} height={height} />}
             <RisingBubbles height={height} count={4} />
           </>
         ) : null}

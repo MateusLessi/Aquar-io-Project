@@ -10,8 +10,6 @@ import { useHabits } from '@/features/habits/hooks/queries';
 import { useProgress } from '../progress/useProgress';
 import { useGamePrefs } from '../settings/prefs';
 
-const meters = (value: number) => `${new Intl.NumberFormat('pt-BR').format(value)} m`;
-
 type HomeTankProps = {
   done: number;
   total: number;
@@ -35,7 +33,7 @@ export function HomeTank({ done, total, height = 318 }: HomeTankProps) {
 
   const summary = [
     total > 0 ? `Maré do dia: ${done} de ${total}` : 'Nada planejado para hoje',
-    showDepth && depth ? `${meters(depth.meters)}, ${depth.zone.name}` : null,
+    showDepth && depth ? depth.zone.name : null,
     habits.length > 0
       ? `${habits.length} ${habits.length === 1 ? 'criatura' : 'criaturas'} no aquário`
       : null,
@@ -86,11 +84,7 @@ export function HomeTank({ done, total, height = 318 }: HomeTankProps) {
       overlay={
         <>
           <View style={styles.top}>
-            {showDepth && depth ? (
-              <TankTag icon={Anchor} label={`${meters(depth.meters)} · ${depth.zone.name}`} />
-            ) : (
-              <View />
-            )}
+            {showDepth && depth ? <TankTag icon={Anchor} label={depth.zone.name} /> : <View />}
             {total > 0 ? <TankTag icon={Waves} label={`Maré ${tide}%`} /> : null}
           </View>
           <View style={styles.chips}>

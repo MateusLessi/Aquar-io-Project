@@ -50,7 +50,7 @@ describe('progress from real data', () => {
       habits: 1,
       routines: 0,
     });
-    expect(result.depth.zone.id).toBe('surface');
+    expect(result.depth.zone.id).toBe('lagoa');
   });
 
   it('gives points back when something is undone, and keeps them for deleted tasks', async () => {

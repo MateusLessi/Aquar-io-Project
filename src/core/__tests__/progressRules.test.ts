@@ -31,10 +31,10 @@ describe('points', () => {
 });
 
 describe('depth', () => {
-  it('finds the zone, the next one and the progress through it', () => {
-    expect(depthFor(0).zone.id).toBe('surface');
-    const reef = depthFor(500);
-    expect([reef.zone.id, reef.next?.id, reef.progress]).toEqual(['reef', 'open', 0.5]);
+  it('finds the region, the next one and the progress toward it', () => {
+    expect(depthFor(0).zone.id).toBe('lagoa');
+    const reef = depthFor(650);
+    expect([reef.zone.id, reef.next?.id, reef.progress]).toEqual(['reef', 'kelp', 0.5]);
     expect(depthFor(20000)).toMatchObject({ next: null, progress: 1 });
     expect(depthFor(20000).zone.id).toBe('mariana');
   });

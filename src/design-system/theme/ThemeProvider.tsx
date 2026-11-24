@@ -108,7 +108,7 @@ export function ThemeProvider({
   onAccessibilityChange,
   initialTextScale = 1,
   onTextScaleChange,
-  initialZone = 'surface',
+  initialZone = 'lagoa',
   onZoneChange,
 }: ThemeProviderProps) {
   const [accessibility, setAccessibilityState] = useState<AccessibilityChoices>({

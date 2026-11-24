@@ -1,5 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+  type ImageSourcePropType,
+  type LayoutChangeEvent,
+} from 'react-native';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -33,6 +40,7 @@ import {
 import { catalogCreature, type CatalogCreature } from '../domain/creatures';
 import { stageInfo } from '../domain/stages';
 import type { HabitWithProgress } from '../domain/types';
+import { regionScenes, useAquariumRegion } from '../hooks/aquariumRegion';
 import { CreatureArt } from './CreatureArt';
 
 /** Creatures near the surface (today's habits) and deep below (resting ones). */
@@ -89,6 +97,9 @@ export function HabitPond({
   const near = habits.filter(today).slice(0, explore ? EXPLORE_NEAR : MAX_NEAR);
   const deep = habits.filter((h) => !today(h)).slice(0, explore ? EXPLORE_DEEP : MAX_DEEP);
   const borderRadius = radii[radius];
+  // The region's scene (Fase 6, etapa 12): its own plants replace the drawn leaves.
+  const [region] = useAquariumRegion();
+  const scene = regionScenes[region];
   const swimmer = (habit: HabitWithProgress, index: number, deep = false) => (
     <Swimmer
       key={habit.id}
@@ -123,7 +134,7 @@ export function HabitPond({
       >
         {width > 0 ? (
           <>
-            <PondWater width={width} height={height} />
+            <PondWater width={width} height={height} scene={scene} />
             {explore ? (
               // A tap on the water lets the creature go.
               <Pressable
@@ -136,7 +147,7 @@ export function HabitPond({
             {deep.map((habit, i) => swimmer(habit, i + (explore ? EXPLORE_NEAR : MAX_NEAR), true))}
             {near.map((habit, i) => swimmer(habit, i))}
             <View style={StyleSheet.absoluteFill} pointerEvents="none">
-              <PondLeaves width={width} height={height} />
+              {scene ? null : <PondLeaves width={width} height={height} />}
               <RisingBubbles height={height} count={explore ? 8 : 5} />
             </View>
           </>
@@ -171,7 +182,16 @@ export function PondTag({ label }: { label: string }) {
 }
 
 /** Green water, deeper toward one corner, with soft light drifting on it. */
-export function PondWater({ width, height }: { width: number; height: number }) {
+export function PondWater({
+  width,
+  height,
+  scene,
+}: {
+  width: number;
+  height: number;
+  /** The region's painted scene; without one, the Lagoa's water is drawn here. */
+  scene?: ImageSourcePropType;
+}) {
   const { reduceMotion } = useTheme();
   const waterId = useSvgId('pond-water');
   const lightId = useSvgId('pond-light');
@@ -202,6 +222,14 @@ export function PondWater({ width, height }: { width: number; height: number }) 
         </Defs>
         <Rect x={0} y={0} width={width} height={height} fill={`url(#${waterId})`} />
       </Svg>
+      {scene ? (
+        <Image
+          source={scene}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+          style={[StyleSheet.absoluteFill, { width, height }]}
+        />
+      ) : null}
       {/* Bigger than the pond, so its edge never shows while it drifts. */}
       <Animated.View
         style={[

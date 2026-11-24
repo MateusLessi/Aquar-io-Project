@@ -96,7 +96,7 @@ function useSummaries(): Record<SettingsSection, string> {
     sounds: prefs.sound
       ? `Sons ligados · volume ${Math.round(prefs.volume * 100)}%`
       : 'Sons desligados',
-    game: game.showDepth ? 'Profundidade visível' : 'Profundidade escondida',
+    game: game.showDepth ? 'Região visível' : 'Região escondida',
     tide: 'Tela de descanso carregando',
     accessibility: a11y.length
       ? a11y.join(', ').replace(/^./, (c) => c.toUpperCase())
