@@ -89,6 +89,16 @@ describe('computeStats', () => {
     // Mon, Tue, Wed: 3 habit days (2 done) + 3 × 2 routine items (3 done).
     expect(stats.planned).toEqual({ due: 9, done: 5 });
     expect(stats.habitRows[0]).toMatchObject({ done: 2, due: 3, total: 2 });
+    // Its days in the week: nothing before it existed, done Mon/Tue, today still open, then ahead.
+    expect(stats.habitRows[0]!.days).toEqual([
+      'rest',
+      'done',
+      'done',
+      'rest',
+      'future',
+      'future',
+      'future',
+    ]);
     expect(stats.routineRows[0]).toMatchObject({ itemsDone: 3, itemsDue: 6, fullDays: 1, days: 3 });
     expect(stats.weekdayRate[0]).toBeNull(); // Sunday: nothing existed yet
     expect(stats.weekdayRate[1]).toBe(1);

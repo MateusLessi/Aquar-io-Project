@@ -509,10 +509,10 @@ describe('Welcome dive', () => {
   });
 });
 
-describe('Estatísticas simplificadas (Fase 6)', () => {
+describe('Estatísticas (Fase 6)', () => {
   beforeEach(() => setWindowWidth(390));
 
-  it('leads with the consistency, keeps the charts under "Ver mais detalhes"', async () => {
+  it('leads with the consistency over its line, then charts and tables with their numbers', async () => {
     const id = await data.habits.createHabit({ name: 'Ler', creature: 'fish' });
     await data.habits.setChecked(id, toDateKey(new Date()), true);
     await renderRouter(routes, { initialUrl: '/stats' });
@@ -524,15 +524,16 @@ describe('Estatísticas simplificadas (Fase 6)', () => {
         { timeout: 5000 },
       ),
     ).toBeOnTheScreen();
-    expect(screen.getByText('Dia a dia')).toBeOnTheScreen();
-    expect(screen.getByText('1 dia com tudo feito.')).toBeOnTheScreen();
-    // The charts beyond the essentials wait, and the choice is remembered.
-    expect(screen.queryByText('Concluídos por dia')).toBeNull();
-    await fireEvent.press(screen.getByRole('button', { name: 'Ver mais detalhes' }));
-    expect(await screen.findByText('Concluídos por dia')).toBeOnTheScreen();
-    await waitFor(async () => expect(await data.settings.get('stats.details')).toBe('on'));
+    expect(screen.getByLabelText(/^Concluídos: 1\./)).toBeOnTheScreen();
+    expect(screen.getByLabelText('Dias com tudo feito: 1. de 1 dia com plano')).toBeOnTheScreen();
+    expect(screen.getByText('O que você concluiu')).toBeOnTheScreen();
+    expect(screen.getByText('Quando você conclui')).toBeOnTheScreen();
 
-    // Each habit is a button to its page (followed end to end in e2e/stats.spec.ts).
+    // The consistency's line has a table with the same numbers.
+    await fireEvent.press(screen.getAllByRole('button', { name: 'Ver como tabela' })[0]!);
+    expect(await screen.findByText('Planejado')).toBeOnTheScreen();
+
+    // Each habit is a row of the table and a button to its page (e2e/stats.spec.ts follows it).
     const row = screen.getByRole('button', { name: /^Ler: 1 de 1 dias planejados/ });
     expect(row.props.accessibilityHint).toBe('Abre o hábito');
   });

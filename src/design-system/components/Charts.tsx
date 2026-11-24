@@ -43,6 +43,50 @@ function ticksFor(max: number): number[] {
   return out;
 }
 
+/** What a chart shows for the touched or hovered mark: a title and a few rows. */
+export type TooltipContent = {
+  title: string;
+  rows: { label: string; value: string; color?: string }[];
+};
+
+const TIP = 208;
+
+/**
+ * The numbers of one mark, floating over the chart near it. It enhances, never gates: every
+ * value is also in the chart's table view and in the mark's spoken label. Text stays in text
+ * colors; a small key beside each row carries the series color.
+ */
+function Tooltip({ content, x, width }: { content: TooltipContent; x: number; width: number }) {
+  const { colors } = useTheme();
+  const left = Math.max(0, Math.min(width - TIP, x - TIP / 2));
+  return (
+    <View
+      pointerEvents="none"
+      importantForAccessibility="no-hide-descendants"
+      accessibilityElementsHidden
+      style={[
+        styles.tooltip,
+        { left, backgroundColor: colors.surfacePressed, borderColor: colors.border },
+      ]}
+    >
+      <Text variant="caption" tone="secondary">
+        {content.title}
+      </Text>
+      {content.rows.map((row) => (
+        <View key={row.label} style={styles.tipRow}>
+          {row.color ? <View style={[styles.tipKey, { backgroundColor: row.color }]} /> : null}
+          <Text variant="caption" tone="secondary" style={styles.tipLabel} numberOfLines={1}>
+            {row.label}
+          </Text>
+          <Text variant="caption" style={styles.tipValue}>
+            {row.value}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export type ColumnsProps = {
   /** One entry per column; `values` are the stacked parts, bottom first. */
   data: { label: string; values: number[] }[];
@@ -60,6 +104,8 @@ export type ColumnsProps = {
   describe: (index: number) => string;
   /** Hide the value axis (e.g. when a label shows the value). */
   hideAxis?: boolean;
+  /** The numbers shown over the chart for the touched or hovered column. */
+  tooltip?: (index: number) => TooltipContent;
 };
 
 /** Columns, stacked when there are several values per column. */
@@ -74,6 +120,7 @@ export function Columns({
   onSelect,
   describe,
   hideAxis,
+  tooltip,
 }: ColumnsProps) {
   const { colors } = useTheme();
   const { width, onLayout } = useWidth();
@@ -187,6 +234,13 @@ export function Columns({
               </Text>
             ) : null,
           )}
+          {selected !== null && tooltip && data[selected] ? (
+            <Tooltip
+              content={tooltip(selected)}
+              x={left + selected * slot + slot / 2}
+              width={width}
+            />
+          ) : null}
         </>
       ) : null}
     </View>
@@ -312,7 +366,7 @@ export function AreaLine({
                   y1={top}
                   y2={top + plot}
                   stroke={withAlpha(colors.textPrimary, 0.35)}
-                  strokeDasharray="3 3"
+                  strokeWidth={1}
                 />
                 <Circle
                   cx={x(selected)}
@@ -367,15 +421,231 @@ export function AreaLine({
   );
 }
 
+export type TrendLineProps = {
+  /** One value per slot of the period; null where there is nothing to draw (nothing planned, or still ahead). */
+  values: (number | null)[];
+  /** The period before, slot by slot: a quiet line to compare with. */
+  compare?: (number | null)[];
+  labels: string[];
+  color: string;
+  /** The scale runs from 0 to `max`, with a hairline at each tick. */
+  max: number;
+  ticks: number[];
+  format: (value: number) => string;
+  height?: number;
+  selected: number | null;
+  onSelect: (index: number | null) => void;
+  describe: (index: number) => string;
+  tooltip?: (index: number) => TooltipContent;
+};
+
+/** Index runs of consecutive non-null values (a line breaks where there is nothing). */
+function runsOf(values: (number | null | undefined)[]): number[][] {
+  const runs: number[][] = [];
+  let run: number[] = [];
+  values.forEach((v, i) => {
+    if (v === null || v === undefined) {
+      if (run.length) runs.push(run);
+      run = [];
+    } else run.push(i);
+  });
+  if (run.length) runs.push(run);
+  return runs;
+}
+
+/**
+ * A measure over the period on a fixed scale (e.g. 0–100%): a 2px line over a light wash, the
+ * period before as a quiet gray line, the latest value labeled at its end, and a hairline
+ * crosshair with the numbers on the touched day.
+ */
+export function TrendLine({
+  values,
+  compare,
+  labels,
+  color,
+  max,
+  ticks,
+  format,
+  height = 190,
+  selected,
+  onSelect,
+  describe,
+  tooltip,
+}: TrendLineProps) {
+  const { colors } = useTheme();
+  const { width, onLayout } = useWidth();
+  const left = 40;
+  const right = 40;
+  const top = 12;
+  const plot = height - LABELS - top - 6;
+  const n = values.length;
+  const inner = Math.max(0, width - left - right);
+  const x = (i: number) => left + (n <= 1 ? inner / 2 : (i / (n - 1)) * inner);
+  const y = (v: number) => top + plot - (Math.max(0, Math.min(v, max)) / max) * plot;
+  const pathOf = (vals: (number | null | undefined)[]) =>
+    runsOf(vals)
+      .map((run) => run.map((i, k) => `${k === 0 ? 'M' : 'L'}${x(i)},${y(vals[i]!)}`).join(' '))
+      .join(' ');
+  const runs = runsOf(values);
+  const area = runs
+    .filter((run) => run.length > 1)
+    .map(
+      (run) =>
+        `M${x(run[0]!)},${top + plot} ${run.map((i) => `L${x(i)},${y(values[i]!)}`).join(' ')} L${x(run.at(-1)!)},${top + plot} Z`,
+    )
+    .join(' ');
+  const last = runs.at(-1)?.at(-1);
+  const hit = n <= 1 ? inner : inner / (n - 1);
+  const ring = colors.surfaceRaised;
+
+  return (
+    <View onLayout={onLayout} style={{ height }}>
+      {width > 0 && n > 0 ? (
+        <>
+          <Svg width={width} height={height}>
+            {ticks.map((t) => (
+              <Line
+                key={t}
+                x1={left}
+                x2={width - right + 8}
+                y1={y(t)}
+                y2={y(t)}
+                stroke={colors.separator}
+                strokeWidth={1}
+              />
+            ))}
+            {compare ? (
+              <Path
+                d={pathOf(compare)}
+                stroke={withAlpha(colors.textSecondary, 0.5)}
+                strokeWidth={1.5}
+                fill="none"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            ) : null}
+            {area ? <Path d={area} fill={withAlpha(color, 0.1)} /> : null}
+            <Path
+              d={pathOf(values)}
+              stroke={color}
+              strokeWidth={2}
+              fill="none"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+            {/* A day alone (no neighbor to join) still shows, as a dot. */}
+            {runs
+              .filter((run) => run.length === 1 && run[0] !== last)
+              .map((run) => (
+                <Circle key={run[0]} cx={x(run[0]!)} cy={y(values[run[0]!]!)} r={3} fill={color} />
+              ))}
+            {selected !== null ? (
+              <>
+                <Line
+                  x1={x(selected)}
+                  x2={x(selected)}
+                  y1={top}
+                  y2={top + plot}
+                  stroke={withAlpha(colors.textPrimary, 0.3)}
+                  strokeWidth={1}
+                />
+                {compare?.[selected] !== null && compare?.[selected] !== undefined ? (
+                  <Circle
+                    cx={x(selected)}
+                    cy={y(compare[selected]!)}
+                    r={4}
+                    fill={colors.textTertiary}
+                    stroke={ring}
+                    strokeWidth={2}
+                  />
+                ) : null}
+                {values[selected] !== null && values[selected] !== undefined ? (
+                  <Circle
+                    cx={x(selected)}
+                    cy={y(values[selected]!)}
+                    r={5}
+                    fill={color}
+                    stroke={ring}
+                    strokeWidth={2}
+                  />
+                ) : null}
+              </>
+            ) : last !== undefined ? (
+              <Circle
+                cx={x(last)}
+                cy={y(values[last]!)}
+                r={5}
+                fill={color}
+                stroke={ring}
+                strokeWidth={2}
+              />
+            ) : null}
+          </Svg>
+          {ticks.map((t) => (
+            <Text
+              key={t}
+              variant="caption"
+              tone="tertiary"
+              style={[styles.tick, { top: y(t) - 8 }]}
+            >
+              {format(t)}
+            </Text>
+          ))}
+          {/* The latest value, at the end of its line (only one number on the plot). */}
+          {selected === null && last !== undefined ? (
+            <Text
+              variant="caption"
+              pointerEvents="none"
+              style={[styles.endLabel, { left: x(last) + 8, top: y(values[last]!) - 8 }]}
+            >
+              {format(values[last]!)}
+            </Text>
+          ) : null}
+          {values.map((_, i) => (
+            <Pressable
+              key={i}
+              onPress={() => onSelect(selected === i ? null : i)}
+              onHoverIn={() => onSelect(i)}
+              accessibilityRole="button"
+              accessibilityLabel={describe(i)}
+              accessibilityState={{ selected: selected === i }}
+              style={[styles.hit, { left: x(i) - hit / 2, width: hit, height }]}
+            />
+          ))}
+          {labels.map((label, i) =>
+            label ? (
+              <Text
+                key={`label-${i}`}
+                variant="caption"
+                tone="tertiary"
+                pointerEvents="none"
+                style={[styles.label, { left: x(i) - 20 }]}
+              >
+                {label}
+              </Text>
+            ) : null,
+          )}
+          {selected !== null && tooltip ? (
+            <Tooltip content={tooltip(selected)} x={x(selected)} width={width} />
+          ) : null}
+        </>
+      ) : null}
+    </View>
+  );
+}
+
 /** A tiny trend line without axes, for summary cards. Decorative: the card says the numbers. */
 export function Sparkline({
   values,
   color,
+  dot,
   width = 120,
   height = 40,
 }: {
   values: number[];
   color: string;
+  /** The latest point's color (defaults to the line's). */
+  dot?: string;
   width?: number;
   height?: number;
 }) {
@@ -388,7 +658,7 @@ export function Sparkline({
     <View importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
       <Svg width={width} height={height}>
         <Path d={line} stroke={color} strokeWidth={2} fill="none" strokeLinejoin="round" />
-        <Circle cx={x(values.length - 1)} cy={y(values.at(-1)!)} r={3.5} fill={color} />
+        <Circle cx={x(values.length - 1)} cy={y(values.at(-1)!)} r={3.5} fill={dot ?? color} />
       </Svg>
     </View>
   );
@@ -412,6 +682,21 @@ export function Legend({ items }: { items: { label: string; color: string }[] })
 
 const styles = StyleSheet.create({
   tick: { position: 'absolute', left: 0, fontVariant: ['tabular-nums'] },
+  endLabel: { position: 'absolute', fontVariant: ['tabular-nums'] },
+  tooltip: {
+    position: 'absolute',
+    top: 0,
+    width: TIP,
+    borderRadius: radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: spacing.xs + 2,
+    gap: 2,
+  },
+  tipRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  tipKey: { width: 8, height: 8, borderRadius: 2 },
+  tipLabel: { flex: 1, flexShrink: 1 },
+  tipValue: { flexShrink: 0, fontVariant: ['tabular-nums'] },
   hit: { position: 'absolute', top: 0, overflow: 'visible' },
   // Wider than a thin column, so day numbers never get cut.
   label: { position: 'absolute', bottom: 0, width: 40, textAlign: 'center' },

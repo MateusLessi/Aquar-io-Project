@@ -49,14 +49,16 @@ export const listColors = {
 export type ListColorName = keyof typeof listColors;
 
 /**
- * Chart series for the three areas of the app, in this fixed order. Validated with the dataviz
- * palette checks (lightness band per mode, colorblind separation ΔE ≥ 17, contrast ≥ 3:1);
- * the dark tones are a step deeper than the list colors to sit inside the dark band.
+ * Chart series for the three areas of the app, in this fixed order (tasks, habits, routines).
+ * Fase 6: blue, sea green (the creatures' world) and lilac, kept off the orange of the actions.
+ * The dark tones pass the dataviz palette checks on the card surface (#233038): lightness band,
+ * chroma floor, colorblind separation (worst adjacent ΔE 11.0), normal-vision floor (ΔE 17.5)
+ * and contrast ≥ 3:1. The app has one look (dark); the light tones stay for completeness.
  */
 export const chartColors = {
-  tasks: { light: '#2F75B5', dark: '#4F8FD0' },
-  habits: { light: '#C9573F', dark: '#DC6C56' },
-  routines: { light: '#8358B3', dark: '#9D7BD0' },
+  tasks: { light: '#2F75B5', dark: '#5C8EE6' },
+  habits: { light: '#1F8A76', dark: '#25A88F' },
+  routines: { light: '#8358B3', dark: '#A877D4' },
 } as const;
 
 export type ChartSeries = keyof typeof chartColors;
