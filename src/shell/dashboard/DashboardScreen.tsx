@@ -8,6 +8,7 @@ import { toDateKey } from '@/core/dates';
 import { useProfile } from '@/core/profile/useProfile';
 import { IconButton, Screen, cascade, spacing, useBreakpoint, useTheme } from '@/design-system';
 import { TodayHabits } from '@/features/habits/components/TodayHabits';
+import { useAquariumView } from '@/features/habits/hooks/aquariumView';
 import { useTodayHabitProgress } from '@/features/habits/hooks/queries';
 import { TodayRoutines } from '@/features/routines/components/TodayRoutines';
 import { useTodayRoutineProgress } from '@/features/routines/hooks/queries';
@@ -65,6 +66,7 @@ export function DashboardScreen() {
   const { data: progress } = useProgress();
   const [cards] = useDashboardCards();
   const { showDepth } = useGamePrefs();
+  const [view] = useAquariumView();
   const byDay = progress?.byDay ?? {};
 
   const tasksDone = tasks.filter((t) => t.completedAt).length;
@@ -150,8 +152,15 @@ export function DashboardScreen() {
       {blocks[id].node}
     </Tile>
   );
+  // The pond opens to explore (Seu aquário); the side view, the Aquário tab.
   const tankTile = (fill = false) => (
-    <Tile key="tank" label="Abrir o Aquário" onPress={go('/aquarium')} plain fill={fill}>
+    <Tile
+      key="tank"
+      label={view === 'pond' ? 'Explorar o aquário' : 'Abrir o Aquário'}
+      onPress={go(view === 'pond' ? '/pond' : '/aquarium')}
+      plain
+      fill={fill}
+    >
       {fill ? <FillingTank done={done} total={total} /> : tide}
     </Tile>
   );

@@ -26,6 +26,7 @@ import {
 } from '@/design-system';
 
 import { CreatureHero } from '../components/CreatureHero';
+import { GrowthBar, days } from '../components/GrowthBar';
 import { HabitControl, streakLabel, useLiveAmount } from '../components/HabitCard';
 import { HabitCalendar } from '../components/HabitCalendar';
 import { HabitDive } from '../components/HabitDive';
@@ -35,7 +36,7 @@ import { ReefMap } from '../components/ReefMap';
 import { amountLabel, clockLabel } from '../domain/amount';
 import { creatures } from '../domain/creatures';
 import { daysLabel, isScheduled, weekdayInitial, weekdayShort } from '../domain/progress';
-import { creatureStage, nextStage, stageInfo, stagePath } from '../domain/stages';
+import { creatureStage, stageInfo, stagePath } from '../domain/stages';
 import type { HabitWithProgress } from '../domain/types';
 import { useHabitSources } from '../hooks/habitSources';
 import { useHabitsRepository } from '../hooks/habitsContext';
@@ -143,7 +144,7 @@ export function HabitDetailScreen({
           ) : null}
         </View>
 
-        <GrowthBar habit={habit} />
+        <GrowthBar habit={habit} style={styles.growth} />
         {/* Today's action before the evolution and the week: on a phone it shows unscrolled. */}
         <Today habit={habit} tone={tone} actions={actions} onDive={openDive} />
         <Evolution habit={habit} />
@@ -203,43 +204,6 @@ export function HabitDetailScreen({
         <HabitDive habit={habit} actions={actions} visible={dive === '1'} onClose={closeDive} />
       ) : null}
     </Screen>
-  );
-}
-
-const days = (n: number) => (n === 1 ? '1 dia' : `${n} dias`);
-
-/** How far the next stage is: "12 de 30 dias até Adulto". Full once grown. */
-function GrowthBar({ habit }: { habit: HabitWithProgress }) {
-  const { colors } = useTheme();
-  const next = nextStage(habit.creature, habit.daysDone);
-  const goal = next ? habit.daysDone + next.daysLeft : habit.daysDone;
-  const ratio = next ? habit.daysDone / goal : 1;
-  const label = next
-    ? `${habit.daysDone} de ${days(goal)} até ${stageInfo[next.stage].label}`
-    : `Totalmente crescido · ${days(habit.daysDone)} feitos`;
-  return (
-    <View
-      style={styles.growth}
-      accessible
-      accessibilityRole="progressbar"
-      accessibilityLabel={`Crescimento: ${label}`}
-      accessibilityValue={{ min: 0, max: Math.max(goal, 1), now: habit.daysDone }}
-    >
-      <View style={[styles.growthTrack, { backgroundColor: colors.surfacePressed }]}>
-        <View
-          style={[
-            styles.growthFill,
-            {
-              width: `${Math.round(ratio * 100)}%`,
-              backgroundColor: next ? colors.accent : colors.deepAccent,
-            },
-          ]}
-        />
-      </View>
-      <Text variant="footnote" tone="secondary">
-        {label}
-      </Text>
-    </View>
   );
 }
 
@@ -606,13 +570,11 @@ const styles = StyleSheet.create({
   top: { gap: spacing.lg },
   name: { gap: 2, marginTop: -spacing.xs, paddingHorizontal: spacing.xxs },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  growth: { marginTop: -spacing.xs, paddingHorizontal: spacing.xxs },
   why: { fontStyle: 'italic', marginTop: spacing.xs },
   flex: { flex: 1 },
   bold: { fontWeight: '700' },
   small: { fontSize: 10, lineHeight: 12 },
-  growth: { gap: spacing.xs, marginTop: -spacing.xs, paddingHorizontal: spacing.xxs },
-  growthTrack: { height: 10, borderRadius: 5, overflow: 'hidden' },
-  growthFill: { height: '100%', borderRadius: 5 },
   section: { gap: spacing.sm, paddingHorizontal: spacing.xxs },
   sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   evolution: { flexDirection: 'row', justifyContent: 'space-between' },
