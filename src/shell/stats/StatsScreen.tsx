@@ -1,6 +1,7 @@
+import { useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react-native';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { fromDateKey, leadingBlanks, toDateKey, weekdayOrder } from '@/core/dates';
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
@@ -16,6 +17,7 @@ import {
   Legend,
   Screen,
   SegmentedControl,
+  Tag,
   Text,
   chartColors,
   listColors,
@@ -26,10 +28,12 @@ import {
   useTheme,
   withAlpha,
 } from '@/design-system';
+import { CreatureArt } from '@/features/habits/components/CreatureArt';
 import { useHabits } from '@/features/habits/hooks/queries';
 
-import { DAY_PARTS, periodOf, shiftPeriod, type Stats, type StatsMode } from './computeStats';
 import { useGamePrefs } from '../settings/prefs';
+import { DAY_PARTS, periodOf, shiftPeriod, type Stats, type StatsMode } from './computeStats';
+import { ConsistencyRing, consistency } from './ConsistencyCard';
 import { useStats } from './useStats';
 
 const MONTHS = [
@@ -50,6 +54,8 @@ const LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const DAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 const MODE_SETTING = 'stats.mode';
+/** "Ver mais detalhes": the charts beyond the essentials, remembered open or closed. */
+const DETAILS_SETTING = 'stats.details';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -69,9 +75,11 @@ const dayTitle = (key: string) => {
 };
 
 /**
- * Statistics for a week or a month: what got done (tasks, habits, routine items), how much of
- * the planned, when in the day, by weekday, depth over time, and a table per habit and routine.
- * Everything comes from what was really marked in the app.
+ * Statistics for a week or a month (Fase 6, simple on purpose): the consistency as the main
+ * number (how much of the planned got done), compared with the period before; what got done and
+ * the longest streak; the period day by day; each habit and routine. The charts beyond that
+ * (by day and kind, depth, weekdays, hours) wait under "Ver mais detalhes". Everything comes from
+ * what was really marked in the app.
  */
 export function StatsScreen() {
   const [storedMode, setMode] = useSetting<StatsMode>(MODE_SETTING, 'week');
@@ -125,10 +133,10 @@ export function StatsScreen() {
 }
 
 function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
-  const { colors } = useTheme();
   const wide = useBreakpoint() !== 'compact';
   const { data: habits = [] } = useHabits();
   const { showDepth } = useGamePrefs();
+  const [details, setDetails] = useSetting<string>(DETAILS_SETTING, 'off');
   const nothing =
     stats.totals.all === 0 &&
     stats.planned.due === 0 &&
@@ -150,90 +158,283 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
       <EmptyState title={startTitle} message="Conclua algo hoje e os gráficos começam a encher." />
     );
   }
-  const unit = stats.period.mode === 'week' ? 'semana passada' : 'mês passado';
-  const delta = stats.totals.all - previous.totals.all;
   const best = habits.reduce<(typeof habits)[number] | null>(
     (top, h) => (h.streak > (top?.streak ?? 0) ? h : top),
     null,
   );
-  const rate =
-    stats.planned.due > 0 ? Math.round((stats.planned.done / stats.planned.due) * 100) : null;
-  const gained = stats.depth.end - stats.depth.start;
+  const done = stats.totals.all > 0;
+  const open = details === 'on';
 
   return (
     <View style={styles.body}>
       {/* Nothing done in the period: a line on what to do instead of a row of zeros. */}
-      {stats.totals.all === 0 ? (
-        <Surface style={styles.start}>
-          <View style={[styles.startIcon, { backgroundColor: colors.accentSoft }]}>
-            <Sparkles size={22} strokeWidth={2} color={colors.accent} />
-          </View>
-          <View style={styles.flex}>
-            <Text variant="headline">{startTitle}</Text>
-            <Text variant="callout" tone="secondary">
-              Conclua algo hoje e os gráficos começam a encher.
-            </Text>
-          </View>
-        </Surface>
-      ) : (
-        <View style={[styles.kpis, wide && styles.kpisWide]}>
-          <Kpi
-            label="Concluídos"
-            value={String(stats.totals.all)}
-            note={`${delta > 0 ? '▲' : delta < 0 ? '▼' : '='} ${Math.abs(delta)} vs. ${unit}`}
-            wide={wide}
-          />
-          <Kpi
-            label="Do planejado"
-            value={rate === null ? '—' : `${rate}%`}
-            note={
-              stats.planned.due > 0
-                ? `${stats.planned.done} de ${stats.planned.due} de hábitos e rotinas`
-                : 'nada planejado ainda'
-            }
-            wide={wide}
-          />
-          <Kpi
-            label="Maior sequência"
-            value={best ? plural(best.streak, 'dia', 'dias') : '—'}
-            note={best ? best.name : 'marque um hábito hoje'}
-            wide={wide}
-          />
-          {showDepth ? (
+      {done ? (
+        <View style={[styles.top, wide && styles.topWide]}>
+          <ConsistencyHero stats={stats} previous={previous} />
+          <View style={[styles.kpis, wide && styles.kpisColumn]}>
             <Kpi
-              label="Profundidade"
-              value={`+${gained} m`}
-              note={`agora ${stats.depth.end} m`}
-              wide={wide}
+              label="Concluídos"
+              value={String(stats.totals.all)}
+              note="tarefas, hábitos e itens de rotina"
             />
-          ) : null}
+            <Kpi
+              label="Maior sequência"
+              value={best ? plural(best.streak, 'dia', 'dias') : '—'}
+              note={best ? best.name : 'marque um hábito hoje'}
+            />
+          </View>
         </View>
+      ) : (
+        <StartCard title={startTitle} />
       )}
       <View style={[styles.grid, wide && styles.gridWide]}>
-        {/* Charts of what was done wait for something done (the card above says so). */}
-        {stats.totals.all > 0 ? <ByDayCard stats={stats} wide={wide} /> : null}
-        {showDepth && stats.totals.all > 0 ? <DepthCard stats={stats} wide={wide} /> : null}
-        {stats.period.mode === 'month' ? <CalendarCard stats={stats} /> : null}
-        {stats.totals.all > 0 ? <WeekdayCard stats={stats} /> : null}
-        <HoursCard stats={stats} />
+        {done ? <DaysCard stats={stats} /> : null}
         {stats.habitRows.length > 0 ? <HabitsCard stats={stats} /> : null}
         {stats.routineRows.length > 0 ? <RoutinesCard stats={stats} /> : null}
+      </View>
+      {done ? (
+        <>
+          <View style={styles.more}>
+            <Button
+              label={open ? 'Esconder detalhes' : 'Ver mais detalhes'}
+              variant="ghost"
+              onPress={() => void setDetails(open ? 'off' : 'on')}
+            />
+          </View>
+          {open ? (
+            <View style={[styles.grid, wide && styles.gridWide]}>
+              <ByDayCard stats={stats} wide={wide} />
+              {showDepth ? <DepthCard stats={stats} wide={wide} /> : null}
+              {!week ? <CalendarCard stats={stats} /> : null}
+              <WeekdayCard stats={stats} />
+              <HoursCard stats={stats} />
+            </View>
+          ) : null}
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+function StartCard({ title }: { title: string }) {
+  const { colors } = useTheme();
+  return (
+    <Surface style={styles.start}>
+      <View style={[styles.startIcon, { backgroundColor: colors.accentSoft }]}>
+        <Sparkles size={22} strokeWidth={2} color={colors.accent} />
+      </View>
+      <View style={styles.flex}>
+        <Text variant="headline">{title}</Text>
+        <Text variant="callout" tone="secondary">
+          Conclua algo hoje e os gráficos começam a encher.
+        </Text>
+      </View>
+    </Surface>
+  );
+}
+
+const RING = 132;
+const RING_PHONE = 104;
+
+/**
+ * The main number: how much of the planned habits and routine items got done in the period, as
+ * a big ring, and how it compares with the period before, said in words. Never a scolding: a
+ * lower number just says what the last one was.
+ */
+function ConsistencyHero({ stats, previous }: { stats: Stats; previous: Stats }) {
+  const { colors } = useTheme();
+  const wide = useBreakpoint() !== 'compact';
+  const week = stats.period.mode === 'week';
+  const rate = consistency(stats.planned);
+  const before = consistency(previous.planned);
+  const percent = rate === null ? null : Math.round(rate * 100);
+  const last = before === null ? null : Math.round(before * 100);
+  const title = week ? 'Consistência da semana' : 'Consistência do mês';
+  const sentence =
+    rate === null
+      ? week
+        ? 'Nada planejado ainda nesta semana'
+        : 'Nada planejado ainda neste mês'
+      : `${stats.planned.done} de ${stats.planned.due} hábitos e rotinas feitos`;
+  // Short on the tag, whole for screen readers.
+  const lastPeriod = week ? 'a semana passada' : 'o mês passado';
+  const same = week ? 'Igual à semana passada' : 'Igual ao mês passado';
+  const compare =
+    percent === null || last === null
+      ? null
+      : percent > last
+        ? {
+            tag: `Subiu · era ${last}%`,
+            said: `Melhor que ${lastPeriod}, que foi ${last}%`,
+            up: true,
+          }
+        : percent === last
+          ? { tag: same, said: same, up: false }
+          : {
+              tag: `${week ? 'Semana passada' : 'Mês passado'}: ${last}%`,
+              said: `${week ? 'A semana passada' : 'O mês passado'} foi ${last}%`,
+              up: false,
+            };
+  return (
+    <View
+      style={[styles.hero, wide && styles.heroWide, { backgroundColor: colors.surfaceRaised }]}
+      accessible
+      accessibilityLabel={[
+        percent === null ? title : `${title}: ${percent}%`,
+        sentence,
+        compare?.said,
+      ]
+        .filter(Boolean)
+        .join('. ')}
+    >
+      <ConsistencyRing rate={rate} size={wide ? RING : RING_PHONE} stroke={wide ? 11 : 9} big />
+      <View style={styles.heroText}>
+        <Text variant={wide ? 'title2' : 'headline'}>{title}</Text>
+        <Text variant="callout" tone="secondary">
+          {sentence}
+        </Text>
+        {compare ? (
+          <View style={styles.heroTag}>
+            <Tag label={compare.tag} tone={compare.up ? 'sand' : 'neutral'} />
+          </View>
+        ) : null}
       </View>
     </View>
   );
 }
 
-function Kpi({
-  label,
-  value,
-  note,
-  wide,
-}: {
-  label: string;
-  value: string;
-  note: string;
-  wide: boolean;
-}) {
+const dayRate = (d: Stats['byDay'][number]) => (d.due > 0 ? Math.min(1, d.kept / d.due) : null);
+
+function describeKept(d: Stats['byDay'][number]) {
+  if (d.future) return `${dayTitle(d.day)}: ainda não chegou`;
+  if (d.due === 0) return `${dayTitle(d.day)}: nada planejado`;
+  return `${dayTitle(d.day)}: ${d.kept} de ${d.due} feitos`;
+}
+
+/**
+ * The period day by day, in the same terms as the main number: how much of each day's plan got
+ * done. A week as seven capsules, a month as a calendar. Days with everything done are sand.
+ */
+function DaysCard({ stats }: { stats: Stats }) {
+  const week = stats.period.mode === 'week';
+  const full = stats.byDay.filter((d) => !d.future && d.due > 0 && d.kept >= d.due).length;
+  return (
+    <Card title="Dia a dia" span>
+      {week ? <WeekDays stats={stats} /> : <MonthDays stats={stats} />}
+      <Text variant="footnote" tone="secondary">
+        {full === 0
+          ? 'Os dias com tudo feito ficam em areia.'
+          : `${plural(full, 'dia', 'dias')} com tudo feito.`}
+      </Text>
+    </Card>
+  );
+}
+
+function WeekDays({ stats }: { stats: Stats }) {
+  const { colors } = useTheme();
+  const today = toDateKey(new Date());
+  return (
+    <View style={styles.weekDays}>
+      {stats.byDay.map((d) => {
+        const rate = dayRate(d);
+        const full = rate === 1;
+        const rest = rate === null && !d.future;
+        return (
+          <View key={d.day} style={styles.weekDay} accessible accessibilityLabel={describeKept(d)}>
+            <View
+              style={[
+                styles.capsule,
+                {
+                  backgroundColor: rest ? 'transparent' : colors.surfacePressed,
+                  borderColor:
+                    d.day === today ? colors.deepAccent : rest ? colors.border : 'transparent',
+                  borderStyle: rest && d.day !== today ? 'dashed' : 'solid',
+                  opacity: d.future ? 0.45 : 1,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.capsuleFill,
+                  {
+                    height: `${Math.round((rate ?? 0) * 100)}%`,
+                    backgroundColor: full ? colors.deepAccent : colors.accent,
+                  },
+                ]}
+              />
+            </View>
+            <Text variant="caption" tone={d.day === today ? 'primary' : 'tertiary'}>
+              {LETTERS[fromDateKey(d.day).getDay()]}
+            </Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+function MonthDays({ stats }: { stats: Stats }) {
+  const { colors } = useTheme();
+  const today = toDateKey(new Date());
+  const offset = leadingBlanks(fromDateKey(stats.period.from).getDay(), stats.period.weekStart);
+  const cells: (Stats['byDay'][number] | null)[] = [
+    ...Array<null>(offset).fill(null),
+    ...stats.byDay,
+  ];
+  return (
+    <View>
+      <View style={styles.calRow}>
+        {weekdayOrder(stats.period.weekStart).map((d) => (
+          <Text key={d} variant="caption" tone="tertiary" style={styles.calHead}>
+            {LETTERS[d]}
+          </Text>
+        ))}
+      </View>
+      <View style={styles.calGrid}>
+        {cells.map((d, i) => {
+          if (!d) return <View key={`gap-${i}`} style={[styles.calCell, styles.calGap]} />;
+          const rate = dayRate(d);
+          const full = rate === 1;
+          return (
+            <View
+              key={d.day}
+              accessible
+              accessibilityLabel={describeKept(d)}
+              style={[
+                styles.calCell,
+                {
+                  backgroundColor: d.future
+                    ? withAlpha(colors.textSecondary, 0.05)
+                    : full
+                      ? colors.deepAccent
+                      : rate === null
+                        ? 'transparent'
+                        : withAlpha(colors.accent, 0.14 + rate * 0.6),
+                  borderColor: d.day === today ? colors.textPrimary : 'transparent',
+                },
+              ]}
+            >
+              <Text
+                variant="caption"
+                style={{
+                  color: full
+                    ? colors.onDeepAccent
+                    : (rate ?? 0) > 0.6
+                      ? colors.onAccent
+                      : colors.textSecondary,
+                }}
+              >
+                {fromDateKey(d.day).getDate()}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+function Kpi({ label, value, note }: { label: string; value: string; note: string }) {
   const { colors } = useTheme();
   // The number counts up to its value (Fase 5); the label already says the final one.
   const shown = useCountUpText(value);
@@ -241,11 +442,7 @@ function Kpi({
     <View
       accessible
       accessibilityLabel={`${label}: ${value}. ${note}`}
-      style={[
-        styles.kpi,
-        wide && styles.kpiWide,
-        { backgroundColor: colors.surfaceRaised, borderColor: colors.border },
-      ]}
+      style={[styles.kpi, { backgroundColor: colors.surfaceRaised, borderColor: colors.border }]}
     >
       <Text variant="overline" tone="tertiary">
         {label}
@@ -546,15 +743,30 @@ function Meter({ ratio }: { ratio: number }) {
 
 function HabitsCard({ stats }: { stats: Stats }) {
   const { colors } = useTheme();
+  const router = useRouter();
+  const { data: habits = [] } = useHabits();
   return (
     <Card title="Hábitos">
       {stats.habitRows.map((h) => (
-        <View
+        <Pressable
           key={h.id}
-          accessible
+          onPress={() => router.push({ pathname: '/aquarium/habits/[id]', params: { id: h.id } })}
+          accessibilityRole="button"
           accessibilityLabel={`${h.name}: ${h.done} de ${h.due} dias planejados${h.total > h.done ? `, ${h.total} no total` : ''}`}
-          style={[styles.row, { borderBottomColor: colors.separator }]}
+          accessibilityHint="Abre o hábito"
+          style={({ pressed }) => [
+            styles.row,
+            { borderBottomColor: colors.separator },
+            pressed && styles.pressed,
+          ]}
         >
+          <View style={[styles.thumb, { backgroundColor: colors.selected }]}>
+            <CreatureArt
+              creature={h.creature}
+              stage={habits.find((x) => x.id === h.id)?.stage ?? 'young'}
+              size={30}
+            />
+          </View>
           <Text variant="callout" numberOfLines={1} style={styles.flex}>
             {h.name}
           </Text>
@@ -562,7 +774,7 @@ function HabitsCard({ stats }: { stats: Stats }) {
             {h.done} de {h.due}
           </Text>
           <Meter ratio={h.due > 0 ? Math.min(1, h.done / h.due) : 0} />
-        </View>
+        </Pressable>
       ))}
     </Card>
   );
@@ -602,16 +814,49 @@ const styles = StyleSheet.create({
   nav: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   navLabel: { flex: 1, textAlign: 'center' },
   body: { gap: spacing.lg },
-  kpis: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  kpisWide: { flexWrap: 'nowrap' },
+  top: { gap: spacing.sm },
+  topWide: { flexDirection: 'row' },
+  hero: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+  },
+  heroWide: { flexGrow: 1.6, flexBasis: 0 },
+  heroText: { flex: 1, gap: spacing.xxs },
+  heroTag: { marginTop: spacing.xs },
+  kpis: { flexDirection: 'row', gap: spacing.sm },
+  kpisColumn: { flexDirection: 'column', flexGrow: 1, flexBasis: 0 },
   kpi: {
-    flexBasis: '48%',
+    flexBasis: 0,
     flexGrow: 1,
+    justifyContent: 'center',
     borderRadius: radius.lg,
     padding: spacing.md,
     gap: 2,
   },
-  kpiWide: { flexBasis: 0 },
+  more: { alignItems: 'center' },
+  weekDays: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.xs },
+  weekDay: { flex: 1, alignItems: 'center', gap: spacing.xs },
+  capsule: {
+    width: '100%',
+    maxWidth: 44,
+    height: 76,
+    borderRadius: radius.md,
+    borderWidth: 2,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  capsuleFill: { width: '100%' },
+  thumb: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.sm + 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pressed: { opacity: 0.75 },
   start: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
   startIcon: {
     width: 44,

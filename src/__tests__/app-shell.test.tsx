@@ -168,7 +168,11 @@ describe('Início (Fase 6)', () => {
     await fireEvent.press(screen.getByRole('checkbox', { name: 'Meditar: feito hoje' }));
     expect(await screen.findByText('Hábitos de hoje · 1 de 1')).toBeOnTheScreen();
     expect(
-      await screen.findByLabelText('Consistência da semana: 100%. 1 de 1 hábitos e rotinas feitos'),
+      await screen.findByLabelText(
+        'Consistência da semana: 100%. 1 de 1 hábitos e rotinas feitos',
+        {},
+        { timeout: 5000 },
+      ),
     ).toBeOnTheScreen();
   });
 });
@@ -502,6 +506,35 @@ describe('Welcome dive', () => {
     await renderRouter(routes, { initialUrl: '/' });
     await waitFor(async () => expect(await data.settings.get('welcome.done')).toBe('existing'));
     expect(screen.queryByRole('button', { name: 'Começar o mergulho' })).toBeNull();
+  });
+});
+
+describe('Estatísticas simplificadas (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('leads with the consistency, keeps the charts under "Ver mais detalhes"', async () => {
+    const id = await data.habits.createHabit({ name: 'Ler', creature: 'fish' });
+    await data.habits.setChecked(id, toDateKey(new Date()), true);
+    await renderRouter(routes, { initialUrl: '/stats' });
+
+    expect(
+      await screen.findByLabelText(
+        'Consistência da semana: 100%. 1 de 1 hábitos e rotinas feitos',
+        {},
+        { timeout: 5000 },
+      ),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Dia a dia')).toBeOnTheScreen();
+    expect(screen.getByText('1 dia com tudo feito.')).toBeOnTheScreen();
+    // The charts beyond the essentials wait, and the choice is remembered.
+    expect(screen.queryByText('Concluídos por dia')).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Ver mais detalhes' }));
+    expect(await screen.findByText('Concluídos por dia')).toBeOnTheScreen();
+    await waitFor(async () => expect(await data.settings.get('stats.details')).toBe('on'));
+
+    // Each habit is a button to its page (followed end to end in e2e/stats.spec.ts).
+    const row = screen.getByRole('button', { name: /^Ler: 1 de 1 dias planejados/ });
+    expect(row.props.accessibilityHint).toBe('Abre o hábito');
   });
 });
 

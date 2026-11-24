@@ -33,16 +33,23 @@ test('statistics count what was done, from the dashboard and the profile', async
   await visible(page.getByRole('button', { name: /^Abrir estatísticas/ })).click();
   await expect(page).toHaveURL(/\/stats$/);
 
+  // The consistency leads; then what got done and each habit.
+  await expect(visible(page.getByLabel(/^Consistência da semana: 100%/))).toBeVisible();
   await expect(visible(page.getByLabel(/^Concluídos: 1\./))).toBeVisible();
   await expect(visible(page.getByLabel(/^Meditar: 1 de 1 dias planejados/))).toBeVisible();
 
-  // The chart has a table view.
+  // The charts beyond that wait under "Ver mais detalhes"; the chart has a table view.
+  await visible(page.getByRole('button', { name: 'Ver mais detalhes' })).click();
   await visible(page.getByRole('button', { name: 'Ver como tabela' })).click();
   await expect(visible(page.getByText('Tarefas', { exact: true }))).toBeVisible();
 
-  // The month too, and the profile links here.
+  // The month too (day by day as a calendar), and the profile links here.
   await page.getByRole('radio', { name: 'Mês', exact: true }).click();
+  await expect(visible(page.getByLabel(/^Consistência do mês: 100%/))).toBeVisible();
   await expect(visible(page.getByText(/^Dias de maré cheia/))).toBeVisible();
+  // Each habit opens its page.
+  await visible(page.getByRole('button', { name: /^Meditar: 1 de 1 dias planejados/ })).click();
+  await expect(page).toHaveURL(/\/aquarium\/habits\//);
   await page.goto('/profile');
   await visible(page.getByRole('button', { name: /^Estatísticas/ })).click();
   await expect(page).toHaveURL(/\/stats$/);
