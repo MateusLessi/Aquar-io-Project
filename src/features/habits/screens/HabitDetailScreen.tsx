@@ -26,7 +26,7 @@ import {
 } from '@/design-system';
 
 import { CreatureHero } from '../components/CreatureHero';
-import { GrowthBar, days } from '../components/GrowthBar';
+import { LevelBar, days } from '../components/GrowthBar';
 import { HabitControl, streakLabel, useLiveAmount } from '../components/HabitCard';
 import { HabitCalendar } from '../components/HabitCalendar';
 import { HabitDive } from '../components/HabitDive';
@@ -36,7 +36,7 @@ import { ReefMap } from '../components/ReefMap';
 import { amountLabel, clockLabel } from '../domain/amount';
 import { creatures } from '../domain/creatures';
 import { daysLabel, isScheduled, weekdayInitial, weekdayShort } from '../domain/progress';
-import { creatureStage, stageInfo, stagePath } from '../domain/stages';
+import { creatureStage, levelFor, stageInfo, stagePath } from '../domain/stages';
 import type { HabitWithProgress } from '../domain/types';
 import { useHabitSources } from '../hooks/habitSources';
 import { useHabitsRepository } from '../hooks/habitsContext';
@@ -130,7 +130,8 @@ export function HabitDetailScreen({
                 {habit.name}
               </Text>
             </View>
-            <View>
+            <View style={styles.tags}>
+              <Tag label={`Nível ${levelFor(habit.xp).level}`} tone="sand" />
               <Tag label={stage} />
             </View>
           </View>
@@ -144,7 +145,7 @@ export function HabitDetailScreen({
           ) : null}
         </View>
 
-        <GrowthBar habit={habit} style={styles.growth} />
+        <LevelBar habit={habit} style={styles.growth} />
         {/* Today's action before the evolution and the week: on a phone it shows unscrolled. */}
         <Today habit={habit} tone={tone} actions={actions} onDive={openDive} />
         <Evolution habit={habit} />
@@ -569,6 +570,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   top: { gap: spacing.lg },
   name: { gap: 2, marginTop: -spacing.xs, paddingHorizontal: spacing.xxs },
+  tags: { flexDirection: 'row', gap: spacing.xs },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   growth: { marginTop: -spacing.xs, paddingHorizontal: spacing.xxs },
   why: { fontStyle: 'italic', marginTop: spacing.xs },

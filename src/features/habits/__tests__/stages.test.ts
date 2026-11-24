@@ -1,4 +1,4 @@
-import { creatureStage, nextStage, stagePath } from '../domain/stages';
+import { creatureStage, levelFor, nextStage, stagePath } from '../domain/stages';
 
 describe('creature stages', () => {
   it('hatches egg-laying creatures from an egg', () => {
@@ -33,5 +33,13 @@ describe('creature stages', () => {
     ]);
     // Born alive: no egg in the path.
     expect(stagePath('shark').map((s) => s.stage)).toEqual(['baby', 'young', 'adult']);
+  });
+
+  it('turns XP into levels that change where the stages do, and keep going after adult', () => {
+    expect(levelFor(0)).toMatchObject({ level: 1, from: 0, to: 15, progress: 0 });
+    // 3, 10 and 30 planned days (15 XP each): levels 3, 6 and 10, like Filhote, Jovem, Adulto.
+    expect([45, 150, 450].map((xp) => levelFor(xp).level)).toEqual([3, 6, 10]);
+    expect(levelFor(240)).toMatchObject({ level: 7, from: 200, to: 260 });
+    expect(levelFor(450 + 150 * 2 + 10)).toMatchObject({ level: 12, from: 750, to: 900 });
   });
 });

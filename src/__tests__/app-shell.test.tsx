@@ -338,7 +338,7 @@ describe('Habits', () => {
 
     // The fish, still an egg: the path ahead, and how far the next stage is.
     expect(await screen.findByLabelText('Peixe, ovo, no lago. Para hoje.')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Crescimento: 0 de 3 dias até Filhote')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nível 1: 0 XP · faltam 15 para o nível 2')).toBeOnTheScreen();
     expect(
       screen.getByLabelText(
         'Evolução: Ovo, agora; Filhote, com 3 dias; Jovem, com 10 dias; Adulto, com 30 dias',
@@ -349,7 +349,7 @@ describe('Habits', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Marcar hoje' }));
     expect(await screen.findByText('Feito hoje!')).toBeOnTheScreen();
     expect(await screen.findByLabelText('Peixe, ovo, no lago. Feito hoje.')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Crescimento: 1 de 3 dias até Filhote')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nível 2: 15 XP · faltam 30 para o nível 3')).toBeOnTheScreen();
     expect(screen.getByLabelText(/^Esta semana: .*feito/)).toBeOnTheScreen();
     expect(await data.events.count('HABIT_CHECKED')).toBe(1);
 
@@ -615,7 +615,7 @@ describe('Seu aquário (Fase 6)', () => {
       await screen.findByTestId(`pond-creature-${lerId}`, { includeHiddenElements: true }),
     );
     expect(await screen.findByText('Peixe · Ovo · Para hoje')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Crescimento: 0 de 3 dias até Filhote')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nível 1: 0 XP · faltam 15 para o nível 2')).toBeOnTheScreen();
 
     // The same choice from the row of creatures; today's action works from the card.
     await fireEvent.press(

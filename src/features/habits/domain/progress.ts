@@ -6,6 +6,10 @@ export function isScheduled(days: WeekdayMask, dateKey: string): boolean {
   return (days & (1 << weekdayOf(dateKey))) !== 0;
 }
 
+/** XP for a day done: the same points as the day's score (docs/gamification-rules.md). */
+export const XP_PLANNED = 15;
+export const XP_REST = 8;
+
 /** How far back a streak is counted. Long enough for any realistic streak in V1. */
 const MAX_LOOKBACK_DAYS = 3660;
 
@@ -73,6 +77,7 @@ export function habitProgress(input: {
     consistency: due === 0 ? null : kept / due,
     week,
     daysDone: done.size,
+    xp: [...done].reduce((sum, key) => sum + (scheduled(key) ? XP_PLANNED : XP_REST), 0),
   };
 }
 

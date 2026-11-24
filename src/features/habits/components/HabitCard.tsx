@@ -21,7 +21,7 @@ import {
 import { amountLabel, clockLabel, fillRatio } from '../domain/amount';
 import { creatures } from '../domain/creatures';
 import { weekdayInitial } from '../domain/progress';
-import { stageInfo } from '../domain/stages';
+import { levelFor, stageInfo } from '../domain/stages';
 import type { DayState, HabitWithProgress } from '../domain/types';
 import { useHabitSources } from '../hooks/habitSources';
 import type { HabitActions } from '../hooks/useHabitActions';
@@ -115,7 +115,7 @@ export function HabitCard({ habit, actions }: HabitCardProps) {
               <Text variant="headline" numberOfLines={1} style={styles.name}>
                 {habit.name}
               </Text>
-              <Tag label={stageInfo[habit.stage].label} />
+              <Tag label={`${stageInfo[habit.stage].label} · Nív. ${levelFor(habit.xp).level}`} />
             </View>
             <Text variant="footnote" tone="secondary" numberOfLines={1}>
               {[badge, statusLabel(habit, amount)].filter(Boolean).join(' · ')}
