@@ -53,3 +53,32 @@ export function nextStage(
   const next = THRESHOLDS.find((t) => t.from > daysDone && t.stage !== current);
   return next ? { stage: next.stage, daysLeft: next.from - daysDone } : null;
 }
+
+/**
+ * The creature's level (Fase 6, etapa 12c), from its XP. Levels 3, 6 and 10 fall where the stages
+ * change (3, 10 and 30 planned days), so the level and the stage tell the same story; after level
+ * 10 every 150 XP is one more level, so a grown creature keeps going. Never goes down by missing
+ * a day; unmarking a day takes that day's XP back.
+ */
+const LEVELS = [0, 15, 45, 75, 110, 150, 200, 260, 340, 450];
+const AFTER_TEN = 150;
+
+export type Level = {
+  level: number;
+  xp: number;
+  /** XP where this level began and where the next one begins. */
+  from: number;
+  to: number;
+  /** 0–1 toward the next level. */
+  progress: number;
+};
+
+export function levelFor(xp: number): Level {
+  const start = (n: number) =>
+    n <= LEVELS.length ? LEVELS[n - 1]! : LEVELS.at(-1)! + (n - LEVELS.length) * AFTER_TEN;
+  let level = 1;
+  while (xp >= start(level + 1)) level += 1;
+  const from = start(level);
+  const to = start(level + 1);
+  return { level, xp, from, to, progress: (xp - from) / (to - from) };
+}

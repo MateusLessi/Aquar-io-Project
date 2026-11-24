@@ -49,6 +49,8 @@ export type HabitProgress = {
   week: DayState[];
   /** Every day done, ever: what makes the creature grow. */
   daysDone: number;
+  /** The creature's experience (Fase 6, etapa 12c): 15 per planned day done, 8 per rest day done. */
+  xp: number;
 };
 
 /** Today's partial progress. */

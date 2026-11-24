@@ -31,6 +31,10 @@ describe('habit progress', () => {
     expect(progress([], EVERY_DAY, today).consistency).toBeNull();
   });
 
+  it('gives the creature 15 XP per planned day done and 8 per rest day done', () => {
+    expect(progress(['2026-10-19', '2026-10-20']).xp).toBe(30);
+  });
+
   it('describes this week, Sunday first', () => {
     const result = progress(['2026-10-19'], 0b0111110);
     expect(result.week).toEqual([

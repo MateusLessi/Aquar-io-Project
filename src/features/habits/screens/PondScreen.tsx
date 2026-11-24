@@ -19,7 +19,7 @@ import {
   withAlpha,
 } from '@/design-system';
 
-import { GrowthBar } from '../components/GrowthBar';
+import { LevelBar } from '../components/GrowthBar';
 import { CreatureTile, HabitControl } from '../components/HabitCard';
 import { HabitPond } from '../components/HabitPond';
 import { creatures } from '../domain/creatures';
@@ -178,7 +178,7 @@ function CreatureCard({
         </View>
         <HabitControl habit={habit} tone={tone} actions={actions} />
       </View>
-      <GrowthBar habit={habit} />
+      <LevelBar habit={habit} />
       <View style={styles.cardActions}>
         <View style={styles.flex}>
           <Button

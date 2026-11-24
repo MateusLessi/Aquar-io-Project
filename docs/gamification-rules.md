@@ -53,6 +53,12 @@ O estágio vem do **total de dias feitos** do hábito, desde sempre. Perder um d
 \* Tartaruga, peixe, polvo, caranguejo, baiacu, lula, lagosta, camarão.
 \*\* Golfinho, baleia, foca e tubarão: começam como filhote (não existe "ovo de baleia").
 
+### Nível da criatura (Fase 6, etapa 12c)
+
+Cada dia feito dá **XP** à criatura do hábito: **15** num dia previsto e **8** num dia de folga (os mesmos pontos do dia). O nível sai do XP (`levelFor` em `stages.ts`): níveis 1–10 em 0, 15, 45, 75, 110, 150, 200, 260, 340 e 450 XP, e depois **+150 XP por nível**, então a criatura adulta continua subindo. Os níveis 3, 6 e 10 caem onde os estágios mudam (3, 10 e 30 dias previstos), então nível e estágio contam a mesma história. Nunca cai por perder um dia; desmarcar um dia tira o XP daquele dia.
+
+Aparece na tela da criatura (etiqueta "Nível 9" e a barra "345 XP · faltam 105 para o nível 10"), no cartão do hábito ("Jovem · Nív. 9") e no cartão do Seu aquário.
+
 ## Onde aparece
 
 - **Hoje:** medidor de profundidade (zona atual, metros e quanto falta para a próxima) e os pontos do dia.
