@@ -1,5 +1,12 @@
 import { useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react-native';
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  Equal,
+  Sparkles,
+} from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -7,7 +14,6 @@ import { fromDateKey, leadingBlanks, toDateKey, weekdayOrder } from '@/core/date
 import { useCalendarPrefs } from '@/core/preferences/calendarPrefs';
 import { useSetting } from '@/core/settings/useSetting';
 import {
-  AreaLine,
   Button,
   Columns,
   EmptyState,
@@ -17,23 +23,24 @@ import {
   Legend,
   Screen,
   SegmentedControl,
-  Tag,
+  Sparkline,
   Text,
+  TrendLine,
   chartColors,
-  listColors,
+  fontFamily,
   radius,
   spacing,
   useBreakpoint,
   useCountUpText,
   useTheme,
   withAlpha,
+  type TooltipContent,
 } from '@/design-system';
 import { CreatureArt } from '@/features/habits/components/CreatureArt';
 import { useHabits } from '@/features/habits/hooks/queries';
 
-import { useGamePrefs } from '../settings/prefs';
 import { DAY_PARTS, periodOf, shiftPeriod, type Stats, type StatsMode } from './computeStats';
-import { ConsistencyRing, consistency } from './ConsistencyCard';
+import { consistency } from './ConsistencyCard';
 import { useStats } from './useStats';
 
 const MONTHS = [
@@ -54,8 +61,6 @@ const LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const DAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 const MODE_SETTING = 'stats.mode';
-/** "Ver mais detalhes": the charts beyond the essentials, remembered open or closed. */
-const DETAILS_SETTING = 'stats.details';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -75,11 +80,10 @@ const dayTitle = (key: string) => {
 };
 
 /**
- * Statistics for a week or a month (Fase 6, simple on purpose): the consistency as the main
- * number (how much of the planned got done), compared with the period before; what got done and
- * the longest streak; the period day by day; each habit and routine. The charts beyond that
- * (by day and kind, depth, weekdays, hours) wait under "Ver mais detalhes". Everything comes from
- * what was really marked in the app.
+ * Statistics for a week or a month (Fase 6): the consistency leads, as one big number over its
+ * line day by day, against the period before; then three figures, what got done by day and
+ * kind, a table per habit and per routine, the weekdays and the hours. Every chart has a table
+ * or a spoken label with its numbers. Everything comes from what was really marked in the app.
  */
 export function StatsScreen() {
   const [storedMode, setMode] = useSetting<StatsMode>(MODE_SETTING, 'week');
@@ -135,8 +139,6 @@ export function StatsScreen() {
 function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
   const wide = useBreakpoint() !== 'compact';
   const { data: habits = [] } = useHabits();
-  const { showDepth } = useGamePrefs();
-  const [details, setDetails] = useSetting<string>(DETAILS_SETTING, 'off');
   const nothing =
     stats.totals.all === 0 &&
     stats.planned.due === 0 &&
@@ -158,60 +160,21 @@ function StatsBody({ stats, previous }: { stats: Stats; previous: Stats }) {
       <EmptyState title={startTitle} message="Conclua algo hoje e os gráficos começam a encher." />
     );
   }
-  const best = habits.reduce<(typeof habits)[number] | null>(
-    (top, h) => (h.streak > (top?.streak ?? 0) ? h : top),
-    null,
-  );
   const done = stats.totals.all > 0;
-  const open = details === 'on';
 
   return (
     <View style={styles.body}>
-      {/* Nothing done in the period: a line on what to do instead of a row of zeros. */}
-      {done ? (
-        <View style={[styles.top, wide && styles.topWide]}>
-          <ConsistencyHero stats={stats} previous={previous} />
-          <View style={[styles.kpis, wide && styles.kpisColumn]}>
-            <Kpi
-              label="Concluídos"
-              value={String(stats.totals.all)}
-              note="tarefas, hábitos e itens de rotina"
-            />
-            <Kpi
-              label="Maior sequência"
-              value={best ? plural(best.streak, 'dia', 'dias') : '—'}
-              note={best ? best.name : 'marque um hábito hoje'}
-            />
-          </View>
-        </View>
-      ) : (
-        <StartCard title={startTitle} />
-      )}
+      {/* Nothing done in the period: a line on what to do instead of charts of zeros. */}
+      {done ? <ProgressCard stats={stats} previous={previous} /> : <StartCard title={startTitle} />}
+      {done ? <Figures stats={stats} previous={previous} /> : null}
       <View style={[styles.grid, wide && styles.gridWide]}>
-        {done ? <DaysCard stats={stats} /> : null}
-        {stats.habitRows.length > 0 ? <HabitsCard stats={stats} /> : null}
-        {stats.routineRows.length > 0 ? <RoutinesCard stats={stats} /> : null}
+        {done ? <DoneCard stats={stats} /> : null}
+        {done && !week ? <MonthCard stats={stats} /> : null}
+        {stats.habitRows.length > 0 ? <HabitsTable stats={stats} /> : null}
+        {stats.routineRows.length > 0 ? <RoutinesTable stats={stats} /> : null}
+        {done ? <WeekdayCard stats={stats} /> : null}
+        {done ? <HoursCard stats={stats} /> : null}
       </View>
-      {done ? (
-        <>
-          <View style={styles.more}>
-            <Button
-              label={open ? 'Esconder detalhes' : 'Ver mais detalhes'}
-              variant="ghost"
-              onPress={() => void setDetails(open ? 'off' : 'on')}
-            />
-          </View>
-          {open ? (
-            <View style={[styles.grid, wide && styles.gridWide]}>
-              <ByDayCard stats={stats} wide={wide} />
-              {showDepth ? <DepthCard stats={stats} wide={wide} /> : null}
-              {!week ? <CalendarCard stats={stats} /> : null}
-              <WeekdayCard stats={stats} />
-              <HoursCard stats={stats} />
-            </View>
-          ) : null}
-        </>
-      ) : null}
     </View>
   );
 }
@@ -233,208 +196,219 @@ function StartCard({ title }: { title: string }) {
   );
 }
 
-const RING = 132;
-const RING_PHONE = 104;
+const pct = (v: number | null | undefined) =>
+  v === null || v === undefined ? '—' : `${Math.round(v * 100)}%`;
+const dayRate = (d: Stats['byDay'][number]) => (d.due > 0 ? Math.min(1, d.kept / d.due) : null);
+/** Day numbers under a month's chart: the 1st, every 5th and the last. */
+const monthLabel = (i: number, n: number) =>
+  i === 0 || (i + 1) % 5 === 0 || i === n - 1 ? String(i + 1) : '';
 
 /**
- * The main number: how much of the planned habits and routine items got done in the period, as
- * a big ring, and how it compares with the period before, said in words. Never a scolding: a
- * lower number just says what the last one was.
+ * The lead: the period's consistency (how much of the planned habits and routine items got
+ * done) as one big number, and its line day by day against the period before.
  */
-function ConsistencyHero({ stats, previous }: { stats: Stats; previous: Stats }) {
+function ProgressCard({ stats, previous }: { stats: Stats; previous: Stats }) {
   const { colors } = useTheme();
   const wide = useBreakpoint() !== 'compact';
+  const [selected, setSelected] = useState<number | null>(null);
+  const [table, setTable] = useState(false);
   const week = stats.period.mode === 'week';
   const rate = consistency(stats.planned);
   const before = consistency(previous.planned);
   const percent = rate === null ? null : Math.round(rate * 100);
   const last = before === null ? null : Math.round(before * 100);
+  const shown = useCountUpText(percent === null ? '—' : `${percent}%`);
   const title = week ? 'Consistência da semana' : 'Consistência do mês';
+  const now = week ? 'Esta semana' : 'Este mês';
+  const then = week ? 'Semana passada' : 'Mês passado';
   const sentence =
     rate === null
       ? week
         ? 'Nada planejado ainda nesta semana'
         : 'Nada planejado ainda neste mês'
       : `${stats.planned.done} de ${stats.planned.due} hábitos e rotinas feitos`;
-  // Short on the tag, whole for screen readers.
   const lastPeriod = week ? 'a semana passada' : 'o mês passado';
-  const same = week ? 'Igual à semana passada' : 'Igual ao mês passado';
-  const compare =
+  const said =
     percent === null || last === null
       ? null
       : percent > last
-        ? {
-            tag: `Subiu · era ${last}%`,
-            said: `Melhor que ${lastPeriod}, que foi ${last}%`,
-            up: true,
-          }
+        ? `Melhor que ${lastPeriod}, que foi ${last}%`
         : percent === last
-          ? { tag: same, said: same, up: false }
-          : {
-              tag: `${week ? 'Semana passada' : 'Mês passado'}: ${last}%`,
-              said: `${week ? 'A semana passada' : 'O mês passado'} foi ${last}%`,
-              up: false,
-            };
-  return (
-    <View
-      style={[styles.hero, wide && styles.heroWide, { backgroundColor: colors.surfaceRaised }]}
-      accessible
-      accessibilityLabel={[
-        percent === null ? title : `${title}: ${percent}%`,
-        sentence,
-        compare?.said,
-      ]
-        .filter(Boolean)
-        .join('. ')}
-    >
-      <ConsistencyRing rate={rate} size={wide ? RING : RING_PHONE} stroke={wide ? 11 : 9} big />
-      <View style={styles.heroText}>
-        <Text variant={wide ? 'title2' : 'headline'}>{title}</Text>
-        <Text variant="callout" tone="secondary">
-          {sentence}
-        </Text>
-        {compare ? (
-          <View style={styles.heroTag}>
-            <Tag label={compare.tag} tone={compare.up ? 'sand' : 'neutral'} />
-          </View>
-        ) : null}
-      </View>
-    </View>
+          ? week
+            ? 'Igual à semana passada'
+            : 'Igual ao mês passado'
+          : `${week ? 'A semana passada' : 'O mês passado'} foi ${last}%`;
+  const values = stats.byDay.map((d) => (d.future ? null : dayRate(d)));
+  const compare = stats.byDay.map((_, i) => {
+    const d = previous.byDay[i];
+    return d ? dayRate(d) : null;
+  });
+  const labels = stats.byDay.map((d, i) =>
+    week ? LETTERS[fromDateKey(d.day).getDay()]! : monthLabel(i, stats.byDay.length),
   );
-}
+  const describe = (i: number) => {
+    const d = stats.byDay[i]!;
+    if (d.future) return `${dayTitle(d.day)}: ainda não chegou`;
+    if (d.due === 0) return `${dayTitle(d.day)}: nada planejado`;
+    return `${dayTitle(d.day)}: ${pct(values[i])}, ${d.kept} de ${d.due} feitos. ${then}: ${pct(compare[i])}`;
+  };
+  const tooltip = (i: number): TooltipContent => {
+    const d = stats.byDay[i]!;
+    return {
+      title: dayTitle(d.day),
+      rows: [
+        {
+          label: now,
+          value: d.future
+            ? '—'
+            : d.due === 0
+              ? 'nada planejado'
+              : `${pct(values[i])} · ${d.kept}/${d.due}`,
+          color: colors.accent,
+        },
+        { label: then, value: pct(compare[i]), color: colors.textTertiary },
+      ],
+    };
+  };
+  const Arrow =
+    percent === null || last === null
+      ? null
+      : percent > last
+        ? ArrowUp
+        : percent < last
+          ? ArrowDown
+          : Equal;
 
-const dayRate = (d: Stats['byDay'][number]) => (d.due > 0 ? Math.min(1, d.kept / d.due) : null);
-
-function describeKept(d: Stats['byDay'][number]) {
-  if (d.future) return `${dayTitle(d.day)}: ainda não chegou`;
-  if (d.due === 0) return `${dayTitle(d.day)}: nada planejado`;
-  return `${dayTitle(d.day)}: ${d.kept} de ${d.due} feitos`;
-}
-
-/**
- * The period day by day, in the same terms as the main number: how much of each day's plan got
- * done. A week as seven capsules, a month as a calendar. Days with everything done are sand.
- */
-function DaysCard({ stats }: { stats: Stats }) {
-  const week = stats.period.mode === 'week';
-  const full = stats.byDay.filter((d) => !d.future && d.due > 0 && d.kept >= d.due).length;
   return (
-    <Card title="Dia a dia" span>
-      {week ? <WeekDays stats={stats} /> : <MonthDays stats={stats} />}
-      <Text variant="footnote" tone="secondary">
-        {full === 0
-          ? 'Os dias com tudo feito ficam em areia.'
-          : `${plural(full, 'dia', 'dias')} com tudo feito.`}
-      </Text>
-    </Card>
-  );
-}
-
-function WeekDays({ stats }: { stats: Stats }) {
-  const { colors } = useTheme();
-  const today = toDateKey(new Date());
-  return (
-    <View style={styles.weekDays}>
-      {stats.byDay.map((d) => {
-        const rate = dayRate(d);
-        const full = rate === 1;
-        const rest = rate === null && !d.future;
-        return (
-          <View key={d.day} style={styles.weekDay} accessible accessibilityLabel={describeKept(d)}>
-            <View
-              style={[
-                styles.capsule,
-                {
-                  backgroundColor: rest ? 'transparent' : colors.surfacePressed,
-                  borderColor:
-                    d.day === today ? colors.deepAccent : rest ? colors.border : 'transparent',
-                  borderStyle: rest && d.day !== today ? 'dashed' : 'solid',
-                  opacity: d.future ? 0.45 : 1,
-                },
-              ]}
-            >
-              <View
-                style={[
-                  styles.capsuleFill,
-                  {
-                    height: `${Math.round((rate ?? 0) * 100)}%`,
-                    backgroundColor: full ? colors.deepAccent : colors.accent,
-                  },
-                ]}
-              />
-            </View>
-            <Text variant="caption" tone={d.day === today ? 'primary' : 'tertiary'}>
-              {LETTERS[fromDateKey(d.day).getDay()]}
-            </Text>
-          </View>
-        );
-      })}
-    </View>
-  );
-}
-
-function MonthDays({ stats }: { stats: Stats }) {
-  const { colors } = useTheme();
-  const today = toDateKey(new Date());
-  const offset = leadingBlanks(fromDateKey(stats.period.from).getDay(), stats.period.weekStart);
-  const cells: (Stats['byDay'][number] | null)[] = [
-    ...Array<null>(offset).fill(null),
-    ...stats.byDay,
-  ];
-  return (
-    <View>
-      <View style={styles.calRow}>
-        {weekdayOrder(stats.period.weekStart).map((d) => (
-          <Text key={d} variant="caption" tone="tertiary" style={styles.calHead}>
-            {LETTERS[d]}
+    <View style={[styles.card, styles.lead, { backgroundColor: colors.surfaceRaised }]}>
+      <View style={[styles.leadHead, wide && styles.leadHeadWide]}>
+        <View
+          style={styles.flex}
+          accessible
+          accessibilityLabel={[percent === null ? title : `${title}: ${percent}%`, sentence, said]
+            .filter(Boolean)
+            .join('. ')}
+        >
+          <Text variant="callout" tone="secondary">
+            {title}
           </Text>
-        ))}
-      </View>
-      <View style={styles.calGrid}>
-        {cells.map((d, i) => {
-          if (!d) return <View key={`gap-${i}`} style={[styles.calCell, styles.calGap]} />;
-          const rate = dayRate(d);
-          const full = rate === 1;
-          return (
-            <View
-              key={d.day}
-              accessible
-              accessibilityLabel={describeKept(d)}
-              style={[
-                styles.calCell,
-                {
-                  backgroundColor: d.future
-                    ? withAlpha(colors.textSecondary, 0.05)
-                    : full
-                      ? colors.deepAccent
-                      : rate === null
-                        ? 'transparent'
-                        : withAlpha(colors.accent, 0.14 + rate * 0.6),
-                  borderColor: d.day === today ? colors.textPrimary : 'transparent',
-                },
-              ]}
-            >
-              <Text
-                variant="caption"
-                style={{
-                  color: full
-                    ? colors.onDeepAccent
-                    : (rate ?? 0) > 0.6
-                      ? colors.onAccent
-                      : colors.textSecondary,
-                }}
-              >
-                {fromDateKey(d.day).getDate()}
+          <Text style={[styles.hero, { color: colors.textPrimary }]}>{shown}</Text>
+          <Text variant="callout" tone="secondary">
+            {sentence}
+          </Text>
+        </View>
+        <View style={[styles.leadSide, wide && styles.leadSideWide]}>
+          {Arrow && last !== null ? (
+            <View style={styles.delta}>
+              <Arrow
+                size={14}
+                strokeWidth={2.6}
+                color={percent! > last ? colors.accent : colors.textTertiary}
+              />
+              <Text variant="footnote" tone="secondary">
+                {then}: {last}%
               </Text>
             </View>
-          );
-        })}
+          ) : null}
+          {/* The period before joins the legend only when it has a line to show. */}
+          <Legend
+            items={[
+              { label: now, color: colors.accent },
+              ...(compare.some((v) => v !== null)
+                ? [{ label: then, color: withAlpha(colors.textSecondary, 0.5) }]
+                : []),
+            ]}
+          />
+        </View>
+      </View>
+      {table ? (
+        <Table
+          head={['Dia', 'Planejado', 'Feito', '%']}
+          rows={stats.byDay
+            .filter((d) => !d.future)
+            .map((d) => [dayTitle(d.day), d.due, d.kept, pct(dayRate(d))])}
+        />
+      ) : (
+        <TrendLine
+          values={values}
+          compare={compare}
+          labels={labels}
+          color={colors.accent}
+          max={1}
+          ticks={[0, 0.5, 1]}
+          format={(v) => `${Math.round(v * 100)}%`}
+          height={wide ? 220 : 190}
+          selected={selected}
+          onSelect={setSelected}
+          describe={describe}
+          tooltip={tooltip}
+        />
+      )}
+      <View style={styles.cardFoot}>
+        <TableToggle on={table} onChange={setTable} />
       </View>
     </View>
   );
 }
 
-function Kpi({ label, value, note }: { label: string; value: string; note: string }) {
+/** Three figures under the lead: what got done, the days with everything done, the streak. */
+function Figures({ stats, previous }: { stats: Stats; previous: Stats }) {
+  const { colors } = useTheme();
+  const wide = useBreakpoint() !== 'compact';
+  const { data: habits = [] } = useHabits();
+  const week = stats.period.mode === 'week';
+  const delta = stats.totals.all - previous.totals.all;
+  const daily = stats.byDay.filter((d) => !d.future).map((d) => d.tasks + d.habits + d.routines);
+  const planned = stats.byDay.filter((d) => !d.future && d.due > 0);
+  const full = planned.filter((d) => d.kept >= d.due).length;
+  const best = habits.reduce<(typeof habits)[number] | null>(
+    (top, h) => (h.streak > (top?.streak ?? 0) ? h : top),
+    null,
+  );
+  return (
+    <View style={[styles.figures, wide && styles.figuresWide]}>
+      <Figure
+        label="Concluídos"
+        value={String(stats.totals.all)}
+        note={`${delta > 0 ? '+' : delta < 0 ? '−' : '±'}${Math.abs(delta)} vs. ${week ? 'semana' : 'mês'} passad${week ? 'a' : 'o'}`}
+      >
+        <Sparkline
+          values={daily}
+          color={withAlpha(colors.textSecondary, 0.45)}
+          dot={colors.accent}
+          width={wide ? 120 : 84}
+          height={30}
+        />
+      </Figure>
+      <Figure
+        label="Dias com tudo feito"
+        value={String(full)}
+        note={
+          planned.length > 0
+            ? `de ${plural(planned.length, 'dia', 'dias')} com plano`
+            : 'nada planejado ainda'
+        }
+      />
+      <Figure
+        label="Maior sequência"
+        value={best ? plural(best.streak, 'dia', 'dias') : '—'}
+        note={best ? best.name : 'marque um hábito hoje'}
+      />
+    </View>
+  );
+}
+
+function Figure({
+  label,
+  value,
+  note,
+  children,
+}: {
+  label: string;
+  value: string;
+  note: string;
+  children?: React.ReactNode;
+}) {
   const { colors } = useTheme();
   // The number counts up to its value (Fase 5); the label already says the final one.
   const shown = useCountUpText(value);
@@ -442,15 +416,18 @@ function Kpi({ label, value, note }: { label: string; value: string; note: strin
     <View
       accessible
       accessibilityLabel={`${label}: ${value}. ${note}`}
-      style={[styles.kpi, { backgroundColor: colors.surfaceRaised, borderColor: colors.border }]}
+      style={[styles.figure, { backgroundColor: colors.surfaceRaised }]}
     >
-      <Text variant="overline" tone="tertiary">
+      <Text variant="footnote" tone="secondary" numberOfLines={1}>
         {label}
       </Text>
-      <Text variant="title1" style={styles.kpiValue}>
-        {shown}
-      </Text>
-      <Text variant="caption" tone="secondary" numberOfLines={2}>
+      <View style={styles.figureRow}>
+        <Text style={[styles.figureValue, { color: colors.textPrimary }]} numberOfLines={1}>
+          {shown}
+        </Text>
+        {children}
+      </View>
+      <Text variant="caption" tone="tertiary" numberOfLines={1}>
         {note}
       </Text>
     </View>
@@ -459,11 +436,13 @@ function Kpi({ label, value, note }: { label: string; value: string; note: strin
 
 function Card({
   title,
+  subtitle,
   children,
   action,
   span,
 }: {
   title: string;
+  subtitle?: string;
   children: React.ReactNode;
   action?: React.ReactNode;
   /** On wide screens, take the whole row. */
@@ -476,13 +455,20 @@ function Card({
       style={[
         styles.card,
         wide && (span ? styles.cardFull : styles.cardHalf),
-        { backgroundColor: colors.surfaceRaised, borderColor: colors.border },
+        { backgroundColor: colors.surfaceRaised },
       ]}
     >
       <View style={styles.cardHeader}>
-        <Text variant="overline" tone="tertiary" accessibilityRole="header" style={styles.flex}>
-          {title}
-        </Text>
+        <View style={styles.flex}>
+          <Text variant="headline" accessibilityRole="header">
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text variant="footnote" tone="tertiary">
+              {subtitle}
+            </Text>
+          ) : null}
+        </View>
         {action}
       </View>
       {children}
@@ -543,17 +529,19 @@ function describeDay(d: Stats['byDay'][number]) {
   return `${dayTitle(d.day)}: ${plural(d.tasks, 'tarefa', 'tarefas')}, ${plural(d.habits, 'hábito', 'hábitos')}, ${plural(d.routines, 'item de rotina', 'itens de rotina')}`;
 }
 
-function ByDayCard({ stats, wide }: { stats: Stats; wide: boolean }) {
+/** What got done each day, stacked by kind, with each kind's total in the legend. */
+function DoneCard({ stats }: { stats: Stats }) {
   const series = useSeries();
   const [selected, setSelected] = useState<number | null>(null);
   const [table, setTable] = useState(false);
   const today = toDateKey(new Date());
   const week = stats.period.mode === 'week';
-  const picked = selected !== null ? stats.byDay[selected] : undefined;
+  const totals = [stats.totals.tasks, stats.totals.habits, stats.totals.routines];
   return (
     <Card
-      title="Concluídos por dia"
-      span={!wide || !week}
+      title="O que você concluiu"
+      subtitle="Por dia, de cada tipo"
+      span
       action={<TableToggle on={table} onChange={setTable} />}
     >
       {table ? (
@@ -565,17 +553,12 @@ function ByDayCard({ stats, wide }: { stats: Stats; wide: boolean }) {
         />
       ) : (
         <>
-          <Legend items={series} />
-          <Text variant="footnote" tone="secondary" accessibilityLiveRegion="polite">
-            {picked ? describeDay(picked) : 'Toque numa coluna para ver os números.'}
-          </Text>
+          <Legend items={series.map((s, i) => ({ ...s, label: `${s.label} · ${totals[i]}` }))} />
           <Columns
             data={stats.byDay.map((d, i) => ({
               label: week
                 ? LETTERS[fromDateKey(d.day).getDay()]!
-                : i % 5 === 0 || i === stats.byDay.length - 1
-                  ? String(i + 1)
-                  : '',
+                : monthLabel(i, stats.byDay.length),
               values: [d.tasks, d.habits, d.routines],
             }))}
             colors={series.map((s) => s.color)}
@@ -583,7 +566,20 @@ function ByDayCard({ stats, wide }: { stats: Stats; wide: boolean }) {
             selected={selected}
             onSelect={setSelected}
             describe={(i) => describeDay(stats.byDay[i]!)}
-            height={170}
+            tooltip={(i) => {
+              const d = stats.byDay[i]!;
+              return {
+                title: dayTitle(d.day),
+                rows: d.future
+                  ? [{ label: 'Ainda não chegou', value: '' }]
+                  : series.map((s, k) => ({
+                      label: s.label,
+                      value: String([d.tasks, d.habits, d.routines][k]),
+                      color: s.color,
+                    })),
+              };
+            }}
+            height={190}
           />
         </>
       )}
@@ -591,50 +587,18 @@ function ByDayCard({ stats, wide }: { stats: Stats; wide: boolean }) {
   );
 }
 
-function DepthCard({ stats, wide }: { stats: Stats; wide: boolean }) {
-  const { colors } = useTheme();
-  const [selected, setSelected] = useState<number | null>(null);
-  const points = stats.depth.byDay;
-  const picked = selected !== null ? points[selected] : undefined;
-  const week = stats.period.mode === 'week';
-  if (points.length === 0) return null;
-  return (
-    <Card title="Profundidade" span={!wide || !week}>
-      <Text variant="footnote" tone="secondary" accessibilityLiveRegion="polite">
-        {picked
-          ? `${dayTitle(picked.day)}: ${picked.meters} m`
-          : `De ${stats.depth.start} m para ${stats.depth.end} m neste período.`}
-      </Text>
-      <AreaLine
-        values={points.map((p) => p.meters)}
-        labels={points.map((p, i) =>
-          week
-            ? LETTERS[fromDateKey(p.day).getDay()]!
-            : i % 7 === 0
-              ? String(fromDateKey(p.day).getDate())
-              : '',
-        )}
-        color={colors.accent}
-        unit=" m"
-        selected={selected}
-        onSelect={setSelected}
-        describe={(i) => `${dayTitle(points[i]!.day)}: ${points[i]!.meters} metros`}
-      />
-    </Card>
-  );
-}
-
-function CalendarCard({ stats }: { stats: Stats }) {
+/** The month as a calendar, each day as strong as its plan was kept; all done in sand. */
+function MonthCard({ stats }: { stats: Stats }) {
   const { colors } = useTheme();
   const today = toDateKey(new Date());
   const offset = leadingBlanks(fromDateKey(stats.period.from).getDay(), stats.period.weekStart);
-  const full = stats.byDay.filter((d) => d.fullTide).length;
   const cells: (Stats['byDay'][number] | null)[] = [
     ...Array<null>(offset).fill(null),
     ...stats.byDay,
   ];
+  const full = stats.byDay.filter((d) => !d.future && d.due > 0 && d.kept >= d.due).length;
   return (
-    <Card title={`Dias de maré cheia · ${full}`}>
+    <Card title="O mês em dias" subtitle={`${plural(full, 'dia', 'dias')} com tudo feito`}>
       <View style={styles.calRow}>
         {weekdayOrder(stats.period.weekStart).map((d) => (
           <Text key={d} variant="caption" tone="tertiary" style={styles.calHead}>
@@ -643,35 +607,250 @@ function CalendarCard({ stats }: { stats: Stats }) {
         ))}
       </View>
       <View style={styles.calGrid}>
-        {cells.map((d, i) =>
-          d ? (
+        {cells.map((d, i) => {
+          if (!d) return <View key={`gap-${i}`} style={styles.calCell} />;
+          const rate = dayRate(d);
+          const all = rate === 1;
+          return (
             <View
               key={d.day}
               accessible
-              accessibilityLabel={`${dayTitle(d.day)}: ${d.future ? 'ainda não chegou' : `${d.points} pontos${d.fullTide ? ', maré cheia' : ''}`}`}
+              accessibilityLabel={
+                d.future
+                  ? `${dayTitle(d.day)}: ainda não chegou`
+                  : d.due === 0
+                    ? `${dayTitle(d.day)}: nada planejado`
+                    : `${dayTitle(d.day)}: ${d.kept} de ${d.due} feitos`
+              }
               style={[
                 styles.calCell,
                 {
                   backgroundColor: d.future
-                    ? withAlpha(colors.textSecondary, 0.05)
-                    : withAlpha(colors.accent, 0.12 + Math.min(1, d.points / 150) * 0.78),
+                    ? 'transparent'
+                    : all
+                      ? colors.deepAccent
+                      : rate === null
+                        ? withAlpha(colors.textSecondary, 0.06)
+                        : withAlpha(colors.accent, 0.16 + rate * 0.6),
                   borderColor: d.day === today ? colors.textPrimary : 'transparent',
                 },
               ]}
             >
               <Text
                 variant="caption"
-                style={{ color: d.points > 80 ? colors.onAccent : colors.textSecondary }}
+                style={[
+                  styles.calNumber,
+                  {
+                    color: all
+                      ? colors.onDeepAccent
+                      : (rate ?? 0) > 0.6
+                        ? colors.onAccent
+                        : d.future
+                          ? colors.textTertiary
+                          : colors.textSecondary,
+                  },
+                ]}
               >
                 {fromDateKey(d.day).getDate()}
-                {d.fullTide ? ' · maré cheia' : ''}
               </Text>
             </View>
-          ) : (
-            <View key={`gap-${i}`} style={[styles.calCell, styles.calGap]} />
-          ),
-        )}
+          );
+        })}
       </View>
+      <View style={styles.scale}>
+        <View style={[styles.scaleKey, { backgroundColor: withAlpha(colors.accent, 0.22) }]} />
+        <View style={[styles.scaleKey, { backgroundColor: withAlpha(colors.accent, 0.5) }]} />
+        <View style={[styles.scaleKey, { backgroundColor: withAlpha(colors.accent, 0.76) }]} />
+        <Text variant="caption" tone="tertiary">
+          parte feita
+        </Text>
+        <View style={[styles.scaleKey, styles.scaleGap, { backgroundColor: colors.deepAccent }]} />
+        <Text variant="caption" tone="tertiary">
+          tudo feito
+        </Text>
+      </View>
+    </Card>
+  );
+}
+
+/** Each habit: its days in the period, the planned days done, the share and the streak. */
+function HabitsTable({ stats }: { stats: Stats }) {
+  const { colors } = useTheme();
+  const router = useRouter();
+  const wide = useBreakpoint() !== 'compact';
+  const { data: habits = [] } = useHabits();
+  const today = toDateKey(new Date());
+  return (
+    <Card title="Hábitos" subtitle="Os dias planejados que foram feitos">
+      <View style={[styles.tr, styles.thead, { borderBottomColor: colors.separator }]}>
+        <Text variant="caption" tone="tertiary" style={styles.colName}>
+          Hábito
+        </Text>
+        <Text variant="caption" tone="tertiary" style={styles.colStrip}>
+          Dias
+        </Text>
+        <Text variant="caption" tone="tertiary" style={[styles.colNum, styles.num]}>
+          Feitos
+        </Text>
+        <Text variant="caption" tone="tertiary" style={[styles.colNum, styles.num]}>
+          %
+        </Text>
+        {wide ? (
+          <Text variant="caption" tone="tertiary" style={[styles.colNum, styles.num]}>
+            Seguidos
+          </Text>
+        ) : null}
+      </View>
+      {stats.habitRows.map((h) => {
+        const habit = habits.find((x) => x.id === h.id);
+        return (
+          <Pressable
+            key={h.id}
+            onPress={() => router.push({ pathname: '/aquarium/habits/[id]', params: { id: h.id } })}
+            accessibilityRole="button"
+            accessibilityLabel={`${h.name}: ${h.done} de ${h.due} dias planejados${h.total > h.done ? `, ${h.total} no total` : ''}`}
+            accessibilityHint="Abre o hábito"
+            style={({ pressed }) => [
+              styles.tr,
+              styles.trow,
+              { borderBottomColor: colors.separator },
+              pressed && styles.pressed,
+            ]}
+          >
+            <View style={[styles.colName, styles.nameCell]}>
+              <View style={[styles.thumb, { backgroundColor: colors.selected }]}>
+                <CreatureArt creature={h.creature} stage={habit?.stage ?? 'young'} size={26} />
+              </View>
+              <Text variant="callout" numberOfLines={1} style={styles.flex}>
+                {h.name}
+              </Text>
+            </View>
+            <View style={[styles.colStrip, styles.strip]}>
+              {h.days.map((state, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.stripCell,
+                    {
+                      backgroundColor:
+                        state === 'done'
+                          ? colors.accent
+                          : state === 'missed'
+                            ? colors.surfacePressed
+                            : state === 'rest'
+                              ? withAlpha(colors.textSecondary, 0.08)
+                              : // Still ahead: barely there, so the strip keeps its length.
+                                withAlpha(colors.textSecondary, 0.03),
+                      borderColor:
+                        stats.period.days[i] === today ? colors.deepAccent : 'transparent',
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+            <Text variant="footnote" tone="secondary" style={[styles.colNum, styles.num]}>
+              {h.done}/{h.due}
+            </Text>
+            <Text variant="footnote" style={[styles.colNum, styles.num]}>
+              {h.due > 0 ? pct(h.done / h.due) : '—'}
+            </Text>
+            {wide ? (
+              <Text variant="footnote" tone="secondary" style={[styles.colNum, styles.num]}>
+                {habit ? plural(habit.streak, 'dia', 'dias') : '—'}
+              </Text>
+            ) : null}
+          </Pressable>
+        );
+      })}
+      <View style={styles.scale}>
+        <View style={[styles.scaleKey, { backgroundColor: colors.accent }]} />
+        <Text variant="caption" tone="tertiary">
+          feito
+        </Text>
+        <View
+          style={[styles.scaleKey, styles.scaleGap, { backgroundColor: colors.surfacePressed }]}
+        />
+        <Text variant="caption" tone="tertiary">
+          não feito
+        </Text>
+        <View
+          style={[
+            styles.scaleKey,
+            styles.scaleGap,
+            { backgroundColor: withAlpha(colors.textSecondary, 0.06) },
+          ]}
+        />
+        <Text variant="caption" tone="tertiary">
+          sem plano
+        </Text>
+      </View>
+    </Card>
+  );
+}
+
+/** Each routine: its full days, its items and the share done, with a thin meter. */
+function RoutinesTable({ stats }: { stats: Stats }) {
+  const { colors, scheme } = useTheme();
+  return (
+    <Card title="Rotinas" subtitle="Os itens marcados nos dias de cada rotina">
+      <View style={[styles.tr, styles.thead, { borderBottomColor: colors.separator }]}>
+        <Text variant="caption" tone="tertiary" style={styles.colName}>
+          Rotina
+        </Text>
+        <Text variant="caption" tone="tertiary" style={[styles.colNum, styles.num]}>
+          Completos
+        </Text>
+        <Text variant="caption" tone="tertiary" style={[styles.colNum, styles.num]}>
+          Itens
+        </Text>
+        <Text variant="caption" tone="tertiary" style={[styles.colMeter, styles.num]}>
+          %
+        </Text>
+      </View>
+      {stats.routineRows.map((r) => {
+        const ratio = r.itemsDue > 0 ? r.itemsDone / r.itemsDue : 0;
+        return (
+          <View
+            key={r.id}
+            accessible
+            accessibilityLabel={`${r.name}: ${r.itemsDone} de ${r.itemsDue} itens, ${r.fullDays} de ${r.days} dias completos`}
+            style={[styles.tr, styles.trow, { borderBottomColor: colors.separator }]}
+          >
+            <View style={styles.colName}>
+              <Text variant="callout" numberOfLines={1}>
+                {r.name}
+              </Text>
+              {r.tag ? (
+                <Text variant="caption" tone="tertiary" numberOfLines={1}>
+                  {r.tag}
+                </Text>
+              ) : null}
+            </View>
+            <Text variant="footnote" tone="secondary" style={[styles.colNum, styles.num]}>
+              {r.fullDays}/{r.days}
+            </Text>
+            <Text variant="footnote" tone="secondary" style={[styles.colNum, styles.num]}>
+              {r.itemsDone}/{r.itemsDue}
+            </Text>
+            <View style={styles.colMeter}>
+              <Text variant="footnote" style={styles.num}>
+                {r.itemsDue > 0 ? pct(ratio) : '—'}
+              </Text>
+              <View style={[styles.meter, { backgroundColor: colors.surfacePressed }]}>
+                <View
+                  style={[
+                    styles.meterFill,
+                    {
+                      width: `${Math.round(ratio * 100)}%`,
+                      backgroundColor: chartColors.routines[scheme],
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          </View>
+        );
+      })}
     </Card>
   );
 }
@@ -684,127 +863,65 @@ function WeekdayCard({ stats }: { stats: Stats }) {
   const rates = order.map((d) => stats.weekdayRate[d]!);
   const names = order.map((d) => DAY_NAMES[d]!);
   if (rates.every((r) => r === null)) return null;
-  const pct = (r: number | null) => (r === null ? '—' : `${Math.round(r * 100)}%`);
   const best = rates.reduce<number>((b, r, i) => ((r ?? -1) > (rates[b] ?? -1) ? i : b), 0);
   return (
-    <Card title="Do planejado, por dia da semana">
+    <Card title="Por dia da semana" subtitle="Quanto do planejado foi feito">
       <Columns
         data={rates.map((r, i) => ({ label: DAY_SHORT[order[i]!]!, values: [r ?? 0] }))}
         colors={[colors.accent]}
         max={1}
         hideAxis
-        valueLabel={(i) => (i === best || i === selected ? pct(rates[i]!) : null)}
+        valueLabel={(i) => (i === best && selected === null ? pct(rates[i]) : null)}
         selected={selected}
         onSelect={setSelected}
         describe={(i) =>
           rates[i] === null
             ? `${names[i]}: nada planejado`
-            : `${names[i]}: ${pct(rates[i]!)} do planejado`
+            : `${names[i]}: ${pct(rates[i])} do planejado`
         }
-        height={140}
+        tooltip={(i) => ({
+          title: names[i]!,
+          rows: [
+            rates[i] === null
+              ? { label: 'Nada planejado', value: '' }
+              : { label: 'Feito', value: pct(rates[i]) },
+          ],
+        })}
+        height={160}
       />
     </Card>
   );
 }
 
 function HoursCard({ stats }: { stats: Stats }) {
-  const { scheme } = useTheme();
-  if (stats.totals.all === 0) return null;
+  const { colors } = useTheme();
   const order = weekdayOrder(stats.period.weekStart);
   const values = stats.hours.map((row) => order.map((d) => row[d]!));
   return (
-    <Card title="Quando você mais conclui">
+    <Card title="Quando você conclui" subtitle="Coisas marcadas por parte do dia">
       <Heatmap
         rows={DAY_PARTS.map((p) => p.label)}
         columns={order.map((d) => LETTERS[d]!)}
         values={values}
-        color={listColors.lagoon[scheme]}
+        color={colors.accent}
         describe={(r, c) =>
           `${DAY_NAMES[order[c]!]}, ${DAY_PARTS[r]!.label.toLowerCase()}: ${plural(values[r]![c]!, 'coisa', 'coisas')}`
         }
       />
-    </Card>
-  );
-}
-
-function Meter({ ratio }: { ratio: number }) {
-  const { colors } = useTheme();
-  return (
-    <View style={[styles.meter, { backgroundColor: withAlpha(colors.accent, 0.18) }]}>
-      <View
-        style={[
-          styles.meterFill,
-          { width: `${Math.round(ratio * 100)}%`, backgroundColor: colors.accent },
-        ]}
-      />
-    </View>
-  );
-}
-
-function HabitsCard({ stats }: { stats: Stats }) {
-  const { colors } = useTheme();
-  const router = useRouter();
-  const { data: habits = [] } = useHabits();
-  return (
-    <Card title="Hábitos">
-      {stats.habitRows.map((h) => (
-        <Pressable
-          key={h.id}
-          onPress={() => router.push({ pathname: '/aquarium/habits/[id]', params: { id: h.id } })}
-          accessibilityRole="button"
-          accessibilityLabel={`${h.name}: ${h.done} de ${h.due} dias planejados${h.total > h.done ? `, ${h.total} no total` : ''}`}
-          accessibilityHint="Abre o hábito"
-          style={({ pressed }) => [
-            styles.row,
-            { borderBottomColor: colors.separator },
-            pressed && styles.pressed,
-          ]}
-        >
-          <View style={[styles.thumb, { backgroundColor: colors.selected }]}>
-            <CreatureArt
-              creature={h.creature}
-              stage={habits.find((x) => x.id === h.id)?.stage ?? 'young'}
-              size={30}
-            />
-          </View>
-          <Text variant="callout" numberOfLines={1} style={styles.flex}>
-            {h.name}
-          </Text>
-          <Text variant="footnote" tone="secondary" style={styles.num}>
-            {h.done} de {h.due}
-          </Text>
-          <Meter ratio={h.due > 0 ? Math.min(1, h.done / h.due) : 0} />
-        </Pressable>
-      ))}
-    </Card>
-  );
-}
-
-function RoutinesCard({ stats }: { stats: Stats }) {
-  const { colors } = useTheme();
-  return (
-    <Card title="Rotinas">
-      {stats.routineRows.map((r) => (
-        <View
-          key={r.id}
-          accessible
-          accessibilityLabel={`${r.name}: ${r.itemsDone} de ${r.itemsDue} itens, ${r.fullDays} de ${r.days} dias completos`}
-          style={[styles.row, { borderBottomColor: colors.separator }]}
-        >
-          <View style={styles.flex}>
-            <Text variant="callout" numberOfLines={1}>
-              {r.name}
-            </Text>
-            <Text variant="caption" tone="tertiary" numberOfLines={1}>
-              {[r.tag, `${r.fullDays} de ${r.days} dias completos`].filter(Boolean).join(' · ')}
-            </Text>
-          </View>
-          <Text variant="footnote" tone="secondary" style={styles.num}>
-            {r.itemsDone} de {r.itemsDue}
-          </Text>
-          <Meter ratio={r.itemsDue > 0 ? r.itemsDone / r.itemsDue : 0} />
-        </View>
-      ))}
+      <View style={styles.scale}>
+        <Text variant="caption" tone="tertiary">
+          menos
+        </Text>
+        {[0.2, 0.47, 0.73, 1].map((a) => (
+          <View
+            key={a}
+            style={[styles.scaleKey, { backgroundColor: withAlpha(colors.accent, a) }]}
+          />
+        ))}
+        <Text variant="caption" tone="tertiary">
+          mais
+        </Text>
+      </View>
     </Card>
   );
 }
@@ -813,50 +930,8 @@ const styles = StyleSheet.create({
   accessory: { flex: 1, gap: spacing.sm },
   nav: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   navLabel: { flex: 1, textAlign: 'center' },
-  body: { gap: spacing.lg },
-  top: { gap: spacing.sm },
-  topWide: { flexDirection: 'row' },
-  hero: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-  },
-  heroWide: { flexGrow: 1.6, flexBasis: 0 },
-  heroText: { flex: 1, gap: spacing.xxs },
-  heroTag: { marginTop: spacing.xs },
-  kpis: { flexDirection: 'row', gap: spacing.sm },
-  kpisColumn: { flexDirection: 'column', flexGrow: 1, flexBasis: 0 },
-  kpi: {
-    flexBasis: 0,
-    flexGrow: 1,
-    justifyContent: 'center',
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    gap: 2,
-  },
-  more: { alignItems: 'center' },
-  weekDays: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.xs },
-  weekDay: { flex: 1, alignItems: 'center', gap: spacing.xs },
-  capsule: {
-    width: '100%',
-    maxWidth: 44,
-    height: 76,
-    borderRadius: radius.md,
-    borderWidth: 2,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  capsuleFill: { width: '100%' },
-  thumb: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.sm + 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pressed: { opacity: 0.75 },
+  body: { gap: spacing.md },
+  flex: { flex: 1, minWidth: 0 },
   start: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
   startIcon: {
     width: 44,
@@ -865,40 +940,84 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  kpiValue: { fontVariant: ['tabular-nums'] },
-  grid: { gap: spacing.md },
-  gridWide: { flexDirection: 'row', flexWrap: 'wrap' },
-  card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm },
+  card: { borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md },
   cardHalf: { flexBasis: '48%', flexGrow: 1 },
   cardFull: { flexBasis: '100%', flexGrow: 1 },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', minHeight: 32 },
-  flex: { flex: 1 },
+  cardHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, minHeight: 32 },
+  cardFoot: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: -spacing.sm },
+  lead: { gap: spacing.lg },
+  leadHead: { gap: spacing.md },
+  leadHeadWide: { flexDirection: 'row', alignItems: 'flex-end' },
+  leadSide: { gap: spacing.sm },
+  leadSideWide: { alignItems: 'flex-end' },
+  // The one hero figure of the screen: big, the same sans, proportional digits.
+  hero: { fontFamily: fontFamily.displayBold, fontSize: 56, lineHeight: 62, letterSpacing: -2 },
+  delta: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs },
+  figures: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  figuresWide: { flexWrap: 'nowrap', gap: spacing.md },
+  figure: {
+    flexBasis: '30%',
+    flexGrow: 1,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    gap: spacing.xxs,
+    minWidth: 104,
+  },
+  figureRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  figureValue: {
+    fontFamily: fontFamily.displaySemiBold,
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: -0.8,
+  },
+  grid: { gap: spacing.md },
+  gridWide: { flexDirection: 'row', flexWrap: 'wrap' },
   tr: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
     paddingVertical: spacing.xs + 2,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  thead: { paddingTop: 0 },
+  trow: { paddingVertical: spacing.sm },
   td: { flex: 1 },
   num: { textAlign: 'right', fontVariant: ['tabular-nums'] },
+  colName: { flex: 1.4, minWidth: 0 },
+  nameCell: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  colStrip: { flex: 1.2 },
+  colNum: { width: 58 },
+  colMeter: { width: 72, gap: 4, alignItems: 'flex-end' },
+  thumb: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm + 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  strip: { flexDirection: 'row', gap: 2, height: 18 },
+  stripCell: { flex: 1, borderRadius: 3, borderWidth: 1.5, maxWidth: 16 },
+  meter: { width: '100%', height: 4, borderRadius: 2, overflow: 'hidden' },
+  meterFill: { height: '100%', borderRadius: 2 },
+  pressed: { opacity: 0.75 },
+  scale: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexWrap: 'wrap' },
+  scaleKey: { width: 12, height: 12, borderRadius: 3 },
+  scaleGap: { marginLeft: spacing.sm },
   calRow: { flexDirection: 'row' },
   calHead: { width: `${100 / 7}%`, textAlign: 'center' },
-  calGap: { borderColor: 'transparent' },
   calGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   calCell: {
     width: `${100 / 7 - 1}%`,
     margin: '0.5%',
-    aspectRatio: 1.3,
+    aspectRatio: 1.25,
     borderRadius: radius.sm,
     borderWidth: 1.5,
-    padding: 3,
+    padding: 4,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  meter: { width: 64, height: 6, borderRadius: radius.pill, overflow: 'hidden' },
-  meterFill: { height: '100%', borderRadius: radius.pill },
+  calNumber: { fontVariant: ['tabular-nums'] },
 });

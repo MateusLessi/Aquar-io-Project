@@ -114,6 +114,8 @@ export type Stats = {
     due: number;
     /** Every day it was done, rest days included. */
     total: number;
+    /** Each day of the period: done, missed (planned, not done), rest (not planned) or ahead. */
+    days: ('done' | 'missed' | 'rest' | 'future')[];
   }[];
   routineRows: {
     id: string;
@@ -193,8 +195,17 @@ export function computeStats(period: Period, facts: StatsFacts, todayKey: string
       done += hit;
       plan(day, 1, hit);
     }
+    const days = period.days.map((day) =>
+      set.has(day)
+        ? ('done' as const)
+        : day > todayKey
+          ? ('future' as const)
+          : day < createdDay(h.createdAt) || !isScheduled(h.days, day) || day === todayKey
+            ? ('rest' as const)
+            : ('missed' as const),
+    );
     // Done on a rest day still counts in the total, but not as planned.
-    return { id: h.id, name: h.name, creature: h.creature, done, due, total: set.size };
+    return { id: h.id, name: h.name, creature: h.creature, done, due, total: set.size, days };
   });
 
   const routineRows = facts.routines.map((r) => {

@@ -14,9 +14,12 @@ export {
   Heatmap,
   Legend,
   Sparkline,
+  TrendLine,
   type AreaLineProps,
   type ColumnsProps,
   type HeatmapProps,
+  type TooltipContent,
+  type TrendLineProps,
 } from './components/Charts';
 export { Checkbox, type CheckboxProps } from './components/Checkbox';
 export { Chip, type ChipProps } from './components/Chip';

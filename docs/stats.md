@@ -2,15 +2,19 @@
 
 A tela **Estatísticas** (`/profile/stats`) mostra a semana (domingo a sábado) ou o mês, com setas para voltar no tempo. A escolha Semana/Mês fica salva em `stats.mode`. O painel Início tem o cartão **"Esta semana"**, que abre a tela; o Perfil também tem o atalho.
 
-## O que a tela mostra (Fase 6, simplificada)
+## O que a tela mostra (Fase 6)
 
-Uma pergunta só no topo: **quanto do planejado eu cumpri?**
+Gráficos e tabelas do progresso, desenhados pelas regras de visualização (marcas finas, grade discreta, texto em cores de texto, legenda para 2+ séries, tabela ou rótulo falado para cada gráfico). A primeira versão simplificada escondia os gráficos; a pedido, eles voltaram para a frente.
 
-1. **Consistência da semana / do mês**: o anel grande (o mesmo do Início, `ConsistencyRing`), "6 de 9 hábitos e rotinas feitos" e a comparação com o período anterior numa etiqueta curta ("Subiu · era 52%", "Igual à semana passada", "Semana passada: 90%"). Nunca uma bronca: quando cai, só diz quanto foi antes.
-2. **Concluídos** (tarefas, hábitos e itens de rotina) e **Maior sequência** (com o hábito).
-3. **Dia a dia**, nos mesmos termos do anel: quanto do plano de cada dia foi feito. A semana em sete cápsulas que enchem; o mês num calendário. Dia com tudo feito fica em areia; hoje tem o anel; dia sem nada planejado fica tracejado (semana) ou sem cor (mês). Vem de `byDay[].due/kept`.
-4. **Hábitos** (com a criatura; tocar abre o hábito) e **Rotinas**.
-5. **Ver mais detalhes** (lembrado em `stats.details`): os gráficos de antes, concluídos por dia e tipo (com tabela), Profundidade, dias de maré cheia (mês), do planejado por dia da semana e quando você mais conclui.
+1. **Consistência** (o destaque): o número grande do período ("67%"), "6 de 9 hábitos e rotinas feitos" e a **linha dia a dia** (`TrendLine`, 0–100%) com o período anterior como uma linha cinza discreta. O último valor fica escrito na ponta da linha; tocar ou passar o mouse num dia mostra os dois valores (tooltip). Comparação com o período anterior em palavras, sem bronca ("Semana passada: 52%"). Tem tabela (Dia, Planejado, Feito, %).
+2. **Três números**: Concluídos (com a diferença para o período anterior e uma sparkline por dia), Dias com tudo feito e Maior sequência.
+3. **O que você concluiu**: colunas por dia empilhadas por tipo (tarefas, hábitos, rotinas), com o total de cada tipo na legenda, tooltip e tabela.
+4. **O mês em dias** (no Mês): o calendário, cada dia mais forte quanto mais do plano foi feito; tudo feito em areia.
+5. **Hábitos** (tabela): a criatura, a faixa com os dias do período (feito, não feito, sem plano; hoje com o anel areia), feitos/planejados, % e a sequência. Tocar abre o hábito.
+6. **Rotinas** (tabela): dias completos, itens e % com um medidor fino.
+7. **Por dia da semana** (do planejado) e **Quando você conclui** (partes do dia × dias, uma cor só, com a escala "menos → mais").
+
+Os metros saíram desta tela (as regiões vão no lugar da profundidade, etapa 12).
 
 ## De onde vêm os números
 
@@ -37,4 +41,4 @@ O cálculo puro está em `src/shell/stats/computeStats.ts` (com testes em `src/s
 
 Componentes em `src/design-system/components/Charts.tsx` (`Columns`, `AreaLine`, `Heatmap`, `Sparkline`, `Legend`), desenhados com `react-native-svg`. Seguem as regras de visualização: marcas finas com ponta arredondada, 2 px entre partes empilhadas, grade discreta, texto sempre em cores de texto, legenda com 2+ séries, área de toque maior que a marca e um resumo falado por coluna. O gráfico por dia tem **"Ver como tabela"**.
 
-As cores das três áreas são o token `chartColors` (tarefas azul, hábitos coral, rotinas roxo), validadas para os três tipos de daltonismo nos modos claro e escuro.
+As cores das três áreas são o token `chartColors` (tarefas azul, hábitos verde-água, rotinas lilás), validadas com o script de paleta da skill de visualização no cartão grafite (#233038): faixa de luminosidade, croma, separação para daltonismo (pior par vizinho ΔE 11,0), piso de visão normal (ΔE 17,5) e contraste ≥ 3:1. O laranja fica de fora: é a cor das ações.
