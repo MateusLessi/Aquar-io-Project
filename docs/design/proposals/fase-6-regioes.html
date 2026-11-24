@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Aquar.io · Regiões e níveis</title>
+<style>
+:root{
+  --orange:#FF5B04; --midnight:#075056; --gun:#233038; --bg:#161F25;
+  --ivory:#FDF6E3; --sand:#F4D47C; --silver:#D3DBDD; --muted:#AAB6BA; --turq:#4FC9B8;
+}
+*{box-sizing:border-box;margin:0}
+body{background:#0c1216;color:var(--ivory);font-family:"Plus Jakarta Sans",system-ui,sans-serif;padding:40px;width:1820px}
+h1{font-size:40px;letter-spacing:-.02em}
+h2{font-size:24px;margin:46px 0 6px}
+.lead{color:var(--silver);opacity:.85;font-size:16px;line-height:1.55;max-width:1240px;margin-top:8px}
+.principles{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.principles span{background:var(--gun);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600}
+.principles b{color:var(--sand)}
+.row{display:flex;gap:26px;margin-top:20px;align-items:flex-start}
+.cap{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px 6px}
+.note{font-size:13px;color:var(--muted);line-height:1.5;margin-top:10px;max-width:340px}
+
+/* phone */
+.phone{width:340px;height:720px;border-radius:46px;border:8px solid #2b3a41;background:var(--bg);position:relative;overflow:hidden;flex:none}
+.scr{position:absolute;inset:0;padding:48px 16px 0;overflow:hidden}
+.card{background:var(--gun);border-radius:22px}
+.title{font-size:22px;font-weight:800;margin:2px 2px 4px}
+.sub{font-size:13px;color:var(--silver);opacity:.8;margin:0 2px 12px}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:16px 4px 8px;font-weight:800;font-size:15px}
+.sec span{color:var(--muted);font-weight:600;font-size:12px}
+.bar{height:10px;border-radius:5px;background:#2f3f47;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--turq);border-radius:5px}
+.tag{display:inline-block;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800}
+.tag.turq{background:rgba(79,201,184,.16);color:var(--turq)}
+.tag.sand{background:rgba(244,212,124,.16);color:var(--sand)}
+.btn{display:block;text-align:center;background:var(--orange);color:#1A1410;font-weight:800;border-radius:16px;padding:12px;font-size:14px}
+.btn.sec2{background:#2c3b44;color:var(--ivory)}
+.glass{background:rgba(10,16,20,.55);border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;color:var(--ivory)}
+
+/* the ponds of the regions */
+.pond{position:relative;overflow:hidden;border-radius:22px}
+.pond svg.deco{position:absolute;inset:0;width:100%;height:100%}
+.pond img{position:absolute;filter:drop-shadow(0 10px 8px rgba(0,0,0,.35))}
+.r-lagoa{background:linear-gradient(165deg,#13a08a 0%,#0b7a70 30%,#075056 62%,#06343f 100%)}
+.r-recife{background:linear-gradient(165deg,#3fd2cf 0%,#1aa3b4 30%,#0e6f8f 62%,#0b425f 100%)}
+.r-kelp{background:linear-gradient(165deg,#5b8f5a 0%,#2f6a4c 30%,#1d4a3a 62%,#0f2b24 100%)}
+.r-mar{background:linear-gradient(165deg,#3a8fe0 0%,#2167bf 30%,#174a92 62%,#0c2a5a 100%)}
+.r-bio{background:linear-gradient(165deg,#1d2c63 0%,#131d4a 35%,#0b1233 68%,#060a1d 100%)}
+.r-mariana{background:linear-gradient(165deg,#1b2338 0%,#11172a 35%,#090c18 70%,#03050a 100%)}
+.light::before{content:"";position:absolute;inset:-20%;background:radial-gradient(ellipse at 32% 24%,rgba(255,255,255,.18),transparent 45%)}
+.regions{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:20px;max-width:1240px}
+.region .pond{height:230px}
+.region .meta{display:flex;justify-content:space-between;align-items:baseline;margin:10px 4px 0}
+.region .meta b{font-size:17px}
+.region .meta span{font-size:13px;color:var(--muted)}
+.region p{font-size:13px;color:var(--silver);opacity:.85;margin:4px 4px 0;line-height:1.45}
+
+/* map */
+.map{position:absolute;inset:0;background:linear-gradient(170deg,#1a9e8c 0%,#147a86 22%,#155f8f 42%,#14417a 60%,#0d1f45 80%,#05070f 100%)}
+.node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;width:110px;margin-left:-55px}
+.node .dot{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:18px;border:3px solid rgba(255,255,255,.75);box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.node .lbl{font-size:11px;font-weight:800;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.node .lbl small{display:block;font-weight:600;opacity:.85}
+.node.locked .dot{border-color:rgba(255,255,255,.25);filter:saturate(.3) brightness(.6)}
+.node.locked .lbl{opacity:.75}
+.node.here .dot{border-color:var(--sand);box-shadow:0 0 0 5px rgba(244,212,124,.3),0 6px 14px rgba(0,0,0,.35)}
+
+/* chooser */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{border-radius:16px;overflow:hidden;border:2.5px solid transparent;background:var(--gun)}
+.choice .pond{height:64px;border-radius:0}
+.choice div.n{padding:7px 9px;font-size:12px;font-weight:700}
+.choice div.n small{display:block;color:var(--muted);font-weight:600;font-size:10.5px}
+.choice.on{border-color:var(--sand)}
+.choice.off{opacity:.45}
+.sw{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(211,219,221,.08);font-size:13px;font-weight:600}
+.sw .ico{width:30px;height:30px;border-radius:10px;background:#1a272e;display:grid;place-items:center}
+.sw .t{margin-left:auto;width:38px;height:22px;border-radius:11px;background:#3a4a52;position:relative}
+.sw .t::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#cfd8da}
+.sw .t.on{background:var(--midnight)}
+.sw .t.on::after{left:19px;background:var(--ivory)}
+.sw.lock{opacity:.45}
+
+/* level */
+.steps{display:flex;justify-content:space-between;margin:8px 4px;position:relative}
+.steps::before{content:"";position:absolute;left:18px;right:18px;top:14px;height:3px;background:#2f3f47}
+.st{position:relative;text-align:center;font-size:10.5px;color:var(--muted);width:68px}
+.st i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;margin:0 auto 4px;background:#2f3f47;font-style:normal;font-weight:900;color:#0b2a2e}
+.st.ok i{background:var(--turq)}.st.now i{background:var(--sand);box-shadow:0 0 0 4px rgba(244,212,124,.25)}.st.now{color:var(--ivory);font-weight:700}
+table{border-collapse:collapse;font-size:14px;margin-top:14px}
+td,th{padding:8px 14px;border-bottom:1px solid rgba(211,219,221,.1);text-align:left}
+th{color:var(--muted);font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+.box{background:var(--gun);border-radius:22px;padding:22px 24px;max-width:600px}
+.box h3{font-size:17px;margin-bottom:8px}
+.box ul{margin:8px 0 0 18px;font-size:14px;line-height:1.7;color:var(--silver)}
+.box li b{color:var(--ivory)}
+</style>
+</head>
+<body>
+
+<h1>Regiões e níveis · proposta da etapa 12</h1>
+<p class="lead">O aquário agora é visto de cima, então a progressão deixa de ser "descer" e passa a ser <b>viajar</b>. Os pontos do dia, que já existem (tarefas, hábitos e rotinas, com teto de 150 por dia e que nunca diminuem), levam o seu aquário a regiões novas. Você <b>escolhe em qual região o lago mora</b>, cada região dá <b>um enfeite</b>, e cada criatura <b>sobe de nível</b> com os dias feitos. Os metros saem de cena.</p>
+<div class="principles">
+  <span><b>Ganhe regiões</b> · com os pontos de sempre</span>
+  <span><b>Escolha onde o lago mora</b> · qualquer região já ganha</span>
+  <span><b>Um enfeite por região</b> · só beleza, liga e desliga</span>
+  <span><b>Nível por criatura</b> · o estágio acompanha o nível</span>
+  <span><b>Sem metros</b> · "faltam 120 pontos para o Recife"</span>
+</div>
+
+<h2>As 6 regiões</h2>
+<p class="lead">Cada uma muda a água, a luz e as bordas do lago, e dá um enfeite. Com ~100 pontos por dia: Recife em ~3 dias, Kelp em ~10, Mar Aberto em ~1 mês, Fossa Bioluminescente em ~2 meses, Marianas em ~4 meses.</p>
+<div class="regions">
+  <div class="region">
+    <div class="pond r-lagoa light">
+      <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M-4 100 C2 84 8 76 5 62 C16 75 20 88 18 100Z" fill="#0f6b4f"/><path d="M-6 100 C8 90 14 80 26 72 C24 86 28 94 34 100Z" fill="#22b77a"/>
+        <path d="M104 -2 C91 6 87 16 93 28 C99 18 102 10 104 6Z" fill="#22b77a"/>
+      </svg>
+      <svg class="deco" viewBox="0 0 400 230"><g transform="translate(300 60)"><ellipse rx="34" ry="26" fill="#2fbf73"/><path d="M0 0 L34 -6 L30 8Z" fill="#13a08a"/><circle cx="-8" cy="-4" r="6" fill="#f7a8c4"/></g></svg>
+      <img src="fase-6/fish.png" style="width:80px;left:150px;top:70px;transform:rotate(-30deg)" alt="">
+      <span class="glass" style="position:absolute;left:12px;bottom:12px">Enfeite: vitória-régia</span>
+    </div>
+    <div class="meta"><b>🏝️ Lagoa</b><span>desde o início</span></div>
+    <p>Água verde e rasa, folhas nas bordas. É o lago de hoje.</p>
+  </div>
+
+  <div class="region">
+    <div class="pond r-recife light">
+      <svg class="deco" viewBox="0 0 400 230">
+        <g fill="#ff7f6e"><path d="M10 230 C14 190 30 180 22 150 C40 168 44 196 40 230Z"/><path d="M40 230 C46 200 62 196 60 172 C74 190 74 210 70 230Z" fill="#f2668b"/></g>
+        <g transform="translate(330 175)" fill="#ff9a5a"><path d="M0 50 L0 0 M0 20 L-18 -4 M0 12 L16 -12 M-9 8 L-12 -16 M8 -2 L20 -20" stroke="#ff9a5a" stroke-width="8" stroke-linecap="round" fill="none"/></g>
+        <ellipse cx="260" cy="40" rx="70" ry="20" fill="rgba(255,240,200,.12)"/>
+      </svg>
+      <img src="fase-6/shark.png" style="width:96px;left:150px;top:55px;transform:rotate(60deg)" alt="">
+      <span class="glass" style="position:absolute;left:12px;bottom:12px">Enfeite: coral</span>
+    </div>
+    <div class="meta"><b>🪸 Recife de Coral</b><span>300 pontos</span></div>
+    <p>Turquesa clara, corais rosados e laranja nas bordas, manchas de areia.</p>
+  </div>
+
+  <div class="region">
+    <div class="pond r-kelp light">
+      <svg class="deco" viewBox="0 0 400 230">
+        <g stroke="#b89443" stroke-width="7" fill="none" stroke-linecap="round"><path d="M20 230 C30 170 0 130 30 70"/><path d="M50 230 C60 180 36 150 58 100"/><path d="M380 230 C366 180 392 140 368 80"/></g>
+        <g fill="#c9a34f"><ellipse cx="30" cy="120" rx="10" ry="5"/><ellipse cx="22" cy="160" rx="10" ry="5"/><ellipse cx="56" cy="140" rx="9" ry="4"/><ellipse cx="372" cy="130" rx="10" ry="5"/><ellipse cx="380" cy="170" rx="10" ry="5"/></g>
+      </svg>
+      <img src="fase-6/turtle.png" style="width:84px;left:160px;top:70px;transform:rotate(-20deg)" alt="">
+      <span class="glass" style="position:absolute;left:12px;bottom:12px">Enfeite: kelp dourado</span>
+    </div>
+    <div class="meta"><b>🌿 Floresta de Kelp</b><span>1.000 pontos</span></div>
+    <p>Verde-oliva profundo, fitas de kelp dourado subindo pelas bordas.</p>
+  </div>
+
+  <div class="region">
+    <div class="pond r-mar light">
+      <svg class="deco" viewBox="0 0 400 230">
+        <g stroke="rgba(255,255,255,.16)" stroke-width="2" fill="none"><path d="M0 40 C60 20 120 60 180 40 S300 20 400 50"/><path d="M0 120 C70 100 130 140 200 118 S320 100 400 130"/></g>
+        <g transform="translate(330 170)" stroke="#d9c27a" stroke-width="6" fill="none" stroke-linecap="round"><path d="M0 -40 L0 30"/><path d="M-26 14 C-22 34 22 34 26 14"/><circle cy="-46" r="7"/><path d="M-12 -24 L12 -24"/></g>
+      </svg>
+      <img src="fase-6/ray.png" style="width:110px;left:140px;top:55px;transform:rotate(15deg)" alt="">
+      <span class="glass" style="position:absolute;left:12px;bottom:12px">Enfeite: âncora</span>
+    </div>
+    <div class="meta"><b>🌊 Mar Aberto</b><span>2.500 pontos</span></div>
+    <p>Azul profundo, linhas de luz do sol dançando na água.</p>
+  </div>
+
+  <div class="region">
+    <div class="pond r-bio">
+      <svg class="deco" viewBox="0 0 400 230">
+        <g fill="#5ff2e6"><circle cx="40" cy="40" r="2.5"/><circle cx="90" cy="180" r="2"/><circle cx="350" cy="60" r="3"/><circle cx="300" cy="190" r="2"/><circle cx="200" cy="30" r="1.8"/><circle cx="120" cy="110" r="1.6"/></g>
+        <g fill="#e37cff"><circle cx="70" cy="90" r="2"/><circle cx="330" cy="140" r="2.4"/><circle cx="250" cy="200" r="1.8"/></g>
+        <g transform="translate(330 170)"><circle r="22" fill="rgba(95,242,230,.18)"/><circle r="10" fill="#5ff2e6"/><path d="M-10 -24 L10 -24 L6 -14 L-6 -14Z" fill="#7c8aa8"/></g>
+      </svg>
+      <img src="fase-6/jellyfish.png" style="width:74px;left:165px;top:70px;filter:drop-shadow(0 0 14px rgba(160,120,255,.7))" alt="">
+      <span class="glass" style="position:absolute;left:12px;bottom:12px">Enfeite: lanterna que brilha</span>
+    </div>
+    <div class="meta"><b>✨ Fossa Bioluminescente</b><span>5.500 pontos</span></div>
+    <p>Azul-noite com pontinhos de luz; as criaturas ganham um brilho suave.</p>
+  </div>
+
+  <div class="region">
+    <div class="pond r-mariana">
+      <svg class="deco" viewBox="0 0 400 230">
+        <path d="M150 0 L250 0 L300 230 L100 230Z" fill="rgba(244,212,124,.06)"/>
+        <g transform="translate(320 178)"><rect x="-26" y="-14" width="52" height="30" rx="6" fill="#6b4a2a"/><rect x="-26" y="-22" width="52" height="12" rx="6" fill="#8a6236"/><rect x="-5" y="-12" width="10" height="10" rx="2" fill="#f4d47c"/><circle cy="-8" r="26" fill="rgba(244,212,124,.08)"/></g>
+      </svg>
+      <img src="fase-6/octopus.png" style="width:86px;left:158px;top:70px" alt="">
+      <span class="glass" style="position:absolute;left:12px;bottom:12px">Enfeite: baú do fundo</span>
+    </div>
+    <div class="meta"><b>🏁 Fossa das Marianas</b><span>10.994 pontos</span></div>
+    <p>Quase preta, um feixe de luz lá de cima. O marco final (os 10.994 são a profundidade da fossa real, de lembrança).</p>
+  </div>
+</div>
+
+<h2>No celular</h2>
+<div class="row">
+  <div><div class="cap">O mapa (Perfil → Regiões, e pelo selo da região)</div><div class="phone">
+    <div class="map"></div>
+    <svg style="position:absolute;inset:0" viewBox="0 0 324 704"><path d="M80 150 C200 170 240 220 220 270 S90 330 110 390 S250 450 230 510 S110 580 162 640" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round" fill="none"/></svg>
+    <div class="scr" style="pointer-events:none"><div class="title">Regiões</div><div class="sub" style="color:#e9f6f2">3 de 6 · 1.320 pontos</div></div>
+    <div class="node" style="left:80px;top:122px"><div class="dot r-lagoa">🏝️</div><div class="lbl">Lagoa</div></div>
+    <div class="node here" style="left:220px;top:242px"><div class="dot r-recife">🪸</div><div class="lbl">Recife de Coral<small>no seu lago</small></div></div>
+    <div class="node" style="left:110px;top:362px"><div class="dot r-kelp">🌿</div><div class="lbl">Floresta de Kelp</div></div>
+    <div class="node locked" style="left:230px;top:482px"><div class="dot r-mar">🔒</div><div class="lbl">Mar Aberto<small>faltam 1.180</small></div></div>
+    <div class="node locked" style="left:110px;top:560px"><div class="dot r-bio">🔒</div><div class="lbl">Bioluminescente<small>5.500</small></div></div>
+    <div class="node locked" style="left:250px;top:620px"><div class="dot r-mariana">🔒</div><div class="lbl">Marianas<small>10.994</small></div></div>
+  </div><p class="note">Visto de cima, como o lago. Cada região ganha fica colorida; a que está no seu lago tem o anel areia. Tocar numa ganha mostra o lago dela e "Usar no meu lago".</p></div>
+
+  <div><div class="cap">Escolher a região e os enfeites</div><div class="phone"><div class="scr">
+    <div class="title">Seu lago</div><div class="sub">Personalizar → Aquário</div>
+    <div class="sec">Região <span>3 de 6</span></div>
+    <div class="choices">
+      <div class="choice"><div class="pond r-lagoa light"></div><div class="n">Lagoa</div></div>
+      <div class="choice on"><div class="pond r-recife light"></div><div class="n">Recife de Coral<small>no seu lago</small></div></div>
+      <div class="choice"><div class="pond r-kelp light"></div><div class="n">Floresta de Kelp</div></div>
+      <div class="choice off"><div class="pond r-mar"></div><div class="n">🔒 Mar Aberto<small>faltam 1.180 pontos</small></div></div>
+    </div>
+    <div class="sec">Enfeites <span>ligue os que quiser</span></div>
+    <div class="sw"><span class="ico">🪷</span>Vitória-régia<span class="t on"></span></div>
+    <div class="sw"><span class="ico">🪸</span>Coral<span class="t on"></span></div>
+    <div class="sw"><span class="ico">🌿</span>Kelp dourado<span class="t"></span></div>
+    <div class="sw lock"><span class="ico">⚓</span>Âncora · Mar Aberto<span class="t"></span></div>
+  </div></div><p class="note">Qualquer região já ganha pode ser a do lago, e os enfeites de todas as regiões ganhas se misturam (um coral na Lagoa, por exemplo). Ficam nas bordas, sem atrapalhar as criaturas.</p></div>
+
+  <div><div class="cap">Nível da criatura (a tela da criatura)</div><div class="phone"><div class="scr" style="padding-top:0">
+    <div class="pond r-recife light" style="height:220px;margin:0 -16px;border-radius:0 0 30px 30px">
+      <img src="fase-6/shark.png" style="width:120px;left:110px;top:50px;transform:rotate(-18deg)" alt="">
+      <span class="glass" style="position:absolute;left:14px;bottom:12px">Para hoje</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 2px 2px"><b style="font-size:24px">Estudar</b><span><span class="tag sand">Nível 7</span> <span class="tag turq">Jovem</span></span></div>
+    <div class="sub" style="margin-bottom:8px">Tubarão · Todo dia</div>
+    <div class="bar"><i style="width:67%"></i></div>
+    <div style="font-size:12px;color:#AAB6BA;margin:6px 2px 0">240 XP · faltam 20 para o nível 8</div>
+    <div class="sec">Evolução</div>
+    <div class="steps"><div class="st ok"><i>✓</i>Filhote<br>nív. 1–5</div><div class="st now"><i>●</i>Jovem<br>nív. 6–9</div><div class="st"><i></i>Adulto<br>nív. 10+</div></div>
+    <div class="card" style="padding:12px 14px;margin-top:12px;display:flex;align-items:center;gap:10px"><div style="flex:1"><div style="font-size:11px;color:#AAB6BA;font-weight:700">HOJE</div><b>Ainda dá tempo</b></div><span class="btn" style="padding:10px 14px">✓ Marcar hoje · +15 XP</span></div>
+  </div></div><p class="note">Cada dia feito dá XP (15 num dia previsto, 8 num dia de folga: os mesmos pontos do app). O estágio acompanha o nível, e a criatura adulta continua subindo.</p></div>
+
+  <div><div class="cap">Ao ganhar uma região</div><div class="phone">
+    <div class="pond r-recife light" style="position:absolute;inset:0;border-radius:0">
+      <img src="fase-6/shark.png" style="width:100px;left:40px;top:180px;transform:rotate(40deg)" alt="">
+      <img src="fase-6/fish.png" style="width:70px;left:220px;top:260px;transform:rotate(-60deg)" alt="">
+    </div>
+    <div class="card" style="position:absolute;left:14px;right:14px;bottom:16px;padding:18px;background:rgba(35,48,56,.97)">
+      <span class="tag sand">Nova região</span>
+      <div style="font-size:22px;font-weight:800;margin:8px 0 4px">Recife de Coral 🪸</div>
+      <div style="font-size:13px;color:#D3DBDD;opacity:.85;line-height:1.45">Você chegou com 300 pontos. Ganhou o enfeite <b>Coral</b>.</div>
+      <div style="display:flex;gap:8px;margin-top:14px"><span class="btn" style="flex:1">Usar no meu lago</span><span class="btn sec2" style="flex:0 0 96px">Depois</span></div>
+    </div>
+  </div><p class="note">A comemoração de hoje, com a prévia do lago novo. "Depois" guarda a região: ela fica para escolher no mapa ou em Personalizar.</p></div>
+</div>
+
+<h2>Como o nível funciona</h2>
+<div class="row">
+  <div class="box">
+    <h3>XP e níveis (proposta para ajustar com o uso)</h3>
+    <table>
+      <tr><th>Nível</th><th>XP total</th><th>Estágio</th><th>Dias previstos feitos (≈)</th></tr>
+      <tr><td>1</td><td>0</td><td>Ovo</td><td>0</td></tr>
+      <tr><td>2</td><td>15</td><td>Ovo</td><td>1</td></tr>
+      <tr><td>3</td><td>45</td><td>Filhote</td><td>3</td></tr>
+      <tr><td>4 · 5</td><td>75 · 110</td><td>Filhote</td><td>5 · 7</td></tr>
+      <tr><td>6</td><td>150</td><td>Jovem</td><td>10</td></tr>
+      <tr><td>7 · 8 · 9</td><td>200 · 260 · 340</td><td>Jovem</td><td>13 · 17 · 23</td></tr>
+      <tr><td>10</td><td>450</td><td>Adulto</td><td>30</td></tr>
+      <tr><td>11, 12…</td><td>+150 por nível</td><td>Adulto</td><td>+10 dias</td></tr>
+    </table>
+    <ul><li>Os níveis caem exatamente onde os estágios de hoje mudam (3, 10 e 30 dias), então <b>ninguém perde nada</b> com a troca.</li><li>Tubarão e raia continuam nascendo filhotes (nível 1 já é Filhote).</li><li>Nunca diminui por perder um dia; desmarcar um dia tira o XP daquele dia.</li></ul>
+  </div>
+  <div class="box">
+    <h3>O que muda e o que some</h3>
+    <ul>
+      <li><b>Somem os metros</b> do Início, do Perfil, da barra lateral e das Estatísticas. O cartão "Profundidade" do Início vira <b>"Região"</b>: a região do lago e "faltam N pontos para a próxima".</li>
+      <li>As 9 zonas viram <b>6 regiões</b>. Quem já tem pontos já ganha as regiões correspondentes na hora.</li>
+      <li>Os <b>selos de zona</b> viram selos de região.</li>
+      <li>As <b>regras de pontos</b> não mudam (nem o teto de 150 por dia). Nada de SQL: a região escolhida e os enfeites ligados são preferências, como as de hoje.</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h3>Em que ordem codar (cada uma com checkpoint)</h3>
+    <ul>
+      <li><b>12a · Regiões:</b> as 6 regiões no lugar das zonas, a água de cada uma no lago, escolher em Personalizar, cartão "Região" no Início, sem metros.</li>
+      <li><b>12b · Enfeites:</b> um por região, ligar e desligar, nas bordas do lago.</li>
+      <li><b>12c · Nível da criatura:</b> XP e nível na tela da criatura, nos cartões e no "Seu aquário".</li>
+      <li><b>12d · Mapa e comemoração:</b> a tela do mapa e o "Usar no meu lago".</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>
