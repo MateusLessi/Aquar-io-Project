@@ -13,6 +13,7 @@ import ProfileScreen from '@/app/(tabs)/profile/index';
 import SettingsRoute from '@/app/(tabs)/profile/settings';
 import ProfileLayout from '@/app/(tabs)/profile/_layout';
 import PersonalizeScreen from '@/app/(tabs)/personalize';
+import PondRoute from '@/app/pond';
 import StatsRoute from '@/app/(tabs)/stats';
 import { createMemoryDatabase } from '@/core/database/testing';
 import { toDateKey } from '@/core/dates';
@@ -58,6 +59,7 @@ const routes = {
   '(tabs)/profile/_layout': ProfileLayout,
   '(tabs)/profile/index': ProfileScreen,
   '(tabs)/profile/settings': SettingsRoute,
+  pond: PondRoute,
 };
 
 function setWindowWidth(width: number, fontScale = 1) {
@@ -472,7 +474,8 @@ describe('Início as a bento on large screens', () => {
     await renderRouter(routes, { initialUrl: '/' });
     // "Criar" lives in the sidebar only.
     expect(screen.getAllByRole('button', { name: 'Criar' })).toHaveLength(1);
-    expect(screen.getByRole('button', { name: 'Abrir o Aquário' })).toBeOnTheScreen();
+    // The pond opens Seu aquário, to explore.
+    expect(screen.getByRole('button', { name: 'Explorar o aquário' })).toBeOnTheScreen();
     expect(screen.getByLabelText(/^Sua semana: 0 pontos/)).toBeOnTheScreen();
     // The same box switches to the month, and remembers it.
     await fireEvent.press(screen.getByRole('radio', { name: 'Mês' }));
@@ -499,6 +502,51 @@ describe('Welcome dive', () => {
     await renderRouter(routes, { initialUrl: '/' });
     await waitFor(async () => expect(await data.settings.get('welcome.done')).toBe('existing'));
     expect(screen.queryByRole('button', { name: 'Começar o mergulho' })).toBeNull();
+  });
+});
+
+describe('Seu aquário (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('opens from Aquário → Hábitos; a creature shows its habit, and its page is one tap away', async () => {
+    const lerId = await data.habits.createHabit({ name: 'Ler', creature: 'fish' });
+    await data.habits.createHabit({ name: 'Estudar', creature: 'shark' });
+    const app = await renderRouter(routes, { initialUrl: '/aquarium?tab=habits' });
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Explorar o aquário: 2 criaturas. 0 de 2 hoje.' }),
+    );
+    expect(app.getPathname()).toBe('/pond');
+    expect(await screen.findByText('2 criaturas · 0 de 2 hoje')).toBeOnTheScreen();
+    expect(screen.getByText('Toque numa criatura para ver o hábito dela')).toBeOnTheScreen();
+
+    // A tap on the creature in the water shows its card.
+    await fireEvent(screen.getByTestId('pond', { includeHiddenElements: true }), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 390, height: 844 } },
+    });
+    await fireEvent.press(
+      await screen.findByTestId(`pond-creature-${lerId}`, { includeHiddenElements: true }),
+    );
+    expect(await screen.findByText('Peixe · Ovo · Para hoje')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Crescimento: 0 de 3 dias até Filhote')).toBeOnTheScreen();
+
+    // The same choice from the row of creatures; today's action works from the card.
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Estudar: Tubarão, Filhote. Para hoje.' }),
+    );
+    expect(await screen.findByText('Tubarão · Filhote · Para hoje')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Estudar: feito hoje' }));
+    expect(await screen.findByText('Tubarão · Filhote · Feito hoje')).toBeOnTheScreen();
+    expect(await screen.findByText('2 criaturas · 1 de 2 hoje')).toBeOnTheScreen();
+
+    // Its page, then back to the pond.
+    await fireEvent.press(screen.getByRole('button', { name: 'Ver hábito' }));
+    await waitFor(() => expect(app.getPathname()).toMatch(/^\/aquarium\/habits\//));
+  });
+
+  it('says what to do when the aquarium is empty', async () => {
+    await renderRouter(routes, { initialUrl: '/pond' });
+    expect(await screen.findByText('Seu aquário está vazio')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Criar um hábito' })).toBeOnTheScreen();
   });
 });
 

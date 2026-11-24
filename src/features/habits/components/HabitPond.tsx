@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -31,12 +31,16 @@ import {
 } from '@/design-system';
 
 import { catalogCreature, type CatalogCreature } from '../domain/creatures';
+import { stageInfo } from '../domain/stages';
 import type { HabitWithProgress } from '../domain/types';
 import { CreatureArt } from './CreatureArt';
 
 /** Creatures near the surface (today's habits) and deep below (resting ones). */
 const MAX_NEAR = 8;
 const MAX_DEEP = 4;
+/** Exploring, the whole screen is the pond: room for more. */
+const EXPLORE_NEAR = 16;
+const EXPLORE_DEEP = 8;
 /** These swim head first along their path, swaying; the others drift upright and pulse. */
 export const SWIMS_HEAD_FIRST: ReadonlySet<CatalogCreature> = new Set([
   'fish',
@@ -52,6 +56,17 @@ type HabitPondProps = {
   accessibilityLabel: string;
   progress?: { now: number; max: number };
   radius?: keyof typeof radii;
+  /**
+   * The pond to explore (Seu aquário, Fase 6): creatures spread over the whole pond and a tap
+   * picks one; a tap on the water lets go. The creatures stay out of screen readers (they move):
+   * the screen offers the same choice as a list.
+   */
+  explore?: {
+    selectedId: string | null;
+    onSelect: (habit: HabitWithProgress | null) => void;
+    /** Room kept clear at the top and bottom (the screen's title and buttons). */
+    clear?: { top: number; bottom: number };
+  };
 };
 
 /**
@@ -67,17 +82,29 @@ export function HabitPond({
   accessibilityLabel,
   progress,
   radius = 'xl',
+  explore,
 }: HabitPondProps) {
   const [width, setWidth] = useState(0);
   const today = (h: HabitWithProgress) => h.scheduledToday || h.doneToday;
-  const near = habits.filter(today).slice(0, MAX_NEAR);
-  const deep = habits.filter((h) => !today(h)).slice(0, MAX_DEEP);
+  const near = habits.filter(today).slice(0, explore ? EXPLORE_NEAR : MAX_NEAR);
+  const deep = habits.filter((h) => !today(h)).slice(0, explore ? EXPLORE_DEEP : MAX_DEEP);
   const borderRadius = radii[radius];
+  const swimmer = (habit: HabitWithProgress, index: number, deep = false) => (
+    <Swimmer
+      key={habit.id}
+      habit={habit}
+      index={index}
+      width={width}
+      height={height}
+      deep={deep}
+      explore={explore}
+    />
+  );
 
   return (
     <View
       style={{ height }}
-      accessible={Boolean(accessibilityLabel)}
+      accessible={Boolean(accessibilityLabel) && !explore}
       accessibilityRole={progress ? 'progressbar' : 'image'}
       accessibilityLabel={accessibilityLabel}
       accessibilityValue={
@@ -86,31 +113,32 @@ export function HabitPond({
           : undefined
       }
       onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)}
+      testID={explore ? 'pond' : undefined}
     >
       <View
         style={[StyleSheet.absoluteFill, styles.clip, { borderRadius }]}
-        pointerEvents="none"
+        pointerEvents={explore ? 'box-none' : 'none'}
         importantForAccessibility="no-hide-descendants"
         accessibilityElementsHidden
       >
         {width > 0 ? (
           <>
             <PondWater width={width} height={height} />
-            {deep.map((habit, i) => (
-              <Swimmer
-                key={habit.id}
-                habit={habit}
-                index={i + MAX_NEAR}
-                width={width}
-                height={height}
-                deep
+            {explore ? (
+              // A tap on the water lets the creature go.
+              <Pressable
+                style={StyleSheet.absoluteFill}
+                onPress={() => explore.onSelect(null)}
+                accessible={false}
+                focusable={false}
               />
-            ))}
-            {near.map((habit, i) => (
-              <Swimmer key={habit.id} habit={habit} index={i} width={width} height={height} />
-            ))}
-            <PondLeaves width={width} height={height} />
-            <RisingBubbles height={height} count={5} />
+            ) : null}
+            {deep.map((habit, i) => swimmer(habit, i + (explore ? EXPLORE_NEAR : MAX_NEAR), true))}
+            {near.map((habit, i) => swimmer(habit, i))}
+            <View style={StyleSheet.absoluteFill} pointerEvents="none">
+              <PondLeaves width={width} height={height} />
+              <RisingBubbles height={height} count={explore ? 8 : 5} />
+            </View>
           </>
         ) : null}
       </View>
@@ -256,30 +284,41 @@ function Swimmer({
   width,
   height,
   deep = false,
+  explore,
 }: {
   habit: HabitWithProgress;
   index: number;
   width: number;
   height: number;
   deep?: boolean;
+  explore?: HabitPondProps['explore'];
 }) {
-  const { reduceMotion } = useTheme();
-  const base = Math.max(44, Math.min(108, Math.min(width, height) * 0.28));
+  const { colors, reduceMotion } = useTheme();
+  const short = Math.min(width, height);
+  const base = explore
+    ? Math.max(56, Math.min(124, short * 0.22))
+    : Math.max(44, Math.min(108, short * 0.28));
   const size = deep ? base * 0.75 : base;
   const egg = habit.stage === 'egg';
   const headFirst = SWIMS_HEAD_FIRST.has(catalogCreature(habit.creature)) && !egg;
+  const selected = explore?.selectedId === habit.id;
 
-  // The path: a figure eight around its own center, inside the pond.
+  // The path: a figure eight around its own center, inside the pond (all of it, exploring).
   const pad = size * 0.45;
-  const cx = width * (0.3 + seeded(index, 1) * 0.4);
-  const cy = height * (0.3 + seeded(index, 2) * 0.4);
+  const cx = width * (explore ? 0.14 + seeded(index, 1) * 0.72 : 0.3 + seeded(index, 1) * 0.4);
+  // Exploring, the creatures keep out from under the title and the buttons.
+  const top = explore?.clear?.top ?? 0;
+  const room = height - top - (explore?.clear?.bottom ?? 0);
+  const cy = explore
+    ? top + room * (0.2 + seeded(index, 2) * 0.6)
+    : height * (0.3 + seeded(index, 2) * 0.4);
   const ax = Math.max(
     6,
     Math.min(width * (0.22 + seeded(index, 3) * 0.14), cx - pad, width - cx - pad),
   );
   const ay = Math.max(
     4,
-    Math.min(height * (0.14 + seeded(index, 4) * 0.12), cy - pad, height - cy - pad),
+    Math.min(room * (0.14 + seeded(index, 4) * 0.12), cy - top - pad, top + room - cy - pad),
   );
   const phase = seeded(index, 5) * Math.PI * 2;
   const twist = seeded(index, 6) * Math.PI * 2;
@@ -328,16 +367,54 @@ function Swimmer({
     };
   });
 
+  // Around the creature as drawn at its stage (an egg is small).
+  const ring = size * stageInfo[habit.stage].scale * 1.2;
+  const art = (
+    <CreatureArt
+      creature={habit.creature}
+      stage={habit.stage}
+      size={size}
+      silhouette={deep && !selected ? pond.deep : undefined}
+    />
+  );
   return (
     <Animated.View
-      style={[styles.swimmer, { width: size, height: size, opacity: deep ? 0.55 : 1 }, style]}
+      style={[
+        styles.swimmer,
+        { width: size, height: size, opacity: deep && !selected ? 0.55 : 1 },
+        style,
+      ]}
     >
-      <CreatureArt
-        creature={habit.creature}
-        stage={habit.stage}
-        size={size}
-        silhouette={deep ? pond.deep : undefined}
-      />
+      {selected ? (
+        // The chosen one, ringed in sand (a circle: it turns with the creature unchanged).
+        <View
+          style={[
+            styles.ring,
+            {
+              left: (size - ring) / 2,
+              top: (size - ring) / 2,
+              width: ring,
+              height: ring,
+              borderRadius: size,
+              borderColor: colors.deepAccent,
+              backgroundColor: withAlpha(colors.deepAccent, 0.14),
+            },
+          ]}
+        />
+      ) : null}
+      {explore ? (
+        <Pressable
+          onPress={() => explore.onSelect(habit)}
+          accessible={false}
+          focusable={false}
+          hitSlop={8}
+          testID={`pond-creature-${habit.id}`}
+        >
+          {art}
+        </Pressable>
+      ) : (
+        art
+      )}
     </Animated.View>
   );
 }
@@ -346,6 +423,7 @@ const styles = StyleSheet.create({
   clip: { overflow: 'hidden' },
   light: { position: 'absolute' },
   swimmer: { position: 'absolute', left: 0, top: 0 },
+  ring: { position: 'absolute', borderWidth: 2.5 },
   count: {
     flexDirection: 'row',
     alignItems: 'baseline',

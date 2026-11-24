@@ -8,6 +8,7 @@ Cada hábito é uma **criatura marinha** (ver [gamification.md](gamification.md)
 | ----------------------------------------------------------- | -------------------------------------------------------------------- | ------ |
 | Aba Hábitos (recife + cartões)                              | `src/features/habits/screens/HabitsScreen.tsx`                       | REAL   |
 | Detalhe (estatísticas + calendário, corrigir dias passados) | `HabitDetailScreen.tsx`                                              | REAL   |
+| Seu aquário (o lago em tela cheia, `/pond`)                 | `screens/PondScreen.tsx`                                             | REAL   |
 | Criar/editar/apagar (nome, criatura, dias)                  | `components/HabitEditorSheet.tsx`                                    | REAL   |
 | Hábitos do dia na tela Hoje                                 | `components/TodayHabits.tsx`, composto em `src/app/(tabs)/index.tsx` | REAL   |
 | Criaturas no Modo Maré                                      | `src/shell/AmbientDisplay.tsx`                                       | REAL   |
@@ -44,6 +45,7 @@ Proposta aprovada no checkpoint 036: `docs/design/proposals/habits-2.png`.
 - **Cartão** (`HabitCard.tsx`): cápsula, etiqueta (`3/8 copos`), **maré da semana** (7 mini-cápsulas) e o botão do tipo (✓, +1, ▶/❚❚, passos).
 - **Painel Início** (`TodayHabits.tsx`): toque faz a ação principal; segurar abre o hábito.
 - **Recife** (`ReefHero.tsx`): cada criatura nada na altura do seu progresso.
+- **Seu aquário** (`PondScreen.tsx`, rota `/pond`, Fase 6): o lago visto de cima na tela toda, com todas as criaturas (as de hoje perto da superfície, as que descansam no fundo). Abre pelo lago do Início e pelo de Aquário → Hábitos. Tocar numa criatura mostra o cartão do hábito (estágio, barra até o próximo, a ação de hoje e "Ver hábito"), com um anel areia em volta dela; tocar na água solta. As criaturas se mexem, então a mesma escolha está numa fileira de botões embaixo (leitores de tela e teclado). As criaturas nadam longe do título e da fileira (`explore.clear` em `HabitPond`).
 - **Detalhe (a criatura, Fase 6)**: a criatura grande vista de cima sobre a água do lago, flutuando com a sombra no fundo (`CreatureHero.tsx`; parada com Reduzir movimento); o nome com o estágio; a barra até o próximo estágio ("12 de 30 dias até Adulto"); **Hoje** com a ação do tipo ("Marcar hoje" laranja, −/+1, ▶ e Mergulho, os passos ou os itens do dia); a **Evolução** em passos (`stagePath`); **Esta semana** dia a dia (feito em verde-meia-noite, hoje com anel areia, descanso tracejado); depois os números, o mapa do recife (`ReefMap.tsx`) e o calendário.
 
 ## Hábito conectado (Lapidação, Fase 1a)
