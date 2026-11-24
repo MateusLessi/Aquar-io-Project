@@ -27,7 +27,7 @@ export function Tag({ label, tone = 'accent', icon: Icon }: TagProps) {
   return (
     <View style={[styles.tag, { backgroundColor: withAlpha(color, 0.14) }]}>
       {Icon ? <Icon size={13} strokeWidth={2.4} color={color} /> : null}
-      <Text variant="caption" style={{ color }} numberOfLines={1}>
+      <Text variant="caption" style={[styles.label, { color }]} numberOfLines={1}>
         {label}
       </Text>
     </View>
@@ -35,7 +35,10 @@ export function Tag({ label, tone = 'accent', icon: Icon }: TagProps) {
 }
 
 const styles = StyleSheet.create({
+  // A long label shrinks with an ellipsis instead of leaving its card.
+  label: { flexShrink: 1 },
   tag: {
+    maxWidth: '100%',
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',

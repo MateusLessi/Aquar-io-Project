@@ -93,6 +93,16 @@ describe('computeStats', () => {
     expect(stats.weekdayRate[0]).toBeNull(); // Sunday: nothing existed yet
     expect(stats.weekdayRate[1]).toBe(1);
     expect(stats.weekdayRate[3]).toBe(0);
+    // Day by day (the statistics' "Dia a dia"): Monday all done, Wednesday nothing yet.
+    expect(stats.byDay.map((d) => [d.due, d.kept])).toEqual([
+      [0, 0],
+      [3, 3],
+      [3, 2],
+      [3, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ]);
   });
 
   it('follows depth from before the period, day by day', () => {

@@ -22,15 +22,11 @@ export function consistency(planned: { due: number; done: number }): number | nu
  * comparisons or charts here (they live in the statistics).
  */
 export function ConsistencyCard() {
-  const { colors } = useTheme();
   const { weekStart } = useCalendarPrefs();
   const { data } = useStats(periodOf('week', toDateKey(new Date()), weekStart));
   const planned = data?.current.planned ?? { due: 0, done: 0 };
   const rate = consistency(planned);
   const percent = rate === null ? 0 : Math.round(rate * 100);
-  const shown = Math.round(useCountUp(percent));
-  const r = (RING - STROKE) / 2;
-  const length = 2 * Math.PI * r;
   const sentence =
     rate === null
       ? 'Nada planejado ainda nesta semana'
@@ -46,36 +42,7 @@ export function ConsistencyCard() {
           : `Consistência da semana: ${percent}%. ${sentence}`
       }
     >
-      <View style={styles.ring}>
-        <Svg width={RING} height={RING}>
-          <Circle
-            cx={RING / 2}
-            cy={RING / 2}
-            r={r}
-            stroke={colors.surfacePressed}
-            strokeWidth={STROKE}
-            fill="none"
-          />
-          {rate !== null && rate > 0 ? (
-            <Circle
-              cx={RING / 2}
-              cy={RING / 2}
-              r={r}
-              stroke={colors.deepAccent}
-              strokeWidth={STROKE}
-              strokeLinecap="round"
-              fill="none"
-              strokeDasharray={`${(length * shown) / 100} ${length}`}
-              transform={`rotate(-90 ${RING / 2} ${RING / 2})`}
-            />
-          ) : null}
-        </Svg>
-        <View style={StyleSheet.absoluteFill}>
-          <View style={styles.center}>
-            <Text variant="headline">{rate === null ? '—' : `${shown}%`}</Text>
-          </View>
-        </View>
-      </View>
+      <ConsistencyRing rate={rate} size={RING} stroke={STROKE} />
       <View style={styles.text}>
         <Text variant="headline">Consistência da semana</Text>
         <Text variant="footnote" tone="secondary">
@@ -86,9 +53,63 @@ export function ConsistencyCard() {
   );
 }
 
+/**
+ * The consistency as a sand ring filling up, the number counting up in the middle ("—" with
+ * nothing planned). Decorative: the parent says the number.
+ */
+export function ConsistencyRing({
+  rate,
+  size,
+  stroke,
+  big = false,
+}: {
+  rate: number | null;
+  size: number;
+  stroke: number;
+  /** The number in a larger type (the statistics). */
+  big?: boolean;
+}) {
+  const { colors } = useTheme();
+  const percent = rate === null ? 0 : Math.round(rate * 100);
+  const shown = Math.round(useCountUp(percent));
+  const r = (size - stroke) / 2;
+  const length = 2 * Math.PI * r;
+  return (
+    <View style={{ width: size, height: size }} importantForAccessibility="no-hide-descendants">
+      <Svg width={size} height={size}>
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke={colors.surfacePressed}
+          strokeWidth={stroke}
+          fill="none"
+        />
+        {rate !== null && rate > 0 ? (
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            stroke={colors.deepAccent}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            fill="none"
+            strokeDasharray={`${(length * shown) / 100} ${length}`}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        ) : null}
+      </Svg>
+      <View style={StyleSheet.absoluteFill}>
+        <View style={styles.center}>
+          <Text variant={big ? 'title1' : 'headline'}>{rate === null ? '—' : `${shown}%`}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingRight: spacing.xl },
-  ring: { width: RING, height: RING },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   text: { flex: 1, gap: 2 },
 });

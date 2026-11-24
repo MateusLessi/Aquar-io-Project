@@ -87,6 +87,9 @@ export type DayStats = {
   routines: number;
   points: number;
   fullTide: boolean;
+  /** Habits and routine items planned that day, and how many of them got done. */
+  due: number;
+  kept: number;
   /** After today: nothing to show yet. */
   future: boolean;
 };
@@ -170,9 +173,12 @@ export function computeStats(period: Period, facts: StatsFacts, todayKey: string
   // What was planned, day by day, up to today.
   const weekdayDue = [0, 0, 0, 0, 0, 0, 0];
   const weekdayDone = [0, 0, 0, 0, 0, 0, 0];
+  const dayPlan = new Map<string, { due: number; kept: number }>();
   const plan = (day: string, due: number, done: number) => {
     weekdayDue[weekdayOf(day)]! += due;
     weekdayDone[weekdayOf(day)]! += done;
+    const p = dayPlan.get(day) ?? { due: 0, kept: 0 };
+    dayPlan.set(day, { due: p.due + due, kept: p.kept + done });
   };
   const pastDays = period.days.filter((d) => d <= todayKey);
 
@@ -233,6 +239,8 @@ export function computeStats(period: Period, facts: StatsFacts, todayKey: string
     ...counts.get(day)!,
     points: facts.points[day]?.points ?? 0,
     fullTide: facts.points[day]?.fullTide ?? false,
+    due: dayPlan.get(day)?.due ?? 0,
+    kept: dayPlan.get(day)?.kept ?? 0,
     future: day > todayKey,
   }));
   const totals = byDay.reduce(
