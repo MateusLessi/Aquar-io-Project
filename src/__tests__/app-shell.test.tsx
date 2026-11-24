@@ -391,20 +391,25 @@ describe('Repeating tasks and reminders', () => {
 describe('Depth and celebrations', () => {
   beforeEach(() => setWindowWidth(390));
 
-  it('shows the depth gauge and celebrates reaching a new zone once', async () => {
-    await data.settings.set('celebratedZone', 'surface');
-    const listId = await data.todo.createList({ name: 'Casa' });
-    for (let i = 0; i < 10; i++) {
-      const id = await data.todo.createTask({ listId, title: `Tarefa ${i}` });
-      await data.todo.setCompleted(id, true);
+  it('shows the region card and celebrates reaching a new region once', async () => {
+    await data.settings.set('celebratedZone', 'lagoa');
+    // Twenty days of a habit, 15 points each: 300 points, the Recife de Coral.
+    const habitId = await data.habits.createHabit({ name: 'Ler', creature: 'fish' });
+    const today = new Date();
+    for (let i = 1; i <= 20; i++) {
+      await data.habits.setChecked(
+        habitId,
+        toDateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)),
+        true,
+      );
     }
 
     await renderRouter(routes, { initialUrl: '/' });
     expect(
-      await screen.findByRole('progressbar', { name: /Profundidade: 100 m, Águas Costeiras/ }),
+      await screen.findByRole('progressbar', { name: /^Região: Recife de Coral, 300 pontos/ }),
     ).toBeOnTheScreen();
-    expect(await screen.findByText('Você chegou: Águas Costeiras!')).toBeOnTheScreen();
-    expect(await data.settings.get('celebratedZone')).toBe('coastal');
+    expect(await screen.findByText('Nova região: Recife de Coral!')).toBeOnTheScreen();
+    expect(await data.settings.get('celebratedZone')).toBe('reef');
   });
 
   it('does not celebrate old progress the first time it runs', async () => {
@@ -414,8 +419,8 @@ describe('Depth and celebrations', () => {
       await data.todo.setCompleted(id, true);
     }
     await renderRouter(routes, { initialUrl: '/' });
-    await waitFor(async () => expect(await data.settings.get('celebratedZone')).toBe('coastal'));
-    expect(screen.queryByText(/Você chegou/)).toBeNull();
+    await waitFor(async () => expect(await data.settings.get('celebratedZone')).toBe('lagoa'));
+    expect(screen.queryByText(/Nova região/)).toBeNull();
   });
 });
 
@@ -536,6 +541,42 @@ describe('Estatísticas (Fase 6)', () => {
     // Each habit is a row of the table and a button to its page (e2e/stats.spec.ts follows it).
     const row = screen.getByRole('button', { name: /^Ler: 1 de 1 dias planejados/ });
     expect(row.props.accessibilityHint).toBe('Abre o hábito');
+  });
+});
+
+describe('Regiões (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('lets the pond show any region reached, and says how far the others are', async () => {
+    // Twenty days of a habit: 300 points, the Recife de Coral.
+    const habitId = await data.habits.createHabit({ name: 'Ler', creature: 'fish' });
+    const today = new Date();
+    for (let i = 1; i <= 20; i++) {
+      await data.habits.setChecked(
+        habitId,
+        toDateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)),
+        true,
+      );
+    }
+    await renderRouter(routes, { initialUrl: '/personalize' });
+    const reef = await screen.findByRole(
+      'radio',
+      { name: /^Recife de Coral\./ },
+      { timeout: 5000 },
+    );
+    expect(
+      screen.getByRole('radio', { name: 'Floresta de Kelp, faltam 700 pontos' }),
+    ).toBeDisabled();
+
+    await fireEvent.press(reef);
+    await waitFor(async () => expect(await data.settings.get('aquarium.region')).toBe('reef'));
+    await waitFor(() =>
+      expect(screen.getByRole('radio', { name: /^Recife de Coral\./ })).toBeChecked(),
+    );
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Seguir sempre a região mais nova' }),
+    );
+    await waitFor(async () => expect(await data.settings.get('aquarium.region')).toBe(''));
   });
 });
 

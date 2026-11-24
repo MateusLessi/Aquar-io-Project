@@ -34,9 +34,10 @@ export function useCelebrations() {
       if (seen !== zoneId) await settings.set(ZONE_KEY, zoneId);
       const before = ZONES.findIndex((z) => z.id === seen);
       const now = ZONES.findIndex((z) => z.id === zoneId);
-      if (seen !== null && now > before && active) {
+      // Only from a region of this list: the old depth zones are not compared.
+      if (seen !== null && before >= 0 && now > before && active) {
         const zone = ZONES[now]!;
-        setQueue((q) => [...q, `Você chegou: ${zone.name}!`]);
+        setQueue((q) => [...q, `Nova região: ${zone.name}!`]);
         sound.play('zone');
         haptics.dive();
       }

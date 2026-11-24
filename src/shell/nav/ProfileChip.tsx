@@ -21,10 +21,7 @@ export function ProfileChip() {
     profile?.creature && isCreatureId(profile.creature) ? profile.creature : 'dolphin';
   const name = profile?.name || 'Mergulhador';
   const depth = progress?.depth;
-  const line =
-    depth && showDepth
-      ? `${depth.zone.name} · ${new Intl.NumberFormat('pt-BR').format(depth.meters)} m`
-      : 'Ver perfil';
+  const line = depth && showDepth ? depth.zone.name : 'Ver perfil';
 
   return (
     <View style={[styles.root, { backgroundColor: withAlpha(colors.onDeep, 0.06) }]}>

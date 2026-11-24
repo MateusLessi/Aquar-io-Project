@@ -89,7 +89,7 @@ export async function createAppData(
   const storedScale = Number(await settings.get(TEXT_SCALE_KEY));
   const textScale = TEXT_SCALES.includes(storedScale) ? storedScale : 1;
   const storedZone = await settings.get(ZONE_KEY);
-  const zone: ZoneId = isZoneId(storedZone) ? storedZone : 'surface';
+  const zone: ZoneId = isZoneId(storedZone) ? storedZone : 'lagoa';
   return {
     db,
     account,

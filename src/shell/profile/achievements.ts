@@ -58,7 +58,7 @@ export function badgesFor(f: AchievementFacts): Badge[] {
       icon: z.icon,
       title: z.name,
       earned: f.meters >= z.from,
-      hint: `Faltam ${new Intl.NumberFormat('pt-BR').format(Math.max(0, z.from - f.meters))} m`,
+      hint: `Faltam ${new Intl.NumberFormat('pt-BR').format(Math.max(0, z.from - f.meters))} pontos`,
     };
   };
   const founding: Badge = {
@@ -78,11 +78,11 @@ export function badgesFor(f: AchievementFacts): Badge[] {
     run('streak-7', 7, 'flame'),
     run('streak-30', 30, 'moon'),
     run('streak-100', 100, 'gem'),
-    zone('coastal'),
     zone('reef'),
+    zone('kelp'),
     zone('open'),
-    zone('twilight'),
-    zone('midnight'),
+    zone('bio'),
+    zone('mariana'),
     {
       id: 'tasks-100',
       icon: 'check',

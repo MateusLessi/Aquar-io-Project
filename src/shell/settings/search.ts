@@ -86,10 +86,10 @@ export const SETTING_ENTRIES: SettingEntry[] = [
   },
   {
     id: 'depth',
-    label: 'Mostrar Profundidade',
+    label: 'Mostrar Região',
     section: 'game',
     anchor: 'game',
-    keywords: ['profundidade', 'metros', 'zona', 'pontos', 'jogo', 'nivel'],
+    keywords: ['regiao', 'regioes', 'cenario', 'profundidade', 'zona', 'pontos', 'jogo', 'nivel'],
   },
   {
     id: 'celebrations',

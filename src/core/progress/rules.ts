@@ -64,26 +64,63 @@ export function dayPoints(day: DayFacts): number {
 }
 
 /** `icon` is a glyph key from the design system. */
-export type Zone = { id: string; name: string; icon: GlyphKey; from: number };
+export type Zone = { id: string; name: string; icon: GlyphKey; from: number; about: string };
 
-/** 1 point = 1 meter. Depth never goes back up: it is the sum of every day. */
+/**
+ * The regions of the ocean (Fase 6, etapa 12): the day's points take the aquarium to new places,
+ * and each one reached can be the scene of the pond. They replace the depth zones; the points and
+ * their rules are the same (never going back). The 10.994 of the last one is the real trench's
+ * depth, as a keepsake.
+ */
 export const ZONES: readonly Zone[] = [
-  { id: 'surface', name: 'Superfície', icon: 'sun', from: 0 },
-  { id: 'coastal', name: 'Águas Costeiras', icon: 'palm', from: 100 },
-  { id: 'reef', name: 'Recife de Coral', icon: 'shell', from: 300 },
-  { id: 'open', name: 'Mar Aberto', icon: 'waves', from: 700 },
-  { id: 'twilight', name: 'Zona do Crepúsculo', icon: 'sunset', from: 1500 },
-  { id: 'midnight', name: 'Zona da Meia-Noite', icon: 'moon', from: 3000 },
-  { id: 'abyss', name: 'Abismo', icon: 'gem', from: 6000 },
-  { id: 'hadal', name: 'Zona Hadal', icon: 'anchor', from: 8000 },
-  { id: 'mariana', name: 'Fossa das Marianas', icon: 'flag', from: 10994 },
+  {
+    id: 'lagoa',
+    name: 'Lagoa',
+    icon: 'palm',
+    from: 0,
+    about: 'Água verde e rasa, com vitórias-régias.',
+  },
+  {
+    id: 'reef',
+    name: 'Recife de Coral',
+    icon: 'shell',
+    from: 300,
+    about: 'Corais coloridos e vida abundante.',
+  },
+  {
+    id: 'kelp',
+    name: 'Floresta de Kelp',
+    icon: 'leaf',
+    from: 1000,
+    about: 'Florestas de kelp dourado.',
+  },
+  { id: 'open', name: 'Mar Aberto', icon: 'waves', from: 2500, about: 'Águas profundas e vastas.' },
+  {
+    id: 'bio',
+    name: 'Fossa Bioluminescente',
+    icon: 'sparkles',
+    from: 5500,
+    about: 'Criaturas e plantas que brilham.',
+  },
+  {
+    id: 'mariana',
+    name: 'Fossa das Marianas',
+    icon: 'flag',
+    from: 10994,
+    about: 'O ponto mais fundo do oceano.',
+  },
 ];
+
+/** The regions reached with these points, in order. */
+export function regionsReached(points: number): Zone[] {
+  return ZONES.filter((z) => points >= z.from);
+}
 
 export type Depth = {
   meters: number;
   zone: Zone;
   next: Zone | null;
-  /** 0–1 through the current zone. */
+  /** 0–1 toward the next region. */
   progress: number;
 };
 

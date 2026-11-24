@@ -56,7 +56,7 @@ const NEXT: Record<Visibility, Visibility> = { me: 'friends', friends: 'public',
 const FIELD_LABELS: Record<PrivacyField, string> = {
   name: 'Nome',
   bio: 'Frase',
-  depth: 'Zona e Profundidade',
+  depth: 'Região',
   showcase: 'Vitrine e selos',
   stats: 'Estatísticas',
 };
@@ -149,7 +149,7 @@ export function ProfileHeader() {
           {depth && showDepth ? (
             <View style={[styles.zone, { backgroundColor: withAlpha(tone, 0.18) }]}>
               <Text variant="footnote" style={styles.bold}>
-                {depth.zone.name} · {new Intl.NumberFormat('pt-BR').format(depth.meters)} m
+                {depth.zone.name}
               </Text>
             </View>
           ) : null}

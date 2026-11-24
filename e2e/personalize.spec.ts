@@ -17,7 +17,12 @@ test('Personalizar: change the text size right there, and the shortcuts open the
   await expect(visible(page.getByRole('radio', { name: 'Grande' }))).toBeChecked();
 
   // Nothing for sale: one honest line and a small card.
-  await expect(visible(page.getByText(/^Em breve: cenários para o aquário/))).toBeVisible();
+  // The aquarium's scene: the Lagoa from the start, the rest with the points left.
+  await expect(visible(page.getByRole('radio', { name: /^Lagoa\./ }))).toBeChecked();
+  await expect(
+    visible(page.getByRole('radio', { name: 'Recife de Coral, faltam 300 pontos' })),
+  ).toBeDisabled();
+  await expect(visible(page.getByText(/^Em breve: enfeites para o lago/))).toBeVisible();
   await expect(visible(page.getByText('Para apoiar o app · preço a definir'))).toBeVisible();
 
   // A shortcut opens Ajustes on the setting.

@@ -53,7 +53,7 @@ export const DASHBOARD_CARDS = [
   { id: 'tasks', label: 'Tarefas de hoje' },
   { id: 'routines', label: 'Agenda de hoje' },
   // After the day's blocks while the depths are rethought (Fase 6).
-  { id: 'depth', label: 'Profundidade' },
+  { id: 'depth', label: 'Região' },
   { id: 'folders', label: 'Pastas fixadas' },
   { id: 'week', label: 'Marés da semana' },
   { id: 'calendar', label: 'Calendário das marés (tablet e PC)' },

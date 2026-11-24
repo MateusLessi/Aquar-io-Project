@@ -21,11 +21,9 @@ test('personalize the profile: line, color, privacy and showcase', async ({ page
   await page.getByRole('textbox', { name: 'Frase', exact: true }).fill('Um mergulho por dia');
   await page.getByRole('radio', { name: 'Cor Anêmona' }).click();
   // Everything starts private; one tap shares with friends.
-  const depth = page.getByRole('button', { name: /^Zona e Profundidade: visível para Só eu/ });
+  const depth = page.getByRole('button', { name: /^Região: visível para Só eu/ });
   await depth.click();
-  await expect(
-    page.getByRole('button', { name: /^Zona e Profundidade: visível para Amigos/ }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Região: visível para Amigos/ })).toBeVisible();
   await page.getByRole('button', { name: 'Salvar' }).click();
   await expect(visible(page.getByText('Um mergulho por dia'))).toBeVisible();
 
