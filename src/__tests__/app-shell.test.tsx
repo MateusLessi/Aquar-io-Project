@@ -580,6 +580,19 @@ describe('Regiões (Fase 6)', () => {
   });
 });
 
+describe('Enfeites (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('turns on the ornaments of the regions reached; the others wait', async () => {
+    await renderRouter(routes, { initialUrl: '/personalize' });
+    const lily = await screen.findByRole('switch', { name: 'Vitória-régia' }, { timeout: 5000 });
+    expect(screen.queryByRole('switch', { name: 'Coral' })).toBeNull();
+    expect(screen.getByText('Recife de Coral · faltam 300 pontos')).toBeOnTheScreen();
+    await fireEvent.press(lily);
+    await waitFor(async () => expect(await data.settings.get('aquarium.ornaments')).toBe('lily'));
+  });
+});
+
 describe('Seu aquário (Fase 6)', () => {
   beforeEach(() => setWindowWidth(390));
 

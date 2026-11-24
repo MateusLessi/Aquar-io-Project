@@ -40,8 +40,9 @@ import {
 import { catalogCreature, type CatalogCreature } from '../domain/creatures';
 import { stageInfo } from '../domain/stages';
 import type { HabitWithProgress } from '../domain/types';
-import { regionScenes, useAquariumRegion } from '../hooks/aquariumRegion';
+import { regionScenes, useAquariumRegion, usePondOrnaments } from '../hooks/aquariumRegion';
 import { CreatureArt } from './CreatureArt';
+import { PondOrnaments } from './Ornaments';
 
 /** Creatures near the surface (today's habits) and deep below (resting ones). */
 const MAX_NEAR = 8;
@@ -100,6 +101,7 @@ export function HabitPond({
   // The region's scene (Fase 6, etapa 12): its own plants replace the drawn leaves.
   const [region] = useAquariumRegion();
   const scene = regionScenes[region];
+  const [ornamentIds] = usePondOrnaments();
   const swimmer = (habit: HabitWithProgress, index: number, deep = false) => (
     <Swimmer
       key={habit.id}
@@ -135,6 +137,7 @@ export function HabitPond({
         {width > 0 ? (
           <>
             <PondWater width={width} height={height} scene={scene} />
+            <PondOrnaments ids={ornamentIds} width={width} height={height} />
             {explore ? (
               // A tap on the water lets the creature go.
               <Pressable

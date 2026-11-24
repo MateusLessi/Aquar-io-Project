@@ -15,6 +15,7 @@ import { StyleSheet, View } from 'react-native';
 import { ListItem, Screen, Surface, Text, radius, spacing, useTheme } from '@/design-system';
 
 import { AppearanceSettings } from '../settings/sections';
+import { OrnamentPicker } from './OrnamentPicker';
 import { RegionPicker } from './RegionPicker';
 
 /** A way to make the app yours that already exists, and where it lives. */
@@ -73,6 +74,10 @@ export function PersonalizeScreen() {
         <RegionPicker />
       </Section>
 
+      <Section title="Enfeites do lago">
+        <OrnamentPicker />
+      </Section>
+
       <Section title="Aparência">
         <AppearanceSettings />
       </Section>
@@ -97,8 +102,8 @@ export function PersonalizeScreen() {
       <View style={styles.soon}>
         <Sparkles size={18} color={colors.textSecondary} />
         <Text variant="callout" tone="secondary" style={styles.flex}>
-          Em breve: enfeites para o lago, nível das criaturas e criaturas raras. Nada do que você
-          usa hoje vai virar pago.
+          Em breve: o nível das criaturas e criaturas raras. Nada do que você usa hoje vai virar
+          pago.
         </Text>
       </View>
 

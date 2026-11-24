@@ -35,6 +35,10 @@ Os pontos são **calculados a partir do estado atual**, não guardados: tarefas 
 
 Chegar numa região nova mostra uma comemoração uma vez ("Nova região: …"). Quem já tinha progresso nas zonas antigas não recebe comemoração repetida na troca. Cada região tem uma pintura (`features/habits/assets/regions/`, `regionScenes`); a luz e as bolhas são desenhadas por cima, em código. A Lagoa ainda é desenhada em código.
 
+### Enfeites
+
+Cada região dá **um enfeite**, ganho junto com ela: vitória-régia (Lagoa), coral (Recife de Coral), kelp dourado (Floresta de Kelp), âncora (Mar Aberto), lanterna que brilha (Fossa Bioluminescente) e baú do fundo (Fossa das Marianas). Em Personalizar → Enfeites do lago, cada enfeite ganho tem um interruptor; os ligados aparecem nas bordas de qualquer cenário (dá para misturar). São só beleza: não mudam nenhuma regra. Desenhados em vetor (`components/Ornaments.tsx`, cores em `tokens/pond.ts`), preferência `aquarium.ornaments`.
+
 ## Evolução das criaturas (consistência, não perfeição)
 
 O estágio vem do **total de dias feitos** do hábito, desde sempre. Perder um dia nunca faz a criatura regredir.

@@ -29,3 +29,39 @@ export function useAquariumRegion() {
   const region: ZoneId = isZoneId(chosen) ? chosen : zone;
   return [region, set, isZoneId(chosen)] as const;
 }
+
+/** The ornaments (Fase 6, etapa 12b): one per region, earned with it. */
+export type OrnamentId = 'lily' | 'coral' | 'kelp' | 'anchor' | 'lantern' | 'chest';
+
+export const ornaments: readonly { id: OrnamentId; name: string; region: ZoneId }[] = [
+  { id: 'lily', name: 'Vitória-régia', region: 'lagoa' },
+  { id: 'coral', name: 'Coral', region: 'reef' },
+  { id: 'kelp', name: 'Kelp dourado', region: 'kelp' },
+  { id: 'anchor', name: 'Âncora', region: 'open' },
+  { id: 'lantern', name: 'Lanterna que brilha', region: 'bio' },
+  { id: 'chest', name: 'Baú do fundo', region: 'mariana' },
+];
+
+/** Personalizar → Enfeites: the ones turned on, as a comma-separated list. */
+export const ORNAMENTS_SETTING = 'aquarium.ornaments';
+
+const isOrnamentId = (value: string): value is OrnamentId => ornaments.some((x) => x.id === value);
+
+/** The ornaments turned on, in the catalog's order, and a switch for one. */
+export function usePondOrnaments() {
+  const [stored, set] = useSetting<string>(ORNAMENTS_SETTING, '');
+  const on = new Set(stored.split(',').filter(isOrnamentId));
+  const ids = ornaments.map((x) => x.id).filter((id) => on.has(id));
+  const toggle = (id: OrnamentId, next: boolean) => {
+    const after = new Set(on);
+    if (next) after.add(id);
+    else after.delete(id);
+    return set(
+      ornaments
+        .map((x) => x.id)
+        .filter((x) => after.has(x))
+        .join(','),
+    );
+  };
+  return [ids, toggle] as const;
+}
