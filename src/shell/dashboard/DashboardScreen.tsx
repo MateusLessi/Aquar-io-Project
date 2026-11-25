@@ -79,7 +79,11 @@ export function DashboardScreen() {
   const go = (href: Parameters<typeof router.navigate>[0]) => () => router.navigate(href);
   // Every block, bare inside its tile, with where the whole block goes.
   const blocks: Record<DashboardCardId, { node: ReactNode; label: string; open: () => void }> = {
-    depth: { node: <DepthGauge />, label: 'Abrir o perfil', open: go('/profile') },
+    depth: {
+      node: <DepthGauge />,
+      label: 'Abrir o mapa das regiões',
+      open: go('/profile/regions'),
+    },
     // Fase 6: the week as one number, the consistency (the details live in the statistics).
     weekStats: { node: <ConsistencyCard />, label: 'Abrir estatísticas', open: go('/stats') },
     routines: {

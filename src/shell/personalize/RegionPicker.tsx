@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
@@ -28,6 +29,7 @@ export function RegionPicker() {
   const { colors } = useTheme();
   const wide = useBreakpoint() !== 'compact';
   const { data } = useProgress();
+  const router = useRouter();
   const [region, setRegion, chosen] = useAquariumRegion();
   const total = data?.depth.meters ?? 0;
 
@@ -91,6 +93,11 @@ export function RegionPicker() {
           );
         })}
       </View>
+      <Button
+        label="Ver o mapa das regiões"
+        variant="ghost"
+        onPress={() => router.push('/profile/regions')}
+      />
       {chosen ? (
         <Button
           label="Seguir sempre a região mais nova"

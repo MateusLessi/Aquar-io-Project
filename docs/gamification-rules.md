@@ -35,6 +35,12 @@ Os pontos são **calculados a partir do estado atual**, não guardados: tarefas 
 
 Chegar numa região nova mostra uma comemoração uma vez ("Nova região: …"). Quem já tinha progresso nas zonas antigas não recebe comemoração repetida na troca. Cada região tem uma pintura (`features/habits/assets/regions/`, `regionScenes`); a luz e as bolhas são desenhadas por cima, em código. A Lagoa ainda é desenhada em código.
 
+### Mapa e comemoração (etapa 12d)
+
+**Perfil → Regiões** (`/profile/regions`, também pelo cartão "Região" do Início e por Personalizar): o oceano visto de cima, da Lagoa à Fossa das Marianas, com a trilha entre as regiões. As alcançadas ficam em cor; a do lago tem o anel areia; as outras dizem quantos pontos faltam. Tocar numa região mostra a pintura, o que ela é e, se já alcançada, **Usar no meu lago**.
+
+Ao chegar numa região nova, a comemoração mostra a pintura e o enfeite ganho e **espera a resposta**: "Usar no meu lago" ou "Depois" (a região fica para escolher no mapa ou em Personalizar).
+
 ### Enfeites
 
 Cada região dá **um enfeite**, ganho junto com ela: vitória-régia (Lagoa), coral (Recife de Coral), kelp dourado (Floresta de Kelp), âncora (Mar Aberto), lanterna que brilha (Fossa Bioluminescente) e baú do fundo (Fossa das Marianas). Em Personalizar → Enfeites do lago, cada enfeite ganho tem um interruptor; os ligados aparecem nas bordas de qualquer cenário (dá para misturar). São só beleza: não mudam nenhuma regra. Desenhados em vetor (`components/Ornaments.tsx`, cores em `tokens/pond.ts`), preferência `aquarium.ornaments`.
