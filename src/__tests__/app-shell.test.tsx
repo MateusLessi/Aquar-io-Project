@@ -11,6 +11,7 @@ import TabsLayout from '@/app/(tabs)/_layout';
 import TodayScreen from '@/app/(tabs)/index';
 import ProfileScreen from '@/app/(tabs)/profile/index';
 import SettingsRoute from '@/app/(tabs)/profile/settings';
+import RegionsRoute from '@/app/(tabs)/profile/regions';
 import ProfileLayout from '@/app/(tabs)/profile/_layout';
 import PersonalizeScreen from '@/app/(tabs)/personalize';
 import PondRoute from '@/app/pond';
@@ -59,6 +60,7 @@ const routes = {
   '(tabs)/profile/_layout': ProfileLayout,
   '(tabs)/profile/index': ProfileScreen,
   '(tabs)/profile/settings': SettingsRoute,
+  '(tabs)/profile/regions': RegionsRoute,
   pond: PondRoute,
 };
 
@@ -408,8 +410,13 @@ describe('Depth and celebrations', () => {
     expect(
       await screen.findByRole('progressbar', { name: /^Região: Recife de Coral, 300 pontos/ }),
     ).toBeOnTheScreen();
-    expect(await screen.findByText('Nova região: Recife de Coral!')).toBeOnTheScreen();
+    // The new region shows its scene and waits: it can go to the pond right away.
+    expect(await screen.findByText('Nova região')).toBeOnTheScreen();
+    expect(screen.getByText('Você ganhou o enfeite Coral.')).toBeOnTheScreen();
     expect(await data.settings.get('celebratedZone')).toBe('reef');
+    await fireEvent.press(screen.getByRole('button', { name: 'Usar no meu lago' }));
+    await waitFor(async () => expect(await data.settings.get('aquarium.region')).toBe('reef'));
+    expect(screen.queryByText('Nova região')).toBeNull();
   });
 
   it('does not celebrate old progress the first time it runs', async () => {
@@ -577,6 +584,23 @@ describe('Regiões (Fase 6)', () => {
       await screen.findByRole('button', { name: 'Seguir sempre a região mais nova' }),
     );
     await waitFor(async () => expect(await data.settings.get('aquarium.region')).toBe(''));
+  });
+});
+
+describe('Mapa das regiões (Fase 6)', () => {
+  beforeEach(() => setWindowWidth(390));
+
+  it('shows every region, the one in the pond, and how far the next ones are', async () => {
+    await renderRouter(routes, { initialUrl: '/profile/regions' });
+    expect(await screen.findByText('1 de 6 · 0 pontos')).toBeOnTheScreen();
+    await fireEvent(screen.getByTestId('regions-map'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 358, height: 832 } },
+    });
+    expect(await screen.findByRole('button', { name: 'Lagoa, no seu lago' })).toBeOnTheScreen();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Recife de Coral, faltam 300 pontos' }),
+    );
+    expect(await screen.findByText('A partir de 300 pontos · faltam 300')).toBeOnTheScreen();
   });
 });
 

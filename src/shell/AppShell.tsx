@@ -179,6 +179,7 @@ function ShellLayout() {
             <CelebrationBanner
               key={celebration.message}
               message={celebration.message}
+              region={celebration.celebration?.region}
               onDone={celebration.dismiss}
             />
           ) : null}

@@ -8,6 +8,9 @@ import { useHabits } from '@/features/habits/hooks/queries';
 
 import { useProgress } from './useProgress';
 
+/** A celebration: its words, and the region reached when it is about one (it can go to the pond). */
+export type Celebration = { text: string; region?: string };
+
 const ZONE_KEY = 'celebratedZone';
 const STAGES_KEY = 'celebratedStages';
 const STAGE_ORDER: Stage[] = ['egg', 'baby', 'young', 'adult'];
@@ -21,7 +24,7 @@ export function useCelebrations() {
   const settings = useContext(SettingsContext);
   const { data: progress } = useProgress();
   const { data: habits } = useHabits();
-  const [queue, setQueue] = useState<string[]>([]);
+  const [queue, setQueue] = useState<Celebration[]>([]);
 
   const zoneId = progress?.depth.zone.id;
   const stagesKey = habits?.map((h) => `${h.id}:${h.stage}`).join(',');
@@ -37,7 +40,7 @@ export function useCelebrations() {
       // Only from a region of this list: the old depth zones are not compared.
       if (seen !== null && before >= 0 && now > before && active) {
         const zone = ZONES[now]!;
-        setQueue((q) => [...q, `Nova região: ${zone.name}!`]);
+        setQueue((q) => [...q, { text: `Nova região: ${zone.name}!`, region: zone.id }]);
         sound.play('zone');
         haptics.dive();
       }
@@ -53,13 +56,13 @@ export function useCelebrations() {
     (async () => {
       const raw = await settings.get(STAGES_KEY);
       const seen = raw ? (JSON.parse(raw) as Record<string, Stage>) : null;
-      const messages: string[] = [];
+      const messages: Celebration[] = [];
       const next: Record<string, Stage> = { ...seen };
       for (const habit of habits) {
         const previous = seen?.[habit.id];
         if (previous && STAGE_ORDER.indexOf(habit.stage) > STAGE_ORDER.indexOf(previous)) {
           const info = stageInfo[habit.stage];
-          messages.push(`${habit.name} evoluiu: ${info.label}`);
+          messages.push({ text: `${habit.name} evoluiu: ${info.label}` });
         }
         next[habit.id] = habit.stage;
       }
@@ -74,5 +77,5 @@ export function useCelebrations() {
   }, [settings, stagesKey]);
 
   const dismiss = useCallback(() => setQueue((q) => q.slice(1)), []);
-  return { message: queue[0] ?? null, dismiss };
+  return { celebration: queue[0] ?? null, message: queue[0]?.text ?? null, dismiss };
 }
